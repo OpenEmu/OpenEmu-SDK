@@ -33,7 +33,7 @@
 
 #import <OpenEmuSystem/NSApplication+OEHIDAdditions.h>
 #import <OpenEmuSystem/NSResponder+OEHIDAdditions.h>
-#import <OpenemuSystem/OEAnalogSystemResponder.h>
+#import <OpenEmuSystem/OEAnalogSystemResponder.h>
 #import <OpenEmuSystem/OEBasicSystemResponder.h>
 #import <OpenEmuSystem/OEBindingMap.h>
 #import <OpenEmuSystem/OEBindingsController.h>
