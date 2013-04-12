@@ -208,7 +208,8 @@ static BOOL OE_isXboxControllerName(NSString *name)
           {
               IOHIDElementRef testedElement = (__bridge IOHIDElementRef)obj;
 
-              if((cookie != OEUndefinedCookie && cookie != IOHIDElementGetCookie(testedElement))
+              if(   IOHIDElementGetType(testedElement) == kIOHIDElementTypeCollection
+                 || (cookie != OEUndefinedCookie && cookie != IOHIDElementGetCookie(testedElement))
                  || usage != IOHIDElementGetUsage(testedElement))
                   return;
 
