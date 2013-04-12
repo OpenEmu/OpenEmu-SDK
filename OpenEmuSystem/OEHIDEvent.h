@@ -81,8 +81,8 @@ typedef enum _OEHIDEventState : NSInteger {
     OEHIDEventStateOn
 } OEHIDEventState;
 
-enum : NSUInteger {
-    OEUndefinedCookie = 0
+enum {
+    OEUndefinedCookie = 0ULL,
 };
 
 extern OEHIDEventHatDirection OEHIDEventHatDirectionFromNSString(NSString *string);
@@ -94,6 +94,7 @@ extern NSString *NSStringFromOEHIDEventType(OEHIDEventType type);
 extern OEHIDEventAxis OEHIDEventAxisFromNSString(NSString *string);
 extern NSString *NSStringFromOEHIDEventAxis(OEHIDEventAxis axis);
 extern NSString *NSStringFromIOHIDElement(IOHIDElementRef elem);
+extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 
 @interface OEHIDEvent : NSObject <NSCopying, NSCoding>
 

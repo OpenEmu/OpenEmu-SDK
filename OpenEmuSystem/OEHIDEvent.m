@@ -168,15 +168,57 @@ NSString *OEHIDEventAxisDisplayDescription(OEHIDEventAxis axis, OEHIDEventAxisDi
 
 NSString *NSStringFromIOHIDElement(IOHIDElementRef elem)
 {
-    const uint32_t page  = IOHIDElementGetUsagePage(elem);
     const uint32_t usage = IOHIDElementGetUsage(elem);
 
     NSString *string = nil;
 
-    switch(page)
+    switch(OEHIDEventTypeFromIOHIDElement(elem))
+    {
+        case OEHIDEventTypeAxis :
+            string = [NSString stringWithFormat:@"Axis: %@, min: %ld, max: %ld", NSStringFromOEHIDEventAxis(usage), IOHIDElementGetLogicalMin(elem), IOHIDElementGetLogicalMax(elem)];
+            break;
+        case OEHIDEventTypeButton :
+            string = [NSString stringWithFormat:@"Button: %d", usage];
+            break;
+        case OEHIDEventTypeHatSwitch :
+        {
+            NSInteger min = IOHIDElementGetLogicalMin(elem);
+            NSInteger max = IOHIDElementGetLogicalMax(elem);
+            NSString *type = @"Unknown";
+
+            switch (_OEHIDElementHatSwitchType(elem))
+            {
+                case OEHIDEventHatSwitchType4Ways : type = @"Four Ways"; break;
+                case OEHIDEventHatSwitchType8Ways : type = @"Eight Ways"; break;
+                default:
+                    break;
+            }
+
+            string = [NSString stringWithFormat:@"HatSwitch: %@ min: %ld max: %ld", type, min, max];
+        }
+            break;
+        case OEHIDEventTypeKeyboard :
+            if((((usage >= 0x04) && (usage <= 0xA4)) ||
+                ((usage >= 0xE0) && (usage <= 0xE7))))
+                string = [NSString stringWithFormat:@"Keyboard: %x", usage];
+            break;
+        case OEHIDEventTypeTrigger :
+            string = [NSString stringWithFormat:@"Trigger: %@, max: %ld", NSStringFromOEHIDEventAxis(usage), IOHIDElementGetLogicalMax(elem)];
+            break;
+        default :
+            break;
+    }
+
+    return string;
+}
+
+OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
+{
+    switch(IOHIDElementGetUsagePage(elem))
     {
         case kHIDPage_GenericDesktop :
         {
+            const uint32_t usage = IOHIDElementGetUsage(elem);
             switch(usage)
             {
                 case kHIDUsage_GD_X  :
@@ -186,43 +228,22 @@ NSString *NSStringFromIOHIDElement(IOHIDElementRef elem)
                 case kHIDUsage_GD_Ry :
                 case kHIDUsage_GD_Rz :
                     if(_OEHIDElementIsTrigger(elem))
-                        string = [NSString stringWithFormat:@"Trigger: %@, max: %ld", NSStringFromOEHIDEventAxis(usage), IOHIDElementGetLogicalMax(elem)];
+                        return OEHIDEventTypeTrigger;
                     else
-                        string = [NSString stringWithFormat:@"Axis: %@, min: %ld, max: %ld", NSStringFromOEHIDEventAxis(usage), IOHIDElementGetLogicalMin(elem), IOHIDElementGetLogicalMax(elem)];
+                        return OEHIDEventTypeAxis;
                     break;
                 case kHIDUsage_GD_Hatswitch :
-                {
-                    NSInteger min = IOHIDElementGetLogicalMin(elem);
-                    NSInteger max = IOHIDElementGetLogicalMax(elem);
-                    NSString *type = @"Unknown";
-
-                    switch (_OEHIDElementHatSwitchType(elem))
-                    {
-                        case OEHIDEventHatSwitchType4Ways : type = @"Four Ways"; break;
-                        case OEHIDEventHatSwitchType8Ways : type = @"Eight Ways"; break;
-                        default:
-                            break;
-                    }
-
-                    string = [NSString stringWithFormat:@"HatSwitch: %@ min: %ld max: %ld", type, min, max];
-                }
-                    break;
+                    return OEHIDEventTypeHatSwitch;
             }
             break;
         }
         case kHIDPage_Button :
-            string = [NSString stringWithFormat:@"Button: %d", usage];
-            break;
+            return OEHIDEventTypeButton;
         case kHIDPage_KeyboardOrKeypad :
-            if(!(((usage >= 0x04) && (usage <= 0xA4)) ||
-                 ((usage >= 0xE0) && (usage <= 0xE7))))
-                return nil;
-
-            string = [NSString stringWithFormat:@"Keyboard: %x", usage];
-            break;
+            return OEHIDEventTypeKeyboard;
     }
-
-    return string;
+    
+    return 0;
 }
 
 #define _OEClamp(minimum, value, maximum) ((MAX(minimum, MIN(value, maximum))))
@@ -574,57 +595,31 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
 
 - (BOOL)OE_setupEventWithElement:(IOHIDElementRef)anElement;
 {
-    const uint64_t page  = IOHIDElementGetUsagePage(anElement);
     const uint64_t usage = IOHIDElementGetUsage(anElement);
 
     _cookie = (uint32_t)IOHIDElementGetCookie(anElement);
+    _type = OEHIDEventTypeFromIOHIDElement(anElement);
 
-    switch(page)
+    switch(_type)
     {
-        case kHIDPage_GenericDesktop :
-        {
-            switch(usage)
-            {
-                case kHIDUsage_GD_X  :
-                case kHIDUsage_GD_Y  :
-                case kHIDUsage_GD_Z  :
-                case kHIDUsage_GD_Rx :
-                case kHIDUsage_GD_Ry :
-                case kHIDUsage_GD_Rz :
-                    _type = _OEHIDElementIsTrigger(anElement) ? OEHIDEventTypeTrigger : OEHIDEventTypeAxis;
-                    _data.axis.axis = usage;
-                    break;
-                case kHIDUsage_GD_Hatswitch :
-                    _type = OEHIDEventTypeHatSwitch;
-                    _data.hatSwitch.hatSwitchType = _OEHIDElementHatSwitchType(anElement);
-
-                    if(_data.hatSwitch.hatSwitchType == OEHIDEventHatSwitchTypeUnknown)
-                        return NO;
-                    break;
-                default :
-                    return NO;
-            }
-        }
-            break;
-        case kHIDPage_Button :
-            _type = OEHIDEventTypeButton;
+        case OEHIDEventTypeAxis :
+        case OEHIDEventTypeTrigger :
+            _data.axis.axis = usage;
+            return YES;
+        case OEHIDEventTypeHatSwitch :
+            _data.hatSwitch.hatSwitchType = _OEHIDElementHatSwitchType(anElement);
+            return _data.hatSwitch.hatSwitchType != OEHIDEventHatSwitchTypeUnknown;
+        case OEHIDEventTypeButton :
             _data.button.buttonNumber = usage;
-            break;
-        case kHIDPage_KeyboardOrKeypad :
-            if(!(((usage >= 0x04) && (usage <= 0xA4)) ||
-                 ((usage >= 0xE0) && (usage <= 0xE7))))
-                return NO;
-
-            _type = OEHIDEventTypeKeyboard;
+            return YES;
+        case OEHIDEventTypeKeyboard :
             _cookie = OEUndefinedCookie;
             _deviceHandler = nil;
             _data.key.keycode = usage;
-            break;
-        default :
-            return NO;
+            return YES;
     }
 
-    return YES;
+    return NO;
 }
 
 - (BOOL)OE_setupEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue;

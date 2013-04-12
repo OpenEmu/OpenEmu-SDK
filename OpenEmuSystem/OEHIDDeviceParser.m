@@ -245,7 +245,6 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
          // Add the control description.
          [controllerDesc addControlWithIdentifier:identifier name:rep[@"Name"] event:genericEvent valueRepresentations:rep[@"Values"]];
-
      }];
 
     [genericDesktopElements enumerateObjectsWithOptions:NSEnumerationConcurrent | NSEnumerationReverse usingBlock:
@@ -274,8 +273,10 @@ static BOOL OE_isXboxControllerName(NSString *name)
     [tree enumerateChildrenOfElement:nil usingBlock:
      ^(IOHIDElementRef element, BOOL *stop)
      {
-         if(IOHIDElementGetUsagePage(element) == kHIDPage_GenericDesktop &&
-            IOHIDElementGetUsage(element) == kHIDUsage_GD_Joystick)
+         if(IOHIDElementGetUsagePage(element) != kHIDPage_GenericDesktop) return;
+
+         NSUInteger usage = IOHIDElementGetUsage(element);
+         if(usage == kHIDUsage_GD_Joystick || usage == kHIDUsage_GD_GamePad)
              [rootJoysticks addObject:ELEM_TO_VALUE(element)];
      }];
 
@@ -286,7 +287,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
     {
         _OEHIDDeviceAttributes *attributes = [[_OEHIDDeviceAttributes alloc] initWithDeviceHandlerClass:[OEHIDDeviceHandler class]];
 
-        [self OE_parseJoystickElement:(__bridge IOHIDElementRef)rootJoysticks[0] intoControllerDescription:controllerDesc attributes:attributes deviceIdentifier:nil usingElementTree:tree];
+        [self OE_parseJoystickElement:VALUE_TO_ELEM(rootJoysticks[0]) intoControllerDescription:controllerDesc attributes:attributes deviceIdentifier:nil usingElementTree:tree];
 
         return attributes;
     }
@@ -315,6 +316,82 @@ static BOOL OE_isXboxControllerName(NSString *name)
     return attributes;
 }
 
+typedef enum {
+    OEParsedTypeNone,
+    OEParsedTypeButton,
+    OEParsedTypeHatSwitch,
+    OEParsedTypeGroupedAxis,
+    OEParsedTypePositiveAxis,
+    OEParsedTypeSymmetricAxis
+} OEParsedType;
+
+- (void)OE_enumerateChildrenOfElement:(IOHIDElementRef)rootElement inElementTree:(_OEHIDDeviceElementTree *)elementTree usingBlock:(void(^)(IOHIDElementRef element, OEParsedType parsedType))block;
+{
+    BOOL isJoystickCollection = [self OE_isCollectionElement:rootElement joystickCollectionInElementTree:elementTree];
+
+    [elementTree enumerateChildrenOfElement:rootElement usingBlock:
+     ^(IOHIDElementRef element, BOOL *stop)
+     {
+         if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection)
+         {
+             [self OE_enumerateChildrenOfElement:element inElementTree:elementTree usingBlock:block];
+             return;
+         }
+
+         switch(OEHIDEventTypeFromIOHIDElement(element))
+         {
+             case OEHIDEventTypeAxis :
+                 if(isJoystickCollection)
+                     block(element, OEParsedTypeGroupedAxis);
+                 else
+                 {
+                     if(IOHIDElementGetLogicalMin(element) >= 0)     block(element, OEParsedTypePositiveAxis);
+                     else if(IOHIDElementGetLogicalMax(element) > 0) block(element, OEParsedTypeSymmetricAxis);
+                 }
+                 break;
+             case OEHIDEventTypeButton :
+                 block(element, OEParsedTypeButton);
+                 break;
+             case OEHIDEventTypeHatSwitch :
+                 block(element, OEParsedTypeHatSwitch);
+                 break;
+             default :
+                 break;
+         }
+     }];
+}
+
+- (BOOL)OE_isCollectionElement:(IOHIDElementRef)rootElement joystickCollectionInElementTree:(_OEHIDDeviceElementTree *)elementTree
+{
+    __block NSUInteger axisElementsCount = 0;
+    [elementTree enumerateChildrenOfElement:rootElement usingBlock:
+     ^(IOHIDElementRef element, BOOL *stop)
+     {
+         // Ignore subcollections.
+         if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection) return;
+
+         switch(OEHIDEventTypeFromIOHIDElement(element))
+         {
+             case OEHIDEventTypeAxis :
+                 axisElementsCount++;
+                 break;
+             case OEHIDEventTypeButton :
+             case OEHIDEventTypeHatSwitch :
+                 // If we find a non-axis element, we can just stop the search,
+                 // we will need to sort out the axis types later.
+                 axisElementsCount = 0;
+                 *stop = YES;
+                 break;
+             default:
+                 break;
+         }
+     }];
+
+    // Joysticks go by pairs, 2 by 2 like on the 360 or 4 for all joysticks on PS3.
+    // If we don't have an even number just forget it.
+    return axisElementsCount != 0 && axisElementsCount % 2 == 0;
+}
+
 - (void)OE_parseJoystickElement:(IOHIDElementRef)rootElement intoControllerDescription:(OEControllerDescription *)desc attributes:(_OEHIDDeviceAttributes *)attributes deviceIdentifier:(id)deviceIdentifier usingElementTree:(_OEHIDDeviceElementTree *)elementTree
 {
     NSMutableArray *buttonElements      = [NSMutableArray array];
@@ -324,68 +401,19 @@ static BOOL OE_isXboxControllerName(NSString *name)
     NSMutableArray *posNegAxisElements  = [NSMutableArray array];
     NSMutableArray *posAxisElements     = [NSMutableArray array];
 
-    // Adds the element to the right list based on its usage.
-    void (^addElement)(IOHIDElementRef element) =
-    ^(IOHIDElementRef element)
-    {
-        id elem = (__bridge id)element;
-        NSUInteger page = IOHIDElementGetUsagePage(element);
-
-        switch(page)
-        {
-            case kHIDPage_GenericDesktop :
-            {
-                NSUInteger usage = IOHIDElementGetUsage(element);
-                if(usage == kHIDUsage_GD_Hatswitch)
-                    [hatSwitchElements addObject:elem];
-                else if(kHIDUsage_GD_X <= usage && usage <= kHIDUsage_GD_Rz)
-                {
-                    // Postpone setup of these elements since they might be triggers.
-                    CFIndex minimum = IOHIDElementGetLogicalMin(element);
-                    CFIndex maximum = IOHIDElementGetLogicalMax(element);
-
-                    if(minimum == 0) [posAxisElements addObject:elem];
-                    else if(minimum < 0 && maximum > 0) [posNegAxisElements addObject:elem];
-                }
-            }
-                break;
-            case kHIDPage_Button :
-                [buttonElements addObject:elem];
-                break;
-            default :
-                break;
-        }
-    };
-
-    // Enumerate children elements to move them into the right lists.
-    [elementTree enumerateChildrenOfElement:rootElement usingBlock:
-     ^(IOHIDElementRef element, BOOL *stop)
+    [self OE_enumerateChildrenOfElement:rootElement inElementTree:elementTree usingBlock:
+     ^(IOHIDElementRef element, OEParsedType parsedType)
      {
-         if(IOHIDElementGetType(element) != kIOHIDElementTypeCollection
-            || IOHIDElementGetUsagePage(element) != kHIDPage_GenericDesktop)
-             return;
-
-         [elementTree enumerateChildrenOfElement:element usingBlock:
-          ^(IOHIDElementRef element, BOOL *stop)
-          {
-              if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection)
-              {
-                  NSArray *children = [elementTree childrenOfElement:element];
-                  BOOL foundNonAxisElement =
-                  [children indexOfObjectPassingTest:
-                   ^ BOOL (id obj, NSUInteger idx, BOOL *stop)
-                   {
-                       return (IOHIDElementGetUsagePage(element) != kHIDPage_GenericDesktop
-                               || IOHIDElementGetUsage(element) < kHIDUsage_GD_X
-                               || IOHIDElementGetUsage(element) > kHIDUsage_GD_Rz);
-                   }] != NSNotFound;
-
-                  if(!foundNonAxisElement) [groupedAxisElements addObjectsFromArray:children];
-                  else for(id e in children)
-                      addElement(ELEM(e));
-              }
-              else addElement(element);
-          }];
+         id elem = (__bridge id)element;
+         switch(parsedType)
+         {
+             case OEParsedTypeButton        : [buttonElements      addObject:elem]; break;
+             case OEParsedTypeHatSwitch     : [hatSwitchElements   addObject:elem]; break;
+             case OEParsedTypeGroupedAxis   : [groupedAxisElements addObject:elem]; break;
+             case OEParsedTypePositiveAxis  : [posAxisElements     addObject:elem]; break;
+             case OEParsedTypeSymmetricAxis : [posNegAxisElements  addObject:elem]; break;
+             default : break;
+         }
      }];
 
     // Setup HatSwitch element attributes and create a control in the controller description.
@@ -568,7 +596,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
 - (NSString *)description
 {
-    NSMutableString *string = [NSMutableString stringWithFormat:@"<%@ %p {", [self class], self];
+    NSMutableString *string = [NSMutableString stringWithFormat:@"<%@ %p {\n", [self class], self];
     [_elementTree enumerateKeysAndObjectsUsingBlock:
      ^(NSValue *key, NSValue *obj, BOOL *stop)
      {
