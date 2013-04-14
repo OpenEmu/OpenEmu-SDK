@@ -613,6 +613,10 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
             _data.button.buttonNumber = usage;
             return YES;
         case OEHIDEventTypeKeyboard :
+            if(!((((usage >= 0x04) && (usage <= 0xA4)) ||
+                  ((usage >= 0xE0) && (usage <= 0xE7)))))
+                return NO;
+
             _cookie = OEUndefinedCookie;
             _deviceHandler = nil;
             _data.key.keycode = usage;
