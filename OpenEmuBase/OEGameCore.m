@@ -153,7 +153,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)frameRefreshThread:(id)anArgument
 {
     gameInterval = 1./[self frameInterval];
-    NSTimeInterval gameTime;
+    NSTimeInterval gameTime = OEMonotonicTime();
 
     frameFinished = YES;
     willSkipFrame = NO;
@@ -170,7 +170,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     while(!shouldStop)
     {
-        gameTime = OEMonotonicTime() + gameInterval;
+        gameTime += gameInterval;
         @autoreleasepool
         {
 #if 0
