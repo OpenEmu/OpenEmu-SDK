@@ -155,6 +155,8 @@ extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 
 @interface OEHIDEvent (OEHIDEventCopy)
 
+- (instancetype)nullEvent;
+
 // Axis event copy
 - (instancetype)axisEventWithOppositeDirection;
 - (instancetype)axisEventWithDirection:(OEHIDEventAxisDirection)aDirection;

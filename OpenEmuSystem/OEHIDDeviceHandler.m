@@ -49,7 +49,7 @@
 	FFDeviceObjectReference _ffDevice;
 }
 
-- (void)OE_setupCallbacks;
+- (void)OE_setUpCallbacks;
 - (void)OE_removeDeviceHandlerForDevice:(IOHIDDeviceRef)aDevice;
 
 @end
@@ -67,11 +67,6 @@
     return parser;
 }
 
-- (id)init
-{
-    return nil;
-}
-
 - (id)initWithDeviceDescription:(OEDeviceDescription *)deviceDescription
 {
     return nil;
@@ -85,9 +80,14 @@
     {
         _device = (void *)CFRetain(aDevice);
         NSAssert(deviceDescription != nil || [self isKeyboardDevice], @"Non-keyboard devices must have device descriptions.");
-        if(deviceDescription != nil) _latestEvents = [[NSMutableDictionary alloc] initWithCapacity:[[self controllerDescription] numberOfControls]];
-        [self OE_setupCallbacks];
+        if(deviceDescription != nil)
+        {
+            _latestEvents = [[NSMutableDictionary alloc] initWithCapacity:[[self controllerDescription] numberOfControls]];
+            [self OE_setUpInitialEvents];
+        }
+        [self OE_setUpCallbacks];
     }
+
     return self;
 }
 
@@ -224,7 +224,16 @@
     }
 }
 
-- (void)OE_setupCallbacks;
+- (void)OE_setUpInitialEvents;
+{
+    for(OEControlDescription *control in [[self controllerDescription] controls])
+    {
+        OEHIDEvent *event = [control genericEvent];
+        _latestEvents[@([event cookie])] = [[event nullEvent] eventWithDeviceHandler:self];
+    }
+}
+
+- (void)OE_setUpCallbacks;
 {
     // Register for removal
     IOHIDDeviceRegisterRemovalCallback(_device, OEHandle_DeviceRemovalCallback, (__bridge void *)self);

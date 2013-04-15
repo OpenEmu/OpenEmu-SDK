@@ -1148,6 +1148,33 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycodeKey";
 
 @implementation OEHIDEvent (OEHIDEventCopy)
 
+- (instancetype)nullEvent;
+{
+    if([self hasOffState]) return self;
+
+    OEHIDEvent *event = [self copy];
+    switch([event type])
+    {
+        case OEHIDEventTypeAxis :
+        case OEHIDEventTypeTrigger :
+            event->_data.axis.direction = OEHIDEventAxisDirectionNull;
+            break;
+        case OEHIDEventTypeButton :
+            event->_data.button.state = OEHIDEventStateOff;
+            break;
+        case OEHIDEventTypeHatSwitch :
+            event->_data.hatSwitch.hatDirection = OEHIDEventHatDirectionNull;
+            break;
+        case OEHIDEventTypeKeyboard :
+            event->_data.key.state = OEHIDEventStateOff;
+            break;
+        default :
+            break;
+    }
+
+    return event;
+}
+
 // Axis event copy
 - (instancetype)axisEventWithOppositeDirection;
 {
