@@ -41,7 +41,7 @@ typedef enum {
     OEWiimoteExpansionTypeNunchuck,
     OEWiimoteExpansionTypeClassicController,
     OEWiimoteExpansionTypeWiiUProController,
-	OEWiimoteExpansionTypeFightingStick,
+    OEWiimoteExpansionTypeFightingStick,
 
     OEWiimoteExpansionTypeNotConnected,
 } OEWiimoteExpansionType;
