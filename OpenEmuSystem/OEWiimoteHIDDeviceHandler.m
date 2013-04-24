@@ -164,6 +164,7 @@ typedef enum {
     OEWiimoteExpansionIdentifierNunchuck          = 0x0000,
     OEWiimoteExpansionIdentifierClassicController = 0x0101,
     OEWiimoteExpansionIdentifierProController     = 0x0120,
+	OEWiimoteExpansionIdentifierFightingStick     = 0x0257,
 } OEWiimoteExpansionIdentifier;
 
 typedef enum {
@@ -537,6 +538,10 @@ enum {
             [self OE_parseProControllerButtonData:(data[8] << 16) | (data[9] << 8) | data[10]];
             [self OE_parseProControllerJoystickData:data];
             break;
+		case OEWiimoteExpansionTypeFightingStick :
+			[self OE_parseNunchuckButtonData:data[5]];
+            [self OE_parseNunchuckJoystickXData:data[0] yData:data[1]];
+			break;
         default:
             break;
     }
@@ -577,6 +582,7 @@ enum {
         OEWiimoteExpansionType expansion = OEWiimoteExpansionTypeNotConnected;
 
         uint16_t expansionType = (response[21] << 8) | response[22];
+		NSLog(@"Expansion type:%hu", expansionType);
         switch(expansionType)
         {
             case OEWiimoteExpansionIdentifierNunchuck:
@@ -587,6 +593,10 @@ enum {
                 break;
             case OEWiimoteExpansionIdentifierProController:
                 expansion = OEWiimoteExpansionTypeWiiUProController;
+				break;
+			case OEWiimoteExpansionIdentifierFightingStick:
+				expansion = OEWiimoteExpansionTypeFightingStick;
+				break;
         }
 
         if(expansion != _expansionType)
