@@ -582,7 +582,6 @@ enum {
         OEWiimoteExpansionType expansion = OEWiimoteExpansionTypeNotConnected;
 
         uint16_t expansionType = (response[21] << 8) | response[22];
-		NSLog(@"Expansion type:%hu", expansionType);
         switch(expansionType)
         {
             case OEWiimoteExpansionIdentifierNunchuck:
