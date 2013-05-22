@@ -168,6 +168,7 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 
 @property(readonly) NSTimeInterval        frameInterval;
 @property           BOOL                  frameFinished;
+@property(copy)     NSString             *systemIdentifier;
 
 - (void)getAudioBuffer:(void *)buffer frameCount:(NSUInteger)frameCount bufferIndex:(NSUInteger)index;
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index;
