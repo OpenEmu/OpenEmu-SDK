@@ -96,7 +96,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return [[self supportDirectoryPath] stringByAppendingPathComponent:@"Battery Saves"];
 }
 
-#pragma mark Execution
+#pragma mark - Execution
 
 - (void)calculateFrameSkip:(NSUInteger)rate
 {
@@ -237,7 +237,32 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     }
 }
 
-#pragma mark ABSTRACT METHODS
+- (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)rewindAtSpeed:(CGFloat)rewindSpeed;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)stepFrameForward;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)stepFrameBackward;
+{
+    // FIXME: Need implementation.
+}
+
+#pragma mark - ABSTRACT METHODS
 
 // Never call super on them.
 - (void)resetEmulation
@@ -261,7 +286,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
-#pragma mark Video
+#pragma mark - Video
 
 - (OEIntRect)screenRect
 {
@@ -331,7 +356,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     }
 }
 
-#pragma mark Audio
+#pragma mark - Audio
 
 - (NSUInteger)audioBufferCount
 {
@@ -389,15 +414,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 }
 
 
-#pragma mark Input
+#pragma mark - Input
 
 - (NSTrackingAreaOptions)mouseTrackingOptions
 {
     return 0;
 }
 
-#pragma mark -
-#pragma Save state
+#pragma mark - Save state
 
 - (BOOL)saveStateToFileAtPath:(NSString *)fileName
 {
@@ -409,7 +433,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
-#pragma mark Cheats
+#pragma mark - Cheats
 
 - (BOOL)canCheat
 {

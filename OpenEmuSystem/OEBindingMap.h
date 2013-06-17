@@ -43,8 +43,10 @@
 @end
 
 @interface OESystemKey : NSObject
-+ (instancetype)systemKeyWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber;
-- (id)initWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber;
++ (instancetype)systemKeyWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber isAnalogic:(BOOL)isAnalogic;
+- (id)initWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber isAnalogic:(BOOL)isAnalogic;
 @property(nonatomic) NSUInteger key;
 @property(nonatomic) NSUInteger player;
+@property(nonatomic, getter=isAnalogic) BOOL analogic;
+- (BOOL)isGlobalButtonKey;
 @end

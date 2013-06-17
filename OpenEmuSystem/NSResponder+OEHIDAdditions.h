@@ -46,4 +46,9 @@
 - (void)HIDKeyDown:(OEHIDEvent *)anEvent;
 - (void)HIDKeyUp:(OEHIDEvent *)anEvent;
 
+- (void)saveState:(id)sender;
+- (void)loadState:(id)sender;
+- (void)toggleFullScreen:(id)sender;
+- (void)pauseEmulation:(id)sender;
+
 @end

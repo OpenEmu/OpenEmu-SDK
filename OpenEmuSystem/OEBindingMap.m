@@ -25,6 +25,7 @@
  */
 
 #import "OEBindingMap.h"
+#import "OEKeyBindingDescription.h"
 #import "OESystemController.h"
 #import "OEHIDEvent.h"
 
@@ -123,20 +124,26 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 
 @implementation OESystemKey
 
-+ (instancetype)systemKeyWithKey:(NSUInteger)key player:(NSUInteger)player;
++ (instancetype)systemKeyWithKey:(NSUInteger)key player:(NSUInteger)player isAnalogic:(BOOL)isAnalogic
 {
-    return [[self alloc] initWithKey:key player:player];
+    return [[self alloc] initWithKey:key player:player isAnalogic:isAnalogic];
 }
 
-- (id)initWithKey:(NSUInteger)key player:(NSUInteger)player
+- (id)initWithKey:(NSUInteger)key player:(NSUInteger)player isAnalogic:(BOOL)isAnalogic
 {
     if((self = [super init]))
     {
         _key = key;
         _player = player;
+        _analogic = isAnalogic;
     }
 
     return self;
+}
+
+- (BOOL)isGlobalButtonKey
+{
+    return !!(_key & OEGlobalButtonIdentifierFlag);
 }
 
 - (NSUInteger)hash

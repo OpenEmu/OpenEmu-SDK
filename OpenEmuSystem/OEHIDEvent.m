@@ -803,6 +803,13 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
     return _data.axis.value;
 }
 
+- (CGFloat)absoluteValue
+{
+    OEHIDEventType type = [self type];
+    NSAssert1(type == OEHIDEventTypeAxis || type == OEHIDEventTypeTrigger, @"Invalid message sent to event \"%@\"", self);
+    return fabs(_data.axis.value);
+}
+
 // Button event
 - (NSUInteger)buttonNumber
 {

@@ -37,6 +37,16 @@
 static NSString *const _OEKeyboardPlayerBindingRepresentationsKey = @"keyboardPlayerBindings";
 static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBindings";
 
+NSString *const OEGlobalButtonSaveState         = @"OEGlobalButtonSaveState";
+NSString *const OEGlobalButtonLoadState         = @"OEGlobalButtonLoadState";
+NSString *const OEGlobalButtonFullScreen        = @"OEGlobalButtonFullScreen";
+NSString *const OEGlobalButtonPause             = @"OEGlobalButtonPause";
+NSString *const OEGlobalButtonRewind            = @"OEGlobalButtonRewind";
+NSString *const OEGlobalButtonFastForward       = @"OEGlobalButtonFastForward";
+NSString *const OEGlobalButtonSlowMotion        = @"OEGlobalButtonSlowMotion";
+NSString *const OEGlobalButtonStepFrameBackward = @"OEGlobalButtonStepFrameBackward";
+NSString *const OEGlobalButtonStepFrameForward  = @"OEGlobalButtonStepFrameForward";
+
 @interface OEHIDEvent ()
 - (OEHIDEvent *)OE_eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler;
 @end
@@ -67,20 +77,6 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
     OEDevicePlayerBindings *_emptyConfiguration;
 }
 
-- (NSString *)OE_descriptionForEvent:(id)anEvent;
-
-- (void)OE_setUpKeyBindingDescriptionsWithSystemController:(OESystemController *)aController;
-- (NSDictionary *)OE_stringValuesForBindings:(NSDictionary *)bindingsToConvert possibleKeys:(NSDictionary *)nameToKeyMap;
-
-- (void)OE_registerDefaultControls:(NSDictionary *)defaultControls;
-
-- (OEDevicePlayerBindings *)OE_deviceBindingsForDeviceHandler:(OEDeviceHandler *)aHandler;
-- (NSUInteger)OE_addDeviceBindings:(OEDevicePlayerBindings *)bindingsController;
-- (void)OE_notifyObserversForAddedDeviceBindings:(OEDevicePlayerBindings *)aHandler;
-- (void)OE_notifyObserversForRemovedDeviceBindings:(OEDevicePlayerBindings *)aHandler;
-
-- (void)OE_notifyExistingBindings:(OEPlayerBindings *)bindings toObserver:(id<OESystemBindingsObserver>)observer;
-- (void)OE_notifyExistingBindingsInArray:(NSArray *)bindingsArray toObserver:(id<OESystemBindingsObserver>)observer;
 - (void)OE_notifyObserversDidSetEvent:(OEHIDEvent *)anEvent forBindingKey:(id)bindingKey playerNumber:(NSUInteger)playerNumber  __attribute__((nonnull));
 - (void)OE_notifyObserversDidUnsetEvent:(OEHIDEvent *)anEvent forBindingKey:(id)bindingKey playerNumber:(NSUInteger)playerNumber  __attribute__((nonnull));
 - (id)OE_playerBindings:(OEKeyboardPlayerBindings *)sender didSetKeyboardEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName  __attribute__((nonnull));
@@ -157,7 +153,12 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
 
     _systemKeyBindingsDescriptions = [systemKeyDescs  copy];
     _keyBindingsDescriptions       = [genericKeyDescs copy];
+
+    [allKeyDescs addEntriesFromDictionary:[self OE_globalKeyBindingDescriptions]];
     _allKeyBindingsDescriptions    = [allKeyDescs     copy];
+
+    for(NSString *keyName in [aController analogControls])
+        [_allKeyBindingsDescriptions[keyName] OE_setAnalog:YES];
 
     // Build key-groups to let keys know about their counter-parts
     NSArray *hatSwitchControls = [aController hatSwitchControls];
@@ -317,6 +318,32 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
 
     return insertedKey;
 }
+
+- (NSDictionary *)OE_globalKeyBindingDescriptions
+{
+    static NSDictionary *keyNameToDescription = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableDictionary *keys = [NSMutableDictionary dictionaryWithCapacity:OEGlobalButtonIdentifierCount];
+
+        for(OEGlobalButtonIdentifier i = 1; i < OEGlobalButtonIdentifierCount; i++)
+        {
+            OEGlobalKeyBindingDescription *desc = [[OEGlobalKeyBindingDescription alloc] OE_initWithButtonIdentifier:i];
+            if ([desc name] != nil)
+                [keys setObject:desc forKey:[desc name]];
+        }
+
+        keyNameToDescription = [keys copy];
+    });
+
+    return keyNameToDescription;
+}
+
+- (OEGlobalKeyBindingDescription *)globalKeyBindingDescriptionForKey:(NSString *)keyName
+{
+    return [self OE_globalKeyBindingDescriptions][keyName];
+}
+
 #pragma mark - Construct the receiver's representation dictionaries
 
 - (NSDictionary *)OE_dictionaryRepresentation;
@@ -606,7 +633,7 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
 {
     NSAssert([sender isKindOfClass:[OEKeyboardPlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
 
-    OEKeyBindingDescription *keyDesc = [_allKeyBindingsDescriptions objectForKey:keyName];
+    OEKeyBindingDescription *keyDesc = _allKeyBindingsDescriptions[keyName];
     NSAssert(keyDesc != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
 
     // Trying to set the same event to the same key, ignore it
@@ -643,7 +670,7 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
 {
     NSAssert([sender isKindOfClass:[OEDevicePlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
 
-    NSAssert([_allKeyBindingsDescriptions objectForKey:keyName] != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
+    NSAssert(_allKeyBindingsDescriptions[keyName] != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
 
     OEControlValueDescription *valueDesc = [[[sender deviceHandler] controllerDescription] controlValueDescriptionForEvent:anEvent];
     NSAssert(valueDesc != nil, @"Controller type '%@' does not recognize the event '%@', when attempting to set the key with name: '%@'.", [[[sender deviceHandler] controllerDescription] identifier], anEvent, keyName);
@@ -686,7 +713,7 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
     }
 
     // Find the appropriate key for the event
-    keyDesc = [_allKeyBindingsDescriptions objectForKey:keyName];
+    keyDesc = _allKeyBindingsDescriptions[keyName];
     [self OE_removeConcurrentBindings:sender ofKey:keyDesc withEvent:anEvent];
 
     switch([anEvent type])

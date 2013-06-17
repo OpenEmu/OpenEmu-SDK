@@ -28,8 +28,42 @@
 #import "OEKeyBindingDescription.h"
 #import "OEBindingsController_Internal.h"
 
+NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifier)
+{
+    switch(identifier)
+    {
+        case OEGlobalButtonIdentifierUnknown :
+            return @"OEGlobalButtonIdentifierUnknown";
+        case OEGlobalButtonIdentifierSaveState :
+            return @"OEGlobalButtonIdentifierSaveState";
+        case OEGlobalButtonIdentifierLoadState :
+            return @"OEGlobalButtonIdentifierLoadState";
+        case OEGlobalButtonIdentifierFullScreen :
+            return @"OEGlobalButtonIdentifierFullScreen";
+        case OEGlobalButtonIdentifierPause :
+            return @"OEGlobalButtonIdentifierPause";
+        case OEGlobalButtonIdentifierRewind :
+            return @"OEGlobalButtonIdentifierRewind";
+        case OEGlobalButtonIdentifierFastForward :
+            return @"OEGlobalButtonIdentifierFastForward";
+        case OEGlobalButtonIdentifierSlowMotion :
+            return @"OEGlobalButtonIdentifierSlowMotion";
+        case OEGlobalButtonIdentifierStepFrameBackward :
+            return @"OEGlobalButtonIdentifierStepFrameBackward";
+        case OEGlobalButtonIdentifierStepFrameForward :
+            return @"OEGlobalButtonIdentifierStepFrameForward";
+        case OEGlobalButtonIdentifierCount :
+            return @"OEGlobalButtonIdentifierCount";
+        case OEGlobalButtonIdentifierFlag :
+            return @"OEGlobalButtonIdentifierFlag";
+    }
+
+    return @"<Unknown value>";
+}
+
 @implementation OEKeyBindingDescription
-@synthesize name, index, systemWide, _hatSwitchGroup, _axisGroup;
+@synthesize _hatSwitchGroup = _hatSwitchGroup;
+@synthesize _axisGroup = _axisGroup;
 
 - (id)init
 {
@@ -40,9 +74,9 @@
 {
     if((self = [super init]))
     {
-        name       = [keyName copy];
-        index      = keyIndex;
-        systemWide = isSystemWide;
+        _name       = [keyName copy];
+        _index      = keyIndex;
+        _systemWide = isSystemWide;
     }
     
     return self;
@@ -89,6 +123,118 @@
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"<%@ %p keyName: %@ index: %lu, isSystemWide: %@ axisGroup: %@ hatSwitchGroup: %@>", [self class], self, [self name], [self index], [self isSystemWide] ? @"YES" : @"NO", [self OE_axisGroup], [self OE_hatSwitchGroup]];
+}
+
+@end
+
+@implementation OEGlobalKeyBindingDescription
+
+- (id)OE_initWithName:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)isSystemWide
+{
+    return nil;
+}
+
+- (id)OE_initWithButtonIdentifier:(OEGlobalButtonIdentifier)identifier
+{
+    if ((self = [super init]))
+    {
+        _buttonIdentifier = identifier;
+    }
+
+    return self;
+}
+
+- (OEKeyBindingGroupDescription *)OE_axisGroup
+{
+    return nil;
+}
+
+- (void)OE_setAxisGroup:(OEKeyBindingGroupDescription *)value
+{
+    NSAssert(NO, @"You cannot set an Axis Group on a OEGlobalKeyBindingDescription");
+}
+
+- (OEKeyBindingGroupDescription *)OE_hatSwitchGroup
+{
+    return nil;
+}
+
+- (void)OE_setHatSwitchGroup:(OEKeyBindingGroupDescription *)_hatSwitchGroup
+{
+    NSAssert(NO, @"You cannot set an Axis Group on a OEGlobalKeyBindingDescription");
+}
+
+- (NSArray *)hatSwitchKeys
+{
+    return nil;
+}
+
+- (OEKeyBindingDescription *)oppositeKey
+{
+    return nil;
+}
+
+- (BOOL)isAnalog
+{
+    switch(_buttonIdentifier)
+    {
+        case OEGlobalButtonIdentifierRewind :
+        case OEGlobalButtonIdentifierFastForward :
+        case OEGlobalButtonIdentifierSlowMotion :
+            return YES;
+        default :
+            break;
+    }
+
+    return NO;
+}
+
+- (void)OE_setAnalog:(BOOL)analog
+{
+}
+
+- (void)enumerateHatSwitchKeysUsingBlock:(void (^)(OEKeyBindingDescription *, BOOL *))block
+{
+    
+}
+
+- (BOOL)isSystemWide
+{
+    return YES;
+}
+
+- (NSString *)name
+{
+    switch(_buttonIdentifier)
+    {
+        case OEGlobalButtonIdentifierSaveState :
+            return OEGlobalButtonSaveState;
+        case OEGlobalButtonIdentifierLoadState :
+            return OEGlobalButtonLoadState;
+        case OEGlobalButtonIdentifierFullScreen :
+            return OEGlobalButtonFullScreen;
+        case OEGlobalButtonIdentifierPause :
+            return OEGlobalButtonPause;
+        case OEGlobalButtonIdentifierRewind :
+            return OEGlobalButtonRewind;
+        case OEGlobalButtonIdentifierFastForward :
+            return OEGlobalButtonFastForward;
+        case OEGlobalButtonIdentifierSlowMotion :
+            return OEGlobalButtonSlowMotion;
+        case OEGlobalButtonIdentifierStepFrameBackward :
+            return OEGlobalButtonStepFrameBackward;
+        case OEGlobalButtonIdentifierStepFrameForward :
+            return OEGlobalButtonStepFrameForward;
+        default :
+            break;
+    }
+
+    return nil;
+}
+
+- (NSUInteger)index
+{
+    return _buttonIdentifier | OEGlobalButtonIdentifierFlag;
 }
 
 @end

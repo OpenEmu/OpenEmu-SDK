@@ -125,6 +125,7 @@ extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 @property(readonly) OEHIDEventAxisDirection direction;         // Axis and Trigger (only Null and Positive for Trigger)
 @property(readonly) OEHIDEventAxisDirection oppositeDirection; // Axis only
 @property(readonly) CGFloat                 value;             // Axis and Trigger
+@property(readonly) CGFloat                 absoluteValue;     // Axis and Trigger
 
 // Button event
 @property(readonly) NSUInteger              buttonNumber;

@@ -26,15 +26,23 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import <OpenEmuSystem/OESystemResponder.h>
 #import <OpenEmuSystem/OEBindingMap.h>
+#import <OpenEmuSystem/OEKeyBindingDescription.h>
+#import <OpenEmuSystem/OESystemResponder.h>
 #import <OpenEmuBase/OEGameCore.h>
 
 @interface OEBasicSystemResponder : OESystemResponder
-@property (nonatomic, strong) OEBindingMap *keyMap;
-- (OESystemKey *)emulatorKeyForKey:(NSString *)aKey index:(NSUInteger)index player:(NSUInteger)thePlayer;
-- (OESystemKey *)emulatorKeyForKeyIndex:(NSUInteger)index player:(NSUInteger)thePlayer;
+@property(nonatomic, strong) OEBindingMap *keyMap;
+
+- (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
+
 - (void)pressEmulatorKey:(OESystemKey *)aKey;
 - (void)releaseEmulatorKey:(OESystemKey *)aKey;
 - (void)mouseDownAtPoint:(OEIntPoint)aPoint;
+- (void)changeAnalogEmulatorKey:(OESystemKey *)aKey value:(CGFloat)value;
+
+- (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+- (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+- (void)changeAnalogGlobalButtonIdentifier:(OEGlobalButtonIdentifier)identifier value:(CGFloat)value;
+
 @end

@@ -25,6 +25,8 @@
  */
 
 #import "OEBasicSystemResponder.h"
+
+#import "NSResponder+OEHIDAdditions.h"
 #import "OEDeviceHandler.h"
 #import "OEHIDEvent.h"
 #import "OESystemController.h"
@@ -36,22 +38,72 @@
 
 enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
 
+typedef enum : NSUInteger {
+    OEAxisSystemKeyTypeDisjoint       = 0,
+    OEAxisSystemKeyTypeDisjointAnalog = 1,
+    OEAxisSystemKeyTypeJointAnalog    = 2,
+} OEAxisSystemKeyType;
+
 @implementation OEBasicSystemResponder
 {
-    OEBindingMap           *_keyMap;
-    CFMutableDictionaryRef  _joystickStates;
-    BOOL                    _handlesEscapeKey;
+    CFMutableDictionaryRef _joystickStates;
+    CFMutableDictionaryRef _analogSystemKeyTypes;
+    BOOL                   _handlesEscapeKey;
 }
 
-@synthesize keyMap = _keyMap;
+static inline void _OEBasicSystemResponderPressSystemKey(OEBasicSystemResponder *self, OESystemKey *key, BOOL isAnalogic)
+{
+    if([key isGlobalButtonKey])
+    {
+        OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
+        if(isAnalogic)
+            [self changeAnalogGlobalButtonIdentifier:ident value:1.0];
+        else
+            [self pressGlobalButtonWithIdentifier:ident];
+    }
+    else
+    {
+        if(isAnalogic)
+            [self changeAnalogEmulatorKey:key value:1.0];
+        else
+            [self pressEmulatorKey:key];
+    }
+}
+
+static inline void _OEBasicSystemResponderReleaseSystemKey(OEBasicSystemResponder *self, OESystemKey *key, BOOL isAnalogic)
+{
+    if([key isGlobalButtonKey])
+    {
+        OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
+        if(isAnalogic)
+            [self changeAnalogGlobalButtonIdentifier:ident value:0.0];
+        else
+            [self releaseGlobalButtonWithIdentifier:ident];
+    }
+    else
+    {
+        if(isAnalogic)
+            [self changeAnalogEmulatorKey:key value:0.0];
+        else
+            [self releaseEmulatorKey:key];
+    }
+}
+
+static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemResponder *self, OESystemKey *key, CGFloat value)
+{
+    if([key isGlobalButtonKey])
+        [self changeAnalogGlobalButtonIdentifier:[key key] & ~OEGlobalButtonIdentifierFlag value:value];
+    else
+        [self changeAnalogEmulatorKey:key value:value];
+}
 
 - (id)initWithController:(OESystemController *)controller;
 {
     if((self = [super initWithController:controller]))
     {
         _keyMap = [[OEBindingMap alloc] initWithSystemController:controller];
-
         _joystickStates = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
+        _analogSystemKeyTypes = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
     }
 
     return self;
@@ -62,14 +114,9 @@ enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
     CFRelease(_joystickStates);
 }
 
-- (OESystemKey *)emulatorKeyForKey:(NSString *)aKey index:(NSUInteger)index player:(NSUInteger)thePlayer
+- (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
 {
-    return [self emulatorKeyForKeyIndex:index player:thePlayer];
-}
-
-- (OESystemKey *)emulatorKeyForKeyIndex:(NSUInteger)index player:(NSUInteger)thePlayer
-{
-    return [OESystemKey systemKeyWithKey:index player:thePlayer];
+    return [OESystemKey systemKeyWithKey:[aKey index] player:thePlayer isAnalogic:[aKey isAnalogic]];
 }
 
 - (void)pressEmulatorKey:(OESystemKey *)aKey
@@ -80,6 +127,88 @@ enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
 - (void)releaseEmulatorKey:(OESystemKey *)aKey
 {
     [self doesNotImplementSelector:_cmd];
+}
+
+- (void)changeAnalogEmulatorKey:(OESystemKey *)aKey value:(CGFloat)value
+{
+    [self doesNotImplementSelector:_cmd];
+}
+
+- (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+{
+    FIXME("We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat");
+}
+
+- (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+{
+    switch(identifier)
+    {
+        case OEGlobalButtonIdentifierSaveState :
+            [self saveState:self];
+            break;
+        case OEGlobalButtonIdentifierLoadState :
+            [self loadState:self];
+            break;
+        case OEGlobalButtonIdentifierFullScreen :
+            [self toggleFullScreen:self];
+            break;
+        case OEGlobalButtonIdentifierPause :
+            [self pauseEmulation:self];
+            break;
+        case OEGlobalButtonIdentifierStepFrameBackward :
+            [[self client] stepFrameBackward];
+            break;
+        case OEGlobalButtonIdentifierStepFrameForward :
+            [[self client] stepFrameForward];
+            break;
+
+        case OEGlobalButtonIdentifierRewind :
+        case OEGlobalButtonIdentifierFastForward :
+        case OEGlobalButtonIdentifierSlowMotion :
+            NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
+            break;
+
+        case OEGlobalButtonIdentifierUnknown :
+        case OEGlobalButtonIdentifierCount :
+        case OEGlobalButtonIdentifierFlag :
+            NSAssert(NO, @"%@ is not a valid value", NSStringFromOEGlobalButtonIdentifier(identifier));
+            break;
+    }
+
+    NSAssert(NO, @"Unknown identifier: %lx", identifier);
+}
+
+- (void)changeAnalogGlobalButtonIdentifier:(OEGlobalButtonIdentifier)identifier value:(CGFloat)value;
+{
+    switch(identifier)
+    {
+        case OEGlobalButtonIdentifierRewind :
+            [[self client] rewindAtSpeed:value];
+            break;
+        case OEGlobalButtonIdentifierFastForward :
+            [[self client] fastForwardAtSpeed:value];
+            break;
+        case OEGlobalButtonIdentifierSlowMotion :
+            [[self client] slowMotionAtSpeed:value];
+            break;
+
+        case OEGlobalButtonIdentifierSaveState :
+        case OEGlobalButtonIdentifierLoadState :
+        case OEGlobalButtonIdentifierFullScreen :
+        case OEGlobalButtonIdentifierPause :
+        case OEGlobalButtonIdentifierStepFrameBackward :
+        case OEGlobalButtonIdentifierStepFrameForward :
+            NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
+            break;
+
+        case OEGlobalButtonIdentifierUnknown :
+        case OEGlobalButtonIdentifierCount :
+        case OEGlobalButtonIdentifierFlag :
+            NSAssert(NO, @"%@ is not a valid value", NSStringFromOEGlobalButtonIdentifier(identifier));
+            break;
+    }
+
+    NSAssert(NO, @"Unknown identifier: %lx", identifier);
 }
 
 - (void)mouseDownAtPoint:(OEIntPoint)aPoint
@@ -114,17 +243,25 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     switch([theEvent type])
     {
         case OEHIDEventTypeAxis :
+        {
             // Register the axis for state watch.
-            CFDictionarySetValue(_joystickStates, _OEJoystickStateKeyForEvent(theEvent), (void *)OEHIDEventAxisDirectionNull);
+            void *eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
+            CFDictionarySetValue(_joystickStates, eventStateKey, (void *)OEHIDEventAxisDirectionNull);
 
+            OEKeyBindingDescription *keyDesc = [bindingDescription baseKey];
             if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
             {
-                OEKeyBindingDescription *keyDesc = [bindingDescription baseKey];
-                OEKeyBindingDescription *oppDesc = [bindingDescription oppositeKey];
-                [_keyMap setSystemKey:[self emulatorKeyForKey:[keyDesc name] index:[keyDesc index] player:playerNumber] forEvent:theEvent];
-                [_keyMap setSystemKey:[self emulatorKeyForKey:[oppDesc name] index:[oppDesc index] player:playerNumber] forEvent:[theEvent axisEventWithOppositeDirection]];
+                [_keyMap setSystemKey:[self emulatorKeyForKey:keyDesc player:playerNumber] forEvent:theEvent];
+                [_keyMap setSystemKey:[self emulatorKeyForKey:[bindingDescription oppositeKey] player:playerNumber] forEvent:[theEvent axisEventWithOppositeDirection]];
+
+                if([keyDesc isAnalogic])
+                    CFDictionarySetValue(_analogSystemKeyTypes, eventStateKey, (void *)OEAxisSystemKeyTypeJointAnalog);
+
                 return;
             }
+            else if([keyDesc isAnalogic])
+                CFDictionarySetValue(_analogSystemKeyTypes, eventStateKey, (void *)OEAxisSystemKeyTypeDisjointAnalog);
+        }
             break;
         case OEHIDEventTypeHatSwitch :
             // Register the hat switch for state watch.
@@ -145,12 +282,11 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
                 [bindingDescription enumerateKeysFromBaseKeyUsingBlock:
                  ^(OEKeyBindingDescription *key, BOOL *stop)
                  {
-                     [_keyMap setSystemKey:[self emulatorKeyForKey:[key name] index:[key index] player:playerNumber]
-                                 forEvent:[theEvent hatSwitchEventWithDirection:dirs[currentDir % HAT_COUNT]]];
+                     [_keyMap setSystemKey:[self emulatorKeyForKey:key player:playerNumber]
+                                  forEvent:[theEvent hatSwitchEventWithDirection:dirs[currentDir % HAT_COUNT]]];
 
                      currentDir++;
                  }];
-
                 return;
             }
             break;
@@ -163,7 +299,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     }
 
     // General fallback for keyboard, button, trigger events and axis and hat switch events not attached to a grouped key.
-    [_keyMap setSystemKey:[self emulatorKeyForKey:[bindingDescription name] index:[bindingDescription index] player:playerNumber] forEvent:theEvent];
+    [_keyMap setSystemKey:[self emulatorKeyForKey:bindingDescription player:playerNumber] forEvent:theEvent];
 }
 
 - (void)systemBindings:(OESystemBindings *)sender didUnsetEvent:(OEHIDEvent *)theEvent forBinding:(id)bindingDescription playerNumber:(NSUInteger)playerNumber
@@ -171,14 +307,22 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     switch([theEvent type])
     {
         case OEHIDEventTypeAxis :
-            CFDictionaryRemoveValue(_joystickStates, _OEJoystickStateKeyForEvent(theEvent));
+        {
+            void *eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
+            CFDictionaryRemoveValue(_joystickStates, eventStateKey);
 
             if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
             {
                 [_keyMap removeSystemKeyForEvent:theEvent];
                 [_keyMap removeSystemKeyForEvent:[theEvent axisEventWithOppositeDirection]];
+
+                if([[bindingDescription baseKey] isAnalogic])
+                    CFDictionaryRemoveValue(_analogSystemKeyTypes, eventStateKey);
                 return;
             }
+            else if(![[bindingDescription oppositeKey] isAnalogic])
+                CFDictionaryRemoveValue(_analogSystemKeyTypes, eventStateKey);
+        }
             break;
         case OEHIDEventTypeHatSwitch :
             CFDictionaryRemoveValue(_joystickStates, _OEJoystickStateKeyForEvent(theEvent));
@@ -205,13 +349,13 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 - (void)HIDKeyDown:(OEHIDEvent *)anEvent
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) [self pressEmulatorKey:key];
+    if(key != nil) _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
 }
 
 - (void)HIDKeyUp:(OEHIDEvent *)anEvent
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) [self releaseEmulatorKey:key];
+    if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
 }
 
 - (void)keyDown:(NSEvent *)theEvent
@@ -236,54 +380,88 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 {
     OESystemKey             *key               = nil;
     void                    *joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
-    OEHIDEventAxisDirection  direction         = [anEvent direction];
-    OEHIDEventAxisDirection  previousDirection = OEHIDEventAxisDirectionNull;
+    OEAxisSystemKeyType      keyType           = (OEAxisSystemKeyType)CFDictionaryGetValue(_analogSystemKeyTypes, joystickKey);
+    OEHIDEventAxisDirection  previousDirection = (OEHIDEventAxisDirection)CFDictionaryGetValue(_joystickStates, joystickKey);
+    OEHIDEventAxisDirection  currentDirection  = [anEvent direction];
 
-    previousDirection = (OEHIDEventAxisDirection)CFDictionaryGetValue(_joystickStates, joystickKey);
+    if(previousDirection == currentDirection)
+    {
+        if(keyType == OEAxisSystemKeyTypeDisjoint)
+            return;
 
-    if(previousDirection == direction) return;
+        key = [_keyMap systemKeyForEvent:anEvent];
+        if([key isAnalogic]) _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
+        return;
+    }
+
+    CFDictionarySetValue(_joystickStates, joystickKey, (void *)currentDirection);
+
+    if(keyType == OEAxisSystemKeyTypeJointAnalog)
+    {
+        _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
+        return;
+    }
 
     switch(previousDirection)
     {
         case OEHIDEventAxisDirectionNegative :
             if((key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:OEHIDEventAxisDirectionNegative]]))
-                [self releaseEmulatorKey:key];
+            {
+                if(keyType == OEAxisSystemKeyTypeDisjointAnalog && [key isAnalogic])
+                    _OEBasicSystemResponderChangeAnalogSystemKey(self, key, 0.0);
+                else
+                    _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
+            }
             break;
         case OEHIDEventAxisDirectionPositive :
             if((key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:OEHIDEventAxisDirectionPositive]]))
-                [self releaseEmulatorKey:key];
+            {
+                if(keyType == OEAxisSystemKeyTypeDisjointAnalog && [key isAnalogic])
+                    _OEBasicSystemResponderChangeAnalogSystemKey(self, key, 0.0);
+                else
+                    _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
+            }
         default :
             break;
     }
 
-    if(direction != OEHIDEventAxisDirectionNull && (key = [_keyMap systemKeyForEvent:anEvent]))
-        [self pressEmulatorKey:key];
-
-    CFDictionarySetValue(_joystickStates, joystickKey, (void *)direction);
+    if(currentDirection != OEHIDEventAxisDirectionNull && (key = [_keyMap systemKeyForEvent:anEvent]))
+    {
+        if(keyType == OEAxisSystemKeyTypeDisjointAnalog && [key isAnalogic])
+            _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
+        else
+            _OEBasicSystemResponderPressSystemKey(self, key, NO);
+    }
 }
 
 - (void)triggerPull:(OEHIDEvent *)anEvent;
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) [self pressEmulatorKey:key];
+    if(key != nil)
+    {
+        if([key isAnalogic])
+            _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
+        else
+            _OEBasicSystemResponderPressSystemKey(self, key, NO);
+    }
 }
 
 - (void)triggerRelease:(OEHIDEvent *)anEvent;
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) [self releaseEmulatorKey:key];
+    if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
 }
 
 - (void)buttonDown:(OEHIDEvent *)anEvent
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) [self pressEmulatorKey:key];
+    if(key != nil) _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
 }
 
 - (void)buttonUp:(OEHIDEvent *)anEvent
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) [self releaseEmulatorKey:key];
+    if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
 }
 
 - (void)hatSwitchChanged:(OEHIDEvent *)anEvent;
@@ -295,19 +473,30 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     OEHIDEventHatDirection  direction = [anEvent hatDirection];
     OEHIDEventHatDirection  diff      = previousDirection ^ direction;
 
-#define DIFF_DIRECTION(dir) do { \
-    if(diff & dir) \
-    { \
-        OESystemKey *key = [_keyMap systemKeyForEvent:[anEvent hatSwitchEventWithDirection:dir]]; \
-        if(direction & dir) [self pressEmulatorKey:key]; \
-        else                [self releaseEmulatorKey:key]; \
-    } \
-} while(NO)
+    void (^directionDiff)(OEHIDEventHatDirection dir) =
+    ^(OEHIDEventHatDirection dir)
+    {
+        if(diff & dir) return;
 
-    DIFF_DIRECTION(OEHIDEventHatDirectionNorth);
-    DIFF_DIRECTION(OEHIDEventHatDirectionEast);
-    DIFF_DIRECTION(OEHIDEventHatDirectionSouth);
-    DIFF_DIRECTION(OEHIDEventHatDirectionWest);
+        OESystemKey *key = [_keyMap systemKeyForEvent:[anEvent hatSwitchEventWithDirection:dir]];
+        if(key == nil) return;
+        
+        if([key isAnalogic])
+        {
+            _OEBasicSystemResponderChangeAnalogSystemKey(self, key, !!(direction & dir));
+            return;
+        }
+
+        if(direction & dir)
+            _OEBasicSystemResponderPressSystemKey(self, key, NO);
+        else
+            _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
+    };
+
+    directionDiff(OEHIDEventHatDirectionNorth);
+    directionDiff(OEHIDEventHatDirectionEast);
+    directionDiff(OEHIDEventHatDirectionSouth);
+    directionDiff(OEHIDEventHatDirectionWest);
 
     CFDictionarySetValue(_joystickStates, joystickKey, (void *)direction);
 }

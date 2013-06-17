@@ -50,6 +50,8 @@ extern NSString *const OESystemControlNamesKey;
 // NSArray - contains NSString objects representing control names of the system
 // it must contain all the keys contained in OESystemControlNamesKey if any.
 extern NSString *const OEGenericControlNamesKey;
+// NSArray - contains NSString objects representing control names of keys that represent an anlogic control.
+extern NSString *const OEAnalogControlsKey;
 
 // NSDictionary - contains OEHatSwitchControlsKey and OEAxisControlsKey keys
 extern NSString *const OEControlTypesKey;
@@ -106,6 +108,7 @@ typedef enum
 @property(readonly)       Class         responderClass;
 @property(readonly, copy) NSArray      *systemControlNames;
 @property(readonly, copy) NSArray      *genericControlNames;
+@property(readonly, copy) NSArray      *analogControls;
 @property(readonly, copy) NSArray      *axisControls;
 @property(readonly, copy) NSArray      *hatSwitchControls;
 

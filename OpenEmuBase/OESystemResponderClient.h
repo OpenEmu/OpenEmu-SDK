@@ -28,4 +28,10 @@
 
 @protocol OESystemResponderClient <NSObject>
 
+- (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
+- (void)rewindAtSpeed:(CGFloat)rewindSpeed;
+- (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
+- (void)stepFrameForward;
+- (void)stepFrameBackward;
+
 @end

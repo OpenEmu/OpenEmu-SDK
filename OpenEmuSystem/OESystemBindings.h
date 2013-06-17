@@ -35,6 +35,17 @@
 @class OEKeyboardPlayerBindings;
 @class OEPlayerBindings;
 @class OESystemController;
+@class OEGlobalKeyBindingDescription;
+
+extern NSString *const OEGlobalButtonSaveState;
+extern NSString *const OEGlobalButtonLoadState;
+extern NSString *const OEGlobalButtonFullScreen;
+extern NSString *const OEGlobalButtonPause;
+extern NSString *const OEGlobalButtonRewind;
+extern NSString *const OEGlobalButtonFastForward;
+extern NSString *const OEGlobalButtonSlowMotion;
+extern NSString *const OEGlobalButtonStepFrameBackward;
+extern NSString *const OEGlobalButtonStepFrameForward;
 
 /// Manages the bindings for a specific system, useful for system responders
 /// Instances of this class are allocated by OEGameBindingsController
@@ -44,6 +55,8 @@
 @property(readonly, weak) OESystemController   *systemController;
 
 @property(readonly) NSUInteger numberOfPlayers;
+
+- (OEGlobalKeyBindingDescription *)globalKeyBindingDescriptionForKey:(NSString *)keyName;
 
 - (OEDevicePlayerBindings *)devicePlayerBindingsForPlayer:(NSUInteger)playerNumber;
 - (OEKeyboardPlayerBindings *)keyboardPlayerBindingsForPlayer:(NSUInteger)playerNumber;

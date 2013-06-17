@@ -45,6 +45,7 @@
 @property(readwrite, copy) NSArray *systemControlNames;
 @property(readwrite, copy) NSArray *genericControlNames;
 
+@property(readwrite, copy) NSArray *analogControls;
 @property(readwrite, copy) NSArray *axisControls;
 @property(readwrite, copy) NSArray *hatSwitchControls;
 
@@ -72,6 +73,7 @@ NSString *const OEFileTypes                  = @"OEFileSuffixes";
 
 NSString *const OESystemControlNamesKey      = @"OESystemControlNamesKey";
 NSString *const OEGenericControlNamesKey     = @"OEGenericControlNamesKey";
+NSString *const OEAnalogControlsKey          = @"OEAnalogControlsKey";
 NSString *const OEControlTypesKey            = @"OEControlTypesKey";
 NSString *const OEHatSwitchControlsKey       = @"OEHatSwitchControlsKey";
 NSString *const OEAxisControlsKey            = @"OEAxisControlsKey";
@@ -165,6 +167,7 @@ NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
 {
     NSDictionary *dict = [[_bundle infoDictionary] objectForKey:OEControlTypesKey];
 
+    [self setAnalogControls:   [dict objectForKey:OEAnalogControlsKey]];
     [self setHatSwitchControls:[dict objectForKey:OEHatSwitchControlsKey]];
     [self setAxisControls:     [dict objectForKey:OEAxisControlsKey]];
 }

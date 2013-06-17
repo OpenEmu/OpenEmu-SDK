@@ -32,8 +32,6 @@
 		C6772B7A1710E21900ED580A /* OESystemController.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6D1710E21900ED580A /* OESystemController.m */; };
 		C6772B7B1710E21900ED580A /* OESystemResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6E1710E21900ED580A /* OESystemResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B7C1710E21900ED580A /* OESystemResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6F1710E21900ED580A /* OESystemResponder.m */; };
-		C6772B7D1710E21900ED580A /* OEAnalogSystemResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B701710E21900ED580A /* OEAnalogSystemResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C6772B7E1710E21900ED580A /* OEAnalogSystemResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B711710E21900ED580A /* OEAnalogSystemResponder.m */; };
 		C6772B7F1710E21900ED580A /* OEBasicSystemResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B721710E21900ED580A /* OEBasicSystemResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B801710E21900ED580A /* OEBasicSystemResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B731710E21900ED580A /* OEBasicSystemResponder.m */; };
 		C6772B811710E21900ED580A /* OEBindingMap.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B741710E21900ED580A /* OEBindingMap.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -136,8 +134,6 @@
 		C6772B6D1710E21900ED580A /* OESystemController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESystemController.m; sourceTree = "<group>"; };
 		C6772B6E1710E21900ED580A /* OESystemResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemResponder.h; sourceTree = "<group>"; };
 		C6772B6F1710E21900ED580A /* OESystemResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESystemResponder.m; sourceTree = "<group>"; };
-		C6772B701710E21900ED580A /* OEAnalogSystemResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEAnalogSystemResponder.h; sourceTree = "<group>"; };
-		C6772B711710E21900ED580A /* OEAnalogSystemResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEAnalogSystemResponder.m; sourceTree = "<group>"; };
 		C6772B721710E21900ED580A /* OEBasicSystemResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBasicSystemResponder.h; sourceTree = "<group>"; };
 		C6772B731710E21900ED580A /* OEBasicSystemResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBasicSystemResponder.m; sourceTree = "<group>"; };
 		C6772B741710E21900ED580A /* OEBindingMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingMap.h; sourceTree = "<group>"; };
@@ -304,8 +300,6 @@
 				C6772B6D1710E21900ED580A /* OESystemController.m */,
 				C6772B6E1710E21900ED580A /* OESystemResponder.h */,
 				C6772B6F1710E21900ED580A /* OESystemResponder.m */,
-				C6772B701710E21900ED580A /* OEAnalogSystemResponder.h */,
-				C6772B711710E21900ED580A /* OEAnalogSystemResponder.m */,
 				C6772B721710E21900ED580A /* OEBasicSystemResponder.h */,
 				C6772B731710E21900ED580A /* OEBasicSystemResponder.m */,
 				C6772BDC1710E31F00ED580A /* Utilities */,
@@ -446,7 +440,6 @@
 				C6772C2E1710EBB600ED580A /* NSApplication+OEHIDAdditions.h in Headers */,
 				C6772BC41710E28900ED580A /* NSResponder+OEHIDAdditions.h in Headers */,
 				C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */,
-				C6772B7D1710E21900ED580A /* OEAnalogSystemResponder.h in Headers */,
 				C6772B7F1710E21900ED580A /* OEBasicSystemResponder.h in Headers */,
 				C6772B811710E21900ED580A /* OEBindingMap.h in Headers */,
 				C6772B951710E25300ED580A /* OEBindingsController.h in Headers */,
@@ -466,14 +459,14 @@
 				C6772B791710E21900ED580A /* OESystemController.h in Headers */,
 				C6772B7B1710E21900ED580A /* OESystemResponder.h in Headers */,
 				C6772B971710E25300ED580A /* OEBindingsController_Internal.h in Headers */,
-				C6772BBA1710E28900ED580A /* OEHIDDeviceHandler.h in Headers */,
-				C6772BBC1710E28900ED580A /* OEMultiHIDDeviceHandler.h in Headers */,
-				C6772BBE1710E28900ED580A /* OEWiimoteHIDDeviceHandler.h in Headers */,
-				C6772BC01710E28900ED580A /* OEHIDDeviceParser.h in Headers */,
-				C6772BC91710E28900ED580A /* OEXBox360HIDDeviceHander.h in Headers */,
-				C6772BC61710E28900ED580A /* OEHIDUsageToVK.h in Headers */,
-				C6772BC71710E28900ED580A /* OEPS3HIDDeviceHandler.h in Headers */,
 				C6772BD31710E29C00ED580A /* OEControllerDescription_Internal.h in Headers */,
+				C6772BBA1710E28900ED580A /* OEHIDDeviceHandler.h in Headers */,
+				C6772BC01710E28900ED580A /* OEHIDDeviceParser.h in Headers */,
+				C6772BC61710E28900ED580A /* OEHIDUsageToVK.h in Headers */,
+				C6772BBC1710E28900ED580A /* OEMultiHIDDeviceHandler.h in Headers */,
+				C6772BC71710E28900ED580A /* OEPS3HIDDeviceHandler.h in Headers */,
+				C6772BBE1710E28900ED580A /* OEWiimoteHIDDeviceHandler.h in Headers */,
+				C6772BC91710E28900ED580A /* OEXBox360HIDDeviceHander.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -583,7 +576,6 @@
 			files = (
 				C6772B7A1710E21900ED580A /* OESystemController.m in Sources */,
 				C6772B7C1710E21900ED580A /* OESystemResponder.m in Sources */,
-				C6772B7E1710E21900ED580A /* OEAnalogSystemResponder.m in Sources */,
 				C6772B801710E21900ED580A /* OEBasicSystemResponder.m in Sources */,
 				C6772B821710E21900ED580A /* OEBindingMap.m in Sources */,
 				C6772B841710E21900ED580A /* OEEvent.m in Sources */,

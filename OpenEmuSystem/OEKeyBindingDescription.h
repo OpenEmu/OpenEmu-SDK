@@ -27,10 +27,32 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
+    OEGlobalButtonIdentifierUnknown,
+
+    OEGlobalButtonIdentifierSaveState,
+    OEGlobalButtonIdentifierLoadState,
+    OEGlobalButtonIdentifierFullScreen,
+
+    OEGlobalButtonIdentifierPause,
+    OEGlobalButtonIdentifierRewind,
+    OEGlobalButtonIdentifierFastForward,
+    OEGlobalButtonIdentifierSlowMotion,
+    OEGlobalButtonIdentifierStepFrameBackward,
+    OEGlobalButtonIdentifierStepFrameForward,
+
+    OEGlobalButtonIdentifierCount,
+
+    OEGlobalButtonIdentifierFlag = 1 << 24,
+};
+
+NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifier);
+
 @interface OEKeyBindingDescription : NSObject <NSCopying>
 
 @property(readonly, copy) NSString   *name;
 @property(readonly)       NSUInteger  index;
+@property(readonly, getter=isAnalogic) BOOL analogic;
 
 // Returns YES if the key does not depend on the player number
 @property(readonly, getter=isSystemWide) BOOL systemWide;
@@ -42,4 +64,8 @@
 
 - (void)enumerateHatSwitchKeysUsingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
 
+@end
+
+@interface OEGlobalKeyBindingDescription : OEKeyBindingDescription
+@property (readonly) OEGlobalButtonIdentifier buttonIdentifier;
 @end

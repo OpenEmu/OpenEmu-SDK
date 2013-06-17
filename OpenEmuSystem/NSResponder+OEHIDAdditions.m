@@ -68,52 +68,25 @@ static dispatch_queue_t oehid_queue;
     });
 }
 
-- (void)axisMoved:(OEHIDEvent *)anEvent
-{
-    if(_nextResponder != nil)
-        [_nextResponder axisMoved:anEvent];
+#define FORWARD_MESSAGE(name, type) \
+- (void)name:(type)arg \
+{ \
+    if(_nextResponder != nil) \
+        [_nextResponder name:arg]; \
 }
 
-- (void)triggerPull:(OEHIDEvent *)anEvent;
-{
-    if(_nextResponder != nil)
-        [_nextResponder triggerPull:anEvent];
-}
+FORWARD_MESSAGE(axisMoved, OEHIDEvent *)
+FORWARD_MESSAGE(triggerPull, OEHIDEvent *)
+FORWARD_MESSAGE(triggerRelease, OEHIDEvent *)
+FORWARD_MESSAGE(buttonDown, OEHIDEvent *)
+FORWARD_MESSAGE(buttonUp, OEHIDEvent *)
+FORWARD_MESSAGE(hatSwitchChanged, OEHIDEvent *)
+FORWARD_MESSAGE(HIDKeyDown, OEHIDEvent *)
+FORWARD_MESSAGE(HIDKeyUp, OEHIDEvent *)
 
-- (void)triggerRelease:(OEHIDEvent *)anEvent;
-{
-    if(_nextResponder != nil)
-        [_nextResponder triggerRelease:anEvent];
-}
-
-- (void)buttonDown:(OEHIDEvent *)anEvent
-{
-    if(_nextResponder != nil)
-        [_nextResponder buttonDown:anEvent];
-}
-
-- (void)buttonUp:(OEHIDEvent *)anEvent
-{
-    if(_nextResponder != nil)
-        [_nextResponder buttonUp:anEvent];
-}
-
-- (void)hatSwitchChanged:(OEHIDEvent *)anEvent;
-{
-    if(_nextResponder != nil)
-        [_nextResponder hatSwitchChanged:anEvent];
-}
-
-- (void)HIDKeyDown:(OEHIDEvent *)anEvent
-{
-    if(_nextResponder != nil)
-        [_nextResponder HIDKeyDown:anEvent];
-}
-
-- (void)HIDKeyUp:(OEHIDEvent *)anEvent
-{
-    if(_nextResponder != nil)
-        [_nextResponder HIDKeyUp:anEvent];
-}
+FORWARD_MESSAGE(saveState, id)
+FORWARD_MESSAGE(loadState, id)
+FORWARD_MESSAGE(toggleFullScreen, id)
+FORWARD_MESSAGE(pauseEmulation, id)
 
 @end
