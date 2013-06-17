@@ -38,8 +38,20 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierSaveState";
         case OEGlobalButtonIdentifierLoadState :
             return @"OEGlobalButtonIdentifierLoadState";
+        case OEGlobalButtonIdentifierQuickSave :
+            return @"OEGlobalButtonIdentifierQuickSave";
+        case OEGlobalButtonIdentifierQuickLoad :
+            return @"OEGlobalButtonIdentifierQuickLoad";
         case OEGlobalButtonIdentifierFullScreen :
             return @"OEGlobalButtonIdentifierFullScreen";
+        case OEGlobalButtonIdentifierMute :
+            return @"OEGlobalButtonIdentifierMute";
+        case OEGlobalButtonIdentifierVolumeDown :
+            return @"OEGlobalButtonIdentifierVolumeDown";
+        case OEGlobalButtonIdentifierVolumeUp :
+            return @"OEGlobalButtonIdentifierVolumeUp";
+        case OEGlobalButtonIdentifierReset :
+            return @"OEGlobalButtonIdentifierReset";
         case OEGlobalButtonIdentifierPause :
             return @"OEGlobalButtonIdentifierPause";
         case OEGlobalButtonIdentifierRewind :
@@ -211,8 +223,20 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return OEGlobalButtonSaveState;
         case OEGlobalButtonIdentifierLoadState :
             return OEGlobalButtonLoadState;
+        case OEGlobalButtonIdentifierQuickSave :
+            return OEGlobalButtonQuickSave;
+        case OEGlobalButtonIdentifierQuickLoad :
+            return OEGlobalButtonQuickLoad;
         case OEGlobalButtonIdentifierFullScreen :
             return OEGlobalButtonFullScreen;
+        case OEGlobalButtonIdentifierMute :
+            return OEGlobalButtonMute;
+        case OEGlobalButtonIdentifierVolumeDown :
+            return OEGlobalButtonVolumeDown;
+        case OEGlobalButtonIdentifierVolumeUp :
+            return OEGlobalButtonVolumeUp;
+        case OEGlobalButtonIdentifierReset :
+            return OEGlobalButtonReset;
         case OEGlobalButtonIdentifierPause :
             return OEGlobalButtonPause;
         case OEGlobalButtonIdentifierRewind :

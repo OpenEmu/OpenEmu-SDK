@@ -48,7 +48,13 @@
 
 - (void)saveState:(id)sender;
 - (void)loadState:(id)sender;
+- (void)quickSave:(id)sender;
+- (void)quickLoad:(id)sender;
 - (void)toggleFullScreen:(id)sender;
-- (void)pauseEmulation:(id)sender;
+- (void)toggleEmulationPause:(id)sender;
+- (void)resetEmulation:(id)sender;
+- (void)toggleAudioMute:(id)sender;
+- (void)volumeDown:(id)sender;
+- (void)volumeUp:(id)sender;
 
 @end

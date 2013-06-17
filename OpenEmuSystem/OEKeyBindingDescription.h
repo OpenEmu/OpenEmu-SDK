@@ -32,8 +32,14 @@ typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
 
     OEGlobalButtonIdentifierSaveState,
     OEGlobalButtonIdentifierLoadState,
+    OEGlobalButtonIdentifierQuickSave,
+    OEGlobalButtonIdentifierQuickLoad,
     OEGlobalButtonIdentifierFullScreen,
+    OEGlobalButtonIdentifierMute,
+    OEGlobalButtonIdentifierVolumeDown,
+    OEGlobalButtonIdentifierVolumeUp,
 
+    OEGlobalButtonIdentifierReset,
     OEGlobalButtonIdentifierPause,
     OEGlobalButtonIdentifierRewind,
     OEGlobalButtonIdentifierFastForward,

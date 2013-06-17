@@ -149,11 +149,29 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierLoadState :
             [self loadState:self];
             break;
+        case OEGlobalButtonIdentifierQuickSave :
+            [self quickSave:self];
+            break;
+        case OEGlobalButtonIdentifierQuickLoad :
+            [self quickLoad:self];
+            break;
         case OEGlobalButtonIdentifierFullScreen :
             [self toggleFullScreen:self];
             break;
+        case OEGlobalButtonIdentifierMute :
+            [self toggleAudioMute:self];
+            break;
+        case OEGlobalButtonIdentifierVolumeDown :
+            [self volumeDown:self];
+            break;
+        case OEGlobalButtonIdentifierVolumeUp :
+            [self volumeUp:self];
+            break;
+        case OEGlobalButtonIdentifierReset :
+            [self resetEmulation:self];
+            break;
         case OEGlobalButtonIdentifierPause :
-            [self pauseEmulation:self];
+            [self toggleEmulationPause:self];
             break;
         case OEGlobalButtonIdentifierStepFrameBackward :
             [[self client] stepFrameBackward];
@@ -194,7 +212,13 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
 
         case OEGlobalButtonIdentifierSaveState :
         case OEGlobalButtonIdentifierLoadState :
+        case OEGlobalButtonIdentifierQuickSave :
+        case OEGlobalButtonIdentifierQuickLoad :
         case OEGlobalButtonIdentifierFullScreen :
+        case OEGlobalButtonIdentifierMute :
+        case OEGlobalButtonIdentifierVolumeDown :
+        case OEGlobalButtonIdentifierVolumeUp :
+        case OEGlobalButtonIdentifierReset :
         case OEGlobalButtonIdentifierPause :
         case OEGlobalButtonIdentifierStepFrameBackward :
         case OEGlobalButtonIdentifierStepFrameForward :

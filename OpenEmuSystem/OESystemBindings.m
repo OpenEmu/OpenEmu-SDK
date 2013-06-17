@@ -39,7 +39,13 @@ static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBind
 
 NSString *const OEGlobalButtonSaveState         = @"OEGlobalButtonSaveState";
 NSString *const OEGlobalButtonLoadState         = @"OEGlobalButtonLoadState";
+NSString *const OEGlobalButtonQuickSave         = @"OEGlobalButtonQuickSave";
+NSString *const OEGlobalButtonQuickLoad         = @"OEGlobalButtonQuickLoad";
 NSString *const OEGlobalButtonFullScreen        = @"OEGlobalButtonFullScreen";
+NSString *const OEGlobalButtonMute              = @"OEGlobalButtonMute";
+NSString *const OEGlobalButtonVolumeDown        = @"OEGlobalButtonVolumeDown";
+NSString *const OEGlobalButtonVolumeUp          = @"OEGlobalButtonVolumeUp";
+NSString *const OEGlobalButtonReset             = @"OEGlobalButtonReset";
 NSString *const OEGlobalButtonPause             = @"OEGlobalButtonPause";
 NSString *const OEGlobalButtonRewind            = @"OEGlobalButtonRewind";
 NSString *const OEGlobalButtonFastForward       = @"OEGlobalButtonFastForward";

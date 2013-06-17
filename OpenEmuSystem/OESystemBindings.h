@@ -39,7 +39,13 @@
 
 extern NSString *const OEGlobalButtonSaveState;
 extern NSString *const OEGlobalButtonLoadState;
+extern NSString *const OEGlobalButtonQuickSave;
+extern NSString *const OEGlobalButtonQuickLoad;
 extern NSString *const OEGlobalButtonFullScreen;
+extern NSString *const OEGlobalButtonMute;
+extern NSString *const OEGlobalButtonVolumeDown;
+extern NSString *const OEGlobalButtonVolumeUp;
+extern NSString *const OEGlobalButtonReset;
 extern NSString *const OEGlobalButtonPause;
 extern NSString *const OEGlobalButtonRewind;
 extern NSString *const OEGlobalButtonFastForward;
