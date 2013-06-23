@@ -148,7 +148,7 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 
 - (id)OE_initWithButtonIdentifier:(OEGlobalButtonIdentifier)identifier
 {
-    if ((self = [super init]))
+    if((self = [super OE_initWithName:nil index:0 isSystemWide:YES]))
     {
         _buttonIdentifier = identifier;
     }

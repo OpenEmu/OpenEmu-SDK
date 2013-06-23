@@ -145,52 +145,52 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
     {
         case OEGlobalButtonIdentifierSaveState :
             [self saveState:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierLoadState :
             [self loadState:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierQuickSave :
             [self quickSave:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierQuickLoad :
             [self quickLoad:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierFullScreen :
             [self toggleFullScreen:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierMute :
             [self toggleAudioMute:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierVolumeDown :
             [self volumeDown:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierVolumeUp :
             [self volumeUp:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierReset :
             [self resetEmulation:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierPause :
             [self toggleEmulationPause:self];
-            break;
+            return;
         case OEGlobalButtonIdentifierStepFrameBackward :
             [[self client] stepFrameBackward];
-            break;
+            return;
         case OEGlobalButtonIdentifierStepFrameForward :
             [[self client] stepFrameForward];
-            break;
+            return;
 
         case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierFastForward :
         case OEGlobalButtonIdentifierSlowMotion :
             NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
-            break;
+            return;
 
         case OEGlobalButtonIdentifierUnknown :
         case OEGlobalButtonIdentifierCount :
         case OEGlobalButtonIdentifierFlag :
             NSAssert(NO, @"%@ is not a valid value", NSStringFromOEGlobalButtonIdentifier(identifier));
-            break;
+            return;
     }
 
     NSAssert(NO, @"Unknown identifier: %lx", identifier);
@@ -202,13 +202,13 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
     {
         case OEGlobalButtonIdentifierRewind :
             [[self client] rewindAtSpeed:value];
-            break;
+            return;
         case OEGlobalButtonIdentifierFastForward :
             [[self client] fastForwardAtSpeed:value];
-            break;
+            return;
         case OEGlobalButtonIdentifierSlowMotion :
             [[self client] slowMotionAtSpeed:value];
-            break;
+            return;
 
         case OEGlobalButtonIdentifierSaveState :
         case OEGlobalButtonIdentifierLoadState :
@@ -223,13 +223,13 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierStepFrameBackward :
         case OEGlobalButtonIdentifierStepFrameForward :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
-            break;
+            return;
 
         case OEGlobalButtonIdentifierUnknown :
         case OEGlobalButtonIdentifierCount :
         case OEGlobalButtonIdentifierFlag :
             NSAssert(NO, @"%@ is not a valid value", NSStringFromOEGlobalButtonIdentifier(identifier));
-            break;
+            return;
     }
 
     NSAssert(NO, @"Unknown identifier: %lx", identifier);
