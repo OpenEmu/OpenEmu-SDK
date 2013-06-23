@@ -194,6 +194,79 @@ NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
     return (fileName == nil ? nil : [NSPropertyListSerialization propertyListFromData:[NSData dataWithContentsOfFile:fileName] mutabilityOption:NSPropertyListImmutable format:NULL errorDescription:NULL]);
 }
 
+- (NSArray *)OE_globalButtonsControlList
+{
+    static NSArray *globalKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        globalKeys = @[
+            NSLocalizedString(@"Global Buttons", @"Title of the global button sections in controller keys."),
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Save", @"Name of the global button to save a state"),
+                OEControlListKeyNameKey : OEGlobalButtonSaveState,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Load", @"Name of the global button to load a state"),
+                OEControlListKeyNameKey : OEGlobalButtonLoadState,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Quick Save", @"Name of the global button to do a quick save"),
+                OEControlListKeyNameKey : OEGlobalButtonQuickSave,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Quick Load", @"Name of the global button to load a quick save"),
+                OEControlListKeyNameKey : OEGlobalButtonQuickLoad,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Fullscreen", @"Name of the global button to toggle fullscreen mode"),
+                OEControlListKeyNameKey : OEGlobalButtonFullScreen,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Mute", @"Name of the global button to toggle sound mute"),
+                OEControlListKeyNameKey : OEGlobalButtonMute,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Volume Down", @"Name of the global button to decrease the volume"),
+                OEControlListKeyNameKey : OEGlobalButtonVolumeDown,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Volume Up", @"Name of the global button to increase the volume"),
+                OEControlListKeyNameKey : OEGlobalButtonVolumeUp,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Reset", @"Name of the global button to reset the emulation"),
+                OEControlListKeyNameKey : OEGlobalButtonReset,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Pause", @"Name of the global button to pause the emulation"),
+                OEControlListKeyNameKey : OEGlobalButtonPause,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Rewind", @"Name of the global button to rewind the emulation"),
+                OEControlListKeyNameKey : OEGlobalButtonRewind,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Fast Forward", @"Name of the global button to fast foward the emulation"),
+                OEControlListKeyNameKey : OEGlobalButtonFastForward,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Slow Motion", @"Name of the global button to run the emulation in slow motion"),
+                OEControlListKeyNameKey : OEGlobalButtonSlowMotion,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Step Backward", @"Name of the global button to step the emulation backward by one frame"),
+                OEControlListKeyNameKey : OEGlobalButtonStepFrameBackward,
+            },
+            @{
+                OEControlListKeyLabelKey : NSLocalizedString(@"Step Forward", @"Name of the global button to step the emulation forward by one frame"),
+                OEControlListKeyNameKey : OEGlobalButtonStepFrameForward,
+            }
+        ];
+    });
+
+    return globalKeys;
+}
+
 - (void)OE_setUpControllerPreferencesKeys;
 {
     // TODO: Support local setup with different plists
@@ -216,6 +289,8 @@ NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
     }
 
     _controllerKeyPositions = [converted copy];
+
+    _controlPageList = [[[_bundle infoDictionary] objectForKey:OEControlListKey] arrayByAddingObject:[self OE_globalButtonsControlList]];
 }
 
 - (id)newGameSystemResponder;
@@ -234,11 +309,6 @@ NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
 - (NSImage *)systemIcon
 {
     return _systemIcon;
-}
-
-- (NSArray *)controlPageList;
-{
-    return [[_bundle infoDictionary] objectForKey:OEControlListKey];
 }
 
 - (NSImage *)controllerImage;
