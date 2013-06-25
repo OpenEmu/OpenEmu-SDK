@@ -248,7 +248,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
          [controllerDesc addControlWithIdentifier:identifier name:rep[@"Name"] event:genericEvent valueRepresentations:rep[@"Values"]];
      }];
 
-    [genericDesktopElements enumerateObjectsWithOptions:NSEnumerationConcurrent | NSEnumerationReverse usingBlock:
+    [genericDesktopElements enumerateObjectsWithOptions: NSEnumerationReverse usingBlock:
      ^(id elem, NSUInteger idx, BOOL *stop)
      {
          if([OEHIDEvent OE_eventWithElement:(__bridge IOHIDElementRef)elem value:0] == nil)
