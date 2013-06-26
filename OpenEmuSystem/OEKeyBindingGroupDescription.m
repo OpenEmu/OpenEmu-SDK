@@ -93,6 +93,11 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     return [_keys valueForKey:@"name"];
 }
 
+- (BOOL)isAnalogic
+{
+    return [[_keys lastObject] isAnalogic];
+}
+
 - (BOOL)isEqual:(id)anObject;
 {
     if(self == anObject) return YES;
@@ -164,7 +169,10 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p type: %@ keys: { %@ }>", [self class], self, NSStringFromOEKeyGroupType([self type]), [[self keyNames] componentsJoinedByString:@", "]];
+    NSString *additionalDesc = @"";
+    if([self isAnalogic]) additionalDesc = @" isAnalogic";
+
+    return [NSString stringWithFormat:@"<%@ %p type: %@%@ keys: { %@ }>", [self class], self, NSStringFromOEKeyGroupType([self type]), additionalDesc, [[self keyNames] componentsJoinedByString:@", "]];
 }
 
 @end
@@ -200,6 +208,11 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
         return [self parentKeyGroup] == [object parentKeyGroup];
     
     return [super isEqual:object];
+}
+
+- (BOOL)isAnalogic
+{
+    return [[self baseKey] isAnalogic];
 }
 
 - (OEKeyBindingDescription *)oppositeKey;

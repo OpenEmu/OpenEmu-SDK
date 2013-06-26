@@ -44,6 +44,7 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 @property(readonly)       OEKeyGroupType  type;
 @property(readonly, copy) NSArray        *keys;
 @property(readonly, copy) NSArray        *keyNames;
+@property(readonly, getter=isAnalogic) BOOL analogic;
 
 - (OEKeyBindingDescription *)oppositeKeyOfKey:(OEKeyBindingDescription *)aKey;
 

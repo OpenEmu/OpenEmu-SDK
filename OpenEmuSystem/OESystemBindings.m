@@ -164,7 +164,7 @@ NSString *const OEGlobalButtonStepFrameForward  = @"OEGlobalButtonStepFrameForwa
     _allKeyBindingsDescriptions    = [allKeyDescs     copy];
 
     for(NSString *keyName in [aController analogControls])
-        [_allKeyBindingsDescriptions[keyName] OE_setAnalog:YES];
+        [_allKeyBindingsDescriptions[keyName] OE_setAnalogic:YES];
 
     // Build key-groups to let keys know about their counter-parts
     NSArray *hatSwitchControls = [aController hatSwitchControls];
