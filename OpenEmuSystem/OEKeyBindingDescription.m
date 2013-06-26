@@ -134,7 +134,16 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p keyName: %@ index: %lu, isSystemWide: %@ axisGroup: %@ hatSwitchGroup: %@>", [self class], self, [self name], [self index], [self isSystemWide] ? @"YES" : @"NO", [self OE_axisGroup], [self OE_hatSwitchGroup]];
+    NSMutableArray *additionalDesc = [NSMutableArray arrayWithObject:@""];
+    if([self isSystemWide]) [additionalDesc addObject:@"isSystemWide"];
+    if([self isAnalogic]) [additionalDesc addObject:@"isAnalogic"];
+    if([self OE_axisGroup] != nil) [additionalDesc addObject:[NSString stringWithFormat:@"axisGroup: %@", [self OE_axisGroup]]];
+    if([self OE_axisGroup] != nil) [additionalDesc addObject:[NSString stringWithFormat:@"hatSwitchGroup: %@", [self OE_hatSwitchGroup]]];
+
+    NSString *result = @"";
+    if([additionalDesc count] > 1) result = [additionalDesc componentsJoinedByString:@" "];
+
+    return [NSString stringWithFormat:@"<%@ %p keyName: %@ index: %lu%@>", [self class], self, [self name], [self index], result];
 }
 
 @end
@@ -259,6 +268,11 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 - (NSUInteger)index
 {
     return _buttonIdentifier | OEGlobalButtonIdentifierFlag;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@ %p identifier: %@>", [self class], self, NSStringFromOEGlobalButtonIdentifier([self buttonIdentifier])];
 }
 
 @end

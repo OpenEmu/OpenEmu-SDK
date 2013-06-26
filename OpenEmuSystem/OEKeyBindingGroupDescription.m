@@ -48,11 +48,9 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 @implementation OEKeyBindingGroupDescription
 {
-    NSMutableDictionary     *orientedGroups;
-    OEKeyBindingDescription *axisKeys[2];
+    NSMutableDictionary     *_orientedGroups;
+    OEKeyBindingDescription *_axisKeys[2];
 }
-
-@synthesize type, keys;
 
 - (id)init
 {
@@ -65,20 +63,20 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     
     if((self = [super init]))
     {
-        orientedGroups = [NSMutableDictionary dictionaryWithCapacity:[groupedKeys count]];
-        type = aType;
-        keys = [groupedKeys copy];
+        _orientedGroups = [NSMutableDictionary dictionaryWithCapacity:[groupedKeys count]];
+        _type = aType;
+        _keys = [groupedKeys copy];
         
         if([self class] == [OEKeyBindingGroupDescription class])
-            [keys makeObjectsPerformSelector:(aType == OEKeyGroupTypeAxis
+            [_keys makeObjectsPerformSelector:(aType == OEKeyGroupTypeAxis
                                               ? @selector(OE_setAxisGroup:)
                                               : @selector(OE_setHatSwitchGroup:))
                                   withObject:self];
         
-        if(type == OEKeyGroupTypeAxis)
+        if(_type == OEKeyGroupTypeAxis)
         {
-            axisKeys[0] = [groupedKeys objectAtIndex:0];
-            axisKeys[1] = [groupedKeys objectAtIndex:1];
+            _axisKeys[0] = [groupedKeys objectAtIndex:0];
+            _axisKeys[1] = [groupedKeys objectAtIndex:1];
         }
     }
     
@@ -92,7 +90,7 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 - (NSArray *)keyNames
 {
-    return [keys valueForKey:@"name"];
+    return [_keys valueForKey:@"name"];
 }
 
 - (BOOL)isEqual:(id)anObject;
@@ -113,13 +111,13 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 - (OEKeyBindingDescription *)oppositeKeyOfKey:(OEKeyBindingDescription *)aKey;
 {
-    NSAssert(type == OEKeyGroupTypeAxis, @"Key Group type must be OEKeyGroupTypeAxis.");
+    NSAssert(_type == OEKeyGroupTypeAxis, @"Key Group type must be OEKeyGroupTypeAxis.");
     
     OEKeyBindingDescription *ret = nil;
     
     if(NO);
-    else if(axisKeys[0] == aKey) ret = axisKeys[1];
-    else if(axisKeys[1] == aKey) ret = axisKeys[0];
+    else if(_axisKeys[0] == aKey) ret = _axisKeys[1];
+    else if(_axisKeys[1] == aKey) ret = _axisKeys[0];
     
     NSAssert2(ret != nil, @"Key %@ is not part of the group %@", aKey, self);
     
@@ -128,14 +126,14 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 - (OEOrientedKeyGroupBindingDescription *)orientedKeyGroupWithBaseKey:(OEKeyBindingDescription *)aKey
 {
-    NSAssert([keys containsObject:aKey], @"The base key must belong to the key group.");
+    NSAssert([_keys containsObject:aKey], @"The base key must belong to the key group.");
     
-    OEOrientedKeyGroupBindingDescription *ret = [orientedGroups objectForKey:aKey];
+    OEOrientedKeyGroupBindingDescription *ret = [_orientedGroups objectForKey:aKey];
     
     if(ret == nil)
     {
         ret = [[OEOrientedKeyGroupBindingDescription alloc] OE_initWithParentKeyGroup:self baseKey:aKey];
-        [orientedGroups setObject:ret forKey:aKey];
+        [_orientedGroups setObject:ret forKey:aKey];
     }
     
     return ret;
@@ -143,13 +141,13 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 - (NSUInteger)indexOfKey:(OEKeyBindingDescription *)aKey;
 {
-    return [keys indexOfObject:aKey];
+    return [_keys indexOfObject:aKey];
 }
 
 - (void)enumerateKeysFromKey:(OEKeyBindingDescription *)baseKey usingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
 {
-    NSUInteger count   = [keys count];
-    NSUInteger baseIdx = [keys indexOfObject:baseKey];
+    NSUInteger count   = [_keys count];
+    NSUInteger baseIdx = [_keys indexOfObject:baseKey];
     
     // It shouldn't happen but let's avoid weird stuff anyway
     if(count == 0 || baseIdx == NSNotFound) return;
@@ -158,7 +156,7 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     
     for(NSUInteger i = 0; i < count; i++)
     {
-        block([keys objectAtIndex:(i + baseIdx) % count], &stop);
+        block([_keys objectAtIndex:(i + baseIdx) % count], &stop);
         
         if(stop) return;
     }
@@ -172,7 +170,6 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 @end
 
 @implementation OEOrientedKeyGroupBindingDescription
-@synthesize parentKeyGroup, baseKey;
 
 - (id)init
 {
@@ -185,8 +182,8 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     
     if((self = [super initWithGroupType:[parent type] keys:[parent keys]]))
     {
-        parentKeyGroup = parent;
-        baseKey        = base;
+        _parentKeyGroup = parent;
+        _baseKey        = base;
     }
     
     return self;
@@ -207,17 +204,17 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 - (OEKeyBindingDescription *)oppositeKey;
 {
-    return [self oppositeKeyOfKey:baseKey];
+    return [self oppositeKeyOfKey:_baseKey];
 }
 
 - (NSUInteger)indexOfBaseKey;
 {
-    return [self indexOfKey:baseKey];
+    return [self indexOfKey:_baseKey];
 }
 
 - (void)enumerateKeysFromBaseKeyUsingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
 {
-    [self enumerateKeysFromKey:baseKey usingBlock:block];
+    [self enumerateKeysFromKey:_baseKey usingBlock:block];
 }
 
 - (OEOrientedKeyGroupBindingDescription *)orientedKeyGroupWithBaseKey:(OEKeyBindingDescription *)aKey
