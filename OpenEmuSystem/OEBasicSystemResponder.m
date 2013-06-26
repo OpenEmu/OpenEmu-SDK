@@ -53,6 +53,8 @@ typedef enum : NSUInteger {
 
 static inline void _OEBasicSystemResponderPressSystemKey(OEBasicSystemResponder *self, OESystemKey *key, BOOL isAnalogic)
 {
+    if(key == nil) return;
+
     if([key isGlobalButtonKey])
     {
         OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
@@ -72,6 +74,8 @@ static inline void _OEBasicSystemResponderPressSystemKey(OEBasicSystemResponder 
 
 static inline void _OEBasicSystemResponderReleaseSystemKey(OEBasicSystemResponder *self, OESystemKey *key, BOOL isAnalogic)
 {
+    if(key == nil) return;
+
     if([key isGlobalButtonKey])
     {
         OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
@@ -91,6 +95,8 @@ static inline void _OEBasicSystemResponderReleaseSystemKey(OEBasicSystemResponde
 
 static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemResponder *self, OESystemKey *key, CGFloat value)
 {
+    if(key == nil) return;
+
     if([key isGlobalButtonKey])
         [self changeAnalogGlobalButtonIdentifier:[key key] & ~OEGlobalButtonIdentifierFlag value:value];
     else
@@ -413,7 +419,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         if(keyType == OEAxisSystemKeyTypeDisjoint)
             return;
 
-        key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
+        key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:currentDirection == OEHIDEventAxisDirectionPositive ? OEHIDEventAxisDirectionNegative : OEHIDEventAxisDirectionPositive]];
         if([key isAnalogic]) _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
         return;
     }
