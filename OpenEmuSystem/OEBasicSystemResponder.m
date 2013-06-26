@@ -413,7 +413,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         if(keyType == OEAxisSystemKeyTypeDisjoint)
             return;
 
-        key = [_keyMap systemKeyForEvent:anEvent];
+        key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
         if([key isAnalogic]) _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
         return;
     }
@@ -422,6 +422,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 
     if(keyType == OEAxisSystemKeyTypeJointAnalog)
     {
+        key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
         _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
         return;
     }
