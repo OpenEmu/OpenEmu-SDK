@@ -139,7 +139,6 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 
 @interface OEGameCore : NSResponder <OESystemResponderClient>
 {
-    NSThread               *emulationThread;
     NSTimeInterval          frameInterval;
     NSTimeInterval          gameInterval;
     OERingBuffer __strong **ringBuffers;
@@ -155,6 +154,7 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
     BOOL                    isRunning;
     BOOL                    shouldStop;
     BOOL                    isFastForwarding;
+    BOOL                    stepFrameForward;
 }
 
 @property(weak)     id<OERenderDelegate>  renderDelegate;

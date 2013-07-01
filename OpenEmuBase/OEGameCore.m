@@ -188,8 +188,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
             willSkipFrame = (frameCounter != frameSkip);
 
-            if(isRunning)
+            if(isRunning || stepFrameForward)
             {
+                stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
                 [_renderDelegate willExecute];
 
@@ -254,7 +255,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)stepFrameForward;
 {
-    // FIXME: Need implementation.
+    if(![self isEmulationPaused])
+        [self setPauseEmulation:YES];
+
+    stepFrameForward = YES;
 }
 
 - (void)stepFrameBackward;
