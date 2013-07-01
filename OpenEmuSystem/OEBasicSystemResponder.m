@@ -507,7 +507,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     void (^directionDiff)(OEHIDEventHatDirection dir) =
     ^(OEHIDEventHatDirection dir)
     {
-        if(diff & dir) return;
+        if(!(diff & dir)) return;
 
         OESystemKey *key = [_keyMap systemKeyForEvent:[anEvent hatSwitchEventWithDirection:dir]];
         if(key == nil) return;
