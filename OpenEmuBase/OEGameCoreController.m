@@ -63,8 +63,9 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
         NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();
 
-        NSString *supportFolder = [basePath stringByAppendingPathComponent:@"OpenEmu"];
-        _supportDirectoryPath   = [supportFolder stringByAppendingPathComponent:_pluginName];
+        NSString *supportFolder     = [basePath stringByAppendingPathComponent:@"OpenEmu"];
+        NSString *coreSupportFolder = [supportFolder stringByAppendingPathComponent:@"Core Support"];
+        _supportDirectoryPath       = [coreSupportFolder stringByAppendingPathComponent:_pluginName];
 
         _gameDocuments = [[NSMutableArray alloc] init];
     }
