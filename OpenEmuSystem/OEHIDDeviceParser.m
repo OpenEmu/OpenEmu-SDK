@@ -248,12 +248,12 @@ static BOOL OE_isXboxControllerName(NSString *name)
          [controllerDesc addControlWithIdentifier:identifier name:rep[@"Name"] event:genericEvent valueRepresentations:rep[@"Values"]];
      }];
 
-    [genericDesktopElements enumerateObjectsWithOptions:NSEnumerationConcurrent | NSEnumerationReverse usingBlock:
-     ^(id elem, NSUInteger idx, BOOL *stop)
-     {
-         if([OEHIDEvent OE_eventWithElement:(__bridge IOHIDElementRef)elem value:0] == nil)
-             [genericDesktopElements removeObjectAtIndex:idx];
-     }];
+    [genericDesktopElements removeObjectsAtIndexes:
+     [genericDesktopElements indexesOfObjectsPassingTest:
+      ^ BOOL (id elem, NSUInteger idx, BOOL *stop)
+      {
+          return [OEHIDEvent OE_eventWithElement:(__bridge IOHIDElementRef)elem value:0] == nil;
+      }]];
 
     if([genericDesktopElements count] > 0)
         NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", [genericDesktopElements count], [deviceDesc name]);
