@@ -195,7 +195,7 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
     return nil;
 }
 
-- (BOOL)isAnalog
+- (BOOL)isAnalogic
 {
     switch(_buttonIdentifier)
     {
@@ -210,7 +210,7 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
     return NO;
 }
 
-- (void)OE_setAnalog:(BOOL)analog
+- (void)OE_setAnalogic:(BOOL)analog
 {
 }
 
