@@ -152,7 +152,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)frameRefreshThread:(id)anArgument
 {
-    gameInterval = 1./[self frameInterval];
     NSTimeInterval gameTime = OEMonotonicTime();
 
     frameFinished = YES;
@@ -170,11 +169,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     while(!shouldStop)
     {
-        gameTime += gameInterval;
+        gameTime += 1./[self frameInterval];
         @autoreleasepool
         {
 #if 0
-            gameTime += gameInterval;
+            gameTime += 1./[self frameInterval];
             if(wasZero && gameTime >= 1)
             {
                 NSUInteger audioBytesGenerated = ringBuffers[0].bytesWritten;
