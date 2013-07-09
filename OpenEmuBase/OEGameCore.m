@@ -152,6 +152,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)frameRefreshThread:(id)anArgument
 {
+    gameInterval = 1./[self frameInterval];
     NSTimeInterval gameTime = OEMonotonicTime();
 
     frameFinished = YES;
