@@ -345,16 +345,19 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     if(flag)
     {
         isFastForwarding = YES;
-        gameInterval = 1. / ([self frameInterval] * 5); // if fast forwarding, frameInterval is 5x speed
-
+        defaultTimeInterval = frameInterval; // original frame rate
+        frameInterval *= 5; // 5x speed
+        gameInterval = 1./([self frameInterval]);
+        
         [_renderDelegate willDisableVSync:YES];
         OESetThreadRealtime(gameInterval, .007, .03);
     }
     else
     {
         isFastForwarding = NO;
-        gameInterval = 1. / [self frameInterval];
-
+        frameInterval = defaultTimeInterval; // reset to original frame rate
+        gameInterval = 1./[self frameInterval];
+        
         [_renderDelegate willDisableVSync:NO];
         OESetThreadRealtime(gameInterval, .007, .03);
     }

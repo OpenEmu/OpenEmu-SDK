@@ -143,6 +143,12 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
 - (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 {
     FIXME("We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat");
+    switch (identifier)
+    {
+        case OEGlobalButtonIdentifierFastForward :
+            [[self client] fastForward:YES];
+            return;
+    }
 }
 
 - (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
@@ -185,9 +191,11 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierStepFrameForward :
             [[self client] stepFrameForward];
             return;
+        case OEGlobalButtonIdentifierFastForward :
+            [[self client] fastForward:NO];
+            return;
 
         case OEGlobalButtonIdentifierRewind :
-        case OEGlobalButtonIdentifierFastForward :
         case OEGlobalButtonIdentifierSlowMotion :
             NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
@@ -209,13 +217,14 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierRewind :
             [[self client] rewindAtSpeed:value];
             return;
-        case OEGlobalButtonIdentifierFastForward :
-            [[self client] fastForwardAtSpeed:value];
-            return;
+        //case OEGlobalButtonIdentifierFastForward :
+        //    [[self client] fastForwardAtSpeed:value];
+        //    return;
         case OEGlobalButtonIdentifierSlowMotion :
             [[self client] slowMotionAtSpeed:value];
             return;
 
+        case OEGlobalButtonIdentifierFastForward :
         case OEGlobalButtonIdentifierSaveState :
         case OEGlobalButtonIdentifierLoadState :
         case OEGlobalButtonIdentifierQuickSave :

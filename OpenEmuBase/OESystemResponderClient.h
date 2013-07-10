@@ -28,6 +28,7 @@
 
 @protocol OESystemResponderClient <NSObject>
 
+- (void)fastForward:(BOOL)flag;
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
 - (void)rewindAtSpeed:(CGFloat)rewindSpeed;
 - (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;

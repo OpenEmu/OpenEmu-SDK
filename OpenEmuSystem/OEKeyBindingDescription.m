@@ -200,7 +200,7 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
     switch(_buttonIdentifier)
     {
         case OEGlobalButtonIdentifierRewind :
-        case OEGlobalButtonIdentifierFastForward :
+        //case OEGlobalButtonIdentifierFastForward :
         case OEGlobalButtonIdentifierSlowMotion :
             return YES;
         default :
