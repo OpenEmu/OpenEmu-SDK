@@ -151,33 +151,40 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
     }
 }
 
+#define MAIN_THREAD(...) do { \
+    dispatch_block_t blk = ^{ __VA_ARGS__; }; \
+    if([NSThread isMainThread]) blk(); \
+    else dispatch_async(dispatch_get_main_queue(), blk); \
+} while(NO)
+
 - (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 {
+    
     switch(identifier)
     {
         case OEGlobalButtonIdentifierSaveState :
-            [self saveState:self];
+            MAIN_THREAD([self saveState:self]);
             return;
         case OEGlobalButtonIdentifierLoadState :
-            [self loadState:self];
+            MAIN_THREAD([self loadState:self]);
             return;
         case OEGlobalButtonIdentifierQuickSave :
-            [self quickSave:self];
+            MAIN_THREAD([self quickSave:self]);
             return;
         case OEGlobalButtonIdentifierQuickLoad :
-            [self quickLoad:self];
+            MAIN_THREAD([self quickLoad:self]);
             return;
         case OEGlobalButtonIdentifierFullScreen :
-            [self toggleFullScreen:self];
+            MAIN_THREAD([self toggleFullScreen:self]);
             return;
         case OEGlobalButtonIdentifierMute :
-            [self toggleAudioMute:self];
+            MAIN_THREAD([self toggleAudioMute:self]);
             return;
         case OEGlobalButtonIdentifierVolumeDown :
-            [self volumeDown:self];
+            MAIN_THREAD([self volumeDown:self]);
             return;
         case OEGlobalButtonIdentifierVolumeUp :
-            [self volumeUp:self];
+            MAIN_THREAD([self volumeUp:self]);
             return;
         case OEGlobalButtonIdentifierReset :
             [self resetEmulation:self];
