@@ -440,6 +440,16 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
+- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block
+{
+    block([self saveStateToFileAtPath:fileName]);
+}
+
+- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block
+{
+    block([self loadStateFromFileAtPath:fileName]);
+}
+
 #pragma mark - Cheats
 
 - (BOOL)canCheat

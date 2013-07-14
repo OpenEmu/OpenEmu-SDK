@@ -228,7 +228,13 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 
 #pragma mark -
 #pragma mark Save state - Optional
+
+- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block;
+- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block;
+
+// Deprecated - Called by -saveStateToFileAtPath:completionHandler:.
 - (BOOL)saveStateToFileAtPath:(NSString *)fileName;
+// Deprecated - Called by -loadStateFromFileAtPath:completionHandler:.
 - (BOOL)loadStateFromFileAtPath:(NSString *)fileName;
 
 #pragma mark -
