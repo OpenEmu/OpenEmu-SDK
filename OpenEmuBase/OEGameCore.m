@@ -54,6 +54,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     if(self != nil)
     {
         tenFrameCounter = 10;
+        frameRateModifier = 1;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
 
@@ -152,7 +153,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)frameRefreshThread:(id)anArgument
 {
-    gameInterval = 1./[self frameInterval];
     NSTimeInterval gameTime = OEMonotonicTime();
 
     frameFinished = YES;
@@ -166,11 +166,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     DLog(@"main thread: %s", BOOL_STR([NSThread isMainThread]));
 
-    OESetThreadRealtime(gameInterval, .007, .03); // guessed from bsnes
+    OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03); // guessed from bsnes
 
     while(!shouldStop)
     {
-        gameTime += 1./[self frameInterval];
+        gameTime += 1./(frameRateModifier * [self frameInterval]);
         @autoreleasepool
         {
 #if 0
@@ -345,22 +345,16 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     if(flag)
     {
         isFastForwarding = YES;
-        defaultTimeInterval = frameInterval; // original frame rate
-        frameInterval *= 5; // 5x speed
-        gameInterval = 1./([self frameInterval]);
-        
-        [_renderDelegate willDisableVSync:YES];
-        OESetThreadRealtime(gameInterval, .007, .03);
+        frameRateModifier = 5; // 5x speed
     }
     else
     {
         isFastForwarding = NO;
-        frameInterval = defaultTimeInterval; // reset to original frame rate
-        gameInterval = 1./[self frameInterval];
-        
-        [_renderDelegate willDisableVSync:NO];
-        OESetThreadRealtime(gameInterval, .007, .03);
+        frameRateModifier = 1;
     }
+
+    [_renderDelegate willDisableVSync:isFastForwarding];
+    OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03);
 }
 
 #pragma mark - Audio

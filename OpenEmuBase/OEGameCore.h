@@ -140,7 +140,7 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 @interface OEGameCore : NSResponder <OESystemResponderClient>
 {
     NSTimeInterval          frameInterval;
-    NSTimeInterval          gameInterval;
+    NSTimeInterval          frameRateModifier;
     OERingBuffer __strong **ringBuffers;
     NSUInteger              frameSkip;
     NSUInteger              frameCounter;
