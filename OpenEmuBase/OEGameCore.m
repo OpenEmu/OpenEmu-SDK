@@ -35,7 +35,6 @@
 #endif
 
 @implementation OEGameCore
-@synthesize frameFinished;
 
 static Class GameCoreClass = Nil;
 static NSTimeInterval defaultTimeInterval = 60.0;
@@ -153,9 +152,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)frameRefreshThread:(id)anArgument
 {
-    NSTimeInterval gameTime = OEMonotonicTime();
+    NSTimeInterval realTime, emulatedTime = OEMonotonicTime();
 
-    frameFinished = YES;
     willSkipFrame = NO;
     frameSkip = 0;
 
@@ -170,7 +168,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     while(!shouldStop)
     {
-        gameTime += 1./(frameRateModifier * [self frameInterval]);
         @autoreleasepool
         {
 #if 0
@@ -203,7 +200,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             else                          frameCounter++;
         }
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
-        OEWaitUntil(gameTime);
+
+        emulatedTime += 1./(frameRateModifier * [self frameInterval]);
+        realTime = OEMonotonicTime();
+
+        // if we are running behind, synchronize
+        if(realTime > emulatedTime)
+            emulatedTime = realTime;
+
+        OEWaitUntil(emulatedTime);
     }
 }
 
@@ -228,7 +233,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             isRunning  = YES;
             shouldStop = NO;
 
-            //[self executeFrame];
             // The selector is performed after a delay to let the application loop finish,
             // afterwards, the GameCore's runloop takes over and only stops when the whole helper stops.
             [self performSelector:@selector(frameRefreshThread:) withObject:nil afterDelay:0.0];

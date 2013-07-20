@@ -139,18 +139,18 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 
 @interface OEGameCore : NSResponder <OESystemResponderClient>
 {
+    OERingBuffer __strong **ringBuffers;
+
     NSTimeInterval          frameInterval;
     NSTimeInterval          frameRateModifier;
-    OERingBuffer __strong **ringBuffers;
+    
     NSUInteger              frameSkip;
     NSUInteger              frameCounter;
     NSUInteger              tenFrameCounter;
     NSUInteger              autoFrameSkipLastTime;
     NSUInteger              frameskipadjust;
 
-    BOOL                    frameFinished;
     BOOL                    willSkipFrame;
-
     BOOL                    isRunning;
     BOOL                    shouldStop;
     BOOL                    isFastForwarding;
@@ -167,7 +167,6 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 @property(readonly) NSString             *batterySavesDirectoryPath;
 
 @property(readonly) NSTimeInterval        frameInterval;
-@property           BOOL                  frameFinished;
 @property(copy)     NSString             *systemIdentifier;
 
 - (void)getAudioBuffer:(void *)buffer frameCount:(NSUInteger)frameCount bufferIndex:(NSUInteger)index;
@@ -201,7 +200,7 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 @property(readonly) OEIntSize   bufferSize;
 
 // The size of the current portion of the buffer that is needs to be displayed as "active" to the user
-// Note that this rect may not be have the same aspect ratio as what the end user sees.
+// Note that this rect may not be the same aspect ratio as what the end user sees.
 @property(readonly) OEIntRect   screenRect;
 
 // The *USER INTERFACE* aspect of the actual final displayed video on screen.
