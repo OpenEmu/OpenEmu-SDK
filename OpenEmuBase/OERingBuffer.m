@@ -39,7 +39,7 @@
 {
     if((self = [super init]))
     {
-        TPCircularBufferInit(&buffer, length);
+        TPCircularBufferInit(&buffer, (int)length);
     }
     return self;
 }
@@ -57,20 +57,20 @@
 - (void)setLength:(NSUInteger)length
 {
     TPCircularBufferCleanup(&buffer);
-    TPCircularBufferInit(&buffer, length);
+    TPCircularBufferInit(&buffer, (int)length);
 }
 
 - (NSUInteger)write:(const void *)inBuffer maxLength:(NSUInteger)length
 {
     bytesWritten += length;
-    return TPCircularBufferProduceBytes(&buffer, inBuffer, length);
+    return TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
 }
 
 - (NSUInteger)read:(void *)outBuffer maxLength:(NSUInteger)len
 {
     int availableBytes = 0;
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
-    availableBytes = MIN(availableBytes, len);
+    availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
     TPCircularBufferConsume(&buffer, availableBytes);
     return availableBytes;
