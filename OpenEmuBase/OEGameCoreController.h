@@ -43,6 +43,7 @@ extern NSString *const OEGameCorePlayerCountKey;
 @property(readonly) NSArray    *systemIdentifiers;
 
 @property(readonly) NSString   *supportDirectoryPath;
+@property(readonly) NSString   *biosDirectoryPath;
 @property(readonly) NSArray    *usedSettingNames;
 @property(readonly) NSUInteger  playerCount;
 

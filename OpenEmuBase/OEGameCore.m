@@ -86,6 +86,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return [[self owner] pluginName];
 }
 
+- (NSString *)biosDirectoryPath
+{
+    return [[self owner] biosDirectoryPath];
+}
+
 - (NSString *)supportDirectoryPath
 {
     return [[self owner] supportDirectoryPath];

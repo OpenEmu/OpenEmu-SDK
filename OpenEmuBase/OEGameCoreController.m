@@ -65,6 +65,7 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 
         NSString *supportFolder = [basePath stringByAppendingPathComponent:@"OpenEmu"];
         _supportDirectoryPath   = [supportFolder stringByAppendingPathComponent:_pluginName];
+        _biosDirectoryPath      = [supportFolder stringByAppendingPathComponent:@"BIOS"];
 
         _gameDocuments = [[NSMutableArray alloc] init];
     }
