@@ -29,9 +29,10 @@
 #import "OEGameCore.h"
 #import <objc/runtime.h>
 
-NSString *const OEAdvancedPreferenceKey  = @"OEAdvancedPreferenceKey";
-NSString *const OEGameCoreClassKey       = @"OEGameCoreClass";
-NSString *const OEGameCorePlayerCountKey = @"OEGameCorePlayerCount";
+NSString *const OEAdvancedPreferenceKey        = @"OEAdvancedPreferenceKey";
+NSString *const OEGameCoreClassKey             = @"OEGameCoreClass";
+NSString *const OEGameCorePlayerCountKey       = @"OEGameCorePlayerCount";
+NSString *const OEGameCoreSupportsCheatCodeKey = @"OEGameCoreSupportsCheatCode";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
@@ -54,11 +55,12 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 {
     if((self = [super init]))
     {
-        _bundle        = aBundle;
-        _pluginName    = ([[_bundle infoDictionary] objectForKey:@"CFBundleExecutable"] ? :
-                          [[_bundle infoDictionary] objectForKey:@"CFBundleName"]);
-        _gameCoreClass = NSClassFromString([[_bundle infoDictionary] objectForKey:OEGameCoreClassKey]);
-        _playerCount   = [[[_bundle infoDictionary] objectForKey:OEGameCorePlayerCountKey] integerValue];
+        _bundle            = aBundle;
+        _pluginName        = ([_bundle objectForInfoDictionaryKey:@"CFBundleExecutable"] ? :
+                              [_bundle objectForInfoDictionaryKey:@"CFBundleName"]);
+        _gameCoreClass     = NSClassFromString([_bundle objectForInfoDictionaryKey:OEGameCoreClassKey]);
+        _playerCount       = [[_bundle objectForInfoDictionaryKey:OEGameCorePlayerCountKey] integerValue];
+        _supportsCheatCode = [[_bundle objectForInfoDictionaryKey:OEGameCoreSupportsCheatCodeKey] boolValue];
 
         NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();

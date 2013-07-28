@@ -35,7 +35,6 @@
 
 @interface OESystemController ()
 {
-    NSBundle       *_bundle;
     NSMutableArray *_gameSystemResponders;
 
     NSString       *_systemName;

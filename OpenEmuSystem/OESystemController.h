@@ -101,6 +101,7 @@ typedef enum
 
 - (id)initWithBundle:(NSBundle *)aBundle;
 
+@property(readonly)       NSBundle     *bundle;
 @property(readonly, copy) NSString     *systemIdentifier;
 @property(readonly)       NSString     *systemName;
 @property(readonly)       NSImage      *systemIcon;
