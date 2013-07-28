@@ -114,6 +114,16 @@ static inline BOOL OEIntRectEqualToRect(OEIntRect rect1, OEIntRect rect2)
     return OEIntPointEqualToPoint(rect1.origin, rect2.origin) && OEIntSizeEqualToSize(rect1.size, rect2.size);
 }
 
+static inline BOOL OEIntSizeIsEmpty(OEIntSize size)
+{
+    return size.width == 0 || size.height == 0;
+}
+
+static inline BOOL OEIntRectIsEmpty(OEIntRect rect)
+{
+    return OEIntSizeIsEmpty(rect.size);
+}
+
 static inline NSSize NSSizeFromOEIntSize(OEIntSize size)
 {
     return NSMakeSize(size.width, size.height);
