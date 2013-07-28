@@ -169,14 +169,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     DLog(@"main thread: %s", BOOL_STR([NSThread isMainThread]));
 
-    OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03); // guessed from bsnes
+    OESetThreadRealtime(1. / (frameRateModifier * [self frameInterval]), .007, .03); // guessed from bsnes
 
     while(!shouldStop)
     {
         @autoreleasepool
         {
 #if 0
-            gameTime += 1./[self frameInterval];
+            gameTime += 1. / [self frameInterval];
             if(wasZero && gameTime >= 1)
             {
                 NSUInteger audioBytesGenerated = ringBuffers[0].bytesWritten;
@@ -206,12 +206,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         }
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
 
-        emulatedTime += 1./(frameRateModifier * [self frameInterval]);
+        emulatedTime += 1. / (frameRateModifier * [self frameInterval]);
         realTime = OEMonotonicTime();
 
         // if we are running behind, synchronize
         if(realTime > emulatedTime)
+        {
+            NSLog(@"%e seconds behind", realTime - emulatedTime);
             emulatedTime = realTime;
+        }
 
         OEWaitUntil(emulatedTime);
     }
@@ -241,8 +244,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             // The selector is performed after a delay to let the application loop finish,
             // afterwards, the GameCore's runloop takes over and only stops when the whole helper stops.
             [self performSelector:@selector(frameRefreshThread:) withObject:nil afterDelay:0.0];
-
-            DLog(@"Starting thread");
         }
     }
 }
@@ -362,7 +363,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         frameRateModifier = 1;
     }
 
-    [_renderDelegate willDisableVSync:isFastForwarding];
+    [_renderDelegate setEnableVSync:!isFastForwarding];
     OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03);
 }
 
@@ -443,21 +444,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
-- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block
+- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    block([self saveStateToFileAtPath:fileName]);
+    block([self saveStateToFileAtPath:fileName], nil);
 }
 
-- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block
+- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    block([self loadStateFromFileAtPath:fileName]);
-}
-
-#pragma mark - Cheats
-
-- (BOOL)canCheat
-{
-    return NO;
+    block([self loadStateFromFileAtPath:fileName], nil);
 }
 
 - (void)setCheat:(NSString *)code setType:(NSString *)type setEnabled:(BOOL)enabled

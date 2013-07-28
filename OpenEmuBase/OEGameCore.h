@@ -41,6 +41,7 @@
 #define OE_EXPORTED_CLASS __attribute__((visibility("default")))
 
 #pragma mark -
+
 @protocol OERenderDelegate
 
 @required
@@ -53,7 +54,7 @@
 - (void)willRenderFrameOnAlternateThread;
 - (void)didRenderFrameOnAlternateThread;
 
-- (void)willDisableVSync:(BOOL)flag;
+- (void)setEnableVSync:(BOOL)flag;
 
 @end
 
@@ -176,9 +177,10 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 - (void)calculateFrameSkip:(NSUInteger)rate;
 - (void)fastForward:(BOOL)flag;
 
-#pragma mark -
-#pragma mark Execution
+#pragma mark - Execution
+
 @property(getter=isEmulationPaused) BOOL pauseEmulation;
+
 - (BOOL)rendersToOpenGL;
 - (void)frameRefreshThread:(id)anArgument;
 - (void)setupEmulation;
@@ -194,8 +196,8 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 
 - (BOOL)loadFileAtPath:(NSString *)path;
 
-#pragma mark -
-#pragma mark Video
+#pragma mark - Video
+
 // The full size of the internal video buffer used by the core
 // This is typically the largest size possible.
 @property(readonly) OEIntSize   bufferSize;
@@ -212,8 +214,8 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 @property(readonly) GLenum      pixelType;
 @property(readonly) GLenum      internalPixelFormat;
 
-#pragma mark -
-#pragma mark Audio
+#pragma mark - Audio
+
 @property(readonly) NSUInteger  audioBufferCount; // overriding it is optional, should be constant
 
 // used when audioBufferCount == 1
@@ -226,35 +228,31 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 - (NSUInteger)audioBufferSizeForBuffer:(NSUInteger)buffer;
 - (double)audioSampleRateForBuffer:(NSUInteger)buffer;
 
-#pragma mark -
-#pragma mark Save state - Optional
+#pragma mark - Save state - Optional
 
-- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block;
-- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success))block;
+- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
+- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
 
 // Deprecated - Called by -saveStateToFileAtPath:completionHandler:.
 - (BOOL)saveStateToFileAtPath:(NSString *)fileName;
 // Deprecated - Called by -loadStateFromFileAtPath:completionHandler:.
 - (BOOL)loadStateFromFileAtPath:(NSString *)fileName;
 
-#pragma mark -
-#pragma mark Cheats - Optional
-- (BOOL)canCheat;
-- (void)setCheat:(NSString *)code setType:(NSString *)type setEnabled:(BOOL)enabled;
+#pragma mark - Cheats - Optional
 
-// ============================================================================
-// End Abstract methods.
-// ============================================================================
+- (void)setCheat:(NSString *)code setType:(NSString *)type setEnabled:(BOOL)enabled;
 
 @end
 
-#pragma mark -
-#pragma mark Optional
+#pragma mark - Optional
+
 @interface OEGameCore (OptionalMethods)
+
 - (IBAction)pauseEmulation:(id)sender;
 
 - (NSTrackingAreaOptions)mouseTrackingOptions;
 
 - (NSSize)outputSize;
 - (void)setRandomByte;
+
 @end
