@@ -157,7 +157,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)frameRefreshThread:(id)anArgument
 {
-    NSTimeInterval frameTime, realTime, emulatedTime = OEMonotonicTime();
+    NSTimeInterval realTime, emulatedTime = OEMonotonicTime();
 
     willSkipFrame = NO;
     frameSkip = 0;
@@ -206,12 +206,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         }
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
 
-        frameTime = 1./(frameRateModifier * [self frameInterval]);
-        emulatedTime += frameTime;
+        emulatedTime += 1./(frameRateModifier * [self frameInterval]);
         realTime = OEMonotonicTime();
 
-        // if we are running more than a frame behind, synchronize
-        if(realTime - emulatedTime > frameTime)
+        // if we are running more than a second behind, synchronize
+        if(realTime - emulatedTime > 1)
         {
             NSLog(@"Synchronizing because we are %g seconds behind", realTime - emulatedTime);
             emulatedTime = realTime;
