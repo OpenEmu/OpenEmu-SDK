@@ -212,7 +212,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
         // if we are running more than a frame behind, synchronize
         if(realTime - emulatedTime > frameTime)
+        {
+            NSLog(@"Synchronizing because we are %g seconds behind", realTime - emulatedTime);
             emulatedTime = realTime;
+        }
 
         OEWaitUntil(emulatedTime);
     }
