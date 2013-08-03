@@ -209,10 +209,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         emulatedTime += 1. / (frameRateModifier * [self frameInterval]);
         realTime = OEMonotonicTime();
 
-        // if we are running behind, synchronize
-        if(realTime > emulatedTime)
+        // if we are running more than a second behind, synchronize
+        if(realTime - emulatedTime > 1)
         {
-            NSLog(@"%e seconds behind", realTime - emulatedTime);
+            NSLog(@"Synchronizing because we are %g seconds behind", realTime - emulatedTime);
             emulatedTime = realTime;
         }
 
