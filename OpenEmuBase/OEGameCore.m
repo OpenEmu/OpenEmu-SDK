@@ -276,6 +276,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     // FIXME: Need implementation.
 }
 
+- (void)changeDisplayMode;
+{
+}
+
 #pragma mark - ABSTRACT METHODS
 
 // Never call super on them.

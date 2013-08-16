@@ -270,6 +270,28 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 #pragma mark - IOHIDDevice management
 
+- (void)OE_enumerateDevicesUsingBlock:(void(^)(OEDeviceHandler *device, BOOL *stop))block
+{
+    BOOL stop = NO;
+    for(OEDeviceHandler *handler in _multiDeviceHandlers)
+    {
+        block(handler, &stop);
+        if(stop) return;
+    }
+
+    for(OEDeviceHandler *handler in _keyboardHandlers)
+    {
+        block(handler, &stop);
+        if(stop) return;
+    }
+
+    for(OEDeviceHandler *handler in _deviceHandlers)
+    {
+        block(handler, &stop);
+        if(stop) return;
+    }
+}
+
 - (void)OE_addDeviceHandlerForDeviceRef:(IOHIDDeviceRef)device
 {
     NSAssert(device != NULL, @"Passing NULL device.");
@@ -315,11 +337,17 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (BOOL)OE_hasDeviceHandlerForDeviceRef:(IOHIDDeviceRef)deviceRef
 {
-    for(OEHIDDeviceHandler *handler in _deviceHandlers)
-        if([handler isKindOfClass:[OEHIDDeviceHandler class]] && handler.device == deviceRef)
-            return YES;
+    __block BOOL didFoundDevice = NO;
+    [self OE_enumerateDevicesUsingBlock:
+     ^(OEDeviceHandler *handler, BOOL *stop)
+     {
+         if(![handler isKindOfClass:[OEHIDDeviceHandler class]] || [(OEHIDDeviceHandler *)handler device] != deviceRef) return;
 
-    return NO;
+         didFoundDevice = YES;
+         *stop = YES;
+     }];
+
+    return didFoundDevice;
 }
 
 - (void)OE_removeDeviceHandler:(OEDeviceHandler *)handler
