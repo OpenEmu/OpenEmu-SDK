@@ -148,6 +148,9 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierFastForward :
             [[self client] fastForward:YES];
             return;
+        case OEGlobalButtonIdentifierDisplayMode :
+            [[self client] changeDisplayMode];
+            return;
         default :
             break;
     }
@@ -203,6 +206,8 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierFastForward :
             [[self client] fastForward:NO];
             return;
+        case OEGlobalButtonIdentifierDisplayMode :
+            return;
 
         case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierSlowMotion :
@@ -246,6 +251,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierPause :
         case OEGlobalButtonIdentifierStepFrameBackward :
         case OEGlobalButtonIdentifierStepFrameForward :
+        case OEGlobalButtonIdentifierDisplayMode :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
 

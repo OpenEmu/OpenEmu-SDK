@@ -34,5 +34,6 @@
 - (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
 - (void)stepFrameForward;
 - (void)stepFrameBackward;
+- (void)changeDisplayMode;
 
 @end
