@@ -31,7 +31,7 @@
 #ifndef DLog
 
 #ifdef DEBUG_PRINT
-#define DLog(format, ...) NSLog(@"%s: " format, __FUNCTION__, ##__VA_ARGS__)
+#define DLog(format, ...) NSLog(@"%@:%d: %s: " format, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #else
 #define DLog(format, ...) do {} while(0)
 #endif
