@@ -31,7 +31,6 @@
 #import <IOKit/hid/IOHIDLib.h>
 #import <IOKit/hid/IOHIDUsageTables.h>
 
-#import <OpenEmuSystem/NSApplication+OEHIDAdditions.h>
 #import <OpenEmuSystem/NSResponder+OEHIDAdditions.h>
 #import <OpenEmuSystem/OEBasicSystemResponder.h>
 #import <OpenEmuSystem/OEBindingMap.h>

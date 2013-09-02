@@ -29,6 +29,7 @@
 #import <IOKit/hid/IOHIDLib.h>
 #import <IOKit/hid/IOHIDUsageTables.h>
 
+@class OEHIDEvent;
 @class OEDeviceHandler;
 
 @interface OEDeviceManager : NSObject
@@ -41,6 +42,13 @@
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;
+
+- (void)deviceHandler:(OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
+
+- (id)addGlobalEventMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+- (id)addEventMonitorForDeviceHandler:(OEDeviceHandler *)device handler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+- (id)addUnhandledEventMonitorHandler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+- (void)removeMonitor:(id)monitor;
 
 @end
 

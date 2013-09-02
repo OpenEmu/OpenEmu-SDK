@@ -26,7 +26,6 @@
 
 #import "OEWiimoteHIDDeviceHandler.h"
 #import <IOBluetooth/IOBluetooth.h>
-#import "NSApplication+OEHIDAdditions.h"
 #import "OEHIDEvent.h"
 #import "OEControllerDescription_Internal.h"
 

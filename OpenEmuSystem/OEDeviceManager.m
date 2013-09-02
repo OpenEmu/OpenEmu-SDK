@@ -34,7 +34,6 @@
 #import "OEPS3HIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OEHIDEvent.h"
-#import "NSApplication+OEHIDAdditions.h"
 
 #import <objc/runtime.h>
 
@@ -48,6 +47,12 @@ NSString *const OEDeviceManagerDidAddDeviceHandlerNotification    = @"OEDeviceMa
 NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification = @"OEDeviceManagerDidRemoveDeviceHandlerNotification";
 NSString *const OEDeviceManagerDeviceHandlerUserInfoKey           = @"OEDeviceManagerDeviceHandlerUserInfoKey";
 
+@interface _OEDeviceManagerEventMonitor : NSObject
++ (instancetype)monitorWithGlobalMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
++ (instancetype)monitorWithEventMonitorHandler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+@property(copy) BOOL(^globalMonitor)(OEDeviceHandler *handler, OEHIDEvent *event);
+@property(copy) void(^eventMonitor)(OEDeviceHandler *handler, OEHIDEvent *event);
+@end
 
 static void OEHandle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
 
@@ -101,6 +106,10 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     NSUInteger _lastAttributedDeviceIdentifier;
     NSUInteger _lastAttributedMultiDeviceIdentifier;
     NSUInteger _lastAttributedKeyboardIdentifier;
+
+    NSHashTable *_globalEventListeners;
+    NSHashTable *_unhandledEventListeners;
+    NSMutableDictionary *_deviceHandlersToEventListeners;
 }
 
 - (void)OE_addKeyboardEventMonitor;
@@ -139,6 +148,10 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         _deviceHandlers      = [[NSMutableSet alloc] init];
         _multiDeviceHandlers = [[NSMutableSet alloc] init];
 		_hidManager          = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
+
+        _globalEventListeners = [NSHashTable weakObjectsHashTable];
+        _unhandledEventListeners = [NSHashTable weakObjectsHashTable];
+        _deviceHandlersToEventListeners = [NSMutableDictionary dictionary];
 
 		IOHIDManagerRegisterDeviceMatchingCallback(_hidManager, OEHandle_DeviceMatchingCallback, (__bridge void *)self);
 
@@ -209,6 +222,77 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
             }];
 }
 
+- (void)deviceHandler:(OEDeviceHandler *)device didReceiveEvent:(OEHIDEvent *)event
+{
+    BOOL continuePosting = YES;
+    for(_OEDeviceManagerEventMonitor *monitor in _globalEventListeners)
+        if(![monitor globalMonitor](device, event))
+            continuePosting = NO;
+
+    if(!continuePosting) return;
+
+    if(device != nil)
+    {
+        NSHashTable *monitors = _deviceHandlersToEventListeners[device];
+        for(_OEDeviceManagerEventMonitor *monitor in monitors)
+        {
+            [monitor eventMonitor](device, event);
+            continuePosting = NO;
+        }
+
+        if(!continuePosting) return;
+    }
+
+    for(_OEDeviceManagerEventMonitor *monitor in _unhandledEventListeners)
+        [monitor eventMonitor](device, event);
+}
+
+- (id)addGlobalEventMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+{
+    _OEDeviceManagerEventMonitor *monitor = [_OEDeviceManagerEventMonitor monitorWithGlobalMonitorHandler:handler];
+    [_globalEventListeners addObject:monitor];
+    return monitor;
+}
+
+- (id)addEventMonitorForDeviceHandler:(OEDeviceHandler *)device handler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+{
+    NSAssert(device != nil, @"You must provide a device handler, use addUnhandledEventMonitorHandler: instead.");
+    NSHashTable *monitors = _deviceHandlersToEventListeners[device];
+    if(monitors == nil)
+    {
+        monitors = [NSHashTable weakObjectsHashTable];
+        _deviceHandlersToEventListeners[device] = monitors;
+    }
+
+    _OEDeviceManagerEventMonitor *monitor = [_OEDeviceManagerEventMonitor monitorWithEventMonitorHandler:handler];
+    [monitors addObject:monitor];
+    return monitor;
+}
+
+- (id)addUnhandledEventMonitorHandler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
+{
+    _OEDeviceManagerEventMonitor *monitor = [_OEDeviceManagerEventMonitor monitorWithEventMonitorHandler:handler];
+    [_unhandledEventListeners addObject:monitor];
+    return monitor;
+}
+
+- (void)removeMonitor:(id)monitor;
+{
+    [_globalEventListeners removeObject:monitor];
+    [_unhandledEventListeners removeObject:monitor];
+
+    NSMutableArray *keysToRemove = [NSMutableArray array];
+    [_deviceHandlersToEventListeners enumerateKeysAndObjectsUsingBlock:
+     ^(id key, NSHashTable *monitors, BOOL *stop)
+     {
+         [monitors removeObject:monitor];
+
+         if([monitors count] == 0) [keysToRemove addObject:key];
+     }];
+
+    [_deviceHandlersToEventListeners removeObjectsForKeys:keysToRemove];
+}
+
 #pragma mark - Keyboard management
 
 - (void)OE_addKeyboardEventMonitor;
@@ -225,8 +309,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
          if(CGEventGetIntegerValueField([anEvent CGEvent], kCGEventSourceUnixProcessID) != 0)
          {
              OEHIDEvent *event = [OEHIDEvent keyEventWithTimestamp:[anEvent timestamp] keyCode:[OEHIDEvent keyCodeForVirtualKey:[anEvent keyCode]] state:[anEvent type] == NSKeyDown cookie:OEUndefinedCookie];
-
-             [NSApp postHIDEvent:event];
+             [[OEDeviceManager sharedDeviceManager] deviceHandler:nil didReceiveEvent:event];
          }
 
          return anEvent;
@@ -260,8 +343,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
              }
 
              OEHIDEvent *event = [OEHIDEvent keyEventWithTimestamp:[anEvent timestamp] keyCode:keyCode state:!!([anEvent modifierFlags] & keyMask) cookie:OEUndefinedCookie];
-
-             [NSApp postHIDEvent:event];
+             [[OEDeviceManager sharedDeviceManager] deviceHandler:nil didReceiveEvent:event];
          }
 
          return anEvent;
@@ -493,6 +575,29 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     }
 
     NSLog(@"Pairing finished %@: %x", sender, error);
+}
+
+@end
+
+@implementation _OEDeviceManagerEventMonitor
+
++ (instancetype)monitorWithGlobalMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler
+{
+    _OEDeviceManagerEventMonitor *monitor = [[self alloc] init];
+    [monitor setGlobalMonitor:handler];
+    return monitor;
+}
+
++ (instancetype)monitorWithEventMonitorHandler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler
+{
+    _OEDeviceManagerEventMonitor *monitor = [[self alloc] init];
+    [monitor setEventMonitor:handler];
+    return monitor;
+}
+
+- (void)dealloc
+{
+    [[OEDeviceManager sharedDeviceManager] removeMonitor:self];
 }
 
 @end

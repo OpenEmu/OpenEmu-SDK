@@ -82,8 +82,6 @@
 		C6772BDF1710E41C00ED580A /* OELocalizationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772BE01710E41C00ED580A /* OELocalizationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */; };
 		C6772BE11710E72A00ED580A /* OpenEmuBase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A261710A4BA00ED580A /* OpenEmuBase.framework */; };
-		C6772C2E1710EBB600ED580A /* NSApplication+OEHIDAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772C2C1710EBB600ED580A /* NSApplication+OEHIDAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C6772C2F1710EBB600ED580A /* NSApplication+OEHIDAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772C2D1710EBB600ED580A /* NSApplication+OEHIDAdditions.m */; };
 		C6772C311710EC0D00ED580A /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C301710EC0C00ED580A /* ForceFeedback.framework */; };
 		C6772C331710EC3600ED580A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C321710EC3500ED580A /* IOKit.framework */; };
 		C6772C351710EC4500ED580A /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C341710EC4500ED580A /* IOBluetooth.framework */; };
@@ -183,8 +181,6 @@
 		C6772BD11710E29C00ED580A /* OEDeviceDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDeviceDescription.m; sourceTree = "<group>"; };
 		C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OELocalizationHelper.h; sourceTree = "<group>"; };
 		C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OELocalizationHelper.m; sourceTree = "<group>"; };
-		C6772C2C1710EBB600ED580A /* NSApplication+OEHIDAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSApplication+OEHIDAdditions.h"; sourceTree = "<group>"; };
-		C6772C2D1710EBB600ED580A /* NSApplication+OEHIDAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSApplication+OEHIDAdditions.m"; sourceTree = "<group>"; };
 		C6772C301710EC0C00ED580A /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/ForceFeedback.framework; sourceTree = DEVELOPER_DIR; };
 		C6772C321710EC3500ED580A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
 		C6772C341710EC4500ED580A /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/IOBluetooth.framework; sourceTree = DEVELOPER_DIR; };
@@ -376,8 +372,6 @@
 				C6772BB11710E28900ED580A /* OEHIDUsageToVK.h */,
 				C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */,
 				C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */,
-				C6772C2C1710EBB600ED580A /* NSApplication+OEHIDAdditions.h */,
-				C6772C2D1710EBB600ED580A /* NSApplication+OEHIDAdditions.m */,
 				C6772BAF1710E28900ED580A /* NSResponder+OEHIDAdditions.h */,
 				C6772BB01710E28900ED580A /* NSResponder+OEHIDAdditions.m */,
 			);
@@ -437,7 +431,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C6772C2E1710EBB600ED580A /* NSApplication+OEHIDAdditions.h in Headers */,
 				C6772BC41710E28900ED580A /* NSResponder+OEHIDAdditions.h in Headers */,
 				C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */,
 				C6772B7F1710E21900ED580A /* OEBasicSystemResponder.h in Headers */,
@@ -599,7 +592,6 @@
 				C6772BD61710E29C00ED580A /* OEControlDescription.m in Sources */,
 				C6772BD81710E29C00ED580A /* OEDeviceDescription.m in Sources */,
 				C6772BE01710E41C00ED580A /* OELocalizationHelper.m in Sources */,
-				C6772C2F1710EBB600ED580A /* NSApplication+OEHIDAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

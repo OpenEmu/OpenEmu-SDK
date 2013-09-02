@@ -25,7 +25,6 @@
  */
 
 #import "OEHIDDeviceHandler.h"
-#import "NSApplication+OEHIDAdditions.h"
 #import "OEControllerDescription.h"
 #import "OEDeviceDescription.h"
 #import "OEControlDescription.h"
@@ -174,7 +173,7 @@
     if([event isEqualToEvent:existingEvent]) return;
 
     _latestEvents[cookieKey] = event;
-    [NSApp postHIDEvent:event];
+    [[OEDeviceManager sharedDeviceManager] deviceHandler:self didReceiveEvent:event];
 }
 
 - (OEHIDEvent *)eventWithHIDValue:(IOHIDValueRef)aValue
