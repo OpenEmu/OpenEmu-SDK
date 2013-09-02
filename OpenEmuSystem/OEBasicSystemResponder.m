@@ -156,8 +156,8 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
     }
 }
 
-#define MAIN_THREAD(...) do { \
-    dispatch_block_t blk = ^{ __VA_ARGS__; }; \
+#define SEND_ACTION(sel) do { \
+    dispatch_block_t blk = ^{ [NSApp sendAction:@selector(sel) to:nil from:self]; }; \
     if([NSThread isMainThread]) blk(); \
     else dispatch_async(dispatch_get_main_queue(), blk); \
 } while(NO)
@@ -168,34 +168,34 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
     switch(identifier)
     {
         case OEGlobalButtonIdentifierSaveState :
-            MAIN_THREAD([self saveState:self]);
+            SEND_ACTION(saveState:);
             return;
         case OEGlobalButtonIdentifierLoadState :
-            MAIN_THREAD([self loadState:self]);
+            SEND_ACTION(loadState:);
             return;
         case OEGlobalButtonIdentifierQuickSave :
-            MAIN_THREAD([self quickSave:self]);
+            SEND_ACTION(quickSave:);
             return;
         case OEGlobalButtonIdentifierQuickLoad :
-            MAIN_THREAD([self quickLoad:self]);
+            SEND_ACTION(quickLoad:);
             return;
         case OEGlobalButtonIdentifierFullScreen :
-            MAIN_THREAD([self toggleFullScreen:self]);
+            SEND_ACTION(toggleFullScreen:);
             return;
         case OEGlobalButtonIdentifierMute :
-            MAIN_THREAD([self toggleAudioMute:self]);
+            SEND_ACTION(toggleAudioMute:);
             return;
         case OEGlobalButtonIdentifierVolumeDown :
-            MAIN_THREAD([self volumeDown:self]);
+            SEND_ACTION(volumeDown:);
             return;
         case OEGlobalButtonIdentifierVolumeUp :
-            MAIN_THREAD([self volumeUp:self]);
+            SEND_ACTION(volumeUp:);
             return;
         case OEGlobalButtonIdentifierReset :
-            [self resetEmulation:self];
+            SEND_ACTION(resetEmulation:);
             return;
         case OEGlobalButtonIdentifierPause :
-            [self toggleEmulationPause:self];
+            SEND_ACTION(toggleEmulationPaused:);
             return;
         case OEGlobalButtonIdentifierStepFrameBackward :
             [[self client] stepFrameBackward];

@@ -84,15 +84,4 @@ FORWARD_MESSAGE(hatSwitchChanged, OEHIDEvent *)
 FORWARD_MESSAGE(HIDKeyDown, OEHIDEvent *)
 FORWARD_MESSAGE(HIDKeyUp, OEHIDEvent *)
 
-FORWARD_MESSAGE(saveState, id)
-FORWARD_MESSAGE(loadState, id)
-FORWARD_MESSAGE(quickSave, id)
-FORWARD_MESSAGE(quickLoad, id)
-FORWARD_MESSAGE(toggleFullScreen, id)
-FORWARD_MESSAGE(toggleEmulationPause, id)
-FORWARD_MESSAGE(resetEmulation, id)
-FORWARD_MESSAGE(toggleAudioMute, id)
-FORWARD_MESSAGE(volumeDown, id)
-FORWARD_MESSAGE(volumeUp, id)
-
 @end
