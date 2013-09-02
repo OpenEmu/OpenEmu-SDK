@@ -218,6 +218,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
         OEWaitUntil(emulatedTime);
     }
+
+    [[self delegate] gameCoreDidFinishFrameRefreshThread:self];
 }
 
 - (BOOL)isEmulationPaused
@@ -230,6 +232,19 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     shouldStop = YES;
     isRunning  = NO;
     DLog(@"Ending thread");
+    [self didStopEmulation];
+}
+
+- (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+{
+    _stopEmulationHandler = [completionHandler copy];
+    [self stopEmulation];
+}
+
+- (void)didStopEmulation;
+{
+    if(_stopEmulationHandler != nil) _stopEmulationHandler();
+    _stopEmulationHandler = nil;
 }
 
 - (void)startEmulation

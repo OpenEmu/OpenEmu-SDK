@@ -58,6 +58,10 @@
 
 @end
 
+@protocol OEGameCoreDelegate <NSObject>
+- (void)gameCoreDidFinishFrameRefreshThread:(OEGameCore *)gameCore;
+@end
+
 #pragma mark -
 
 @protocol OEAudioDelegate
@@ -150,6 +154,8 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 
 @interface OEGameCore : NSResponder <OESystemResponderClient>
 {
+    void (^_stopEmulationHandler)(void);
+
     OERingBuffer __strong **ringBuffers;
 
     NSTimeInterval          frameInterval;
@@ -168,8 +174,9 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
     BOOL                    stepFrameForward;
 }
 
-@property(weak)     id<OERenderDelegate>  renderDelegate;
-@property(weak)     id<OEAudioDelegate>   audioDelegate;
+@property(weak)     id<OEGameCoreDelegate> delegate;
+@property(weak)     id<OERenderDelegate>   renderDelegate;
+@property(weak)     id<OEAudioDelegate>    audioDelegate;
 
 @property(weak)     OEGameCoreController *owner;
 @property(readonly) NSString             *pluginName;
@@ -196,6 +203,9 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 - (void)setupEmulation;
 - (void)stopEmulation;
 - (void)startEmulation;
+
+- (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+- (void)didStopEmulation;
 
 // ============================================================================
 // Abstract methods: Those methods should be overridden by subclasses
