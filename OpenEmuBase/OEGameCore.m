@@ -155,6 +155,17 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
 }
 
+- (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
+{
+    [_renderDelegate willExecute];
+
+    [self executeFrameSkippingFrame:NO];
+
+    [_renderDelegate didExecute];
+
+    handler();
+}
+
 - (void)frameRefreshThread:(id)anArgument
 {
     NSTimeInterval realTime, emulatedTime = OEMonotonicTime();

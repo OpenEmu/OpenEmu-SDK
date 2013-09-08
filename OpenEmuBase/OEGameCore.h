@@ -207,6 +207,8 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 - (void)didStopEmulation;
 
+- (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler;
+
 // ============================================================================
 // Abstract methods: Those methods should be overridden by subclasses
 // ============================================================================
