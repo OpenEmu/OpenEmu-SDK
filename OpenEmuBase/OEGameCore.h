@@ -199,15 +199,15 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 @property(getter=isEmulationPaused) BOOL pauseEmulation;
 
 - (BOOL)rendersToOpenGL;
-- (void)frameRefreshThread:(id)anArgument;
 - (void)setupEmulation;
-- (void)stopEmulation;
 - (void)startEmulation;
+- (void)stopEmulation;
 
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 - (void)didStopEmulation;
 
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler;
+- (void)frameRefreshThread:(id)anArgument;
 
 // ============================================================================
 // Abstract methods: Those methods should be overridden by subclasses
