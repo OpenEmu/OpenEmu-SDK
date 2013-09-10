@@ -38,5 +38,6 @@
 + (id)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
 - (id)initWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
 - (OEIntPoint)locationInGameView;
+- (NSEventType)type;
 
 @end

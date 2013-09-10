@@ -64,6 +64,11 @@
     return [_realEvent respondsToSelector:aSelector] ? _realEvent : nil;
 }
 
+- (NSEventType)type
+{
+    return [_realEvent type];
+}
+
 @end
 
 @implementation NSEvent (OEEventAdditions)
