@@ -28,6 +28,7 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenEmuSystem/OESystemBindings.h>
 
+@class    OEEvent;
 @class    OESystemController;
 @protocol OESystemResponderClient;
 
@@ -38,6 +39,8 @@
 
 @property(strong, readonly) OESystemController *controller;
 @property(weak, nonatomic) id<OESystemResponderClient> client;
+
+- (void)handleMouseEvent:(OEEvent *)event;
 
 @end
 

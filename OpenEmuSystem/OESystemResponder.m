@@ -67,6 +67,11 @@
     }
 }
 
+- (void)handleMouseEvent:(OEEvent *)event
+{
+    
+}
+
 - (void)systemBindings:(OESystemBindings *)sender didSetEvent:(id)event forBinding:(id)bindingDescription playerNumber:(NSUInteger)playerNumber
 {
     

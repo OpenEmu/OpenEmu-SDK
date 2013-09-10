@@ -556,21 +556,21 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     CFDictionarySetValue(_joystickStates, joystickKey, (void *)direction);
 }
 
-- (void)mouseDown:(NSEvent *)theEvent
+- (void)handleMouseEvent:(OEEvent *)event
 {
-    OEIntPoint point = [theEvent locationInGameView];
-    [self mouseDownAtPoint:point];
-}
-
-- (void)mouseDragged:(NSEvent *)theEvent
-{
-    OEIntPoint point = [theEvent locationInGameView];
-    [self mouseDownAtPoint:point];
-}
-
-- (void)mouseUp:(NSEvent *)theEvent
-{
-    [self mouseUpAtPoint];
+    OEIntPoint point = [event locationInGameView];
+    switch([event type])
+    {
+        case NSLeftMouseDown :
+        case NSLeftMouseDragged :
+            [self mouseDownAtPoint:point];
+            break;
+        case NSLeftMouseUp :
+            [self mouseUpAtPoint];
+            break;
+        default :
+            break;
+    }
 }
 
 @end
