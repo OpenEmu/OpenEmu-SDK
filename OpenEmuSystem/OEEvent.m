@@ -29,8 +29,8 @@
 
 @implementation OEEvent
 {
-    NSEvent    *realEvent;
-    OEIntPoint  location;
+    NSEvent    *_realEvent;
+    OEIntPoint  _location;
 }
 
 + (id)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
@@ -47,8 +47,8 @@
 {
     if((self = [super init]))
     {
-        realEvent = anEvent;
-        location  = aLocation;
+        _realEvent = anEvent;
+        _location  = aLocation;
     }
 
     return self;
@@ -56,12 +56,12 @@
 
 - (OEIntPoint)locationInGameView;
 {
-    return location;
+    return _location;
 }
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
-    return [realEvent respondsToSelector:aSelector] ? realEvent : nil;
+    return [_realEvent respondsToSelector:aSelector] ? _realEvent : nil;
 }
 
 @end

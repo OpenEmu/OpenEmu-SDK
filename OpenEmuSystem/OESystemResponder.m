@@ -32,7 +32,6 @@
 #import <objc/runtime.h>
 
 @implementation OESystemResponder
-@synthesize client, controller;
 
 - (id)init
 {
@@ -43,7 +42,7 @@
 {
     if((self = [super init]))
     {
-        controller = value;
+        _controller = value;
     }
 
     return self;
@@ -56,7 +55,7 @@
 
 - (void)setClient:(id<OESystemResponderClient>)value;
 {
-    if(client != value)
+    if(_client != value)
     {
         Protocol *p = [[self class] gameSystemResponderClientProtocol];
         
@@ -64,7 +63,7 @@
         
         //NSAssert2(value == nil || [value conformsToProtocol:p], @"Client %@ does not conform to protocol %@.", value, NSStringFromProtocol(p));
         
-        client = value;
+        _client = value;
     }
 }
 
