@@ -317,7 +317,6 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
 @end
 
 @implementation OEHIDEvent
-@synthesize type = _type, cookie = _cookie, timestamp = _timestamp;
 
 + (NSUInteger)keyCodeForVirtualKey:(CGCharCode)charCode
 {
