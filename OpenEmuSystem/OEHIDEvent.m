@@ -840,6 +840,11 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
     return _data.key.keycode;
 }
 
+- (BOOL)isEscapeKeyEvent
+{
+    return [self type] == OEHIDEventTypeKeyboard && _data.key.keycode == kHIDUsage_KeyboardEscape;
+}
+
 - (NSUInteger)cookie
 {
     return _cookie;

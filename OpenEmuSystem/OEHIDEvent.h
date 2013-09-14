@@ -132,6 +132,7 @@ extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 
 // Key event
 @property(readonly) NSUInteger              keycode;
+- (BOOL)isEscapeKeyEvent;
 
 // Button or Key event state
 @property(readonly) OEHIDEventState         state;
