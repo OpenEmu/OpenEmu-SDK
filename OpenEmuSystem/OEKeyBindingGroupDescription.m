@@ -167,6 +167,15 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     }
 }
 
+- (void)enumerateOrientedKeyGroupsFromKey:(OEKeyBindingDescription *)baseKey usingBlock:(void (^)(OEOrientedKeyGroupBindingDescription *key, BOOL *stop))block;
+{
+    [self enumerateKeysFromKey:baseKey usingBlock:
+     ^(OEKeyBindingDescription *key, BOOL *stop)
+     {
+         block([self orientedKeyGroupWithBaseKey:key], stop);
+     }];
+}
+
 - (NSString *)description
 {
     NSString *additionalDesc = @"";
@@ -228,6 +237,11 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 - (void)enumerateKeysFromBaseKeyUsingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
 {
     [self enumerateKeysFromKey:_baseKey usingBlock:block];
+}
+
+- (void)enumerateOrientedKeyGroupsFromBaseKeyUsingBlock:(void(^)(OEOrientedKeyGroupBindingDescription *key, BOOL *stop))block;
+{
+    [self enumerateOrientedKeyGroupsFromKey:_baseKey usingBlock:block];
 }
 
 - (OEOrientedKeyGroupBindingDescription *)orientedKeyGroupWithBaseKey:(OEKeyBindingDescription *)aKey

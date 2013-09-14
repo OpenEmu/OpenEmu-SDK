@@ -94,6 +94,11 @@
     return anEvent != nil ? [[self systemBindingsController] OE_playerBindings:self didAssignEvent:anEvent toKeyWithName:aKeyName] : nil;
 }
 
+- (void)removeEventForKeyWithName:(NSString *)aKeyName
+{
+    [[self systemBindingsController] OE_playerBindings:self didRemoveEventForKeyWithName:aKeyName];
+}
+
 - (void)setValue:(id)value forKey:(NSString *)key
 {
     if([key hasPrefix:@"@"]) return [super setValue:value forKey:[key substringFromIndex:1]];

@@ -636,6 +636,14 @@ NSString *const OEGlobalButtonDisplayMode       = @"OEGlobalButtonDisplayMode";
     return ret;
 }
 
+- (void)OE_playerBindings:(OEPlayerBindings *)sender didRemoveEventForKeyWithName:(NSString *)aKey;
+{
+    if([sender isKindOfClass:[OEKeyboardPlayerBindings class]])
+        [self OE_playerBindings:(OEKeyboardPlayerBindings *)sender didUnsetKeyboardEventForKey:aKey];
+    else if([sender isKindOfClass:[OEDevicePlayerBindings class]])
+        [self OE_playerBindings:(OEDevicePlayerBindings *)sender didUnsetDeviceEventForKey:aKey];
+}
+
 - (id)OE_playerBindings:(OEKeyboardPlayerBindings *)sender didSetKeyboardEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
 {
     NSAssert([sender isKindOfClass:[OEKeyboardPlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
@@ -673,6 +681,22 @@ NSString *const OEGlobalButtonDisplayMode       = @"OEGlobalButtonDisplayMode";
     return keyDesc;
 }
 
+- (void)OE_playerBindings:(OEKeyboardPlayerBindings *)sender didUnsetKeyboardEventForKey:(NSString *)keyName;
+{
+    NSAssert([sender isKindOfClass:[OEKeyboardPlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
+
+    OEKeyBindingDescription *keyDesc = _allKeyBindingsDescriptions[keyName];
+    NSAssert(keyDesc != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
+
+    OEHIDEvent *event = [sender bindingEvents][keyDesc];
+    if(event == nil) return;
+
+    [sender OE_setBindingDescription:nil forKey:[keyDesc name]];
+    [sender OE_setBindingEvent:nil forKey:keyDesc];
+
+    [self OE_notifyObserversDidUnsetEvent:event forBindingKey:keyDesc playerNumber:[keyDesc isSystemWide] ? 0 : [sender playerNumber]];
+}
+
 - (id)OE_playerBindings:(OEDevicePlayerBindings *)sender didSetDeviceEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
 {
     NSAssert([sender isKindOfClass:[OEDevicePlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
@@ -682,8 +706,8 @@ NSString *const OEGlobalButtonDisplayMode       = @"OEGlobalButtonDisplayMode";
     OEControlValueDescription *valueDesc = [[[sender deviceHandler] controllerDescription] controlValueDescriptionForEvent:anEvent];
     NSAssert(valueDesc != nil, @"Controller type '%@' does not recognize the event '%@', when attempting to set the key with name: '%@'.", [[[sender deviceHandler] controllerDescription] identifier], anEvent, keyName);
 
-    // sender is based on another device player bindings
-    // it needs to be made independent and added to the manufacturer list
+    // Sender is based on another device player bindings,
+    // it needs to be made independent and added to the manufacturer list.
     if([sender OE_isDependent])
     {
         [sender OE_makeIndependent];
@@ -691,15 +715,18 @@ NSString *const OEGlobalButtonDisplayMode       = @"OEGlobalButtonDisplayMode";
         [_parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]] addObject:sender];
     }
 
-    // Search for keys bound to the same event
+    // Search for keys bound to the same event.
     NSArray *keys = [[sender bindingEvents] allKeysForObject:valueDesc];
-    if([keys count] == 0) keys = [[[sender bindingEvents] keysOfEntriesPassingTest:
-                                   ^ BOOL (OEOrientedKeyGroupBindingDescription *key, OEControlValueDescription *obj, BOOL *stop)
-                                   {
-                                       if(![key isKindOfClass:[OEOrientedKeyGroupBindingDescription class]]) return NO;
+    if([keys count] == 0)
+    {
+        keys = [[[sender bindingEvents] keysOfEntriesPassingTest:
+                 ^ BOOL (OEOrientedKeyGroupBindingDescription *key, OEControlValueDescription *obj, BOOL *stop)
+                 {
+                     if(![key isKindOfClass:[OEOrientedKeyGroupBindingDescription class]]) return NO;
 
-                                       return [obj controlDescription] == [valueDesc controlDescription];
-                                   }] allObjects];
+                     return [obj controlDescription] == [valueDesc controlDescription];
+                 }] allObjects];
+    }
 
     // Remove bindings for these keys
     NSAssert([keys count] <= 1, @"More than one key is attached to the same event: %@ -> %@", anEvent, keys);
@@ -751,6 +778,65 @@ NSString *const OEGlobalButtonDisplayMode       = @"OEGlobalButtonDisplayMode";
     [[self bindingsController] OE_setRequiresSynchronization];
 
     return keyDesc;
+}
+
+- (void)OE_playerBindings:(OEDevicePlayerBindings *)sender didUnsetDeviceEventForKey:(NSString *)keyName;
+{
+    NSAssert([sender isKindOfClass:[OEDevicePlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
+
+    __block id keyDesc = _allKeyBindingsDescriptions[keyName];
+    NSAssert(keyDesc != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
+
+    // Sender is based on another device player bindings,
+    // it needs to be made independent and added to the manufacturer list.
+    if([sender OE_isDependent])
+    {
+        [sender OE_makeIndependent];
+
+        [_parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]] addObject:sender];
+    }
+
+    __block OEHIDEvent *eventToRemove = [sender bindingEvents][keyDesc];
+    if(eventToRemove == nil)
+    {
+        [[keyDesc OE_axisGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
+         ^(OEOrientedKeyGroupBindingDescription *key, BOOL *stop)
+         {
+             OEHIDEvent *event = [sender bindingEvents][key];
+             if(event == nil) return;
+
+             keyDesc = key;
+             eventToRemove = event;
+             *stop = YES;
+         }];
+    }
+
+    if(eventToRemove == nil)
+    {
+        [[keyDesc OE_hatSwitchGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
+         ^(OEOrientedKeyGroupBindingDescription *key, BOOL *stop)
+         {
+             OEHIDEvent *event = [sender bindingEvents][key];
+             if(event == nil) return;
+
+             keyDesc = key;
+             eventToRemove = event;
+             *stop = YES;
+         }];
+    }
+
+    if(eventToRemove == nil) return;
+
+    NSArray *keys = nil;
+    if([keyDesc isKindOfClass:[OEKeyBindingDescription class]])
+        keys = @[ [keyDesc name] ];
+    else if([keyDesc isKindOfClass:[OEKeyBindingGroupDescription class]])
+        keys = [keyDesc keyNames];
+
+    for(NSString *key in keys) [sender OE_setBindingDescription:nil forKey:key];
+
+    [sender OE_setBindingEvent:nil forKey:keyDesc];
+    [self OE_notifyObserversDidUnsetEvent:eventToRemove forBindingKey:keyDesc playerNumber:[sender playerNumber]];
 }
 
 - (void)OE_removeConcurrentBindings:(OEDevicePlayerBindings *)sender ofKey:(OEKeyBindingDescription *)keyDesc withEvent:(OEHIDEvent *)anEvent;

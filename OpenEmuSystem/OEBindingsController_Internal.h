@@ -63,6 +63,7 @@
 - (void)OE_didRemoveDeviceHandler:(OEDeviceHandler *)aHandler;
 
 - (id)OE_playerBindings:(OEPlayerBindings *)sender didAssignEvent:(id)value toKeyWithName:(NSString *)aKey;
+- (void)OE_playerBindings:(OEPlayerBindings *)sender didRemoveEventForKeyWithName:(NSString *)aKey;
 
 @end
 

@@ -53,6 +53,7 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 - (NSUInteger)indexOfKey:(OEKeyBindingDescription *)aKey;
 
 - (void)enumerateKeysFromKey:(OEKeyBindingDescription *)baseKey usingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
+- (void)enumerateOrientedKeyGroupsFromKey:(OEKeyBindingDescription *)baseKey usingBlock:(void (^)(OEOrientedKeyGroupBindingDescription *key, BOOL *stop))block;
 
 @end
 
@@ -66,5 +67,6 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 
 - (NSUInteger)indexOfBaseKey;
 - (void)enumerateKeysFromBaseKeyUsingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
+- (void)enumerateOrientedKeyGroupsFromBaseKeyUsingBlock:(void(^)(OEOrientedKeyGroupBindingDescription *key, BOOL *stop))block;
 
 @end

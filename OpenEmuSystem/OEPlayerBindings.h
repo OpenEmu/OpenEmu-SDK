@@ -52,6 +52,7 @@
 
 /// @result the key or key group that got assigned
 - (id)assignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)aKeyName;
+- (void)removeEventForKeyWithName:(NSString *)aKeyName;
 
 @end
 
