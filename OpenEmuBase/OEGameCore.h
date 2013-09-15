@@ -43,6 +43,16 @@
 
 #pragma mark -
 
+extern NSString *const OEGameCoreErrorDomain;
+
+enum _OEGameCoreErrorCodes {
+    OEGameCoreCouldNotStartCoreError = -1,
+    OEGameCoreCouldNotLoadROMError = -2,
+    OEGameCoreCouldNotLoadStateError = -3,
+    OEGameCoreStateHasWrongSizeError = -4,
+    OEGameCoreCouldNotSaveStateError = -5,
+};
+
 @protocol OERenderDelegate
 
 @required

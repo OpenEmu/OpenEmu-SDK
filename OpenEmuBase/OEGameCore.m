@@ -34,6 +34,8 @@
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
 #endif
 
+NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
+
 @implementation OEGameCore
 
 static Class GameCoreClass = Nil;
