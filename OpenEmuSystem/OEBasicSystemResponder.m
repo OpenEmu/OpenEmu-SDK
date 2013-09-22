@@ -302,6 +302,9 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
             void *eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
             CFDictionarySetValue(_joystickStates, eventStateKey, (void *)OEHIDEventAxisDirectionNull);
 
+            if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
+                break;
+
             OEKeyBindingDescription *keyDesc = [bindingDescription baseKey];
             if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
             {
@@ -320,6 +323,9 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         case OEHIDEventTypeHatSwitch :
             // Register the hat switch for state watch.
             CFDictionarySetValue(_joystickStates, _OEJoystickStateKeyForEvent(theEvent), (void *)OEHIDEventHatDirectionNull);
+
+            if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
+                break;
 
             if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
             {
