@@ -304,10 +304,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     // FIXME: Need implementation.
 }
 
-- (void)changeDisplayMode;
-{
-}
-
 #pragma mark - ABSTRACT METHODS
 
 // Never call super on them.
@@ -486,7 +482,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     block([self loadStateFromFileAtPath:fileName], nil);
 }
 
+#pragma mark - Cheats
+
 - (void)setCheat:(NSString *)code setType:(NSString *)type setEnabled:(BOOL)enabled
+{
+}
+
+#pragma mark - Misc
+
+- (void)changeDisplayMode;
 {
 }
 
