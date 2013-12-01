@@ -33,6 +33,7 @@ NSString *const OEAdvancedPreferenceKey        = @"OEAdvancedPreferenceKey";
 NSString *const OEGameCoreClassKey             = @"OEGameCoreClass";
 NSString *const OEGameCorePlayerCountKey       = @"OEGameCorePlayerCount";
 NSString *const OEGameCoreSupportsCheatCodeKey = @"OEGameCoreSupportsCheatCode";
+NSString *const OEGameCoreRequiresFilesKey     = @"OEGameCoreRequiresFiles";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
@@ -61,6 +62,7 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
         _gameCoreClass     = NSClassFromString([_bundle objectForInfoDictionaryKey:OEGameCoreClassKey]);
         _playerCount       = [[_bundle objectForInfoDictionaryKey:OEGameCorePlayerCountKey] integerValue];
         _supportsCheatCode = [[_bundle objectForInfoDictionaryKey:OEGameCoreSupportsCheatCodeKey] boolValue];
+        _requiresFiles     = [[_bundle objectForInfoDictionaryKey:OEGameCoreRequiresFilesKey] boolValue];
 
         NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();

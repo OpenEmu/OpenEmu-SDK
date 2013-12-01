@@ -30,6 +30,7 @@ extern NSString *const OEAdvancedPreferenceKey;
 extern NSString *const OEGameCoreClassKey;
 extern NSString *const OEGameCorePlayerCountKey;
 extern NSString *const OEGameCoreSupportsCheatCodeKey;
+extern NSString *const OEGameCoreRequiresFilesKey;
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 
@@ -48,6 +49,7 @@ extern NSString *const OEGameCoreSupportsCheatCodeKey;
 @property(readonly) NSArray    *usedSettingNames;
 @property(readonly) NSUInteger  playerCount;
 @property(readonly) BOOL        supportsCheatCode;
+@property(readonly) BOOL        requiresFiles;
 
 - (bycopy OEGameCore *)newGameCore;
 
