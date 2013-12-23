@@ -218,17 +218,17 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
           Button(@"Volume Up", @"Name of the global button to increase the volume", OEGlobalButtonVolumeUp),
           Button(@"Reset", @"Name of the global button to reset the emulation", OEGlobalButtonReset),
           Button(@"Pause", @"Name of the global button to pause the emulation", OEGlobalButtonPause),
-          Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
+          //Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
           Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
-          Button(@"Slow Motion", @"Name of the global button to run the emulation in slow motion", OEGlobalButtonSlowMotion),
-          Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
-          Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
+          //Button(@"Slow Motion", @"Name of the global button to run the emulation in slow motion", OEGlobalButtonSlowMotion),
+          //Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
+          //Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
           Button(@"Display Mode", @"Name of the global button to switch display modes", OEGlobalButtonDisplayMode),
           ]
         : // Limited selection of global buttons
         @[Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
           Button(@"Quick Load", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
-          Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
+          //Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
           Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
           ]];
     });
