@@ -66,6 +66,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierStepFrameForward";
         case OEGlobalButtonIdentifierDisplayMode :
             return @"OEGlobalButtonIdentifierDisplayMode";
+        case OEGlobalButtonIdentifierScreenshot :
+            return @"OEGlobalButtonIdentifierScreenshot";
         case OEGlobalButtonIdentifierCount :
             return @"OEGlobalButtonIdentifierCount";
         case OEGlobalButtonIdentifierFlag :
@@ -262,6 +264,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return OEGlobalButtonStepFrameForward;
         case OEGlobalButtonIdentifierDisplayMode :
             return OEGlobalButtonDisplayMode;
+        case OEGlobalButtonIdentifierScreenshot :
+            return OEGlobalButtonScreenshot;
         default :
             break;
     }

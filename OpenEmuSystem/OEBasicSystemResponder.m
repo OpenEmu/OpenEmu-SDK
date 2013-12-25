@@ -208,6 +208,9 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
             return;
         case OEGlobalButtonIdentifierDisplayMode :
             return;
+        case OEGlobalButtonIdentifierScreenshot :
+            SEND_ACTION(takeScreenshot:);
+            return;
 
         case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierSlowMotion :
@@ -252,6 +255,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OEBasicSystemRes
         case OEGlobalButtonIdentifierStepFrameBackward :
         case OEGlobalButtonIdentifierStepFrameForward :
         case OEGlobalButtonIdentifierDisplayMode :
+        case OEGlobalButtonIdentifierScreenshot :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
 

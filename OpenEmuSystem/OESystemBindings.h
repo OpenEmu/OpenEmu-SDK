@@ -53,6 +53,7 @@ extern NSString *const OEGlobalButtonSlowMotion;
 extern NSString *const OEGlobalButtonStepFrameBackward;
 extern NSString *const OEGlobalButtonStepFrameForward;
 extern NSString *const OEGlobalButtonDisplayMode;
+extern NSString *const OEGlobalButtonScreenshot;
 
 /// Manages the bindings for a specific system, useful for system responders
 /// Instances of this class are allocated by OEGameBindingsController

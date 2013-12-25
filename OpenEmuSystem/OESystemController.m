@@ -224,6 +224,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
           //Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
           //Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
           Button(@"Display Mode", @"Name of the global button to switch display modes", OEGlobalButtonDisplayMode),
+          Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
           ]
         : // Limited selection of global buttons
         @[Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
