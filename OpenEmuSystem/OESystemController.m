@@ -229,8 +229,12 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
         : // Limited selection of global buttons
         @[Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
           Button(@"Quick Load", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
+          Button(@"Mute", @"Name of the global button to toggle sound mute", OEGlobalButtonMute),
+          Button(@"Pause", @"Name of the global button to pause the emulation", OEGlobalButtonPause),
           //Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
           Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
+          Button(@"Display Mode", @"Name of the global button to switch display modes", OEGlobalButtonDisplayMode),
+          Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
           ]];
     });
 
