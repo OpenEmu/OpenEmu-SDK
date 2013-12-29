@@ -312,8 +312,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 - (void)OE_addKeyboardEventMonitor;
 {
     _keyEventMonitor =
-    [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask | NSKeyUpMask
-                                          handler:
+    [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask | NSKeyUpMask handler:
      ^ NSEvent * (NSEvent *anEvent)
      {
          /* Events with a process ID of 0 comes from the system, that is from the physical keyboard.
