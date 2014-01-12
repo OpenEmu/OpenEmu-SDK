@@ -305,6 +305,11 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 
 }
 
+- (void)mouseMovedAtPoint:(OEIntPoint)aPoint;
+{
+    
+}
+
 static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 {
     NSUInteger ret = [[anEvent deviceHandler] deviceIdentifier];
