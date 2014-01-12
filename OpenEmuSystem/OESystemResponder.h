@@ -1,7 +1,6 @@
 /*
  Copyright (c) 2011, OpenEmu Team
- 
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
      * Redistributions of source code must retain the above copyright
@@ -26,6 +25,9 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <OpenEmuBase/OEGameCore.h>
+#import <OpenEmuSystem/OEBindingMap.h>
+#import <OpenEmuSystem/OEKeyBindingDescription.h>
 #import <OpenEmuSystem/OESystemBindings.h>
 
 @class    OEEvent;
@@ -41,6 +43,19 @@
 @property(weak, nonatomic) id<OESystemResponderClient> client;
 
 - (void)handleMouseEvent:(OEEvent *)event;
+
+@property(nonatomic, strong) OEBindingMap *keyMap;
+
+- (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
+
+- (void)pressEmulatorKey:(OESystemKey *)aKey;
+- (void)releaseEmulatorKey:(OESystemKey *)aKey;
+- (void)mouseDownAtPoint:(OEIntPoint)aPoint;
+- (void)changeAnalogEmulatorKey:(OESystemKey *)aKey value:(CGFloat)value;
+
+- (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+- (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+- (void)changeAnalogGlobalButtonIdentifier:(OEGlobalButtonIdentifier)identifier value:(CGFloat)value;
 
 @end
 

@@ -1,7 +1,6 @@
 /*
  Copyright (c) 2011, OpenEmu Team
- 
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
      * Redistributions of source code must retain the above copyright
@@ -12,7 +11,7 @@
      * Neither the name of the OpenEmu Team nor the
        names of its contributors may be used to endorse or promote products
        derived from this software without specific prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY OpenEmu Team ''AS IS'' AND ANY
  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,24 +24,8 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Cocoa/Cocoa.h>
-#import <OpenEmuSystem/OEBindingMap.h>
-#import <OpenEmuSystem/OEKeyBindingDescription.h>
 #import <OpenEmuSystem/OESystemResponder.h>
-#import <OpenEmuBase/OEGameCore.h>
 
+DEPRECATED_ATTRIBUTE
 @interface OEBasicSystemResponder : OESystemResponder
-@property(nonatomic, strong) OEBindingMap *keyMap;
-
-- (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
-
-- (void)pressEmulatorKey:(OESystemKey *)aKey;
-- (void)releaseEmulatorKey:(OESystemKey *)aKey;
-- (void)mouseDownAtPoint:(OEIntPoint)aPoint;
-- (void)changeAnalogEmulatorKey:(OESystemKey *)aKey value:(CGFloat)value;
-
-- (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
-- (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
-- (void)changeAnalogGlobalButtonIdentifier:(OEGlobalButtonIdentifier)identifier value:(CGFloat)value;
-
 @end
