@@ -183,7 +183,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 }
 
 #define SEND_ACTION(sel) do { \
-    dispatch_block_t blk = ^{ [NSApp sendAction:@selector(sel) to:nil from:self]; }; \
+    dispatch_block_t blk = ^{ [[self globalEventsHandler] sel self]; }; \
     if([NSThread isMainThread]) blk(); \
     else dispatch_async(dispatch_get_main_queue(), blk); \
 } while(NO)

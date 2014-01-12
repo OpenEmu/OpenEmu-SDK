@@ -33,6 +33,7 @@
 @class    OEEvent;
 @class    OESystemController;
 @protocol OESystemResponderClient;
+@protocol OEGlobalEventsHandler;
 
 @interface OESystemResponder : NSResponder <OESystemBindingsObserver>
 
@@ -41,6 +42,7 @@
 
 @property(strong, readonly) OESystemController *controller;
 @property(weak, nonatomic) id<OESystemResponderClient> client;
+@property(weak, nonatomic) id<OEGlobalEventsHandler> globalEventsHandler;
 
 - (void)handleMouseEvent:(OEEvent *)event;
 
@@ -62,4 +64,18 @@
 // Methods that subclasses must override
 @interface OESystemResponder (OEGameSystemResponderSubclass)
 + (Protocol *)gameSystemResponderClientProtocol;
+@end
+
+@protocol OEGlobalEventsHandler <NSObject>
+- (void)saveState:(id)sender;
+- (void)loadState:(id)sender;
+- (void)quickSave:(id)sender;
+- (void)quickLoad:(id)sender;
+- (void)toggleFullScreen:(id)sender;
+- (void)toggleAudioMute:(id)sender;
+- (void)volumeDown:(id)sender;
+- (void)volumeUp:(id)sender;
+- (void)resetEmulation:(id)sender;
+- (void)toggleEmulationPaused:(id)sender;
+- (void)takeScreenshot:(id)sender;
 @end
