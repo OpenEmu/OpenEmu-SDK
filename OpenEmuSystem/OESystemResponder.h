@@ -53,6 +53,8 @@
 - (void)pressEmulatorKey:(OESystemKey *)aKey;
 - (void)releaseEmulatorKey:(OESystemKey *)aKey;
 - (void)mouseDownAtPoint:(OEIntPoint)aPoint;
+- (void)mouseUpAtPoint;
+- (void)mouseMovedAtPoint:(OEIntPoint)aPoint;
 - (void)changeAnalogEmulatorKey:(OESystemKey *)aKey value:(CGFloat)value;
 
 - (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;

@@ -604,6 +604,9 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         case NSLeftMouseUp :
             [self mouseUpAtPoint];
             break;
+        case NSMouseMoved :
+            [self mouseMovedAtPoint:point];
+            break;
         default :
             break;
     }
