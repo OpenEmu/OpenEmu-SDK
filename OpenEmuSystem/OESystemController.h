@@ -151,4 +151,7 @@ typedef enum
 - (OECanHandleState)canHandleFile:(NSString *)path;
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension;
 
+- (NSString *)headerLookupForFile:(NSString *)path;
+- (NSString *)serialLookupForFile:(NSString *)path;
+
 @end

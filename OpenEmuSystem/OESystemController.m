@@ -166,6 +166,16 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
     return [_fileTypes containsObject:[fileExtension lowercaseString]];
 }
 
+- (NSString *)headerLookupForFile:(NSString *)path
+{
+    return nil;
+}
+
+- (NSString *)serialLookupForFile:(NSString *)path
+{
+    return nil;
+}
+
 - (void)OE_setUpControlTypes;
 {
     NSDictionary *dict = [[_bundle infoDictionary] objectForKey:OEControlTypesKey];
