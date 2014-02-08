@@ -322,10 +322,18 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [self doesNotImplementSelector:_cmd];
 }
 
-- (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error
+- (BOOL)loadFileAtPath:(NSString *)path
 {
     [self doesNotImplementSelector:_cmd];
     return NO;
+}
+
+- (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+    return [self loadFileAtPath:path];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - Video

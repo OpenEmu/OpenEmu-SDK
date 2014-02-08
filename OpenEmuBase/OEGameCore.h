@@ -227,6 +227,7 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
 - (void)executeFrame;
 - (void)executeFrameSkippingFrame:(BOOL) skip;
 
+- (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE;
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error;
 
 #pragma mark - Video
