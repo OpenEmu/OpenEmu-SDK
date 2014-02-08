@@ -172,6 +172,9 @@
 
     if([event isEqualToEvent:existingEvent]) return;
 
+    if([event isAxisDirectionOppositeToEvent:existingEvent])
+        [[OEDeviceManager sharedDeviceManager] deviceHandler:self didReceiveEvent:[event axisEventWithDirection:OEHIDEventAxisDirectionNull]];
+
     _latestEvents[cookieKey] = event;
     [[OEDeviceManager sharedDeviceManager] deviceHandler:self didReceiveEvent:event];
 }

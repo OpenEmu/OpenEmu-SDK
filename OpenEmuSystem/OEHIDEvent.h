@@ -144,6 +144,8 @@ extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 - (BOOL)isEqualToEvent:(OEHIDEvent *)anObject;
 - (BOOL)isUsageEqualToEvent:(OEHIDEvent *)anObject; // Checks all properties but state
 
+- (BOOL)isAxisDirectionOppositeToEvent:(OEHIDEvent *)anObject;
+
 - (NSUInteger)controlIdentifier;
 - (NSUInteger)controlValueIdentifier;
 

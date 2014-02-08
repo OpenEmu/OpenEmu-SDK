@@ -1085,6 +1085,20 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
     return NO;
 }
 
+- (BOOL)isAxisDirectionOppositeToEvent:(OEHIDEvent *)anObject;
+{
+    if (anObject == nil || _type != OEHIDEventTypeAxis || anObject->_type != OEHIDEventTypeAxis)
+        return NO;
+
+    if (_data.axis.direction == anObject->_data.axis.direction)
+        return NO;
+
+    if (_data.axis.direction == OEHIDEventAxisDirectionNull || anObject->_data.axis.direction == OEHIDEventAxisDirectionNull)
+        return NO;
+
+    return YES;
+}
+
 static NSString *OEHIDEventTypeKey               = @"OEHIDEventTypeKey";
 static NSString *OEHIDEventCookieKey             = @"OEHIDEventCookieKey";
 static NSString *OEHIDEventAxisKey               = @"OEHIDEventAxisKey";
