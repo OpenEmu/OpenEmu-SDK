@@ -322,7 +322,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [self doesNotImplementSelector:_cmd];
 }
 
-- (BOOL)loadFileAtPath:(NSString*)path
+- (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error
 {
     [self doesNotImplementSelector:_cmd];
     return NO;
