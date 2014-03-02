@@ -108,7 +108,7 @@
     return (__bridge NSString *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDManufacturerKey));
 }
 
-- (NSString *)name
+- (NSString *)product
 {
     return (__bridge NSString *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDProductKey));
 }
