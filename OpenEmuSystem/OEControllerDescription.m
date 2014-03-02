@@ -165,7 +165,7 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
         OEDeviceDescription *desc = [[OEDeviceDescription alloc] OE_initWithRepresentation:
                                      @{
                                          @"OEControllerDeviceName"    : _name,
-                                         @"OEControllerHIDDeviceName" : _name,
+                                         @"OEControllerProductName"   : _name,
                                          @"OEControllerVendorID"      : @(vendorID),
                                          @"OEControllerProductID"     : @(productID)
                                      }];

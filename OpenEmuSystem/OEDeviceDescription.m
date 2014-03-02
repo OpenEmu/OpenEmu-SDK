@@ -39,7 +39,7 @@
     if((self = [super init]))
     {
         _name = [representation[@"OEControllerDeviceName"] copy];
-        _product = [representation[@"OEControllerHIDDeviceName"] copy];
+        _product = [representation[@"OEControllerProductName"] copy];
         _vendorID = [representation[@"OEControllerVendorID"] integerValue];
         _productID = [representation[@"OEControllerProductID"] integerValue];
         _genericDeviceIdentifier = [NSString stringWithFormat:@"OEGenericDeviceIdentifier_%ld_%ld", _vendorID, _productID];
