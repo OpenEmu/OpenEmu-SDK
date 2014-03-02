@@ -58,7 +58,7 @@
 
 @property(readonly) NSString *serialNumber;
 @property(readonly) NSString *manufacturer;
-@property(readonly) NSString *product;
+@property(readonly) NSString *name;
 @property(readonly) NSUInteger vendorID;
 @property(readonly) NSUInteger productID;
 @property(readonly) NSNumber *locationID;

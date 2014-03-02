@@ -60,6 +60,7 @@ static NSNumber *_OEDeviceIdentifierKey(id obj)
 static NSMutableDictionary *_mappingRepresentations;
 
 static NSMutableDictionary *_deviceIDToDeviceDescriptions;
+static NSMutableDictionary *_deviceNameToDeviceDescriptions;
 
 @implementation OEControllerDescription
 
@@ -71,6 +72,7 @@ static NSMutableDictionary *_deviceIDToDeviceDescriptions;
         NSDictionary *representations = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:identifierPath options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
 
         _deviceIDToDeviceDescriptions = [NSMutableDictionary dictionary];
+        _deviceNameToDeviceDescriptions = [NSMutableDictionary dictionary];
 
         NSMutableDictionary *mappingReps = [NSMutableDictionary dictionaryWithCapacity:[representations count]];
 
@@ -87,13 +89,19 @@ static NSMutableDictionary *_deviceIDToDeviceDescriptions;
 
 + (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)deviceName
 {
-    OEDeviceDescription *ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
+    OEDeviceDescription *ret = _deviceNameToDeviceDescriptions[deviceName];
+
+    if (ret == nil)
+        ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
 
     if(ret == nil)
     {
         OEControllerDescription *desc = [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:deviceName];
         [self OE_installControllerDescription:desc];
-        ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
+        ret = _deviceNameToDeviceDescriptions[deviceName];
+
+        if (ret == nil)
+            ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
     }
 
     return ret;
@@ -112,7 +120,7 @@ static NSMutableDictionary *_deviceIDToDeviceDescriptions;
     return [NSString stringWithFormat:@"<%#lx %#lx>", vendorID, productID];
 }
 
-+ (NSString *)OE_deviceDescriptionKeyForDevice:(id)device
++ (NSString *)OE_deviceDescriptionKeyForDevice:(OEDeviceDescription *)device
 {
     return [self OE_deviceDescriptionKeyForDeviceVendorID:[device vendorID] productID:[device productID]];
 }
@@ -120,7 +128,12 @@ static NSMutableDictionary *_deviceIDToDeviceDescriptions;
 + (void)OE_installControllerDescription:(OEControllerDescription *)controllerDescription
 {
     for(OEDeviceDescription *device in [controllerDescription devices])
+    {
         _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDevice:device]] = device;
+
+        NSString *name = [device name];
+        if (name != nil) _deviceNameToDeviceDescriptions[name] = device;
+    }
 }
 
 - (id)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation

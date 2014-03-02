@@ -91,7 +91,7 @@ NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDev
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p deviceDescription: '%@' manufacturer: %@ product: %@ serialNumber: %@ deviceIdentifier: %lu deviceNumber: %lu isKeyboard: %@>", [self class], self, [self deviceDescription], [self manufacturer], [self product], [self serialNumber], [self deviceIdentifier], [self deviceNumber], [self isKeyboardDevice] ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"<%@ %p deviceDescription: '%@' manufacturer: %@ product: %@ serialNumber: %@ deviceIdentifier: %lu deviceNumber: %lu isKeyboard: %@>", [self class], self, [self deviceDescription], [self manufacturer], [self name], [self serialNumber], [self deviceIdentifier], [self deviceNumber], [self isKeyboardDevice] ? @"YES" : @"NO"];
 }
 
 - (NSString *)serialNumber;
@@ -104,7 +104,7 @@ NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDev
     return nil;
 }
 
-- (NSString *)product;
+- (NSString *)name;
 {
     return nil;
 }
