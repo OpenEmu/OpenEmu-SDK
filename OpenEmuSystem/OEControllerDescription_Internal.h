@@ -29,7 +29,7 @@
 #import "OEDeviceDescription.h"
 
 @interface OEControllerDescription ()
-+ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)deviceName;
++ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;
 
 + (NSDictionary *)OE_dequeueRepresentationForDeviceDescription:(OEDeviceDescription *)deviceDescription;
 
@@ -37,11 +37,11 @@
 @end
 
 @interface OEDeviceDescription ()
-- (id)OE_initWithRepresentation:(NSDictionary *)representation __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithRepresentation:(NSDictionary *)representation __attribute__((objc_method_family(init)));
 @property(readwrite) OEControllerDescription *controllerDescription;
 @end
 
 @interface OEControlDescription ()
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent __attribute__((objc_method_family(init)));
 @property(readwrite) OEControllerDescription *controllerDescription;
 @end

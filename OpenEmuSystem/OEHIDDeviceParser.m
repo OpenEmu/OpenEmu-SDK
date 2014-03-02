@@ -103,7 +103,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
 {
     return [OEDeviceDescription deviceDescriptionForVendorID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue]
                                                    productID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue]
-                                                        name:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))];
+                                                     product:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))];
 }
 
 - (Class)OE_deviceHandlerClassForIOHIDDevice:(IOHIDDeviceRef)aDevice
@@ -256,7 +256,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
       }]];
 
     if([genericDesktopElements count] > 0)
-        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", [genericDesktopElements count], [deviceDesc name]);
+        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", [genericDesktopElements count], [deviceDesc product]);
 
     if([buttonElements count] > 0)
         NSLog(@"WARNING: There are %ld button elements unaccounted for.", [buttonElements count]);
@@ -305,7 +305,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
     {
         id deviceIdentifier = @(++lastDeviceIndex);
 
-        OEDeviceDescription *subdeviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex name:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier]];
+        OEDeviceDescription *subdeviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex product:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier]];
 
         [self OE_parseJoystickElement:VALUE_TO_ELEM(e) intoControllerDescription:[subdeviceDesc controllerDescription] attributes:attributes deviceIdentifier:deviceIdentifier usingElementTree:tree];
 

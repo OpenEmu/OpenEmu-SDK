@@ -29,16 +29,17 @@
 
 @implementation OEDeviceDescription
 
-+ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name
++ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product
 {
-    return [OEControllerDescription OE_deviceDescriptionForVendorID:vendorID productID:productID name:name];
+    return [OEControllerDescription OE_deviceDescriptionForVendorID:vendorID productID:productID product:product];
 }
 
-- (id)OE_initWithRepresentation:(NSDictionary *)representation;
+- (instancetype)OE_initWithRepresentation:(NSDictionary *)representation;
 {
     if((self = [super init]))
     {
         _name = [representation[@"OEControllerDeviceName"] copy];
+        _product = [representation[@"OEControllerHIDDeviceName"] copy];
         _vendorID = [representation[@"OEControllerVendorID"] integerValue];
         _productID = [representation[@"OEControllerProductID"] integerValue];
         _genericDeviceIdentifier = [NSString stringWithFormat:@"OEGenericDeviceIdentifier_%ld_%ld", _vendorID, _productID];

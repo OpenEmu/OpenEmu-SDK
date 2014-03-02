@@ -940,7 +940,7 @@ enum {
 {
     OEDeviceDescription *deviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue]
                                                                               productID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue]
-                                                                                   name:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))];
+                                                                                product:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))];
     OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
     if([controllerDesc numberOfControls] == 0)
     {

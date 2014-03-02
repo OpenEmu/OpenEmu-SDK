@@ -30,11 +30,12 @@
 
 @interface OEDeviceDescription : NSObject <NSCopying>
 
-+ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name;
++ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;
 
 @property(readonly) OEControllerDescription *controllerDescription;
 
 @property(readonly) NSString *name;
+@property(readonly) NSString *product;
 @property(readonly) NSUInteger vendorID;
 @property(readonly) NSUInteger productID;
 
