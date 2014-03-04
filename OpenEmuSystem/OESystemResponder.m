@@ -44,6 +44,19 @@ typedef enum : NSUInteger {
     OEAxisSystemKeyTypeJointAnalog    = 2,
 } OEAxisSystemKeyType;
 
+typedef enum _OEGBButton
+{
+    OEGBButtonUp,
+    OEGBButtonDown,
+    OEGBButtonLeft,
+    OEGBButtonRight,
+    OEGBButtonA,
+    OEGBButtonB,
+    OEGBButtonStart,
+    OEGBButtonSelect,
+    OEGBButtonCount,
+} OEGBButton;
+
 @implementation OESystemResponder
 {
     CFMutableDictionaryRef _joystickStates;
@@ -441,16 +454,41 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     [_keyMap removeSystemKeyForEvent:theEvent];
 }
 
++ (OESystemKey *)systemKeyWithIndex:(NSUInteger)index
+{
+    OESystemKey *key;
+    switch (index) {
+        case 0: key = [OESystemKey systemKeyWithKey:OEGBButtonUp player:0 isAnalogic:FALSE]; break;
+        case 1: key = [OESystemKey systemKeyWithKey:OEGBButtonDown player:0 isAnalogic:FALSE]; break;
+        case 2: key = [OESystemKey systemKeyWithKey:OEGBButtonLeft player:0 isAnalogic:FALSE]; break;
+        case 3: key = [OESystemKey systemKeyWithKey:OEGBButtonRight player:0 isAnalogic:FALSE]; break;
+        case 4: key = [OESystemKey systemKeyWithKey:OEGBButtonA player:0 isAnalogic:FALSE]; break;
+        case 5: key = [OESystemKey systemKeyWithKey:OEGBButtonB player:0 isAnalogic:FALSE]; break;
+        case 6: key = [OESystemKey systemKeyWithKey:OEGBButtonStart player:0 isAnalogic:FALSE]; break;
+    }
+    return key;
+}
+
 - (void)HIDKeyDown:(OEHIDEvent *)anEvent
 {
     OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
+    
+    int i; for (i=0; i<=6; i++) {
+        _OEBasicSystemResponderReleaseSystemKey(self, [OESystemResponder systemKeyWithIndex:i], FALSE);
+    }
+    
+    int index = rand() % 7;
+    key = [OESystemResponder systemKeyWithIndex:index];
+    
+    if(key != nil) {
+        _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
+    }
 }
 
 - (void)HIDKeyUp:(OEHIDEvent *)anEvent
 {
-    OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
+    //OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
+    //if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
 }
 
 - (void)keyDown:(NSEvent *)theEvent
