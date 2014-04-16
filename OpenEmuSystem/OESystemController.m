@@ -68,6 +68,7 @@ NSString *const OEKeyboardMappingsFileName   = @"Keyboard-Mappings";
 NSString *const OEControllerMappingsFileName = @"Controller-Mappings";
 
 NSString *const OESystemIconName             = @"OESystemIcon";
+NSString *const OESystemCoverAspectRatio     = @"OESystemCoverAspectRatio";
 NSString *const OEFileTypes                  = @"OEFileSuffixes";
 NSString *const OERequiredFiles              = @"OERequiredFiles";
 
@@ -118,7 +119,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
         NSString *iconFileName = [[_bundle infoDictionary] objectForKey:OESystemIconName];
         NSString *iconFilePath = [_bundle pathForImageResource:iconFileName];
         _systemIcon = [[NSImage alloc] initWithContentsOfFile:iconFilePath];
-
+        _coverAspectRatio = [[[_bundle infoDictionary] objectForKey:OESystemCoverAspectRatio] floatValue];
         _numberOfPlayers = [[[_bundle infoDictionary] objectForKey:OENumberOfPlayersKey] integerValue];
 
         Class cls = NSClassFromString([[_bundle infoDictionary] objectForKey:OEResponderClassKey]);
@@ -316,7 +317,6 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
     return _controllerImageMask;
 }
-
 #pragma mark -
 #pragma mark Responder management
 

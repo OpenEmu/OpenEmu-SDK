@@ -37,6 +37,7 @@ extern NSString *const OEControlsPreferenceKey;
 extern NSString *const OESystemName;
 extern NSString *const OESystemIdentifier;
 extern NSString *const OESystemIconName;
+extern NSString *const OESystemCoverAspectRatio;
 extern NSString *const OEProjectURLKey;
 extern NSString *const OEFileTypes;
 extern NSString *const OERequiredFiles;
@@ -122,6 +123,7 @@ typedef enum
 @property(readonly, copy) NSImage      *controllerImage;
 @property(readonly, copy) NSImage      *controllerImageMask;
 
+@property(readonly)       CGFloat       coverAspectRatio;
 #pragma mark -
 #pragma mark Bindings settings
 
