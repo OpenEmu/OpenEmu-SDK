@@ -91,8 +91,11 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
 {
     OEDeviceDescription *ret = _deviceNameToDeviceDescriptions[product];
 
-    if (ret == nil)
+    if(ret == nil)
+    {
         ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
+        if (ret.product) ret = nil;
+    }
 
     if(ret == nil)
     {
