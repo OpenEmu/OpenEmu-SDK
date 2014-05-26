@@ -41,6 +41,7 @@
 
 - (BOOL)allFilesAvailable;
 - (NSArray *)referencedFiles;
+- (NSArray *)referencedFileNames;
 - (NSString *)dataTrackPath;
 
 @end

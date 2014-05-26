@@ -150,6 +150,16 @@
     return [[self referencedFiles] count] > 0 ? [[self referencedFiles] objectAtIndex:0] : nil;
 }
 
+- (NSArray *)referencedFileNames
+{
+    NSArray *files = [self referencedFiles];
+    NSMutableArray *names = [NSMutableArray arrayWithCapacity:[files count]];
+    [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [names addObject:[obj lastPathComponent]];
+    }];
+    return names;
+}
+
 #pragma mark - Private Helpers
 
 - (void)OE_enumerateFilesUsingBlock:(void(^)(NSString *path, BOOL *stop))block
@@ -210,5 +220,4 @@
 
     [self setReferencedFiles:files];
 }
-
 @end
