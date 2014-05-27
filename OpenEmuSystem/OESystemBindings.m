@@ -671,6 +671,9 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
          }
      }];
 
+    id previousBinding = [sender OE_bindingEventForKey:keyDesc];
+    if(previousBinding != nil) [self OE_notifyObserversDidUnsetEvent:previousBinding forBindingKey:keyDesc playerNumber:[sender playerNumber]];
+
     NSString *eventString = [self OE_descriptionForEvent:anEvent];
 
     [sender OE_setBindingDescription:eventString forKey:keyName];
@@ -765,6 +768,8 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             break;
     }
 
+    [self OE_notifyObserversDidUnsetDeviceEventsOfPlayerBindings:sender forBindingKey:keyDesc];
+
     // Update the bindings for the event
     NSDictionary *eventStrings = [self OE_stringValuesForBindings:@{ keyDesc : valueDesc } possibleKeys:_allKeyBindingsDescriptions];
 
@@ -779,6 +784,22 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     [[self bindingsController] OE_setRequiresSynchronization];
 
     return keyDesc;
+}
+
+- (void)OE_notifyObserversDidUnsetDeviceEventsOfPlayerBindings:(OEDevicePlayerBindings *)sender forBindingKey:(id)bindingKey
+{
+    OEDeviceHandler *deviceHandler = [sender deviceHandler];
+    OEHIDEvent *previousEventBinding = [[[sender OE_bindingEventForKey:bindingKey] event] eventWithDeviceHandler:deviceHandler];
+    if(previousEventBinding != nil) [self OE_notifyObserversDidUnsetEvent:previousEventBinding forBindingKey:bindingKey playerNumber:[sender playerNumber]];
+
+    if(![bindingKey isKindOfClass:[OEKeyBindingGroupDescription class]])
+        return;
+
+    for(OEKeyBindingDescription *keyDesc in [bindingKey keys])
+    {
+        OEHIDEvent *previousEventBinding = [[[sender OE_bindingEventForKey:keyDesc] event] eventWithDeviceHandler:deviceHandler];
+        if(previousEventBinding != nil) [self OE_notifyObserversDidUnsetEvent:previousEventBinding forBindingKey:keyDesc playerNumber:[sender playerNumber]];
+    }
 }
 
 - (void)OE_playerBindings:(OEDevicePlayerBindings *)sender didUnsetDeviceEventForKey:(NSString *)keyName;
@@ -797,36 +818,38 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         [_parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]] addObject:sender];
     }
 
-    __block OEHIDEvent *eventToRemove = [sender bindingEvents][keyDesc];
-    if(eventToRemove == nil)
+    __block OEControlValueDescription *valueDescToRemove = [sender bindingEvents][keyDesc];
+    if(valueDescToRemove == nil)
     {
         [[keyDesc OE_axisGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
          ^(OEOrientedKeyGroupBindingDescription *key, BOOL *stop)
          {
-             OEHIDEvent *event = [sender bindingEvents][key];
-             if(event == nil) return;
+             OEControlValueDescription *valueDesc = [sender bindingEvents][key];
+             if(valueDesc == nil) return;
 
              keyDesc = key;
-             eventToRemove = event;
+             valueDescToRemove = valueDesc;
              *stop = YES;
          }];
     }
 
-    if(eventToRemove == nil)
+    if(valueDescToRemove == nil)
     {
         [[keyDesc OE_hatSwitchGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
          ^(OEOrientedKeyGroupBindingDescription *key, BOOL *stop)
          {
-             OEHIDEvent *event = [sender bindingEvents][key];
-             if(event == nil) return;
+             OEControlValueDescription *valueDesc = [sender bindingEvents][key];
+             if(valueDesc == nil) return;
 
              keyDesc = key;
-             eventToRemove = event;
+             valueDescToRemove = valueDesc;
              *stop = YES;
          }];
     }
 
-    if(eventToRemove == nil) return;
+    if(valueDescToRemove == nil) return;
+
+    OEHIDEvent *eventToRemove = [[valueDescToRemove event] eventWithDeviceHandler:[sender deviceHandler]];
 
     NSArray *keys = nil;
     if([keyDesc isKindOfClass:[OEKeyBindingDescription class]])
