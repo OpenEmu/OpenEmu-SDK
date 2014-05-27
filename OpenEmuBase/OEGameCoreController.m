@@ -34,6 +34,9 @@ NSString *const OEGameCoreClassKey             = @"OEGameCoreClass";
 NSString *const OEGameCorePlayerCountKey       = @"OEGameCorePlayerCount";
 NSString *const OEGameCoreSupportsCheatCodeKey = @"OEGameCoreSupportsCheatCode";
 NSString *const OEGameCoreRequiresFilesKey     = @"OEGameCoreRequiresFiles";
+NSString *const OEGameCoreOptionsKey           = @"OEGameCoreOptions";
+NSString *const OEGameCoreHasGlitchesKey       = @"OEGameCoreHasGlitches";
+NSString *const OEGameCoreSaveStatesNotSupportedKey = @"OEGameCoreSaveStatesNotSupported";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
@@ -61,8 +64,6 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
                               [_bundle objectForInfoDictionaryKey:@"CFBundleName"]);
         _gameCoreClass     = NSClassFromString([_bundle objectForInfoDictionaryKey:OEGameCoreClassKey]);
         _playerCount       = [[_bundle objectForInfoDictionaryKey:OEGameCorePlayerCountKey] integerValue];
-        _supportsCheatCode = [[_bundle objectForInfoDictionaryKey:OEGameCoreSupportsCheatCodeKey] boolValue];
-        _requiresFiles     = [[_bundle objectForInfoDictionaryKey:OEGameCoreRequiresFilesKey] boolValue];
 
         NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : NSTemporaryDirectory();
@@ -79,6 +80,46 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 - (NSArray *)systemIdentifiers
 {
 	return [[[self bundle] infoDictionary] objectForKey:@"OESystemIdentifiers"];
+}
+
+- (NSDictionary *)coreOptions
+{
+	return [[[self bundle] infoDictionary] objectForKey:@"OEGameCoreOptions"];
+}
+
+- (NSArray *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier;
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [system objectForKey:@"OERequiredFiles"];
+}
+
+- (BOOL)requiresFilesForSystemIdentifier:(NSString *)systemIdentifier;
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreRequiresFilesKey] boolValue];
+}
+
+- (BOOL)supportsCheatCodeForSystemIdentifier:(NSString *)systemIdentifier;
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreSupportsCheatCodeKey] boolValue];
+}
+
+- (BOOL)hasGlitchesForSystemIdentifier:(NSString *)systemIdentifier;
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreHasGlitchesKey] boolValue];
+}
+
+- (BOOL)saveStatesNotSupportedForSystemIdentifier:(NSString *)systemIdentifier;
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreSaveStatesNotSupportedKey] boolValue];
 }
 
 - (void)dealloc

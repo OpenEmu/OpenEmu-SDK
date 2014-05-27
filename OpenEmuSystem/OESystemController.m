@@ -70,7 +70,6 @@ NSString *const OEControllerMappingsFileName = @"Controller-Mappings";
 NSString *const OESystemIconName             = @"OESystemIcon";
 NSString *const OESystemCoverAspectRatio     = @"OESystemCoverAspectRatio";
 NSString *const OEFileTypes                  = @"OEFileSuffixes";
-NSString *const OERequiredFiles              = @"OERequiredFiles";
 
 NSString *const OESystemControlNamesKey      = @"OESystemControlNamesKey";
 NSString *const OEGenericControlNamesKey     = @"OEGenericControlNamesKey";
@@ -138,7 +137,6 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
         [self OE_setUpControllerPreferencesKeys];
 
         _fileTypes = [[_bundle infoDictionary] objectForKey:OEFileTypes];
-        _requiredFiles = [[_bundle infoDictionary] objectForKey:OERequiredFiles];
     }
 
     return self;

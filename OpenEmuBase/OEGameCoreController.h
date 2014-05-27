@@ -31,6 +31,9 @@ extern NSString *const OEGameCoreClassKey;
 extern NSString *const OEGameCorePlayerCountKey;
 extern NSString *const OEGameCoreSupportsCheatCodeKey;
 extern NSString *const OEGameCoreRequiresFilesKey;
+extern NSString *const OEGameCoreOptionsKey;
+extern NSString *const OEGameCoreHasGlitchesKey;
+extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 
@@ -43,14 +46,18 @@ extern NSString *const OEGameCoreRequiresFilesKey;
 
 @property(readonly) NSString   *pluginName;
 @property(readonly) NSArray    *systemIdentifiers;
+@property(readonly) NSDictionary *coreOptions;
 
 @property(readonly) NSString   *supportDirectoryPath;
 @property(readonly) NSString   *biosDirectoryPath;
 @property(readonly) NSArray    *usedSettingNames;
 @property(readonly) NSUInteger  playerCount;
-@property(readonly) BOOL        supportsCheatCode;
-@property(readonly) BOOL        requiresFiles;
 
 - (bycopy OEGameCore *)newGameCore;
+- (NSArray *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)requiresFilesForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)supportsCheatCodeForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)hasGlitchesForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)saveStatesNotSupportedForSystemIdentifier:(NSString *)systemIdentifier;
 
 @end
