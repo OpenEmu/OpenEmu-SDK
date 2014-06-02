@@ -27,7 +27,7 @@
 #import <Cocoa/Cocoa.h>
 #import "OEGameCoreController.h"
 #import "OESystemResponderClient.h"
-
+#import "OEGeometry.h"
 #ifndef DLog
 
 #ifdef DEBUG_PRINT
@@ -81,83 +81,6 @@ enum _OEGameCoreErrorCodes {
 - (void)audioSampleRateDidChange;
 
 @end
-
-#pragma mark -
-
-typedef struct OEIntPoint {
-    int x;
-    int y;
-} OEIntPoint;
-
-typedef struct OEIntSize {
-    int width;
-    int height;
-} OEIntSize;
-
-typedef struct OEIntRect {
-    OEIntPoint origin;
-    OEIntSize size;
-} OEIntRect;
-
-static inline OEIntPoint OEIntPointMake(int x, int y)
-{
-    return (OEIntPoint){ x, y };
-}
-
-static inline OEIntSize OEIntSizeMake(int width, int height)
-{
-    return (OEIntSize){ width, height };
-}
-
-static inline OEIntRect OEIntRectMake(int x, int y, int width, int height)
-{
-    return (OEIntRect){ (OEIntPoint){ x, y }, (OEIntSize){ width, height } };
-}
-
-static inline BOOL OEIntPointEqualToPoint(OEIntPoint point1, OEIntPoint point2)
-{
-    return point1.x == point2.x && point1.y == point2.y;
-}
-
-static inline BOOL OEIntSizeEqualToSize(OEIntSize size1, OEIntSize size2)
-{
-    return size1.width == size2.width && size1.height == size2.height;
-}
-
-static inline BOOL OEIntRectEqualToRect(OEIntRect rect1, OEIntRect rect2)
-{
-    return OEIntPointEqualToPoint(rect1.origin, rect2.origin) && OEIntSizeEqualToSize(rect1.size, rect2.size);
-}
-
-static inline BOOL OEIntSizeIsEmpty(OEIntSize size)
-{
-    return size.width == 0 || size.height == 0;
-}
-
-static inline BOOL OEIntRectIsEmpty(OEIntRect rect)
-{
-    return OEIntSizeIsEmpty(rect.size);
-}
-
-static inline NSSize NSSizeFromOEIntSize(OEIntSize size)
-{
-    return NSMakeSize(size.width, size.height);
-}
-
-static inline NSString *NSStringFromOEIntPoint(OEIntPoint p)
-{
-    return [NSString stringWithFormat:@"{ %d, %d }", p.x, p.y];
-}
-
-static inline NSString *NSStringFromOEIntSize(OEIntSize s)
-{
-    return [NSString stringWithFormat:@"{ %d, %d }", s.width, s.height];
-}
-
-static inline NSString *NSStringFromOEIntRect(OEIntRect r)
-{
-    return [NSString stringWithFormat:@"{ %@, %@ }", NSStringFromOEIntPoint(r.origin), NSStringFromOEIntSize(r.size)];
-}
 
 @class OEHIDEvent, OERingBuffer;
 

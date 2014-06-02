@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A2A1710A4BA00ED580A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A291710A4BA00ED580A /* Cocoa.framework */; };
 		C6772A341710A4BA00ED580A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C6772A321710A4BA00ED580A /* InfoPlist.strings */; };
 		C6772A6E1710BD6200ED580A /* OpenEmuBase.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A601710BD6200ED580A /* OpenEmuBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -99,6 +100,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
 		C6772A261710A4BA00ED580A /* OpenEmuBase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuBase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6772A291710A4BA00ED580A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		C6772A2C1710A4BA00ED580A /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -272,6 +274,7 @@
 				C6772A6D1710BD6200ED580A /* OETimingUtils.m */,
 				C6772A801710C6D100ED580A /* NSString+UUID.h */,
 				C6772A811710C6D100ED580A /* NSString+UUID.m */,
+				8363A433193CA52400F18425 /* OEGeometry.h */,
 				C6772A301710A4BA00ED580A /* Supporting Files */,
 			);
 			path = OpenEmuBase;
@@ -419,6 +422,7 @@
 				C6772A701710BD6200ED580A /* OEGameCore.h in Headers */,
 				C6772A741710BD6200ED580A /* OEGameCoreController.h in Headers */,
 				C6772A761710BD6200ED580A /* OERingBuffer.h in Headers */,
+				8363A434193CA52400F18425 /* OEGeometry.h in Headers */,
 				C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */,
 				C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */,
 				C6772A7A1710BD6200ED580A /* OETimingUtils.h in Headers */,
