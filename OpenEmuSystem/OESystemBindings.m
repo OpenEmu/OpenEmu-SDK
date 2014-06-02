@@ -397,6 +397,14 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
                       saveKey = [key name];
                   else if([key isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
                       saveKey = [[key baseKey] name];
+                  else if([key isKindOfClass:[NSString class]])
+                      saveKey = key;
+                  else
+                  {
+                      NSLog(@"WARNING: Unkown Bindings key");
+                      NSLog(@"%@", key);
+                      saveKey = @"";
+                  }
 
                   bindingRepresentations[saveKey] = isDeviceDescription ? [obj valueIdentifier] : [obj identifier];
               }];
