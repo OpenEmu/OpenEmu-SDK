@@ -487,6 +487,19 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 #pragma mark - Wiimote methods
 
+- (BOOL)isBluetoothEnabled
+{
+    BOOL powered = NO;
+    IOBluetoothHostController *controller = [IOBluetoothHostController defaultController];
+    
+    if (controller != nil)
+    {
+        powered = ([controller powerState] == kBluetoothHCIPowerStateON);
+    }
+    
+    return powered;
+}
+
 - (void)startWiimoteSearch;
 {
     @synchronized(self)

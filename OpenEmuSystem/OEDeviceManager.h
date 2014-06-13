@@ -42,6 +42,7 @@
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;
+- (BOOL)isBluetoothEnabled;
 
 - (void)deviceHandler:(OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
 
