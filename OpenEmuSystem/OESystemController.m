@@ -220,8 +220,8 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
         // All available 'global' buttons
         @[Button(@"Save", @"Name of the global button to save a state", OEGlobalButtonSaveState),
           Button(@"Load", @"Name of the global button to load a state", OEGlobalButtonLoadState),
-          Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
-          Button(@"Quick Load", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
+          Button(@"Quick Save Button", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
+          Button(@"Quick Load Button", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
           Button(@"Fullscreen", @"Name of the global button to toggle fullscreen mode", OEGlobalButtonFullScreen),
           Button(@"Mute", @"Name of the global button to toggle sound mute", OEGlobalButtonMute),
           Button(@"Volume Down", @"Name of the global button to decrease the volume", OEGlobalButtonVolumeDown),
