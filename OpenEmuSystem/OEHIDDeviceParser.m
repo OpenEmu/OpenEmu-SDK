@@ -65,6 +65,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
 @property(readonly) Class deviceHandlerClass;
 
+- (void)applyAttributesToDevice:(IOHIDDeviceRef)device;
 - (void)applyAttributesToElement:(IOHIDElementRef)element;
 - (void)setAttributes:(NSDictionary *)attributes forElementCookie:(NSUInteger)cookie;
 
@@ -160,6 +161,8 @@ static BOOL OE_isXboxControllerName(NSString *name)
         attributes = [self OE_deviceAttributesForIOHIDDevice:device deviceDescription:deviceDesc];
         _controllerDescriptionsToDeviceAttributes[controllerDesc] = attributes;
     }
+    else
+        [attributes applyAttributesToDevice:device];
 
     OEHIDDeviceHandler *handler = nil;
     if([[attributes subdeviceIdentifiersToDeviceDescriptions] count] != 0)
@@ -224,8 +227,8 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
          cookie = IOHIDElementGetCookie(elem);
 
-         // Create attributes for the element if necessary. We need apply the attributes on
-         // the elements because OEHIDEvent depend on them to setup the event.
+         // Create attributes for the element if necessary. We need to apply the attributes
+         // on the elements because OEHIDEvent depend on them to setup the event.
          switch(type)
          {
              case OEHIDEventTypeTrigger :
@@ -514,9 +517,23 @@ typedef enum {
     return self;
 }
 
+- (void)applyAttributesToDevice:(IOHIDDeviceRef)device
+{
+    [_elementAttributes enumerateKeysAndObjectsUsingBlock:
+     ^(NSNumber *cookie, NSDictionary *attributes, BOOL *stop)
+     {
+         NSArray *elements = (__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementCookieKey : cookie }, 0);
+         NSAssert(elements.count == 1, @"There should be only one element attached to a given cookie.");
+         [self _applyAttributes:attributes toElement:(__bridge IOHIDElementRef)elements[0]];
+     }];
+}
 - (void)applyAttributesToElement:(IOHIDElementRef)element;
 {
-    NSDictionary *attributes = _elementAttributes[@(IOHIDElementGetCookie(element))];
+    [self _applyAttributes:_elementAttributes[@(IOHIDElementGetCookie(element))] toElement:element];
+}
+
+- (void)_applyAttributes:(NSDictionary *)attributes toElement:(IOHIDElementRef)element;
+{
     [attributes enumerateKeysAndObjectsUsingBlock:
      ^(NSString *key, id attribute, BOOL *stop)
      {
