@@ -110,7 +110,7 @@ static inline NSSize OERoundSize(NSSize size)
     return (NSSize){roundf(size.width), roundf(size.height)};
 }
 
-static BOOL NSPointInTriangle(NSPoint p, NSPoint A, NSPoint B, NSPoint C)
+static inline BOOL NSPointInTriangle(NSPoint p, NSPoint A, NSPoint B, NSPoint C)
 {
     CGFloat d = (B.y-C.y) * (A.x-C.x) + (C.x - B.x) * (A.y - C.y);
     CGFloat a = ((B.y - C.y)*(p.x - C.x) + (C.x - B.x)*(p.y - C.y)) / d;
