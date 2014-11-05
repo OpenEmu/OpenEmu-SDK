@@ -48,6 +48,7 @@ static dispatch_queue_t oehid_queue;
                     [self triggerPull:anEvent];
                 break;
             case OEHIDEventTypeButton :
+            case OEHIDEventTypeSpecialButton :
                 if([anEvent hasOffState])
                     [self buttonUp:anEvent];
                 else

@@ -143,6 +143,10 @@
             dict[@kIOHIDElementUsagePageKey] = @(kHIDPage_Button);
             dict[@kIOHIDElementUsageKey]     = @([anEvent buttonNumber]);
             break;
+        case OEHIDEventTypeSpecialButton :
+            dict[@kIOHIDElementUsagePageKey] = @(kHIDPage_Consumer);
+            dict[@kIOHIDElementUsageKey]     = @([anEvent buttonNumber]);
+            break;
         case OEHIDEventTypeHatSwitch :
             dict[@kIOHIDElementUsagePageKey] = @(kHIDPage_GenericDesktop);
             dict[@kIOHIDElementUsageKey]     = @(kHIDUsage_GD_Hatswitch);

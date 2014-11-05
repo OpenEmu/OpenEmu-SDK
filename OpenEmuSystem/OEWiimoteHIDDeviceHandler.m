@@ -961,6 +961,8 @@ enum {
                  case OEHIDEventTypeButton :
                      event = [OEHIDEvent buttonEventWithDeviceHandler:nil timestamp:0 buttonNumber:usage state:OEHIDEventStateOn cookie:cookie];
                      break;
+                 case OEHIDEventTypeSpecialButton :
+                     NSAssert(NO, @"A special button on Wiimote?!");
                  case OEHIDEventTypeHatSwitch :
                      NSAssert(NO, @"A hat switch on Wiimote?!");
                      break;

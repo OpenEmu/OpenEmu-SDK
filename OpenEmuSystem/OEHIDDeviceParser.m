@@ -205,7 +205,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
          __block IOHIDElementRef elem = NULL;
 
          // Find the element for the current description.
-         NSMutableArray *targetArray = type == OEHIDEventTypeButton ? buttonElements : genericDesktopElements;
+         NSMutableArray *targetArray = (type == OEHIDEventTypeButton || type == OEHIDEventTypeSpecialButton) ? buttonElements : genericDesktopElements;
          [targetArray enumerateObjectsUsingBlock:
           ^(id obj, NSUInteger idx, BOOL *stop)
           {
@@ -354,6 +354,7 @@ typedef enum {
                  }
                  break;
              case OEHIDEventTypeButton :
+             case OEHIDEventTypeSpecialButton :
                  block(element, OEParsedTypeButton);
                  break;
              case OEHIDEventTypeHatSwitch :
@@ -380,6 +381,7 @@ typedef enum {
                  axisElementsCount++;
                  break;
              case OEHIDEventTypeButton :
+             case OEHIDEventTypeSpecialButton :
              case OEHIDEventTypeHatSwitch :
                  // If we find a non-axis element, we can just stop the search,
                  // we will need to sort out the axis types later.
