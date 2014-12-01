@@ -121,6 +121,11 @@ enum _OEGameCoreErrorCodes {
 
 @property(readonly) NSTimeInterval        frameInterval;
 @property(copy)     NSString             *systemIdentifier;
+@property(copy)     NSString             *systemRegion;
+@property(copy)     NSString             *ROMCRC32;
+@property(copy)     NSString             *ROMMD5;
+@property(copy)     NSString             *ROMHeader;
+@property(copy)     NSString             *ROMSerial;
 
 - (void)getAudioBuffer:(void *)buffer frameCount:(NSUInteger)frameCount bufferIndex:(NSUInteger)index;
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index;
