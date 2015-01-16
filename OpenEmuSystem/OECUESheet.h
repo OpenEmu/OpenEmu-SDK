@@ -27,9 +27,13 @@
 #import <Foundation/Foundation.h>
 
 // Options to handle 'broken' cue files:
-#define OECUESheetImproveReadingByUsingBinExtension 1 // If a referneced file does not have an extension we automatically append .bin and see if that works better
+#define OECUESheetImproveReadingByUsingBinExtension 1 // If a referenced file does not have an extension we automatically append .bin and see if that works better
 #define OECUESheetImproveReadingByUsingSheetBin 1 // if there's only one referenced file which is not available we check if there's a bin file with the same name as the cue and use that instead
 
+/**
+ Class to handle .cue files and manage track files references in cue sheets.
+ Only does some very basic parsing.
+ */
 @interface OECUESheet : NSObject
 
 - (id)initWithPath:(NSString *)path;

@@ -39,7 +39,11 @@
 @end
 
 @implementation OECUESheet
-
+/**
+ Returns an OECueSheet object initialized from the given file.
+ @param path    absolute path to .cue file
+ @returns An initialized OECueSheet object for the given path. Returns nil if the cue file does not exist or can't be read.
+ */
 - (id)initWithPath:(NSString *)path
 {
     if((self = [super init]))
@@ -56,6 +60,12 @@
     return self;
 }
 
+/**
+ Returns an OECueSheet object initialized from the given file. The CueSheet expects to find additional files in the specified directory.
+ @param path                absolute path to .cue file
+ @param referencedFiles     path to directory containing additional files
+ @returns An initialized OECueSheet object for the given path. Returns nil if the cue file does not exist or can't be read.
+ */
 - (id)initWithPath:(NSString *)path andReferencedFilesDirectory:(NSString *)referencedFiles
 {
     if((self = [self initWithPath:path]))
@@ -67,7 +77,12 @@
 }
 
 #pragma mark - File Handling
-
+/**
+ Move files referenced by a cue sheet to a new directory
+ @param newDirectory    absolute path to destination directory
+ @param outError        On input, a pointer to an error object. If an error occurs, this pointer is set to an actual error object containing the error information. You may specify nil for this parameter if you do not want the error information.
+ @returns YES if all files were moved successfully. Returns NO if an error occurred.
+ */
 - (BOOL)moveReferencedFilesToPath:(NSString *)newDirectory withError:(NSError **)outError
 {
     __block BOOL     success = YES;
@@ -95,6 +110,12 @@
     return success;
 }
 
+/**
+ Copies all files referenced by a cue sheet to a new directory
+ @param newDirectory    absolute path to destination directory
+ @param outError        On input, a pointer to an error object. If an error occurs, this pointer is set to an actual error object containing the error information. You may specify nil for this parameter if you do not want the error information.
+ @returns YES if all files were copied successfully. Returns NO if an error occurred.
+ */
 - (BOOL)copyReferencedFilesToPath:(NSString *)newDirectory withError:(NSError **)outError
 {
     __block BOOL     success = YES;
@@ -123,6 +144,10 @@
     return success;
 }
 
+/**
+ Determine if all files referenced by a cue sheeet exist.
+ @returns YES if all files exist.
+ */
 - (BOOL)allFilesAvailable
 {
     NSFileManager *fileManger      = [NSFileManager defaultManager];
@@ -136,7 +161,6 @@
          NSString *fullPath = [directory stringByAppendingPathComponent:obj];
          if(![fileManger fileExistsAtPath:fullPath])
          {
-             //DLog(@"Missing File: %@", fullPath);
              *stop   = YES;
              success = NO;
          }
@@ -145,11 +169,19 @@
     return success;
 }
 
+/**
+ Get path to file containing the data track.
+ @returns Path to data track or nil if no data track is listed.
+ */
 - (NSString *)dataTrackPath
 {
     return [[self referencedFiles] count] > 0 ? [[self referencedFiles] objectAtIndex:0] : nil;
 }
 
+/**
+ Get files referenced by the cue sheet.
+ @returns Array containing NSString objects that specfiy the names of all referenced files.
+ */
 - (NSArray *)referencedFileNames
 {
     NSArray *files = [self referencedFiles];
