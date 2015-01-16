@@ -33,8 +33,6 @@
 		C6772B7A1710E21900ED580A /* OESystemController.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6D1710E21900ED580A /* OESystemController.m */; };
 		C6772B7B1710E21900ED580A /* OESystemResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6E1710E21900ED580A /* OESystemResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B7C1710E21900ED580A /* OESystemResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6F1710E21900ED580A /* OESystemResponder.m */; };
-		C6772B7F1710E21900ED580A /* OEBasicSystemResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B721710E21900ED580A /* OEBasicSystemResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C6772B801710E21900ED580A /* OEBasicSystemResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B731710E21900ED580A /* OEBasicSystemResponder.m */; };
 		C6772B811710E21900ED580A /* OEBindingMap.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B741710E21900ED580A /* OEBindingMap.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B821710E21900ED580A /* OEBindingMap.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B751710E21900ED580A /* OEBindingMap.m */; };
 		C6772B831710E21900ED580A /* OEEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B761710E21900ED580A /* OEEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -133,8 +131,6 @@
 		C6772B6D1710E21900ED580A /* OESystemController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESystemController.m; sourceTree = "<group>"; };
 		C6772B6E1710E21900ED580A /* OESystemResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemResponder.h; sourceTree = "<group>"; };
 		C6772B6F1710E21900ED580A /* OESystemResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESystemResponder.m; sourceTree = "<group>"; };
-		C6772B721710E21900ED580A /* OEBasicSystemResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBasicSystemResponder.h; sourceTree = "<group>"; };
-		C6772B731710E21900ED580A /* OEBasicSystemResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBasicSystemResponder.m; sourceTree = "<group>"; };
 		C6772B741710E21900ED580A /* OEBindingMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingMap.h; sourceTree = "<group>"; };
 		C6772B751710E21900ED580A /* OEBindingMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBindingMap.m; sourceTree = "<group>"; };
 		C6772B761710E21900ED580A /* OEEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEEvent.h; sourceTree = "<group>"; };
@@ -297,8 +293,6 @@
 				C6772B6D1710E21900ED580A /* OESystemController.m */,
 				C6772B6E1710E21900ED580A /* OESystemResponder.h */,
 				C6772B6F1710E21900ED580A /* OESystemResponder.m */,
-				C6772B721710E21900ED580A /* OEBasicSystemResponder.h */,
-				C6772B731710E21900ED580A /* OEBasicSystemResponder.m */,
 				C6772BDC1710E31F00ED580A /* Utilities */,
 				C6772BDA1710E2D200ED580A /* Events */,
 				C6772B891710E23900ED580A /* Bindings Controller */,
@@ -435,7 +429,6 @@
 			files = (
 				C6772BC41710E28900ED580A /* NSResponder+OEHIDAdditions.h in Headers */,
 				C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */,
-				C6772B7F1710E21900ED580A /* OEBasicSystemResponder.h in Headers */,
 				C6772B811710E21900ED580A /* OEBindingMap.h in Headers */,
 				C6772B951710E25300ED580A /* OEBindingsController.h in Headers */,
 				C6772B871710E22C00ED580A /* OECUESheet.h in Headers */,
@@ -571,7 +564,6 @@
 			files = (
 				C6772B7A1710E21900ED580A /* OESystemController.m in Sources */,
 				C6772B7C1710E21900ED580A /* OESystemResponder.m in Sources */,
-				C6772B801710E21900ED580A /* OEBasicSystemResponder.m in Sources */,
 				C6772B821710E21900ED580A /* OEBindingMap.m in Sources */,
 				C6772B841710E21900ED580A /* OEEvent.m in Sources */,
 				C6772B881710E22C00ED580A /* OECUESheet.m in Sources */,
