@@ -470,6 +470,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - Save state
 
+- (NSData *)serializeStateWithError:(NSError **)outError {
+    return nil;
+}
+
+- (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError {
+    return NO;
+}
+
 - (BOOL)saveStateToFileAtPath:(NSString *)fileName
 {
     return NO;

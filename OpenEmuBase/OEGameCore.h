@@ -192,6 +192,9 @@ enum _OEGameCoreErrorCodes {
 
 #pragma mark - Save state - Optional
 
+- (NSData *)serializeStateWithError:(NSError **)outError;
+- (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError;
+
 - (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
 - (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
 
