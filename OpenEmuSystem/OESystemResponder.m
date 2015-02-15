@@ -168,7 +168,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 
 - (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 {
-    FIXME("We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat");
+    // FIXME: We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat
     switch(identifier)
     {
         case OEGlobalButtonIdentifierFastForward :

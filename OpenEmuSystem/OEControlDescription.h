@@ -50,7 +50,7 @@
 
 @interface OEControlValueDescription : NSObject
 
-@property(readonly) OEControlDescription *controlDescription;
+@property(readonly, weak) OEControlDescription *controlDescription;
 
 @property(readonly) NSString   *name;
 @property(readonly) NSString   *identifier;
