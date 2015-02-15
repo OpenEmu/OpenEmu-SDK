@@ -470,21 +470,31 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - Save state
 
-- (NSData *)serializeStateWithError:(NSError **)outError {
+- (NSData *)serializeStateWithError:(NSError **)outError
+{
     return nil;
 }
 
-- (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError {
+- (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError
+{
     return NO;
 }
 
 - (BOOL)saveStateToFileAtPath:(NSString *)fileName
 {
+    NSData *data = [self serializeStateWithError:nil];
+    if(data != nil) {
+        return [data writeToFile:fileName options:0 error:nil];
+    }
     return NO;
 }
 
 - (BOOL)loadStateFromFileAtPath:(NSString *)fileName
 {
+    NSData *data = [NSData dataWithContentsOfFile:fileName options:0 error:nil];
+    if(data != nil) {
+        return [self deserializeState:data withError:nil];
+    }
     return NO;
 }
 
