@@ -100,11 +100,14 @@ enum _OEGameCoreErrorCodes {
     NSUInteger              tenFrameCounter;
     NSUInteger              autoFrameSkipLastTime;
     NSUInteger              frameskipadjust;
+    
+    NSMutableArray         *rewindBuffer;
 
     BOOL                    willSkipFrame;
     BOOL                    isRunning;
     BOOL                    shouldStop;
     BOOL                    isFastForwarding;
+    BOOL                    isRewinding;
     BOOL                    stepFrameForward;
 }
 

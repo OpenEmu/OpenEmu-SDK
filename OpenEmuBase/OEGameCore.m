@@ -58,6 +58,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         frameRateModifier = 1;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
+        rewindBuffer = [[NSMutableArray alloc] init];
 
         NSLog(@"Some shit about the game.");
     }
@@ -202,8 +203,23 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 #endif
 
             willSkipFrame = (frameCounter != frameSkip);
+            
+            if(isRewinding)
+            {
+                NSData *state = [rewindBuffer lastObject];
+                if(state)
+                {
+                    [rewindBuffer removeLastObject];
+                
+                    [self deserializeState:state withError:nil];
+                }
+                else
+                {
+                    isRewinding = false;
+                }
+            }
 
-            if(isRunning || stepFrameForward)
+            if(isRunning || stepFrameForward || isRewinding)
             {
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
@@ -214,6 +230,16 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 [_renderDelegate didExecute];
                 //});
             }
+            
+            if(!isRewinding)
+            {
+                NSData *state = [self serializeStateWithError:nil];
+                if(state)
+                {
+                    [rewindBuffer addObject:state];
+                }
+            }
+            
             if(frameCounter >= frameSkip) frameCounter = 0;
             else                          frameCounter++;
         }
@@ -405,7 +431,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)rewind:(BOOL)flag
 {
-    // FIXME: Need implementation.
+    isRewinding = flag;
 }
 
 #pragma mark - Audio
