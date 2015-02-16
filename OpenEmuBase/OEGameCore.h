@@ -132,6 +132,7 @@ enum _OEGameCoreErrorCodes {
 
 - (void)calculateFrameSkip:(NSUInteger)rate;
 - (void)fastForward:(BOOL)flag;
+- (void)rewind:(BOOL)flag;
 
 #pragma mark - Execution
 

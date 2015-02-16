@@ -383,7 +383,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return defaultTimeInterval;
 }
 
-- (void)fastForward:(BOOL)flag;
+- (void)fastForward:(BOOL)flag
 {
     if(flag == isFastForwarding)
         return;
@@ -401,6 +401,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     [_renderDelegate setEnableVSync:!isFastForwarding];
     OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03);
+}
+
+- (void)rewind:(BOOL)flag
+{
+    // FIXME: Need implementation.
 }
 
 #pragma mark - Audio
