@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */; };
 		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A2A1710A4BA00ED580A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A291710A4BA00ED580A /* Cocoa.framework */; };
 		C6772A341710A4BA00ED580A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C6772A321710A4BA00ED580A /* InfoPlist.strings */; };
@@ -98,6 +100,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
+		27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OEDiffQueue.mm; sourceTree = "<group>"; };
 		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
 		C6772A261710A4BA00ED580A /* OpenEmuBase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuBase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6772A291710A4BA00ED580A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -270,6 +274,8 @@
 				C6772A6D1710BD6200ED580A /* OETimingUtils.m */,
 				C6772A801710C6D100ED580A /* NSString+UUID.h */,
 				C6772A811710C6D100ED580A /* NSString+UUID.m */,
+				27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */,
+				27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */,
 				8363A433193CA52400F18425 /* OEGeometry.h */,
 				C6772A301710A4BA00ED580A /* Supporting Files */,
 			);
@@ -417,6 +423,7 @@
 				C6772A741710BD6200ED580A /* OEGameCoreController.h in Headers */,
 				C6772A761710BD6200ED580A /* OERingBuffer.h in Headers */,
 				8363A434193CA52400F18425 /* OEGeometry.h in Headers */,
+				27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */,
 				C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */,
 				C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */,
 				C6772A7A1710BD6200ED580A /* OETimingUtils.h in Headers */,
@@ -550,6 +557,7 @@
 			files = (
 				C6772A711710BD6200ED580A /* OEGameCore.m in Sources */,
 				C6772A731710BD6200ED580A /* OEAbstractAdditions.m in Sources */,
+				27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */,
 				C6772A751710BD6200ED580A /* OEGameCoreController.m in Sources */,
 				C6772A771710BD6200ED580A /* OERingBuffer.m in Sources */,
 				C6772A781710BD6200ED580A /* TPCircularBuffer.c in Sources */,
