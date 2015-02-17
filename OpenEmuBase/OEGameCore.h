@@ -28,6 +28,7 @@
 #import "OEGameCoreController.h"
 #import "OESystemResponderClient.h"
 #import "OEGeometry.h"
+#import "OEDiffQueue.h"
 #ifndef DLog
 
 #ifdef DEBUG_PRINT
@@ -101,7 +102,7 @@ enum _OEGameCoreErrorCodes {
     NSUInteger              autoFrameSkipLastTime;
     NSUInteger              frameskipadjust;
     
-    NSMutableArray         *rewindBuffer;
+    OEDiffQueue            *rewindQueue;
 
     BOOL                    willSkipFrame;
     BOOL                    isRunning;

@@ -58,7 +58,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         frameRateModifier = 1;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
-        rewindBuffer = [[NSMutableArray alloc] init];
+        rewindQueue = [[OEDiffQueue alloc] init];
 
         NSLog(@"Some shit about the game.");
     }
@@ -206,11 +206,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             
             if(isRewinding)
             {
-                NSData *state = [rewindBuffer lastObject];
+                NSData *state = [rewindQueue pop];
                 if(state)
                 {
-                    [rewindBuffer removeLastObject];
-                
                     [self deserializeState:state withError:nil];
                 }
                 else
@@ -236,7 +234,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 NSData *state = [self serializeStateWithError:nil];
                 if(state)
                 {
-                    [rewindBuffer addObject:state];
+                    [rewindQueue push:state];
                 }
             }
             
