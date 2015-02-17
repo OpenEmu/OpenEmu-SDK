@@ -205,6 +205,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             willSkipFrame = (frameCounter != frameSkip);
             
             BOOL executing = isRunning || stepFrameForward;
+            BOOL rewound = false;
             
             if(executing && isRewinding)
             {
@@ -212,14 +213,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 if(state)
                 {
                     [self deserializeState:state withError:nil];
-                }
-                else
-                {
-                    isRewinding = false;
+                    rewound = true;
                 }
             }
 
-            if(executing)
+            if(executing && (!isRewinding || rewound))
             {
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
