@@ -165,6 +165,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [self executeFrameSkippingFrame:NO];
 
     [_renderDelegate didExecute];
+    
+    initialState = [self serializeStateWithError:nil];
 
     handler();
 }
@@ -215,6 +217,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                     [self deserializeState:state withError:nil];
                     rewound = true;
                 }
+                else if(initialState)
+                {
+                    [self deserializeState:initialState withError:nil];
+                }
             }
 
             if(executing && (!isRewinding || rewound))
@@ -235,6 +241,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 if(state)
                 {
                     [rewindQueue push:state];
+                }
+                if(!initialState)
+                {
+                    initialState = state;
                 }
             }
             
