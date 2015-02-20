@@ -202,10 +202,13 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
             willSkipFrame = (frameCounter != frameSkip);
             
-            BOOL executing = isRunning || stepFrameForward;
+            BOOL executing = isRunning || stepFrameForward || stepFrameBackward;
+            BOOL rewinding = isRewinding || stepFrameBackward;
                 
-            if(executing && isRewinding)
+            if(executing && rewinding)
             {
+                stepFrameBackward = NO;
+                
                 NSData *state = [rewindQueue pop];
                 if(state)
                 {
