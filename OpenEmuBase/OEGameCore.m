@@ -161,12 +161,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
 {
     [_renderDelegate willExecute];
-
     [self executeFrameSkippingFrame:NO];
-
     [_renderDelegate didExecute];
-    
-    initialState = [self serializeStateWithError:nil];
 
     handler();
 }
@@ -207,45 +203,34 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             willSkipFrame = (frameCounter != frameSkip);
             
             BOOL executing = isRunning || stepFrameForward;
-            BOOL rewound = false;
-            
+                
             if(executing && isRewinding)
             {
                 NSData *state = [rewindQueue pop];
                 if(state)
                 {
+                    [_renderDelegate willExecute];
+                    [self executeFrameSkippingFrame:NO];
+                    [_renderDelegate didExecute];
+                    
                     [self deserializeState:state withError:nil];
-                    rewound = true;
-                }
-                else if(initialState)
-                {
-                    [self deserializeState:initialState withError:nil];
                 }
             }
-
-            if(executing && (!isRewinding || rewound))
+            else if(executing)
             {
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
-                [_renderDelegate willExecute];
-
-                [self executeFrameSkippingFrame:willSkipFrame];
-
-                [_renderDelegate didExecute];
-                //});
-            }
-            
-            if(executing && !isRewinding)
-            {
+                
                 NSData *state = [self serializeStateWithError:nil];
                 if(state)
                 {
                     [rewindQueue push:state];
                 }
-                if(!initialState)
-                {
-                    initialState = state;
-                }
+                
+                [_renderDelegate willExecute];
+                [self executeFrameSkippingFrame:willSkipFrame];
+                [_renderDelegate didExecute];
+                //});
             }
             
             if(frameCounter >= frameSkip) frameCounter = 0;

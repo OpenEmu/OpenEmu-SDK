@@ -102,7 +102,6 @@ enum _OEGameCoreErrorCodes {
     NSUInteger              autoFrameSkipLastTime;
     NSUInteger              frameskipadjust;
     
-    NSData                 *initialState;
     OEDiffQueue            *rewindQueue;
 
     BOOL                    willSkipFrame;
