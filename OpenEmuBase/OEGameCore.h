@@ -111,6 +111,7 @@ enum _OEGameCoreErrorCodes {
     BOOL                    isFastForwarding;
     BOOL                    isRewinding;
     BOOL                    stepFrameForward;
+    BOOL                    stepFrameBackward;
 }
 
 @property(weak)     id<OEGameCoreDelegate> delegate;

@@ -335,7 +335,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)stepFrameBackward;
 {
-    // FIXME: Need implementation.
+    if(![self isEmulationPaused])
+        [self setPauseEmulation:YES];
+    
+    stepFrameBackward = YES;
 }
 
 #pragma mark - ABSTRACT METHODS
