@@ -26,6 +26,7 @@
  */
 
 #include <vector>
+#include <deque>
 #import "OEDiffQueue.h"
 
 struct OEDiffData
@@ -44,7 +45,7 @@ struct OEPatch
 {
     char *_currentBytes;
     size_t _currentLength;
-    std::vector<std::unique_ptr<OEPatch> > _patches;
+    std::deque<std::unique_ptr<OEPatch> > _patches;
     NSUInteger _capacity;
 }
 
