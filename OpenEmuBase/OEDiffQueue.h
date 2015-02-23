@@ -34,6 +34,7 @@
 - (void)push:(NSData *)aData;
 - (NSData *)pop;
 
+- (NSUInteger)count;
 - (BOOL)isEmpty;
 
 @end

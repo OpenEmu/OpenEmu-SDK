@@ -149,6 +149,16 @@ struct OEPatch
     return popData;
 }
 
+- (NSUInteger)count
+{
+    if ([self isEmpty])
+    {
+        return 0;
+    }
+    
+    return 1 + _patches.size();
+}
+
 - (BOOL)isEmpty
 {
     return _currentBytes == NULL;
