@@ -108,6 +108,12 @@ struct OEPatch
         }
         
         _currentLength = nextLength;
+        
+        if([self count] >= _capacity)
+        {
+            NSUInteger discrepancy = [self count] - _capacity + 1;
+            _patches.erase(_patches.begin(), _patches.begin() + discrepancy);
+        }
         _patches.push_back(std::unique_ptr<OEPatch>(nextPatch));
     }
     else
