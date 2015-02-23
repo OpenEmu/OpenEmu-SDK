@@ -204,7 +204,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             
             BOOL executing = isRunning || stepFrameForward || stepFrameBackward;
             BOOL rewinding = isRewinding || stepFrameBackward;
-                
+            
             if(executing && rewinding)
             {
                 stepFrameBackward = NO;
@@ -431,6 +431,12 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)rewind:(BOOL)flag
 {
     isRewinding = flag;
+}
+
+- (BOOL)canRewind
+{
+    // FIXME: Load this flag from a plist file on a per-core basis
+    return YES;
 }
 
 #pragma mark - Audio
