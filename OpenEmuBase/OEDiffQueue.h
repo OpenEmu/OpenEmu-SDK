@@ -30,6 +30,7 @@
 @interface OEDiffQueue : NSObject
 
 - (id)init;
+- (id)initWithCapacity:(NSUInteger)capacity;
 
 - (void)push:(NSData *)aData;
 - (NSData *)pop;

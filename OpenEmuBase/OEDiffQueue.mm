@@ -51,10 +51,16 @@ struct OEPatch
 
 - (id)init
 {
+    return [self initWithCapacity:NSUIntegerMax];
+}
+
+- (id)initWithCapacity:(NSUInteger)capacity
+{
     if((self = [super init]))
     {
         _currentBytes = NULL;
         _currentLength = 0;
+        _capacity = capacity;
     }
     return self;
 }
