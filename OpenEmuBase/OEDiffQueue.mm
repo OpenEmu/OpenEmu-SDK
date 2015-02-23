@@ -115,7 +115,6 @@ struct OEPatch
 {
     if([self isEmpty])
     {
-        NSLog(@"Nothing to pop");
         return nil;
     }
     
@@ -123,7 +122,6 @@ struct OEPatch
     
     if(_patches.empty())
     {
-        NSLog(@"No more patches");
         free(_currentBytes);
         _currentBytes = NULL;
         _currentLength = 0;
