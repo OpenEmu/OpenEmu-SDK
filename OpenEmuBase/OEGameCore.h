@@ -103,6 +103,7 @@ enum _OEGameCoreErrorCodes {
     NSUInteger              frameskipadjust;
     
     OEDiffQueue            *rewindQueue;
+    NSUInteger              rewindCounter;
 
     BOOL                    willSkipFrame;
     BOOL                    isRunning;
