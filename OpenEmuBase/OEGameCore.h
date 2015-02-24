@@ -124,6 +124,7 @@ enum _OEGameCoreErrorCodes {
 @property(readonly) NSString             *supportDirectoryPath;
 @property(readonly) NSString             *batterySavesDirectoryPath;
 
+@property(readonly) BOOL                  canRewind;
 @property(readonly) NSTimeInterval        rewindInterval;
 @property(readonly) NSTimeInterval        frameInterval;
 @property(copy)     NSString             *systemIdentifier;
@@ -139,7 +140,6 @@ enum _OEGameCoreErrorCodes {
 - (void)calculateFrameSkip:(NSUInteger)rate;
 - (void)fastForward:(BOOL)flag;
 - (void)rewind:(BOOL)flag;
-- (BOOL)canRewind;
 
 #pragma mark - Execution
 
