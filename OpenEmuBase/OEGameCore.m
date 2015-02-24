@@ -224,13 +224,18 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
                 
-                if([self canRewind])
+                if([self canRewind] && rewindCounter == 0)
                 {
                     NSData *state = [self serializeStateWithError:nil];
                     if(state)
                     {
                         [rewindQueue push:state];
                     }
+                    rewindCounter = [self rewindInterval];
+                }
+                else
+                {
+                    --rewindCounter;
                 }
                 
                 [_renderDelegate willExecute];
