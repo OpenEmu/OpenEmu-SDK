@@ -124,6 +124,7 @@ enum _OEGameCoreErrorCodes {
 @property(readonly) NSString             *supportDirectoryPath;
 @property(readonly) NSString             *batterySavesDirectoryPath;
 
+@property(readonly) NSTimeInterval        rewindInterval;
 @property(readonly) NSTimeInterval        frameInterval;
 @property(copy)     NSString             *systemIdentifier;
 @property(copy)     NSString             *systemRegion;

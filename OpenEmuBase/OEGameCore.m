@@ -448,6 +448,12 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return YES;
 }
 
+- (NSTimeInterval)rewindInterval
+{
+    // FIXME: Load this flag from a plist file on a per-core basis
+    return 0;
+}
+
 #pragma mark - Audio
 
 - (NSUInteger)audioBufferCount
