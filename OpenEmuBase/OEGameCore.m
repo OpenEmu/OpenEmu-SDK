@@ -224,7 +224,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
                 
-                if([self canRewind] && rewindCounter == 0)
+                if([self supportsRewinding] && rewindCounter == 0)
                 {
                     NSData *state = [self serializeStateWithError:nil];
                     if(state)
@@ -438,7 +438,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)rewind:(BOOL)flag
 {
-    if([self canRewind] && ![rewindQueue isEmpty]) {
+    if([self supportsRewinding] && ![rewindQueue isEmpty]) {
         isRewinding = flag;
     }
     else
@@ -447,7 +447,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     }
 }
 
-- (BOOL)canRewind
+- (BOOL)supportsRewinding
 {
     // FIXME: Load this flag from a plist file on a per-core basis
     return YES;
