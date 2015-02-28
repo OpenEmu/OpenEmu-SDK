@@ -125,7 +125,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (OEDiffQueue *)rewindQueue
 {
     if(rewindQueue == nil) {
-        rewindQueue = [[OEDiffQueue alloc] init];
+        NSUInteger capacity = ceil(([self frameInterval]*[self rewindBufferSeconds]) / ([self rewindInterval]+1));
+        rewindQueue = [[OEDiffQueue alloc] initWithCapacity:capacity];
     }
     return rewindQueue;
 }
