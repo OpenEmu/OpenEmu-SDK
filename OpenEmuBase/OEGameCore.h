@@ -127,6 +127,7 @@ enum _OEGameCoreErrorCodes {
 
 @property(readonly) BOOL                  supportsRewinding;
 @property(readonly) NSUInteger            rewindInterval;
+@property(readonly) NSUInteger            rewindBufferSeconds;
 @property(readonly) OEDiffQueue          *rewindQueue;
 
 @property(readonly) NSTimeInterval        frameInterval;
