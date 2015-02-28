@@ -60,7 +60,8 @@ struct OEPatch
     {
         _currentBytes = NULL;
         _currentLength = 0;
-        _capacity = capacity;
+        _capacity = MAX(capacity, 2);
+        // Note: A capacity <2 crashes in [OEDiffQueue push:]
     }
     return self;
 }
@@ -82,7 +83,7 @@ struct OEPatch
         
         // `realloc(ptr, 0)` is undefined in C99/C11/C++11, and
         // may return NULL, or free the memory of `ptr`
-        size_t nextSize = (nextLength > 0) ? nextLength : 1;
+        size_t nextSize = MAX(nextLength, 1);
         _currentBytes = (char *)realloc(_currentBytes, nextSize);
         
         for(NSUInteger offset = 0; offset < nextLength; ++offset)
