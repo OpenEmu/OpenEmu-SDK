@@ -106,20 +106,17 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (BOOL)supportsRewinding
 {
-    // FIXME: Load this flag from a plist file on a per-core basis
-    return YES;
+    return [[self owner] supportsRewindingForSystemIdentifier:[self systemIdentifier]];
 }
 
 - (NSUInteger)rewindInterval
 {
-    // FIXME: Load this flag from a plist file on a per-core basis
-    return 0;
+    return [[self owner] rewindIntervalForSystemIdentifier:[self systemIdentifier]];
 }
 
 - (NSUInteger)rewindBufferSeconds
 {
-    // FIXME: Load this flag from a plist file on a per-core basis
-    return NSUIntegerMax;
+    return [[self owner] rewindBufferSecondsForSystemIdentifier:[self systemIdentifier]];
 }
 
 - (OEDiffQueue *)rewindQueue
