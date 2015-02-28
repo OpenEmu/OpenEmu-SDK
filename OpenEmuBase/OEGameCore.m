@@ -104,6 +104,24 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return [[self supportDirectoryPath] stringByAppendingPathComponent:@"Battery Saves"];
 }
 
+- (BOOL)supportsRewinding
+{
+    // FIXME: Load this flag from a plist file on a per-core basis
+    return YES;
+}
+
+- (NSUInteger)rewindInterval
+{
+    // FIXME: Load this flag from a plist file on a per-core basis
+    return 0;
+}
+
+- (NSUInteger)rewindBufferSeconds
+{
+    // FIXME: Load this flag from a plist file on a per-core basis
+    return NSUIntegerMax;
+}
+
 - (OEDiffQueue *)rewindQueue
 {
     if(rewindQueue == nil) {
@@ -454,24 +472,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     {
         isRewinding = NO;
     }
-}
-
-- (BOOL)supportsRewinding
-{
-    // FIXME: Load this flag from a plist file on a per-core basis
-    return YES;
-}
-
-- (NSUInteger)rewindInterval
-{
-    // FIXME: Load this flag from a plist file on a per-core basis
-    return 0;
-}
-
-- (NSUInteger)rewindBufferSeconds
-{
-    // FIXME: Load this flag from a plist file on a per-core basis
-    return NSUIntegerMax;
 }
 
 #pragma mark - Audio
