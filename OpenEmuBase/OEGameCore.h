@@ -28,6 +28,7 @@
 #import "OEGameCoreController.h"
 #import "OESystemResponderClient.h"
 #import "OEGeometry.h"
+#import "OEDiffQueue.h"
 #ifndef DLog
 
 #ifdef DEBUG_PRINT
@@ -100,12 +101,17 @@ enum _OEGameCoreErrorCodes {
     NSUInteger              tenFrameCounter;
     NSUInteger              autoFrameSkipLastTime;
     NSUInteger              frameskipadjust;
+    
+    OEDiffQueue            *rewindQueue;
+    NSUInteger              rewindCounter;
 
     BOOL                    willSkipFrame;
     BOOL                    isRunning;
     BOOL                    shouldStop;
     BOOL                    isFastForwarding;
+    BOOL                    isRewinding;
     BOOL                    stepFrameForward;
+    BOOL                    stepFrameBackward;
 }
 
 @property(weak)     id<OEGameCoreDelegate> delegate;
@@ -118,6 +124,11 @@ enum _OEGameCoreErrorCodes {
 @property(readonly) NSString             *biosDirectoryPath;
 @property(readonly) NSString             *supportDirectoryPath;
 @property(readonly) NSString             *batterySavesDirectoryPath;
+
+@property(readonly) BOOL                  supportsRewinding;
+@property(readonly) NSUInteger            rewindInterval;
+@property(readonly) NSUInteger            rewindBufferSeconds;
+@property(readonly) OEDiffQueue          *rewindQueue;
 
 @property(readonly) NSTimeInterval        frameInterval;
 @property(copy)     NSString             *systemIdentifier;
@@ -132,6 +143,7 @@ enum _OEGameCoreErrorCodes {
 
 - (void)calculateFrameSkip:(NSUInteger)rate;
 - (void)fastForward:(BOOL)flag;
+- (void)rewind:(BOOL)flag;
 
 #pragma mark - Execution
 
@@ -191,6 +203,9 @@ enum _OEGameCoreErrorCodes {
 - (double)audioSampleRateForBuffer:(NSUInteger)buffer;
 
 #pragma mark - Save state - Optional
+
+- (NSData *)serializeStateWithError:(NSError **)outError;
+- (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError;
 
 - (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
 - (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;

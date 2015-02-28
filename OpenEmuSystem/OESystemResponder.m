@@ -174,6 +174,9 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
         case OEGlobalButtonIdentifierFastForward :
             [[self client] fastForward:YES];
             return;
+        case OEGlobalButtonIdentifierRewind :
+            [[self client] rewind:YES];
+            return;
         case OEGlobalButtonIdentifierDisplayMode :
             [[self client] changeDisplayMode];
             return;
@@ -232,13 +235,16 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
         case OEGlobalButtonIdentifierFastForward :
             [[self client] fastForward:NO];
             return;
+        case OEGlobalButtonIdentifierRewind :
+            [[self client] rewind:NO];
+            return;
         case OEGlobalButtonIdentifierDisplayMode :
             return;
         case OEGlobalButtonIdentifierScreenshot :
             SEND_ACTION(takeScreenshot:);
             return;
 
-        case OEGlobalButtonIdentifierRewind :
+        //case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierSlowMotion :
             NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
@@ -257,9 +263,9 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 {
     switch(identifier)
     {
-        case OEGlobalButtonIdentifierRewind :
-            [[self client] rewindAtSpeed:value];
-            return;
+        //case OEGlobalButtonIdentifierRewind :
+        //    [[self client] rewindAtSpeed:value];
+        //    return;
         //case OEGlobalButtonIdentifierFastForward :
         //    [[self client] fastForwardAtSpeed:value];
         //    return;
@@ -268,6 +274,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
             return;
 
         case OEGlobalButtonIdentifierFastForward :
+        case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierSaveState :
         case OEGlobalButtonIdentifierLoadState :
         case OEGlobalButtonIdentifierQuickSave :

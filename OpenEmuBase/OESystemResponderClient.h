@@ -30,6 +30,7 @@
 
 - (void)fastForward:(BOOL)flag;
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
+- (void)rewind:(BOOL)flag;
 - (void)rewindAtSpeed:(CGFloat)rewindSpeed;
 - (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
 - (void)stepFrameForward;

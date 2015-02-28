@@ -58,6 +58,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         frameRateModifier = 1;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
+        rewindQueue = nil;
 
         NSLog(@"Some shit about the game.");
     }
@@ -101,6 +102,30 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (NSString *)batterySavesDirectoryPath
 {
     return [[self supportDirectoryPath] stringByAppendingPathComponent:@"Battery Saves"];
+}
+
+- (BOOL)supportsRewinding
+{
+    return [[self owner] supportsRewindingForSystemIdentifier:[self systemIdentifier]];
+}
+
+- (NSUInteger)rewindInterval
+{
+    return [[self owner] rewindIntervalForSystemIdentifier:[self systemIdentifier]];
+}
+
+- (NSUInteger)rewindBufferSeconds
+{
+    return [[self owner] rewindBufferSecondsForSystemIdentifier:[self systemIdentifier]];
+}
+
+- (OEDiffQueue *)rewindQueue
+{
+    if(rewindQueue == nil) {
+        NSUInteger capacity = ceil(([self frameInterval]*[self rewindBufferSeconds]) / ([self rewindInterval]+1));
+        rewindQueue = [[OEDiffQueue alloc] initWithCapacity:capacity];
+    }
+    return rewindQueue;
 }
 
 #pragma mark - Execution
@@ -160,9 +185,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
 {
     [_renderDelegate willExecute];
-
     [self executeFrameSkippingFrame:NO];
-
     [_renderDelegate didExecute];
 
     handler();
@@ -202,18 +225,49 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 #endif
 
             willSkipFrame = (frameCounter != frameSkip);
-
-            if(isRunning || stepFrameForward)
+            
+            BOOL executing = isRunning || stepFrameForward || stepFrameBackward;
+            BOOL rewinding = isRewinding || stepFrameBackward;
+            
+            if(executing && rewinding)
+            {
+                stepFrameBackward = NO;
+                
+                NSData *state = [[self rewindQueue] pop];
+                if(state)
+                {
+                    [_renderDelegate willExecute];
+                    [self executeFrameSkippingFrame:NO];
+                    [_renderDelegate didExecute];
+                    
+                    [self deserializeState:state withError:nil];
+                }
+            }
+            else if(executing)
             {
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
+                
+                if([self supportsRewinding] && rewindCounter == 0)
+                {
+                    NSData *state = [self serializeStateWithError:nil];
+                    if(state)
+                    {
+                        [[self rewindQueue] push:state];
+                    }
+                    rewindCounter = [self rewindInterval];
+                }
+                else
+                {
+                    --rewindCounter;
+                }
+                
                 [_renderDelegate willExecute];
-
                 [self executeFrameSkippingFrame:willSkipFrame];
-
                 [_renderDelegate didExecute];
                 //});
             }
+            
             if(frameCounter >= frameSkip) frameCounter = 0;
             else                          frameCounter++;
         }
@@ -301,7 +355,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)stepFrameBackward;
 {
-    // FIXME: Need implementation.
+    if(![self isEmulationPaused])
+        [self setPauseEmulation:YES];
+    
+    stepFrameBackward = YES;
 }
 
 #pragma mark - ABSTRACT METHODS
@@ -383,7 +440,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return defaultTimeInterval;
 }
 
-- (void)fastForward:(BOOL)flag;
+- (void)fastForward:(BOOL)flag
 {
     if(flag == isFastForwarding)
         return;
@@ -401,6 +458,18 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     [_renderDelegate setEnableVSync:!isFastForwarding];
     OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03);
+}
+
+- (void)rewind:(BOOL)flag
+{
+    if([self supportsRewinding] && ![[self rewindQueue] isEmpty])
+    {
+        isRewinding = flag;
+    }
+    else
+    {
+        isRewinding = NO;
+    }
 }
 
 #pragma mark - Audio
@@ -470,24 +539,86 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - Save state
 
-- (BOOL)saveStateToFileAtPath:(NSString *)fileName
+- (NSData *)serializeStateWithError:(NSError **)outError
+{
+    return nil;
+}
+
+- (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError
 {
     return NO;
+}
+
+- (BOOL)saveStateToFileAtPath:(NSString *)fileName
+{
+    NSData *data = [self serializeStateWithError:nil];
+    if(data)
+    {
+        return [data writeToFile:fileName options:0 error:nil];
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 - (BOOL)loadStateFromFileAtPath:(NSString *)fileName
 {
-    return NO;
+    NSData *data = [NSData dataWithContentsOfFile:fileName options:0 error:nil];
+    if(data)
+    {
+        return [self deserializeState:data withError:nil];
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 - (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    block([self saveStateToFileAtPath:fileName], nil);
+    NSError *error = nil;
+    NSData *data = [self serializeStateWithError:&error];
+    if(data)
+    {
+        NSError *writeError = nil;
+        BOOL result = [data writeToFile:fileName options:0 error:&writeError];
+        block(result, writeError);
+    }
+    else if(error)
+    {
+        block(NO, error);
+    }
+    else {
+        block([self saveStateToFileAtPath:fileName], nil);
+    }
 }
 
 - (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    block([self loadStateFromFileAtPath:fileName], nil);
+    NSError *readError = nil;
+    NSData *state = [NSData dataWithContentsOfFile:fileName options:0 error:&readError];
+    
+    NSError *error = nil;
+    BOOL success = NO;
+    if(state)
+    {
+        success = [self deserializeState:state withError:&error];
+    }
+    
+    if(success)
+    {
+        block(YES, nil);
+    }
+    else if(error)
+    {
+        block(NO, error);
+    }
+    else
+    {
+        BOOL fallback = [self loadStateFromFileAtPath:fileName];
+        block(fallback, fallback ? nil : readError);
+    }
 }
 
 #pragma mark - Cheats
