@@ -131,7 +131,6 @@ NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDev
 
 - (void)disconnect;
 {
-
 }
 
 - (CGFloat)deadZoneForControlCookie:(NSUInteger)controlCookie;
