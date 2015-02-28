@@ -453,7 +453,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return YES;
 }
 
-- (NSTimeInterval)rewindInterval
+- (NSUInteger)rewindInterval
 {
     // FIXME: Load this flag from a plist file on a per-core basis
     return 0;
