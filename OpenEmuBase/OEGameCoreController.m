@@ -37,6 +37,9 @@ NSString *const OEGameCoreRequiresFilesKey     = @"OEGameCoreRequiresFiles";
 NSString *const OEGameCoreOptionsKey           = @"OEGameCoreOptions";
 NSString *const OEGameCoreHasGlitchesKey       = @"OEGameCoreHasGlitches";
 NSString *const OEGameCoreSaveStatesNotSupportedKey = @"OEGameCoreSaveStatesNotSupported";
+NSString *const OEGameCoreSupportsRewindingKey = @"OEGameCoreSupportsRewinding";
+NSString *const OEGameCoreRewindIntervalKey = @"OEGameCoreRewindInterval";
+NSString *const OEGameCoreRewindBufferSecondsKey = @"OEGameCoreRewindBufferSeconds";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
@@ -120,6 +123,28 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [[system valueForKey:OEGameCoreSaveStatesNotSupportedKey] boolValue];
+}
+
+- (BOOL)supportsRewindingForSystemIdentifier:(NSString *)systemIdentifier
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreSupportsRewindingKey] boolValue];
+}
+
+- (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreRewindIntervalKey] unsignedIntegerValue];
+}
+
+- (NSUInteger)rewindBufferSecondsForSystemIdentifier:(NSString *)systemIdentifier
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreRewindBufferSecondsKey] unsignedIntegerValue];
+    
 }
 
 - (void)dealloc

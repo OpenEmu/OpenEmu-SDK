@@ -59,5 +59,8 @@ extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
 - (BOOL)supportsCheatCodeForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)hasGlitchesForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)saveStatesNotSupportedForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)supportsRewindingForSystemIdentifier:(NSString *)systemIdentifier;
+- (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier;
+- (NSUInteger)rewindBufferSecondsForSystemIdentifier:(NSString *)systemIdentifier;
 
 @end
