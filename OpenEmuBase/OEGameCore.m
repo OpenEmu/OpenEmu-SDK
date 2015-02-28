@@ -104,6 +104,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return [[self supportDirectoryPath] stringByAppendingPathComponent:@"Battery Saves"];
 }
 
+- (OEDiffQueue *)rewindQueue
+{
+    return rewindQueue;
+}
+
 #pragma mark - Execution
 
 - (void)calculateFrameSkip:(NSUInteger)rate
@@ -209,7 +214,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             {
                 stepFrameBackward = NO;
                 
-                NSData *state = [rewindQueue pop];
+                NSData *state = [[self rewindQueue] pop];
                 if(state)
                 {
                     [_renderDelegate willExecute];
@@ -229,7 +234,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                     NSData *state = [self serializeStateWithError:nil];
                     if(state)
                     {
-                        [rewindQueue push:state];
+                        [[self rewindQueue] push:state];
                     }
                     rewindCounter = [self rewindInterval];
                 }
@@ -438,7 +443,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)rewind:(BOOL)flag
 {
-    if([self supportsRewinding] && ![rewindQueue isEmpty]) {
+    if([self supportsRewinding] && ![[self rewindQueue] isEmpty])
+    {
         isRewinding = flag;
     }
     else
