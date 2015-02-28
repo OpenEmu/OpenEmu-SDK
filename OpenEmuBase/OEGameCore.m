@@ -58,7 +58,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         frameRateModifier = 1;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
-        rewindQueue = [[OEDiffQueue alloc] init];
+        rewindQueue = nil;
 
         NSLog(@"Some shit about the game.");
     }
@@ -106,6 +106,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (OEDiffQueue *)rewindQueue
 {
+    if(rewindQueue == nil) {
+        rewindQueue = [[OEDiffQueue alloc] init];
+    }
     return rewindQueue;
 }
 
