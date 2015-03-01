@@ -77,6 +77,7 @@
 - (void)toggleAudioMute:(id)sender;
 - (void)volumeDown:(id)sender;
 - (void)volumeUp:(id)sender;
+- (void)stopEmulation:(id)sender;
 - (void)resetEmulation:(id)sender;
 - (void)toggleEmulationPaused:(id)sender;
 - (void)takeScreenshot:(id)sender;

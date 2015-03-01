@@ -220,6 +220,9 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
         case OEGlobalButtonIdentifierVolumeUp :
             SEND_ACTION(volumeUp:);
             return;
+        case OEGlobalButtonIdentifierStop :
+            SEND_ACTION(stopEmulation:);
+            return;
         case OEGlobalButtonIdentifierReset :
             SEND_ACTION(resetEmulation:);
             return;
@@ -283,6 +286,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
         case OEGlobalButtonIdentifierMute :
         case OEGlobalButtonIdentifierVolumeDown :
         case OEGlobalButtonIdentifierVolumeUp :
+        case OEGlobalButtonIdentifierStop :
         case OEGlobalButtonIdentifierReset :
         case OEGlobalButtonIdentifierPause :
         case OEGlobalButtonIdentifierStepFrameBackward :

@@ -39,6 +39,7 @@ typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
     OEGlobalButtonIdentifierVolumeDown,
     OEGlobalButtonIdentifierVolumeUp,
 
+    OEGlobalButtonIdentifierStop,
     OEGlobalButtonIdentifierReset,
     OEGlobalButtonIdentifierPause,
     OEGlobalButtonIdentifierRewind,

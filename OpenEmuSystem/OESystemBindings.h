@@ -45,6 +45,7 @@ extern NSString *const OEGlobalButtonFullScreen;
 extern NSString *const OEGlobalButtonMute;
 extern NSString *const OEGlobalButtonVolumeDown;
 extern NSString *const OEGlobalButtonVolumeUp;
+extern NSString *const OEGlobalButtonStop;
 extern NSString *const OEGlobalButtonReset;
 extern NSString *const OEGlobalButtonPause;
 extern NSString *const OEGlobalButtonRewind;

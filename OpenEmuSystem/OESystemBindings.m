@@ -45,6 +45,7 @@ NSString *const OEGlobalButtonFullScreen        = @"OEGlobalButtonFullScreen";
 NSString *const OEGlobalButtonMute              = @"OEGlobalButtonMute";
 NSString *const OEGlobalButtonVolumeDown        = @"OEGlobalButtonVolumeDown";
 NSString *const OEGlobalButtonVolumeUp          = @"OEGlobalButtonVolumeUp";
+NSString *const OEGlobalButtonStop              = @"OEGlobalButtonStop";
 NSString *const OEGlobalButtonReset             = @"OEGlobalButtonReset";
 NSString *const OEGlobalButtonPause             = @"OEGlobalButtonPause";
 NSString *const OEGlobalButtonRewind            = @"OEGlobalButtonRewind";

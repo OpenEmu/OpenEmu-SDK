@@ -226,6 +226,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
           Button(@"Mute", @"Name of the global button to toggle sound mute", OEGlobalButtonMute),
           Button(@"Volume Down", @"Name of the global button to decrease the volume", OEGlobalButtonVolumeDown),
           Button(@"Volume Up", @"Name of the global button to increase the volume", OEGlobalButtonVolumeUp),
+          Button(@"Stop", @"Name of the global button to stop emulation", OEGlobalButtonStop),
           Button(@"Reset", @"Name of the global button to reset the emulation", OEGlobalButtonReset),
           Button(@"Pause", @"Name of the global button to pause the emulation", OEGlobalButtonPause),
           Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),

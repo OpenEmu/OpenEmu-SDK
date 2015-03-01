@@ -50,6 +50,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierVolumeDown";
         case OEGlobalButtonIdentifierVolumeUp :
             return @"OEGlobalButtonIdentifierVolumeUp";
+        case OEGlobalButtonIdentifierStop :
+            return @"OEGlobalButtonIdentifierStop";
         case OEGlobalButtonIdentifierReset :
             return @"OEGlobalButtonIdentifierReset";
         case OEGlobalButtonIdentifierPause :
@@ -248,6 +250,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return OEGlobalButtonVolumeDown;
         case OEGlobalButtonIdentifierVolumeUp :
             return OEGlobalButtonVolumeUp;
+        case OEGlobalButtonIdentifierStop:
+            return OEGlobalButtonStop;
         case OEGlobalButtonIdentifierReset :
             return OEGlobalButtonReset;
         case OEGlobalButtonIdentifierPause :
