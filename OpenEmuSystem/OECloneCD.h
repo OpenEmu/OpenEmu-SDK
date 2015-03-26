@@ -1,7 +1,6 @@
 /*
- Copyright (c) 2013, OpenEmu Team
- 
- 
+ Copyright (c) 2015, OpenEmu Team
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
      * Redistributions of source code must retain the above copyright
@@ -12,7 +11,7 @@
      * Neither the name of the OpenEmu Team nor the
        names of its contributors may be used to endorse or promote products
        derived from this software without specific prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY OpenEmu Team ''AS IS'' AND ANY
  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,28 +24,23 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <ForceFeedback/ForceFeedback.h>
-#import <IOKit/hid/IOHIDLib.h>
-#import <IOKit/hid/IOHIDUsageTables.h>
+#import <Foundation/Foundation.h>
 
-#import <OpenEmuSystem/NSResponder+OEHIDAdditions.h>
-#import <OpenEmuSystem/OEBindingMap.h>
-#import <OpenEmuSystem/OEBindingsController.h>
-#import <OpenEmuSystem/OECUESheet.h>
-#import <OpenEmuSystem/OECloneCD.h>
-#import <OpenEmuSystem/OEControlDescription.h>
-#import <OpenEmuSystem/OEControllerDescription.h>
-#import <OpenEmuSystem/OEDeviceDescription.h>
-#import <OpenEmuSystem/OEDeviceHandler.h>
-#import <OpenEmuSystem/OEDeviceManager.h>
-#import <OpenEmuSystem/OEEvent.h>
-#import <OpenEmuSystem/OEHIDEvent.h>
-#import <OpenEmuSystem/OEKeyBindingDescription.h>
-#import <OpenEmuSystem/OEKeyBindingGroupDescription.h>
-#import <OpenEmuSystem/OELocalizationHelper.h>
-#import <OpenEmuSystem/OEPlayerBindings.h>
-#import <OpenEmuSystem/OESystemBindings.h>
-#import <OpenEmuSystem/OESystemController.h>
-#import <OpenEmuSystem/OESystemResponder.h>
+/**
+ Class to handle .ccd files and manage img/sub files.
+ */
+@interface OECloneCD : NSObject
+
+- (id)initWithURL:(NSURL *)url;
+- (id)initWithURL:(NSURL *)url andReferencedFilesDirectory:(NSURL *)referencedFiles;
+
+#pragma mark - File Handling
+- (BOOL)moveReferencedFilesToURL:(NSURL *)newDirectory withError:(NSError **)outError;
+- (BOOL)copyReferencedFilesToURL:(NSURL *)newDirectory withError:(NSError **)outError;
+
+- (BOOL)allFilesAvailable;
+- (NSArray *)referencedFiles;
+- (NSArray *)referencedFileNames;
+- (NSString *)dataTrackPath;
+
+@end

@@ -10,6 +10,8 @@
 		27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */; };
 		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		94FDE6AE1AC35BA60003D247 /* OECloneCD.h in Headers */ = {isa = PBXBuildFile; fileRef = 94FDE6AC1AC35BA60003D247 /* OECloneCD.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		94FDE6AF1AC35BA60003D247 /* OECloneCD.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FDE6AD1AC35BA60003D247 /* OECloneCD.m */; };
 		C6772A2A1710A4BA00ED580A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A291710A4BA00ED580A /* Cocoa.framework */; };
 		C6772A341710A4BA00ED580A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C6772A321710A4BA00ED580A /* InfoPlist.strings */; };
 		C6772A6E1710BD6200ED580A /* OpenEmuBase.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A601710BD6200ED580A /* OpenEmuBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -103,6 +105,8 @@
 		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
 		27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OEDiffQueue.mm; sourceTree = "<group>"; };
 		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
+		94FDE6AC1AC35BA60003D247 /* OECloneCD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OECloneCD.h; sourceTree = "<group>"; };
+		94FDE6AD1AC35BA60003D247 /* OECloneCD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OECloneCD.m; sourceTree = "<group>"; };
 		C6772A261710A4BA00ED580A /* OpenEmuBase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuBase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6772A291710A4BA00ED580A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		C6772A2C1710A4BA00ED580A /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -403,6 +407,8 @@
 			children = (
 				C6772B741710E21900ED580A /* OEBindingMap.h */,
 				C6772B751710E21900ED580A /* OEBindingMap.m */,
+				94FDE6AC1AC35BA60003D247 /* OECloneCD.h */,
+				94FDE6AD1AC35BA60003D247 /* OECloneCD.m */,
 				C6772B851710E22C00ED580A /* OECUESheet.h */,
 				C6772B861710E22C00ED580A /* OECUESheet.m */,
 			);
@@ -438,6 +444,7 @@
 				C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */,
 				C6772B811710E21900ED580A /* OEBindingMap.h in Headers */,
 				C6772B951710E25300ED580A /* OEBindingsController.h in Headers */,
+				94FDE6AE1AC35BA60003D247 /* OECloneCD.h in Headers */,
 				C6772B871710E22C00ED580A /* OECUESheet.h in Headers */,
 				C6772BD51710E29C00ED580A /* OEControlDescription.h in Headers */,
 				C6772BD21710E29C00ED580A /* OEControllerDescription.h in Headers */,
@@ -591,6 +598,7 @@
 				C6772BC81710E28900ED580A /* OEPS3HIDDeviceHandler.m in Sources */,
 				C6772BCA1710E28900ED580A /* OEXBox360HIDDeviceHander.m in Sources */,
 				C6772BD41710E29C00ED580A /* OEControllerDescription.m in Sources */,
+				94FDE6AF1AC35BA60003D247 /* OECloneCD.m in Sources */,
 				C6772BD61710E29C00ED580A /* OEControlDescription.m in Sources */,
 				C6772BD81710E29C00ED580A /* OEDeviceDescription.m in Sources */,
 				C6772BE01710E41C00ED580A /* OELocalizationHelper.m in Sources */,
