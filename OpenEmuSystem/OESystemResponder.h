@@ -54,6 +54,8 @@
 - (void)releaseEmulatorKey:(OESystemKey *)aKey;
 - (void)mouseDownAtPoint:(OEIntPoint)aPoint;
 - (void)mouseUpAtPoint;
+- (void)rightMouseDownAtPoint:(OEIntPoint)aPoint;
+- (void)rightMouseUpAtPoint;
 - (void)mouseMovedAtPoint:(OEIntPoint)aPoint;
 - (void)changeAnalogEmulatorKey:(OESystemKey *)aKey value:(CGFloat)value;
 

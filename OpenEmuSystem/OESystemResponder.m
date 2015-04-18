@@ -316,6 +316,16 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 
 }
 
+- (void)rightMouseDownAtPoint:(OEIntPoint)aPoint
+{
+    
+}
+
+- (void)rightMouseUpAtPoint
+{
+    
+}
+
 - (void)mouseMovedAtPoint:(OEIntPoint)aPoint;
 {
     
@@ -619,6 +629,13 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
             break;
         case NSLeftMouseUp :
             [self mouseUpAtPoint];
+            break;
+        case NSRightMouseDown :
+        case NSRightMouseDragged :
+            [self rightMouseDownAtPoint:point];
+            break;
+        case NSRightMouseUp :
+            [self rightMouseUpAtPoint];
             break;
         case NSMouseMoved :
             [self mouseMovedAtPoint:point];
