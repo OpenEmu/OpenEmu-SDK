@@ -633,4 +633,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
 }
 
+#pragma mark - Discs
+
+- (NSUInteger)discCount
+{
+    return 1;
+}
+
+- (void)setDisc:(NSUInteger)discNumber
+{
+}
+
 @end

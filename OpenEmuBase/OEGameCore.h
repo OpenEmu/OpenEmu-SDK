@@ -219,6 +219,11 @@ enum _OEGameCoreErrorCodes {
 
 - (void)setCheat:(NSString *)code setType:(NSString *)type setEnabled:(BOOL)enabled;
 
+#pragma mark - Discs - Optional
+
+@property(readonly) NSUInteger discCount;
+- (void)setDisc:(NSUInteger)discNumber;
+
 @end
 
 #pragma mark - Optional

@@ -36,6 +36,7 @@ NSString *const OEGameCoreSupportsCheatCodeKey = @"OEGameCoreSupportsCheatCode";
 NSString *const OEGameCoreRequiresFilesKey     = @"OEGameCoreRequiresFiles";
 NSString *const OEGameCoreOptionsKey           = @"OEGameCoreOptions";
 NSString *const OEGameCoreHasGlitchesKey       = @"OEGameCoreHasGlitches";
+NSString *const OEGameCoreSupportsMultipleDiscsKey = @"OEGameCoreSupportsMultipleDiscs";
 NSString *const OEGameCoreSaveStatesNotSupportedKey = @"OEGameCoreSaveStatesNotSupported";
 NSString *const OEGameCoreSupportsRewindingKey = @"OEGameCoreSupportsRewinding";
 NSString *const OEGameCoreRewindIntervalKey = @"OEGameCoreRewindInterval";
@@ -90,35 +91,42 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 	return [[[self bundle] infoDictionary] objectForKey:@"OEGameCoreOptions"];
 }
 
-- (NSArray *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier;
+- (NSArray *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier
 {
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [system objectForKey:@"OERequiredFiles"];
 }
 
-- (BOOL)requiresFilesForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)requiresFilesForSystemIdentifier:(NSString *)systemIdentifier
 {
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [[system valueForKey:OEGameCoreRequiresFilesKey] boolValue];
 }
 
-- (BOOL)supportsCheatCodeForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)supportsCheatCodeForSystemIdentifier:(NSString *)systemIdentifier
 {
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [[system valueForKey:OEGameCoreSupportsCheatCodeKey] boolValue];
 }
 
-- (BOOL)hasGlitchesForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)hasGlitchesForSystemIdentifier:(NSString *)systemIdentifier
 {
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [[system valueForKey:OEGameCoreHasGlitchesKey] boolValue];
 }
 
-- (BOOL)saveStatesNotSupportedForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)supportsMultipleDiscsForSystemIdentifier:(NSString *)systemIdentifier
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreSupportsMultipleDiscsKey] boolValue];
+}
+
+- (BOOL)saveStatesNotSupportedForSystemIdentifier:(NSString *)systemIdentifier
 {
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
