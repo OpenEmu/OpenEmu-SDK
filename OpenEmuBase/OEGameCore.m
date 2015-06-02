@@ -551,74 +551,22 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (BOOL)saveStateToFileAtPath:(NSString *)fileName
 {
-    NSData *data = [self serializeStateWithError:nil];
-    if(data)
-    {
-        return [data writeToFile:fileName options:0 error:nil];
-    }
-    else
-    {
-        return NO;
-    }
+    return NO;
 }
 
 - (BOOL)loadStateFromFileAtPath:(NSString *)fileName
 {
-    NSData *data = [NSData dataWithContentsOfFile:fileName options:0 error:nil];
-    if(data)
-    {
-        return [self deserializeState:data withError:nil];
-    }
-    else
-    {
-        return NO;
-    }
+    return NO;
 }
 
 - (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    NSError *error = nil;
-    NSData *data = [self serializeStateWithError:&error];
-    if(data)
-    {
-        NSError *writeError = nil;
-        BOOL result = [data writeToFile:fileName options:0 error:&writeError];
-        block(result, writeError);
-    }
-    else if(error)
-    {
-        block(NO, error);
-    }
-    else {
-        block([self saveStateToFileAtPath:fileName], nil);
-    }
+    block([self saveStateToFileAtPath:fileName], nil);
 }
 
 - (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    NSError *readError = nil;
-    NSData *state = [NSData dataWithContentsOfFile:fileName options:0 error:&readError];
-    
-    NSError *error = nil;
-    BOOL success = NO;
-    if(state)
-    {
-        success = [self deserializeState:state withError:&error];
-    }
-    
-    if(success)
-    {
-        block(YES, nil);
-    }
-    else if(error)
-    {
-        block(NO, error);
-    }
-    else
-    {
-        BOOL fallback = [self loadStateFromFileAtPath:fileName];
-        block(fallback, fallback ? nil : readError);
-    }
+    block([self loadStateFromFileAtPath:fileName], nil);
 }
 
 #pragma mark - Cheats
