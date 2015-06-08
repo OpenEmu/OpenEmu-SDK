@@ -105,11 +105,6 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
     });
 }
 
-- (void)dealloc
-{
-    dispatch_release(_queue);
-}
-
 - (NSString *)description
 {
     __block NSString *keyMapDescription = [_keyMap description];
