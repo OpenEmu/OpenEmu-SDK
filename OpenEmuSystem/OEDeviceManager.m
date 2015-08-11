@@ -127,20 +127,6 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 @property(readwrite) NSUInteger deviceIdentifier;
 @end
 
-@interface NSHashTable (OEAdditions)
-+ (instancetype)OE_weakObjectsHashTable;
-@end
-
-@implementation NSHashTable (OEAdditions)
-+ (instancetype)OE_weakObjectsHashTable;
-{
-    if([self respondsToSelector:@selector(weakObjectsHashTable)])
-        return [self weakObjectsHashTable];
-    else
-        return [self hashTableWithWeakObjects];
-}
-@end
-
 @implementation OEDeviceManager
 
 + (OEDeviceManager *)sharedDeviceManager;
@@ -163,8 +149,8 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         _multiDeviceHandlers = [[NSMutableSet alloc] init];
 		_hidManager          = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
 
-        _globalEventListeners = [NSHashTable OE_weakObjectsHashTable];
-        _unhandledEventListeners = [NSHashTable OE_weakObjectsHashTable];
+        _globalEventListeners = [NSHashTable weakObjectsHashTable];
+        _unhandledEventListeners = [NSHashTable weakObjectsHashTable];
         _deviceHandlersToEventListeners = [NSMutableDictionary dictionary];
 
 		IOHIDManagerRegisterDeviceMatchingCallback(_hidManager, OEHandle_DeviceMatchingCallback, (__bridge void *)self);
@@ -274,7 +260,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     NSHashTable *monitors = _deviceHandlersToEventListeners[device];
     if(monitors == nil)
     {
-        monitors = [NSHashTable OE_weakObjectsHashTable];
+        monitors = [NSHashTable weakObjectsHashTable];
         _deviceHandlersToEventListeners[device] = monitors;
     }
 
