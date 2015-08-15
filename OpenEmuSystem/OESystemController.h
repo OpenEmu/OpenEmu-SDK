@@ -124,6 +124,8 @@ typedef enum
 @property(readonly, copy) NSImage      *controllerImageMask;
 
 @property(readonly)       CGFloat       coverAspectRatio;
+
+@property (readonly, nonatomic) BOOL supportsDiscs;
 #pragma mark -
 #pragma mark Bindings settings
 

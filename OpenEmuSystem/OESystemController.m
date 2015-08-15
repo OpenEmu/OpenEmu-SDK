@@ -317,6 +317,17 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
     return _controllerImageMask;
 }
+
+- (BOOL)supportsDiscs
+{
+    NSArray *discBasedExtensions = @[@"cue", @"ccd", @"m3u"];
+    for(NSString *discExtension in discBasedExtensions){
+        if ([[self fileTypes] containsObject:discExtension])
+            return true;
+    }
+    return false;
+}
+
 #pragma mark -
 #pragma mark Responder management
 
