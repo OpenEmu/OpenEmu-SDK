@@ -187,7 +187,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
 - (NSDictionary *)OE_defaultControllerPreferences;
 {
-    return [NSPropertyListSerialization propertyListFromData:[NSData dataWithContentsOfFile:[_bundle pathForResource:@"Controller-Preferences" ofType:@"plist"]] mutabilityOption:NSPropertyListImmutable format:NULL errorDescription:NULL];
+    return [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:[_bundle pathForResource:@"Controller-Preferences" ofType:@"plist"]] options:NSPropertyListImmutable format:NULL error:NULL];
 }
 
 - (NSDictionary *)OE_localizedControllerPreferences;
@@ -204,7 +204,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
     if(fileName != nil) fileName = [_bundle pathForResource:fileName ofType:@"plist"];
 
-    return (fileName == nil ? nil : [NSPropertyListSerialization propertyListFromData:[NSData dataWithContentsOfFile:fileName] mutabilityOption:NSPropertyListImmutable format:NULL errorDescription:NULL]);
+    return (fileName == nil ? nil : [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:fileName] options:NSPropertyListImmutable format:NULL error:NULL]);
 }
 
 - (NSArray *)OE_globalButtonsControlList
