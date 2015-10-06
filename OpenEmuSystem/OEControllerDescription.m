@@ -89,6 +89,9 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
 
 + (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product
 {
+    // Some devices have no HID Product string descriptor
+    if(product == nil) product = @"Unknown USB Gamepad";
+
     OEDeviceDescription *ret = _deviceNameToDeviceDescriptions[product];
 
     if(ret == nil)
