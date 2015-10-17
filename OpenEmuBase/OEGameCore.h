@@ -87,6 +87,7 @@ enum _OEGameCoreErrorCodes {
 
 #pragma mark -
 
+OE_EXPORTED_CLASS
 @interface OEGameCore : NSResponder <OESystemResponderClient>
 {
     void (^_stopEmulationHandler)(void);

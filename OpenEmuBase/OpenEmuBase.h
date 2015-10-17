@@ -26,6 +26,10 @@
 
 #import <Cocoa/Cocoa.h>
 
+#if !__has_feature(objc_arc)
+#error OEGameCores will probably not function without ARC
+#endif
+
 #import <OpenEmuBase/NSString+UUID.h>
 #import <OpenEmuBase/OEAbstractAdditions.h>
 #import <OpenEmuBase/OEGameCore.h>
