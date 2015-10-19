@@ -428,7 +428,6 @@ OE_EXPORTED_CLASS
 @property(getter=isEmulationPaused) BOOL pauseEmulation OE_DEPRECATED("use -rate");
 - (void)executeFrameSkippingFrame:(BOOL)skip OE_DEPRECATED("check -shouldSkipFrame");
 
-- (void)calculateFrameSkip:(NSUInteger)rate OE_DEPRECATED("use -rate");
 - (void)fastForward:(BOOL)flag OE_DEPRECATED("use -rate");
 - (void)rewind:(BOOL)fla OE_DEPRECATED("use -rate");
 

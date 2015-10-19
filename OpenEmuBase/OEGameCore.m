@@ -24,6 +24,8 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <OpenGL/gl.h>
+
 #import "OEGameCore.h"
 #import "OEGameCoreController.h"
 #import "OEAbstractAdditions.h"
@@ -153,40 +155,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 }
 
 #pragma mark - Execution
-
-- (void)calculateFrameSkip:(NSUInteger)rate
-{
-    NSUInteger time = OEMonotonicTime() * 1000;
-    NSUInteger diff = time - autoFrameSkipLastTime;
-    int speed = 100;
-
-    if(diff != 0) speed = (1000 / rate) / diff;
-
-    if(speed >= 98)
-    {
-        frameskipadjust++;
-
-        if(frameskipadjust >= 3)
-        {
-            frameskipadjust = 0;
-            if(frameSkip > 0) frameSkip--;
-        }
-    }
-    else
-    {
-        if(speed < 80)         frameskipadjust -= (90 - speed) / 5;
-        else if(frameSkip < 9) frameskipadjust--;
-
-        if(frameskipadjust <= -2)
-        {
-            frameskipadjust += 2;
-            if(frameSkip < 9)  frameSkip++;
-        }
-    }
-
-    DLog(@"Speed: %d", speed);
-    autoFrameSkipLastTime = time;
-}
 
 // GameCores that render direct to OpenGL rather than a buffer should override this and return YES
 // If the GameCore subclass returns YES, the renderDelegate will set the appropriate GL Context
@@ -469,8 +437,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (GLenum)internalPixelFormat
 {
-    [self doesNotImplementSelector:_cmd];
-    return 0;
+    return GL_RGB;
 }
 
 - (OEGameCoreRendering)gameCoreRendering {
