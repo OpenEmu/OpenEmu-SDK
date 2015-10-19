@@ -37,6 +37,30 @@
 NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
 @implementation OEGameCore
+{
+    void (^_stopEmulationHandler)(void);
+
+    OERingBuffer __strong **ringBuffers;
+
+    NSTimeInterval          frameInterval;
+    NSTimeInterval          frameRateModifier;
+
+    NSUInteger              frameSkip;
+    NSUInteger              frameCounter;
+    NSUInteger              tenFrameCounter;
+    NSUInteger              autoFrameSkipLastTime;
+    NSUInteger              frameskipadjust;
+
+    OEDiffQueue            *rewindQueue;
+    NSUInteger              rewindCounter;
+
+    BOOL                    willSkipFrame;
+    BOOL                    shouldStop;
+    BOOL                    isFastForwarding;
+    BOOL                    isRewinding;
+    BOOL                    stepFrameForward;
+    BOOL                    stepFrameBackward;
+}
 
 static Class GameCoreClass = Nil;
 static NSTimeInterval defaultTimeInterval = 60.0;
@@ -185,7 +209,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
 {
     [_renderDelegate willExecute];
-    [self executeFrameSkippingFrame:NO];
+    [self executeFrame];
     [_renderDelegate didExecute];
 
     handler();
@@ -225,8 +249,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 #endif
 
             willSkipFrame = (frameCounter != frameSkip);
+
+            self.shouldSkipFrame = willSkipFrame;
             
-            BOOL executing = isRunning || stepFrameForward || stepFrameBackward;
+            BOOL executing = self.rate > 0 || stepFrameForward || stepFrameBackward;
             BOOL rewinding = isRewinding || stepFrameBackward;
             
             if(executing && rewinding)
@@ -237,7 +263,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 if(state)
                 {
                     [_renderDelegate willExecute];
-                    [self executeFrameSkippingFrame:NO];
+                    [self executeFrame];
                     [_renderDelegate didExecute];
                     
                     [self deserializeState:state withError:nil];
@@ -248,7 +274,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 stepFrameForward = NO;
                 //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
                 
-                if([self supportsRewinding] && rewindCounter == 0)
+                if([self supportsRewinding] && rewindCounter == 0 && !willSkipFrame)
                 {
                     NSData *state = [self serializeStateWithError:nil];
                     if(state)
@@ -263,7 +289,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
                 }
                 
                 [_renderDelegate willExecute];
-                [self executeFrameSkippingFrame:willSkipFrame];
+                [self executeFrame];
                 [_renderDelegate didExecute];
                 //});
             }
@@ -289,15 +315,16 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [[self delegate] gameCoreDidFinishFrameRefreshThread:self];
 }
 
+// TODO: Delete
 - (BOOL)isEmulationPaused
 {
-    return !isRunning;
+    return _rate == 0;
 }
 
 - (void)stopEmulation
 {
     shouldStop = YES;
-    isRunning  = NO;
+    _rate      = 0;
     DLog(@"Ending thread");
     [self didStopEmulation];
 }
@@ -305,10 +332,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 {
     _stopEmulationHandler = [completionHandler copy];
+
+    if (_renderDelegate.hasAlternateThreadContext) {
+        [_renderDelegate willRenderFrameOnAlternateThread];
+    }
     [self stopEmulation];
 }
 
-- (void)didStopEmulation;
+- (void)didStopEmulation
 {
     if(_stopEmulationHandler != nil) _stopEmulationHandler();
     _stopEmulationHandler = nil;
@@ -318,9 +349,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
     if([self class] != GameCoreClass)
     {
-        if(!isRunning)
+        if(self.rate == 0)
         {
-            isRunning  = YES;
+            self.rate  = 1;
             shouldStop = NO;
 
             // The selector is performed after a delay to let the application loop finish,
@@ -345,25 +376,32 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     // FIXME: Need implementation.
 }
 
-- (void)stepFrameForward;
+- (void)stepFrameForward
 {
-    if(![self isEmulationPaused])
-        [self setPauseEmulation:YES];
-
+    self.rate = 0;
     stepFrameForward = YES;
 }
 
-- (void)stepFrameBackward;
+- (void)stepFrameBackward
 {
-    if(![self isEmulationPaused])
-        [self setPauseEmulation:YES];
-    
+    self.rate = 0;
     stepFrameBackward = YES;
+}
+
+- (void)setRate:(float)rate
+{
+    if (_rate == rate) return;
+
+    isRunning = rate > 0;
+    _rate = rate;
+
+    if ([self respondsToSelector:@selector(setPauseEmulation:)]) {
+        [self setPauseEmulation:!isRunning];
+    }
 }
 
 #pragma mark - ABSTRACT METHODS
 
-// Never call super on them.
 - (void)resetEmulation
 {
     [self doesNotImplementSelector:_cmd];
@@ -433,6 +471,27 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
     [self doesNotImplementSelector:_cmd];
     return 0;
+}
+
+- (OEGameCoreRendering)gameCoreRendering {
+    if ([self respondsToSelector:@selector(rendersToOpenGL)]) {
+        return [self rendersToOpenGL] ? OEGameCoreRenderingOpenGL2Video : OEGameCoreRendering2DVideo;
+    }
+
+    return OEGameCoreRendering2DVideo;
+}
+
+- (const void*)getVideoBufferWithHint:(void *)hint
+{
+    return [self videoBuffer];
+}
+
+- (BOOL)tryToResizeVideoTo:(OEIntSize)size
+{
+    if (self.gameCoreRendering == OEGameCoreRendering2DVideo)
+        return NO;
+
+    return YES;
 }
 
 - (NSTimeInterval)frameInterval
