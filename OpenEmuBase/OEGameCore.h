@@ -62,7 +62,7 @@
 
 extern NSString *const OEGameCoreErrorDomain;
 
-typedef enum : NSUInteger {
+typedef enum : NSInteger {
     OEGameCoreCouldNotStartCoreError = -1,
     OEGameCoreCouldNotLoadROMError   = -2,
     OEGameCoreCouldNotLoadStateError = -3,
