@@ -314,6 +314,15 @@ OE_EXPORTED_CLASS
 @property(readonly) OEIntSize   aspectSize;
 
 /*!
+ * @property internalPixelFormat
+ * @discussion
+ * The 'internalPixelFormat' parameter to glTexImage2D, used to create the framebuffer.
+ * Defaults to GL_RGB.
+ * Ignored for 3D cores.
+ */
+@property(readonly) GLenum internalPixelFormat;
+
+/*!
  * @property pixelFormat
  * @discussion
  * The 'type' parameter to glTexImage2D, used to create the framebuffer.
@@ -433,7 +442,5 @@ OE_EXPORTED_CLASS
 
 - (BOOL)rendersToOpenGL OE_DEPRECATED("use -gameCoreRendering");
 @property(readonly) const void *videoBuffer OE_DEPRECATED("use -getVideoBufferWithHint:");
-
-@property(readonly) GLenum      internalPixelFormat OE_DEPRECATED("method not needed, always GL_RGB");
 
 @end
