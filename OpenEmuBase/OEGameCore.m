@@ -85,8 +85,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
         rewindQueue = nil;
-
-        NSLog(@"Some shit about the game.");
     }
     return self;
 }
