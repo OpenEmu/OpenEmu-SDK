@@ -45,6 +45,7 @@
 
 - (IOHIDElementRef)elementForEvent:(OEHIDEvent *)anEvent;
 
+- (void)forceFeedbackWithStrongIntensity:(CGFloat)strongIntensity weakIntensity:(CGFloat)weakIntensity;
 - (BOOL)supportsForceFeedback;
 - (void)enableForceFeedback;
 - (void)disableForceFeedback;
