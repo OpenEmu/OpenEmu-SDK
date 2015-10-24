@@ -45,7 +45,10 @@
     NSMutableDictionary *_latestEvents;
 
 	//force feedback support
-	FFDeviceObjectReference _ffDevice;
+    FFDeviceObjectReference _ffDevice;
+    FFEFFECT *_effect;
+    FFCUSTOMFORCE *_customforce;
+    FFEffectObjectReference _effectRef;
 }
 
 - (void)OE_setUpCallbacks;
@@ -194,6 +197,35 @@
 	return IOHIDDeviceGetService(_device);
 }
 
+//- (BOOL)connect
+//{
+// Example code to test the vibration.
+//    [self enableForceFeedback];
+//    dispatch_queue_t rumbleTest = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+//    dispatch_async(rumbleTest, ^{
+//        while(true) {
+//            [self rumbleWithStrongIntensity:0xFF weakIntensity:0xFF];
+//            usleep(100);
+//        }
+//    });
+//    return YES;
+//}
+
+- (void)forceFeedbackWithStrongIntensity:(CGFloat)strongIntensity weakIntensity:(CGFloat)weakIntensity
+{
+    if(_ffDevice == NULL)
+    {
+        [self enableForceFeedback];
+    }
+    
+    if(_ffDevice  == NULL) return;
+    if(_effectRef == NULL) return;
+    _customforce->rglForceData[0] = strongIntensity * 10000;
+    _customforce->rglForceData[1] = weakIntensity * 10000;
+    FFEffectSetParameters(_effectRef, _effect, FFEP_TYPESPECIFICPARAMS);
+    FFEffectStart(_effectRef, 1, 0);
+}
+
 - (BOOL)supportsForceFeedback
 {
 	BOOL result = NO;
@@ -213,7 +245,46 @@
 	{
 		io_service_t service = [self serviceRef];
 		if(service != MACH_PORT_NULL)
+        {
 			FFCreateDevice(service, &_ffDevice);
+            FFCAPABILITIES capabs;
+            FFDeviceGetForceFeedbackCapabilities(_ffDevice, &capabs);
+            
+            // TODO: adjust for less than one axis of feedback
+            if(capabs.numFfAxes != 2) return;
+            
+            _effect      = calloc(1, sizeof(FFEFFECT));
+            _customforce = calloc(1, sizeof(FFCUSTOMFORCE));
+            LONG  *c = calloc(2, sizeof(LONG));
+            DWORD *a = calloc(2, sizeof(DWORD));
+            LONG  *d = calloc(2, sizeof(LONG));
+            
+            c[0] = 0;
+            c[1] = 0;
+            a[0] = capabs.ffAxes[0];
+            a[1] = capabs.ffAxes[1];
+            d[0] = 0;
+            d[1] = 0;
+            
+            _customforce->cChannels      = 2;
+            _customforce->cSamples       = 2;
+            _customforce->rglForceData   = c;
+            _customforce->dwSamplePeriod = 100*1000;
+            
+            _effect->cAxes                 = capabs.numFfAxes;
+            _effect->rglDirection          = d;
+            _effect->rgdwAxes              = a;
+            _effect->dwSamplePeriod        = 0;
+            _effect->dwGain                = 10000;
+            _effect->dwFlags               = FFEFF_OBJECTOFFSETS | FFEFF_SPHERICAL;
+            _effect->dwSize                = sizeof(FFEFFECT);
+            _effect->dwDuration            = FF_INFINITE;
+            _effect->dwSamplePeriod        = 100*1000;
+            _effect->cbTypeSpecificParams  = sizeof(FFCUSTOMFORCE);
+            _effect->lpvTypeSpecificParams = _customforce;
+            _effect->lpEnvelope            = NULL;
+            FFDeviceCreateEffect(_ffDevice, kFFEffectType_CustomForce_ID, _effect, &_effectRef);
+        }
 	}
 }
 
@@ -221,6 +292,7 @@
 {
 	if(_ffDevice != NULL)
     {
+        FFDeviceReleaseEffect(_ffDevice, _effectRef);
         FFReleaseDevice(_ffDevice);
         _ffDevice = NULL;
     }
