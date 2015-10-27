@@ -143,6 +143,16 @@ typedef enum : NSUInteger {
 
 @property (nonatomic) BOOL enableVSync;
 @property (nonatomic, readonly) BOOL hasAlternateThreadContext; // TODO: OE_DEPRECATED("move to -hasAlternateRenderingThread on OEGameCore")
+
+/*!
+ * @property presentationFramebuffer
+ * @discussion
+ * 2D - Not used.
+ * 3D - For cores which can directly render to a GL FBO or equivalent,
+ * this will return the FBO which game pixels eventually go to. This
+ * allows porting of cores that overwrite GL_DRAW_FRAMEBUFFER.
+ */
+@property (nonatomic, readonly) id presentationFramebuffer;
 @end
 
 @protocol OEGameCoreDelegate <NSObject>
