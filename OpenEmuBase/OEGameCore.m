@@ -44,7 +44,7 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
     OERingBuffer __strong **ringBuffers;
 
-    NSTimeInterval          frameInterval;
+    @public NSTimeInterval  frameInterval;
     NSTimeInterval          frameRateModifier;
 
     NSUInteger              frameSkip;
