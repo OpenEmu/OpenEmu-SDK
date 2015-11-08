@@ -299,8 +299,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
     _stopEmulationHandler = [completionHandler copy];
 
-    if (_renderDelegate.hasAlternateThreadContext) {
+    if (self.hasAlternateRenderingThread) {
         [_renderDelegate willRenderFrameOnAlternateThread];
+    } else {
+        [_renderDelegate willExecute];
     }
     [self stopEmulation];
 }
@@ -436,6 +438,16 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (GLenum)internalPixelFormat
 {
     return GL_RGB;
+}
+
+- (BOOL)hasAlternateRenderingThread
+{
+    return NO;
+}
+
+- (BOOL)needsDoubleBufferedFBO
+{
+    return NO;
 }
 
 - (OEGameCoreRendering)gameCoreRendering {

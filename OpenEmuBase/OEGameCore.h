@@ -41,7 +41,6 @@
 #else
 #define DLog(format, ...) do {} while(0)
 #endif
-
 #endif
 
 /*!
@@ -101,29 +100,6 @@ typedef enum : NSUInteger {
 - (void)didExecute;
 
 /*!
- * @method willRenderOnAlternateThread
- * @discussion
- * 2D -
- * Not used.
- * 3D -
- * Some cores may run their own video rendering in a different thread.
- * In that case, call this method inside startEmulation or executeFrame before it starts.
- */
-- (void)willRenderOnAlternateThread OE_DEPRECATED("move to -hasAlternateRenderingThread on OEGameCore");
-
-/*!
- * @method startRenderingOnAlternateThread
- * @discussion
- * 2D -
- * Not used.
- * 3D -
- * If rendering on an alternate thread, call this to prepare the renderer
- * when that thread starts up. This is only a performance improvement for
- * the first frame and is not necessary to call.
- */
-- (void)startRenderingOnAlternateThread;
-
-/*!
  * @method willRenderFrameOnAlternateThread
  * @discussion
  * 2D - Not used.
@@ -142,7 +118,6 @@ typedef enum : NSUInteger {
 - (void)didRenderFrameOnAlternateThread;
 
 @property (nonatomic) BOOL enableVSync;
-@property (nonatomic, readonly) BOOL hasAlternateThreadContext; // TODO: OE_DEPRECATED("move to -hasAlternateRenderingThread on OEGameCore")
 
 /*!
  * @property presentationFramebuffer
@@ -209,14 +184,38 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Starting
 
+/*!
+ * @method loadFileAtPath:error
+ * @discussion
+ * Try to load a ROM and return NO if it fails, or YES if it succeeds.
+ * You can do any setup you want here.
+ */
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error;
 
+/*!
+ * @method setupEmulation
+ * @discussion
+ * Try to setup emulation as much as possible before the UI appears.
+ * Audio/video properties don't need to be valid before this method, but
+ * do need to be valid after.
+ *
+ * It's not necessary to implement this, all setup can be done in loadFileAtPath
+ * or in the first executeFrame. But you're more likely to run into OE bugs that way.
+ */
 - (void)setupEmulation;
 
 #pragma mark - Stopping
 
+/*!
+ * @method stopEmulation
+ * @discussion
+ * Shut down the core. In non-debugging modes of core execution,
+ * the process will be exit immediately after, so you don't need to
+ * free any CPU or OpenGL resources.
+ *
+ * The OpenGL context is available in this method.
+ */
 - (void)stopEmulation;
-- (void)didStopEmulation;
 
 #pragma mark - Execution
 
@@ -290,8 +289,24 @@ OE_EXPORTED_CLASS
 /*!
  * @property hasAlternateRenderingThread
  * @abstract If the core starts another thread to do 3D operations on.
+ * @discussion
+ * 3D -
+ * OE will provide one extra GL context for this thread to avoid corruption
+ * of the main context. More than one rendering thread is not supported.
  */
 @property (nonatomic, readonly) BOOL hasAlternateRenderingThread;
+
+/*!
+ * @property needsDoubleBufferedFBO
+ * @abstract If the game flickers when rendering directly to IOSurface.
+ * @discussion
+ * 3D -
+ * Because the game's IOSurface will update on the app side if glFlushRender()
+ * or some other GL functions are called, it can see incompletely rendered frames.
+ * OE can work around this by rendering to two framebuffers and copying between them.
+ * Definitely needed by Mupen+Rice at least.
+ */
+@property (nonatomic, readonly) BOOL needsDoubleBufferedFBO;
 
 /*!
  * @property bufferSize
@@ -425,7 +440,17 @@ OE_EXPORTED_CLASS
  */
 - (void)frameRefreshThread:(id)anArgument;
 
+/*!
+ * @method startEmulation
+ * @discussion
+ * A method called on OEGameCore after -setupEmulation and
+ * before -executeFrame. You may implement it for organizational
+ * purposes but it is not necessary.
+ *
+ * The OpenGL context is available in this method.
+ */
 - (void)startEmulation;
+- (void)didStopEmulation;
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler;
 
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
