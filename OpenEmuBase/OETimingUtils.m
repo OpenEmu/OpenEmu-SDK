@@ -25,6 +25,7 @@
  */
 
 #import "OETimingUtils.h"
+#import "OEGameCore.h"
 #import <mach/mach_time.h>
 
 static double mach_to_sec = 0;
@@ -170,7 +171,7 @@ BOOL OESetThreadRealtime(NSTimeInterval period, NSTimeInterval computation, NSTi
     assert(computation < .05);
     assert(computation < constraint);
 
-    NSLog(@"RT policy: %fs (limit %fs) every %fs", computation, constraint, period);
+    DLog(@"RT policy: %fs (limit %fs) every %fs", computation, constraint, period);
 
     ttcpolicy.period      = period / mach_to_sec;
     ttcpolicy.computation = computation / mach_to_sec;
