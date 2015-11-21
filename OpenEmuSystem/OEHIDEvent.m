@@ -283,6 +283,7 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
     OEHIDEventType          _type;
     NSTimeInterval          _timestamp;
     NSUInteger              _cookie;
+    NSEvent                *_cachedKeyboardEvent;
 
     union {
         // Axis and Trigger events share the same structure.
@@ -317,6 +318,24 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
 @end
 
 @implementation OEHIDEvent
+
+static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
+
++ (void)initialize
+{
+    if (self != [OEHIDEvent class])
+        return;
+
+    NSUInteger tableSize = sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(*_OEHIDVirtualKeyCodesTable);
+    NSMutableDictionary *usageToVK = [NSMutableDictionary dictionary];
+
+    for (NSUInteger i = 0; i < tableSize; i++) {
+        _OEHIDVirtualKeyCodeNameTriplet triplet = _OEHIDVirtualKeyCodesTable[i];
+        usageToVK[@(triplet.hidCode)] = @(triplet.vkCode);
+    }
+
+    _hidKeyboardUsagesToVirtualKeyCodes = [usageToVK copy];
+}
 
 + (NSUInteger)keyCodeForVirtualKey:(CGCharCode)charCode
 {
@@ -843,6 +862,42 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
 - (BOOL)isEscapeKeyEvent
 {
     return [self type] == OEHIDEventTypeKeyboard && _data.key.keycode == kHIDUsage_KeyboardEscape;
+}
+
+- (NSEvent *)keyboardEvent
+{
+    if (_cachedKeyboardEvent == nil)
+    {
+        NSAssert1([self type] == OEHIDEventTypeKeyboard, @"Invalid message sent to event \"%@\"", self);
+        CGEventSourceRef cgEventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+
+        CGKeyCode keycode = [_hidKeyboardUsagesToVirtualKeyCodes[@(_data.key.keycode)] unsignedShortValue];
+        CGEventRef cgEvent = CGEventCreateKeyboardEvent(cgEventSource, keycode, _data.key.state);
+
+        _cachedKeyboardEvent = [NSEvent eventWithCGEvent:cgEvent];
+
+        CFRelease(cgEvent);
+        CFRelease(cgEventSource);
+    }
+
+    return _cachedKeyboardEvent;
+}
+
+- (NSString *)characters
+{
+    NSEvent *event = [self keyboardEvent];
+    return ([event type] == NSKeyDown || [event type] == NSKeyUp) ? [event characters] : @"";
+}
+
+- (NSString *)charactersIgnoringModifiers
+{
+    NSEvent *event = [self keyboardEvent];
+    return ([event type] == NSKeyDown || [event type] == NSKeyUp) ? [event charactersIgnoringModifiers] : @"";
+}
+
+- (NSEventModifierFlags)modifierFlags
+{
+    return [[self keyboardEvent] modifierFlags];
 }
 
 - (NSUInteger)cookie
