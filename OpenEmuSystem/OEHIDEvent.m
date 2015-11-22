@@ -283,6 +283,7 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
     OEHIDEventType          _type;
     NSTimeInterval          _timestamp;
     NSUInteger              _cookie;
+    CGEventRef              _keyboardEvent;
     NSEvent                *_cachedKeyboardEvent;
 
     union {
@@ -320,11 +321,14 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
 @implementation OEHIDEvent
 
 static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
+static CGEventSourceRef _keyboardEventSource;
 
 + (void)initialize
 {
     if (self != [OEHIDEvent class])
         return;
+
+    _keyboardEventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
 
     NSUInteger tableSize = sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(*_OEHIDVirtualKeyCodesTable);
     NSMutableDictionary *usageToVK = [NSMutableDictionary dictionary];
@@ -335,6 +339,11 @@ static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
     }
 
     _hidKeyboardUsagesToVirtualKeyCodes = [usageToVK copy];
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 + (NSUInteger)keyCodeForVirtualKey:(CGCharCode)charCode
@@ -601,6 +610,12 @@ static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
     return self;
 }
 
+- (void)dealloc
+{
+    if (_keyboardEvent)
+        CFRelease(_keyboardEvent);
+}
+
 - (id)copyWithZone:(NSZone *)zone
 {
     OEHIDEvent *ret = [[OEHIDEvent alloc] initWithDeviceHandler:_deviceHandler timestamp:[self timestamp] cookie:_cookie];
@@ -725,6 +740,7 @@ static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
             break;
         case OEHIDEventTypeKeyboard :
             _data.key.state = !!value;
+            _keyboardEvent = CGEventCreateKeyboardEvent(_keyboardEventSource, [_hidKeyboardUsagesToVirtualKeyCodes[@(_data.key.keycode)] unsignedShortValue], _data.key.state);
             break;
     }
 
@@ -866,19 +882,10 @@ static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
 
 - (NSEvent *)keyboardEvent
 {
+    NSAssert1([self type] == OEHIDEventTypeKeyboard, @"Invalid message sent to event \"%@\"", self);
+
     if (_cachedKeyboardEvent == nil)
-    {
-        NSAssert1([self type] == OEHIDEventTypeKeyboard, @"Invalid message sent to event \"%@\"", self);
-        CGEventSourceRef cgEventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
-
-        CGKeyCode keycode = [_hidKeyboardUsagesToVirtualKeyCodes[@(_data.key.keycode)] unsignedShortValue];
-        CGEventRef cgEvent = CGEventCreateKeyboardEvent(cgEventSource, keycode, _data.key.state);
-
-        _cachedKeyboardEvent = [NSEvent eventWithCGEvent:cgEvent];
-
-        CFRelease(cgEvent);
-        CFRelease(cgEventSource);
-    }
+        _cachedKeyboardEvent = [NSEvent eventWithCGEvent:_keyboardEvent];
 
     return _cachedKeyboardEvent;
 }
@@ -1154,15 +1161,16 @@ static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
     return YES;
 }
 
-static NSString *OEHIDEventTypeKey               = @"OEHIDEventTypeKey";
-static NSString *OEHIDEventCookieKey             = @"OEHIDEventCookieKey";
-static NSString *OEHIDEventAxisKey               = @"OEHIDEventAxisKey";
-static NSString *OEHIDEventDirectionKey          = @"OEHIDEventDirectionKey";
-static NSString *OEHIDEventButtonNumberKey       = @"OEHIDEventButtonNumberKey";
-static NSString *OEHIDEventStateKey              = @"OEHIDEventStateKey";
+static NSString *OEHIDEventTypeKey               = @"OEHIDEventType";
+static NSString *OEHIDEventCookieKey             = @"OEHIDEventCookie";
+static NSString *OEHIDEventAxisKey               = @"OEHIDEventAxis";
+static NSString *OEHIDEventDirectionKey          = @"OEHIDEventDirection";
+static NSString *OEHIDEventButtonNumberKey       = @"OEHIDEventButtonNumber";
+static NSString *OEHIDEventStateKey              = @"OEHIDEventState";
 static NSString *OEHIDEventHatSwitchTypeKey      = @"OEHIDEventHatSwitchType";
 static NSString *OEHIDEventHatSwitchDirectionKey = @"OEHIDEventHatSwitchDirection";
-static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycodeKey";
+static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
+static NSString *OEHIDEventCGEventDataKey        = @"OEHIDEventCGEventData";
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
@@ -1190,6 +1198,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycodeKey";
                 _cookie                       = OEUndefinedCookie;
                 _data.key.keycode             = [decoder decodeIntegerForKey:OEHIDEventKeycodeKey];
                 _data.key.state               = [decoder decodeIntegerForKey:OEHIDEventStateKey];
+                _keyboardEvent                = CGEventCreateFromData(NULL, (__bridge CFDataRef)[decoder decodeObjectForKey:OEHIDEventCGEventDataKey]);
                 break;
         }
     }
@@ -1220,6 +1229,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycodeKey";
         case OEHIDEventTypeKeyboard :
             [encoder encodeInteger:[self keycode]       forKey:OEHIDEventKeycodeKey];
             [encoder encodeInteger:[self state]         forKey:OEHIDEventStateKey];
+            [encoder encodeObject:(__bridge_transfer NSData *)CGEventCreateData(NULL, _keyboardEvent) forKey:OEHIDEventCGEventDataKey];
             break;
     }
 }

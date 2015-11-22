@@ -96,7 +96,7 @@ extern NSString *NSStringFromOEHIDEventAxis(OEHIDEventAxis axis);
 extern NSString *NSStringFromIOHIDElement(IOHIDElementRef elem);
 extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 
-@interface OEHIDEvent : NSObject <NSCopying, NSCoding>
+@interface OEHIDEvent : NSObject <NSCopying, NSSecureCoding>
 
 - (NSString *)displayDescription;
 
