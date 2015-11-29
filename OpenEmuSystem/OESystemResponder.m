@@ -345,7 +345,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     return (void *)ret;
 }
 
-- (void)systemBindings:(OESystemBindings *)sender didSetEvent:(OEHIDEvent *)theEvent forBinding:(id)bindingDescription playerNumber:(NSUInteger)playerNumber
+- (void)systemBindingsDidSetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
 {
     // Ignore off state events.
     if([theEvent hasOffState]) return;
@@ -418,7 +418,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     [_keyMap setSystemKey:[self emulatorKeyForKey:bindingDescription player:playerNumber] forEvent:theEvent];
 }
 
-- (void)systemBindings:(OESystemBindings *)sender didUnsetEvent:(OEHIDEvent *)theEvent forBinding:(id)bindingDescription playerNumber:(NSUInteger)playerNumber
+- (void)systemBindingsDidUnsetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
 {
     switch([theEvent type])
     {

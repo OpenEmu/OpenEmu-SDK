@@ -35,7 +35,7 @@
 @protocol OESystemResponderClient;
 @protocol OEGlobalEventsHandler;
 
-@interface OESystemResponder : NSResponder <OESystemBindingsObserver>
+@interface OESystemResponder : NSResponder
 
 // Designated initializer
 - (id)initWithController:(OESystemController *)controller;
@@ -62,6 +62,9 @@
 - (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 - (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 - (void)changeAnalogGlobalButtonIdentifier:(OEGlobalButtonIdentifier)identifier value:(CGFloat)value;
+
+- (void)systemBindingsDidSetEvent:(OEHIDEvent *)event forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber;
+- (void)systemBindingsDidUnsetEvent:(OEHIDEvent *)event forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber;
 
 @end
 
