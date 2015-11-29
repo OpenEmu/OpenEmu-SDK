@@ -254,6 +254,11 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         [monitor eventMonitor](device, event);
 }
 
+- (BOOL)hasEventMonitor
+{
+    return _globalEventListeners.count > 0;
+}
+
 - (id)addGlobalEventMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
 {
     _OEDeviceManagerEventMonitor *monitor = [_OEDeviceManagerEventMonitor monitorWithGlobalMonitorHandler:handler];

@@ -48,6 +48,8 @@
 
 - (void)deviceHandler:(OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
 
+- (BOOL)hasEventMonitor;
+
 - (id)addGlobalEventMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
 - (id)addEventMonitorForDeviceHandler:(OEDeviceHandler *)device handler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
 - (id)addUnhandledEventMonitorHandler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
