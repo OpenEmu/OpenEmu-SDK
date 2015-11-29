@@ -129,8 +129,6 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
 }
 
 @implementation OEKeyBindingDescription
-@synthesize _hatSwitchGroup = _hatSwitchGroup;
-@synthesize _axisGroup = _axisGroup;
 
 - (instancetype)initWithSystemController:(OESystemController *)systemController
 {
@@ -143,7 +141,7 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
     {
         _name       = [keyName copy];
         _index      = keyIndex;
-        _systemWide = isSystemWide;
+        _systemWide = systemWide;
     }
     
     return self;
@@ -203,14 +201,14 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
 
 - (NSString *)description
 {
-    NSMutableArray *additionalDesc = [NSMutableArray arrayWithObject:@""];
-    if([self isSystemWide]) [additionalDesc addObject:@"isSystemWide"];
-    if([self isAnalogic]) [additionalDesc addObject:@"isAnalogic"];
-    if([self OE_axisGroup] != nil) [additionalDesc addObject:[NSString stringWithFormat:@"axisGroup: %@", [self OE_axisGroup]]];
-    if([self OE_axisGroup] != nil) [additionalDesc addObject:[NSString stringWithFormat:@"hatSwitchGroup: %@", [self OE_hatSwitchGroup]]];
+    NSMutableArray<NSString *> *additionalDesc = [NSMutableArray arrayWithObject:@""];
+    if(self.isSystemWide) [additionalDesc addObject:@"isSystemWide"];
+    if(self.isAnalogic) [additionalDesc addObject:@"isAnalogic"];
+    if(self.axisGroup != nil) [additionalDesc addObject:[NSString stringWithFormat:@"axisGroup: %@", self.axisGroup]];
+    if(self.axisGroup != nil) [additionalDesc addObject:[NSString stringWithFormat:@"hatSwitchGroup: %@", self.hatSwitchGroup]];
 
     NSString *result = @"";
-    if([additionalDesc count] > 1) result = [additionalDesc componentsJoinedByString:@" "];
+    if(additionalDesc.count > 1) result = [additionalDesc componentsJoinedByString:@" "];
 
     return [NSString stringWithFormat:@"<%@ %p keyName: %@ index: %lu%@>", [self class], self, [self name], [self index], result];
 }

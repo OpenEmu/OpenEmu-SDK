@@ -250,14 +250,15 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     return controller;
 }
 
-- (id)OE_keyIdentifierForKeyDescription:(OEKeyBindingDescription *)keyDescription event:(OEHIDEvent *)event;
+- (OEBindingDescription *)OE_keyIdentifierForKeyDescription:(OEKeyBindingDescription *)keyDescription event:(OEHIDEvent *)event;
 {
-    id insertedKey = keyDescription;
+    OEBindingDescription *insertedKey = keyDescription;
     OEHIDEventType eventType = [event type];
     if(eventType == OEHIDEventTypeAxis || eventType == OEHIDEventTypeHatSwitch)
     {
-        OEKeyBindingGroupDescription *keyGroup = (eventType == OEHIDEventTypeAxis ? [keyDescription OE_axisGroup] : [keyDescription OE_hatSwitchGroup]);
-        if(keyGroup != nil) insertedKey = [keyGroup orientedKeyGroupWithBaseKey:keyDescription];
+        OEKeyBindingGroupDescription *keyGroup = (eventType == OEHIDEventTypeAxis ? keyDescription.axisGroup : keyDescription.hatSwitchGroup);
+        if(keyGroup != nil)
+            insertedKey = [keyGroup orientedKeyGroupWithBaseKey:keyDescription];
     }
 
     return insertedKey;
@@ -676,12 +677,12 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     switch([anEvent type])
     {
         case OEHIDEventTypeAxis :
-            if([keyDesc OE_axisGroup] != nil)
-                keyDesc = [[keyDesc OE_axisGroup] orientedKeyGroupWithBaseKey:keyDesc];
+            if([keyDesc axisGroup] != nil)
+                keyDesc = [[keyDesc axisGroup] orientedKeyGroupWithBaseKey:keyDesc];
             break;
         case OEHIDEventTypeHatSwitch :
-            if([keyDesc OE_hatSwitchGroup] != nil)
-                keyDesc = [[keyDesc OE_hatSwitchGroup] orientedKeyGroupWithBaseKey:keyDesc];
+            if([keyDesc hatSwitchGroup] != nil)
+                keyDesc = [[keyDesc hatSwitchGroup] orientedKeyGroupWithBaseKey:keyDesc];
             break;
         default :
             break;
@@ -740,7 +741,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     __block OEControlValueDescription *valueDescToRemove = [sender bindingEvents][keyDesc];
     if(valueDescToRemove == nil)
     {
-        [[keyDesc OE_axisGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
+        [[keyDesc axisGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
          ^(OEOrientedKeyGroupBindingDescription *key, BOOL *stop)
          {
              OEControlValueDescription *valueDesc = [sender bindingEvents][key];
@@ -754,7 +755,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     if(valueDescToRemove == nil)
     {
-        [[keyDesc OE_hatSwitchGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
+        [[keyDesc hatSwitchGroup] enumerateOrientedKeyGroupsFromKey:keyDesc usingBlock:
          ^(OEOrientedKeyGroupBindingDescription *key, BOOL *stop)
          {
              OEControlValueDescription *valueDesc = [sender bindingEvents][key];
@@ -785,8 +786,8 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 - (void)OE_removeConcurrentBindings:(OEDevicePlayerBindings *)sender ofKey:(OEKeyBindingDescription *)keyDesc withEvent:(OEHIDEvent *)anEvent;
 {
     NSDictionary                 *rawBindings = [[sender bindingEvents] copy];
-    OEKeyBindingGroupDescription *axisGroup   = [keyDesc OE_axisGroup];
-    OEKeyBindingGroupDescription *hatGroup    = [keyDesc OE_hatSwitchGroup];
+    OEKeyBindingGroupDescription *axisGroup = keyDesc.axisGroup;
+    OEKeyBindingGroupDescription *hatGroup = keyDesc.hatSwitchGroup;
 
     if(axisGroup == nil && hatGroup == nil) return;
 
@@ -861,7 +862,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
                     [self OE_notifyObserversDidUnsetEvent:[[valueDesc event] OE_eventWithDeviceHandler:handler] forBindingKey:keyDesc playerNumber:[sender playerNumber]];
                 }
 
-                OEKeyBindingGroupDescription *temp = [keyDesc OE_axisGroup];
+                OEKeyBindingGroupDescription *temp = keyDesc.axisGroup;
                 if(temp != nil) [visitedAxisGroups addObject:temp];
             }
 

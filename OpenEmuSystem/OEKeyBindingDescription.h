@@ -29,6 +29,8 @@
 
 #import <OpenEmuSystem/OEBindingDescription.h>
 
+@class OEKeyBindingGroupDescription;
+
 typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
     OEGlobalButtonIdentifierUnknown,
 
@@ -64,6 +66,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 @property(readonly, copy) NSString   *name;
 @property(readonly)       NSUInteger  index;
 @property(readonly, getter=isAnalogic) BOOL analogic;
+@property(weak, nonatomic, readonly) OEKeyBindingGroupDescription *hatSwitchGroup;
+@property(weak, nonatomic, readonly) OEKeyBindingGroupDescription *axisGroup;
 
 // Returns YES if the key does not depend on the player number
 @property(readonly, getter=isSystemWide) BOOL systemWide;
