@@ -108,11 +108,12 @@ NSString *NSStringFromOEHIDEventType(OEHIDEventType type)
 {
     switch(type)
     {
-        case OEHIDEventTypeAxis      : return @"OEHIDEventTypeAxis";
-        case OEHIDEventTypeTrigger   : return @"OEHIDEventTypeTrigger";
-        case OEHIDEventTypeButton    : return @"OEHIDEventTypeButton";
-        case OEHIDEventTypeHatSwitch : return @"OEHIDEventTypeHatSwitch";
-        case OEHIDEventTypeKeyboard  : return @"OEHIDEventTypeKeyboard";
+        case OEHIDEventTypeAxis          : return @"OEHIDEventTypeAxis";
+        case OEHIDEventTypeTrigger       : return @"OEHIDEventTypeTrigger";
+        case OEHIDEventTypeButton        : return @"OEHIDEventTypeButton";
+        case OEHIDEventTypeSpecialButton : return @"OEHIDEventTypeSpecialButton";
+        case OEHIDEventTypeHatSwitch     : return @"OEHIDEventTypeHatSwitch";
+        case OEHIDEventTypeKeyboard      : return @"OEHIDEventTypeKeyboard";
     }
 
     return @"<unknown>";
@@ -181,6 +182,9 @@ NSString *NSStringFromIOHIDElement(IOHIDElementRef elem)
         case OEHIDEventTypeButton :
             string = [NSString stringWithFormat:@"Button: %d", usage];
             break;
+        case OEHIDEventTypeSpecialButton :
+            string = [NSString stringWithFormat:@"Special Button: %d", usage];
+            break;
         case OEHIDEventTypeHatSwitch :
         {
             NSInteger min = IOHIDElementGetLogicalMin(elem);
@@ -240,6 +244,12 @@ OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
         }
         case kHIDPage_Button :
             return OEHIDEventTypeButton;
+        case kHIDPage_Consumer :
+            switch(IOHIDElementGetUsage(elem)) {
+                case kHIDUsage_Csmr_ACBack :
+                case kHIDUsage_Csmr_ACForward :
+                    return OEHIDEventTypeSpecialButton;
+            }
         case kHIDPage_KeyboardOrKeypad :
             return OEHIDEventTypeKeyboard;
     }
@@ -423,6 +433,10 @@ static CGEventSourceRef _keyboardEventSource;
             // Example: ret = @"P1 B12" for Pad One Button 12
             return [NSString stringWithFormat:NSLocalizedString(@"Button %ld", @"Button key name with button number.") , _data.button.buttonNumber];
             break;
+        case OEHIDEventTypeSpecialButton :
+            // Example: ret = @"P1 B12" for Pad One Button 12
+            return [NSString stringWithFormat:NSLocalizedString(@"Special Button %ld", @"Button key name with button number.") , _data.button.buttonNumber];
+            break;
         case OEHIDEventTypeKeyboard :
             return [OEHIDEvent stringForHIDKeyCode:_data.key.keycode];
     }
@@ -580,6 +594,7 @@ static CGEventSourceRef _keyboardEventSource;
                 _data.axis.direction = value;
                 break;
             case OEHIDEventTypeButton :
+            case OEHIDEventTypeSpecialButton :
                 _data.button.state = OEHIDEventStateOn;
                 break;
             case OEHIDEventTypeHatSwitch :
@@ -644,6 +659,7 @@ static CGEventSourceRef _keyboardEventSource;
             _data.hatSwitch.hatSwitchType = _OEHIDElementHatSwitchType(anElement);
             return _data.hatSwitch.hatSwitchType != OEHIDEventHatSwitchTypeUnknown;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             _data.button.buttonNumber = usage;
             return YES;
         case OEHIDEventTypeKeyboard :
@@ -737,6 +753,7 @@ static CGEventSourceRef _keyboardEventSource;
         }
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             _data.button.state = !!value;
             break;
         case OEHIDEventTypeKeyboard :
@@ -775,11 +792,12 @@ static CGEventSourceRef _keyboardEventSource;
 {
     switch([self type])
     {
-        case OEHIDEventTypeAxis      :
-        case OEHIDEventTypeHatSwitch :
-        case OEHIDEventTypeTrigger   : return kHIDPage_GenericDesktop;
-        case OEHIDEventTypeButton    : return kHIDPage_Button;
-        case OEHIDEventTypeKeyboard  : return kHIDPage_KeyboardOrKeypad;
+        case OEHIDEventTypeAxis          :
+        case OEHIDEventTypeHatSwitch     :
+        case OEHIDEventTypeTrigger       : return kHIDPage_GenericDesktop;
+        case OEHIDEventTypeButton        : return kHIDPage_Button;
+        case OEHIDEventTypeSpecialButton : return kHIDPage_Consumer;
+        case OEHIDEventTypeKeyboard      : return kHIDPage_KeyboardOrKeypad;
     }
 
     return 0;
@@ -789,11 +807,12 @@ static CGEventSourceRef _keyboardEventSource;
 {
     switch([self type])
     {
-        case OEHIDEventTypeAxis      :
-        case OEHIDEventTypeTrigger   : return [self axis];
-        case OEHIDEventTypeHatSwitch : return kHIDUsage_GD_Hatswitch;
-        case OEHIDEventTypeButton    : return [self buttonNumber];
-        case OEHIDEventTypeKeyboard  : return [self keycode];
+        case OEHIDEventTypeAxis          :
+        case OEHIDEventTypeTrigger       : return [self axis];
+        case OEHIDEventTypeHatSwitch     : return kHIDUsage_GD_Hatswitch;
+        case OEHIDEventTypeSpecialButton :
+        case OEHIDEventTypeButton        : return [self buttonNumber];
+        case OEHIDEventTypeKeyboard      : return [self keycode];
     }
 
     return 0;
@@ -804,11 +823,12 @@ static CGEventSourceRef _keyboardEventSource;
     BOOL ret = YES;
     switch([self type])
     {
-        case OEHIDEventTypeAxis      :
-        case OEHIDEventTypeTrigger   : ret = [self direction]    == OEHIDEventAxisDirectionNull; break;
-        case OEHIDEventTypeHatSwitch : ret = [self hatDirection] == OEHIDEventHatDirectionNull;  break;
-        case OEHIDEventTypeButton    :
-        case OEHIDEventTypeKeyboard  : ret = [self state]        == OEHIDEventStateOff;          break;
+        case OEHIDEventTypeAxis          :
+        case OEHIDEventTypeTrigger       : ret = [self direction]    == OEHIDEventAxisDirectionNull; break;
+        case OEHIDEventTypeHatSwitch     : ret = [self hatDirection] == OEHIDEventHatDirectionNull;  break;
+        case OEHIDEventTypeButton        :
+        case OEHIDEventTypeSpecialButton :
+        case OEHIDEventTypeKeyboard      : ret = [self state]        == OEHIDEventStateOff;          break;
         default : break;
     }
 
@@ -862,14 +882,14 @@ static CGEventSourceRef _keyboardEventSource;
 // Button event
 - (NSUInteger)buttonNumber
 {
-    NSAssert1([self type] == OEHIDEventTypeButton, @"Invalid message sent to event \"%@\"", self);
+    NSAssert1([self type] == OEHIDEventTypeButton || [self type] == OEHIDEventTypeSpecialButton, @"Invalid message sent to event \"%@\"", self);
     return _data.button.buttonNumber;
 }
 
 - (OEHIDEventState)state
 {
-    NSAssert1([self type] == OEHIDEventTypeButton || [self type] == OEHIDEventTypeKeyboard, @"Invalid message sent to event \"%@\"", self);
-    return ([self type] == OEHIDEventTypeButton ? _data.button.state : _data.key.state);
+    NSAssert1([self type] == OEHIDEventTypeButton || [self type] == OEHIDEventTypeKeyboard || [self type] == OEHIDEventTypeSpecialButton, @"Invalid message sent to event \"%@\"", self);
+    return (([self type] == OEHIDEventTypeButton || [self type] == OEHIDEventTypeSpecialButton) ? _data.button.state : _data.key.state);
 }
 
 - (OEHIDEventHatSwitchType)hatSwitchType;
@@ -944,6 +964,7 @@ static CGEventSourceRef _keyboardEventSource;
                     DIT_STR(_data.axis.direction), _data.axis.value];
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             subs = [NSString stringWithFormat:@"type=Button number=%lld state=%s",
                     (int64_t)_data.button.buttonNumber, STATE_STR(_data.button.state)];
             break;
@@ -997,6 +1018,7 @@ static CGEventSourceRef _keyboardEventSource;
                 hash |= (1 << ((dir) > OEHIDEventAxisDirectionNull));
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             hash |= 0x4000000000000000u;
             hash |= [self state] << 16;
             hash |= [self buttonNumber];
@@ -1038,6 +1060,7 @@ static CGEventSourceRef _keyboardEventSource;
                     _data.axis.axis      == anObject->_data.axis.axis      &&
                     _OEFloatEqual(_data.axis.value, anObject->_data.axis.value));
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             return (_data.button.buttonNumber == anObject->_data.button.buttonNumber &&
                     _data.button.state        == anObject->_data.button.state);
         case OEHIDEventTypeHatSwitch :
@@ -1090,6 +1113,7 @@ static CGEventSourceRef _keyboardEventSource;
             hash |= _OEClamp((NSUInteger)OEHIDEventAxisX, usage, (NSUInteger)OEHIDEventAxisRz);
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             hash |= 0x40000000u;
             hash |= usage;
             break;
@@ -1122,6 +1146,7 @@ static CGEventSourceRef _keyboardEventSource;
                 hash |= (1 << ((dir) > OEHIDEventAxisDirectionNull));
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             hash |= 0x4000000000000000u;
             hash |= OEHIDEventStateOn << 16;
             hash |= MIN(usage, 0xFFFF);
@@ -1150,6 +1175,7 @@ static CGEventSourceRef _keyboardEventSource;
         case OEHIDEventTypeTrigger :
             return _data.axis.axis == anObject->_data.axis.axis;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             return _data.button.buttonNumber == anObject->_data.button.buttonNumber;
         case OEHIDEventTypeHatSwitch :
             return YES;
@@ -1201,6 +1227,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
                 _data.axis.direction          = [decoder decodeIntegerForKey:OEHIDEventDirectionKey];
                 break;
             case OEHIDEventTypeButton :
+            case OEHIDEventTypeSpecialButton :
                 _data.button.buttonNumber     = [decoder decodeIntegerForKey:OEHIDEventButtonNumberKey];
                 _data.button.state            = [decoder decodeIntegerForKey:OEHIDEventStateKey];
                 break;
@@ -1233,6 +1260,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
             [encoder encodeInteger:[self direction]     forKey:OEHIDEventDirectionKey];
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             [encoder encodeInteger:[self buttonNumber]  forKey:OEHIDEventButtonNumberKey];
             [encoder encodeInteger:[self state]         forKey:OEHIDEventStateKey];
             break;
@@ -1263,6 +1291,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
             event->_data.axis.direction = OEHIDEventAxisDirectionNull;
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             event->_data.button.state = OEHIDEventStateOff;
             break;
         case OEHIDEventTypeHatSwitch :
@@ -1341,6 +1370,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
             hash |= [self axis] << 8;
             break;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             hash |= 0x4000000000000000u;
             hash |= [self buttonNumber];
             break;
@@ -1370,6 +1400,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
         case OEHIDEventTypeTrigger :
             return _data.axis.axis == anObject->_data.axis.axis;
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             return _data.button.buttonNumber == anObject->_data.button.buttonNumber;
         case OEHIDEventTypeHatSwitch :
             return _data.hatSwitch.hatDirection == anObject->_data.hatSwitch.hatDirection;

@@ -266,10 +266,11 @@ OEHIDEventType OEHIDEventTypeFromNSString(NSString *string)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         namesToValue = @{
-            @"Axis"      : @(OEHIDEventTypeAxis),
-            @"Button"    : @(OEHIDEventTypeButton),
-            @"HatSwitch" : @(OEHIDEventTypeHatSwitch),
-            @"Trigger"   : @(OEHIDEventTypeTrigger),
+            @"Axis"           : @(OEHIDEventTypeAxis),
+            @"Button"         : @(OEHIDEventTypeButton),
+            @"Special Button" : @(OEHIDEventTypeSpecialButton),
+            @"HatSwitch"      : @(OEHIDEventTypeHatSwitch),
+            @"Trigger"        : @(OEHIDEventTypeTrigger),
         };
     });
 
@@ -281,6 +282,7 @@ NSUInteger OEUsageFromUsageStringWithType(NSString *usageString, OEHIDEventType 
     switch(type)
     {
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
             return [usageString integerValue];
         case OEHIDEventTypeAxis :
         case OEHIDEventTypeTrigger :

@@ -52,6 +52,9 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
         case OEHIDEventTypeButton :
             ret = [NSString stringWithFormat:@"OEGenericControlButton%ld", [event buttonNumber]];
             break;
+        case OEHIDEventTypeSpecialButton :
+            ret = [NSString stringWithFormat:@"OEGenericSpecialButton%ld", [event buttonNumber]];
+            break;
         case OEHIDEventTypeHatSwitch :
             ret = @"OEGenericControlHatSwitch";
             break;

@@ -33,12 +33,13 @@
 @class OEDeviceHandler, OEHIDDeviceHandler, OEWiimoteHIDDeviceHandler;
 
 typedef enum _OEHIDEventType : NSUInteger {
-    OEHIDEventTypeAxis      = 1,
+    OEHIDEventTypeAxis          = 1,
     // Only for analogic triggers
-    OEHIDEventTypeTrigger   = 5,
-    OEHIDEventTypeButton    = 2,
-    OEHIDEventTypeHatSwitch = 3,
-	OEHIDEventTypeKeyboard  = 4,
+    OEHIDEventTypeTrigger       = 5,
+    OEHIDEventTypeButton        = 2,
+    OEHIDEventTypeSpecialButton = 6,
+    OEHIDEventTypeHatSwitch     = 3,
+	OEHIDEventTypeKeyboard      = 4,
 } OEHIDEventType;
 
 typedef enum _OEHIDAxis : NSUInteger {

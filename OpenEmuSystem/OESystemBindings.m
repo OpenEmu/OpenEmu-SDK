@@ -796,6 +796,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     switch([anEvent type])
     {
         case OEHIDEventTypeButton :
+        case OEHIDEventTypeSpecialButton :
         case OEHIDEventTypeTrigger :
         {
             [rawBindings enumerateKeysAndObjectsUsingBlock:
