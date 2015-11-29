@@ -56,8 +56,8 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 
 - (id)initWithSystemController:(OESystemController *)aController;
 {
-    NSUInteger numberOfPlayers = [aController numberOfPlayers];
-    NSUInteger numberOfKeys    = [[aController systemControlNames] count];
+    NSUInteger numberOfPlayers = aController.numberOfPlayers;
+    NSUInteger numberOfKeys    = aController.systemKeyBindingsDescriptions.count;
 
     return [self initWithCapacity:numberOfPlayers * numberOfKeys * 2];
 }
