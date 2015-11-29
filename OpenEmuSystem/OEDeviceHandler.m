@@ -26,6 +26,7 @@
 
 #import "OEDeviceHandler.h"
 #import "OEDeviceDescription.h"
+#import "OEDeviceManager.h"
 #import "OEHIDEvent.h"
 #import "OEHIDDeviceHandler.h"
 #import "OEControlDescription.h"
@@ -38,6 +39,8 @@
 #endif
 
 NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDeviceHandlerDidReceiveLowBatteryWarningNotification";
+
+static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUniqueIdentifier";
 
 @interface OEDeviceHandler ()
 {
@@ -84,6 +87,21 @@ NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDev
     return self;
 }
 
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    return [[OEDeviceManager sharedDeviceManager] deviceHandlerForUniqueIdentifier:[aDecoder decodeObjectOfClass:[NSString class] forKey:OEDeviceHandlerUniqueIdentifierKey]];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:[self uniqueIdentifier] forKey:OEDeviceHandlerUniqueIdentifierKey];
+}
+
 - (BOOL)isKeyboardDevice;
 {
     return NO;
@@ -91,7 +109,12 @@ NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDev
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p deviceDescription: '%@' manufacturer: %@ product: %@ serialNumber: %@ deviceIdentifier: %lu deviceNumber: %lu isKeyboard: %@>", [self class], self, [self deviceDescription], [self manufacturer], [self product], [self serialNumber], [self deviceIdentifier], [self deviceNumber], [self isKeyboardDevice] ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"<%@ %p uniqueIdentifier: '%@' deviceDescription: '%@' manufacturer: %@ product: %@ serialNumber: %@ deviceIdentifier: %lu deviceNumber: %lu isKeyboard: %@>", [self class], self, [self uniqueIdentifier], [self deviceDescription], [self manufacturer], [self product], [self serialNumber], [self deviceIdentifier], [self deviceNumber], [self isKeyboardDevice] ? @"YES" : @"NO"];
+}
+
+- (NSString *)uniqueIdentifier
+{
+    return nil;
 }
 
 - (NSString *)serialNumber;

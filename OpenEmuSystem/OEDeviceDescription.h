@@ -30,7 +30,7 @@
 
 @interface OEDeviceDescription : NSObject <NSCopying>
 
-+ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;
++ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie;
 
 @property(readonly) OEControllerDescription *controllerDescription;
 
@@ -38,6 +38,7 @@
 @property(readonly) NSString *product;
 @property(readonly) NSUInteger vendorID;
 @property(readonly) NSUInteger productID;
+@property(readonly) uint32_t cookie;
 
 @property(readonly) NSString *identifier;
 @property(readonly) NSString *controllerIdentifier;

@@ -93,6 +93,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 @interface OEDeviceManager () <IOBluetoothDeviceInquiryDelegate>
 {
+    NSMutableDictionary<NSString *, __kindof OEDeviceHandler *> *_uniqueIdentifiersToDeviceHandlers;
     NSMutableSet             *_keyboardHandlers;
     NSMutableSet             *_deviceHandlers;
     NSMutableSet             *_multiDeviceHandlers;
@@ -144,6 +145,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 {
 	if((self = [super init]))
 	{
+        _uniqueIdentifiersToDeviceHandlers = [[NSMutableDictionary alloc] init];
         _keyboardHandlers    = [[NSMutableSet alloc] init];
         _deviceHandlers      = [[NSMutableSet alloc] init];
         _multiDeviceHandlers = [[NSMutableSet alloc] init];
@@ -220,6 +222,11 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
             {
                 return [@([obj1 deviceIdentifier]) compare:@([obj2 deviceIdentifier])];
             }];
+}
+
+- (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier
+{
+    return _uniqueIdentifiersToDeviceHandlers[uniqueIdentifier];
 }
 
 - (void)deviceHandler:(OEDeviceHandler *)device didReceiveEvent:(OEHIDEvent *)event
@@ -388,6 +395,8 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (void)OE_addDeviceHandler:(OEDeviceHandler *)handler
 {
+    _uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier] = handler;
+
     if([handler isKindOfClass:[OEMultiHIDDeviceHandler class]])
     {
         [handler setDeviceIdentifier:++_lastAttributedMultiDeviceIdentifier];

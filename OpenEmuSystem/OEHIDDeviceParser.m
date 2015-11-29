@@ -104,7 +104,8 @@ static BOOL OE_isXboxControllerName(NSString *name)
 {
     return [OEDeviceDescription deviceDescriptionForVendorID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue]
                                                    productID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue]
-                                                     product:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))];
+                                                     product:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))
+                                                      cookie:0];
 }
 
 - (Class)OE_deviceHandlerClassForIOHIDDevice:(IOHIDDeviceRef)aDevice
@@ -307,10 +308,11 @@ static BOOL OE_isXboxControllerName(NSString *name)
     for(id e in rootJoysticks)
     {
         id deviceIdentifier = @(++lastDeviceIndex);
+        IOHIDElementRef elem = VALUE_TO_ELEM(e);
 
-        OEDeviceDescription *subdeviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex product:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier]];
+        OEDeviceDescription *subdeviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex product:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier] cookie:IOHIDElementGetCookie(elem)];
 
-        [self OE_parseJoystickElement:VALUE_TO_ELEM(e) intoControllerDescription:[subdeviceDesc controllerDescription] attributes:attributes deviceIdentifier:deviceIdentifier usingElementTree:tree];
+        [self OE_parseJoystickElement:elem intoControllerDescription:[subdeviceDesc controllerDescription] attributes:attributes deviceIdentifier:deviceIdentifier usingElementTree:tree];
 
         deviceIdentifiers[deviceIdentifier] = subdeviceDesc;
     }

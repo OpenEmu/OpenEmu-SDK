@@ -37,6 +37,7 @@
 // Return YES if the controller is not known to the application database.
 @property(readonly) BOOL isGeneric;
 
+@property(readonly) uint32_t cookie;
 @property(readonly) NSString *identifier;
 @property(readonly) NSString *name;
 

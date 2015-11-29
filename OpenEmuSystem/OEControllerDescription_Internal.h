@@ -29,7 +29,7 @@
 #import "OEDeviceDescription.h"
 
 @interface OEControllerDescription ()
-+ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;
++ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie;
 
 + (NSDictionary *)OE_dequeueRepresentationForDeviceDescription:(OEDeviceDescription *)deviceDescription;
 

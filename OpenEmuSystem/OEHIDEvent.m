@@ -1161,6 +1161,7 @@ static CGEventSourceRef _keyboardEventSource;
     return YES;
 }
 
+static NSString *OEHIDEventDeviceHandlerKey = @"OEHIDEventDeviceHandler";
 static NSString *OEHIDEventTypeKey               = @"OEHIDEventType";
 static NSString *OEHIDEventCookieKey             = @"OEHIDEventCookie";
 static NSString *OEHIDEventAxisKey               = @"OEHIDEventAxis";
@@ -1170,12 +1171,12 @@ static NSString *OEHIDEventStateKey              = @"OEHIDEventState";
 static NSString *OEHIDEventHatSwitchTypeKey      = @"OEHIDEventHatSwitchType";
 static NSString *OEHIDEventHatSwitchDirectionKey = @"OEHIDEventHatSwitchDirection";
 static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
-static NSString *OEHIDEventCGEventDataKey        = @"OEHIDEventCGEventData";
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if((self = [super init]))
     {
+        _deviceHandler = [decoder decodeObjectOfClass:[OEDeviceHandler class] forKey:OEHIDEventDeviceHandlerKey];
         _type   = [decoder decodeIntegerForKey:OEHIDEventTypeKey];
         _cookie = [decoder decodeIntegerForKey:OEHIDEventCookieKey];
 
@@ -1198,7 +1199,6 @@ static NSString *OEHIDEventCGEventDataKey        = @"OEHIDEventCGEventData";
                 _cookie                       = OEUndefinedCookie;
                 _data.key.keycode             = [decoder decodeIntegerForKey:OEHIDEventKeycodeKey];
                 _data.key.state               = [decoder decodeIntegerForKey:OEHIDEventStateKey];
-                _keyboardEvent                = CGEventCreateFromData(NULL, (__bridge CFDataRef)[decoder decodeObjectForKey:OEHIDEventCGEventDataKey]);
                 break;
         }
     }
@@ -1208,6 +1208,7 @@ static NSString *OEHIDEventCGEventDataKey        = @"OEHIDEventCGEventData";
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
+    [encoder encodeObject:[self deviceHandler] forKey:OEHIDEventDeviceHandlerKey];
     [encoder encodeInteger:[self type]   forKey:OEHIDEventTypeKey];
     [encoder encodeInteger:[self cookie] forKey:OEHIDEventCookieKey];
 
@@ -1229,7 +1230,6 @@ static NSString *OEHIDEventCGEventDataKey        = @"OEHIDEventCGEventData";
         case OEHIDEventTypeKeyboard :
             [encoder encodeInteger:[self keycode]       forKey:OEHIDEventKeycodeKey];
             [encoder encodeInteger:[self state]         forKey:OEHIDEventStateKey];
-            [encoder encodeObject:(__bridge_transfer NSData *)CGEventCreateData(NULL, _keyboardEvent) forKey:OEHIDEventCGEventDataKey];
             break;
     }
 }

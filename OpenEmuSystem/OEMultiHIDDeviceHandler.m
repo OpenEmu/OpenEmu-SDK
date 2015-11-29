@@ -82,4 +82,9 @@
     return self;
 }
 
+- (NSString *)uniqueIdentifier
+{
+    return [NSString stringWithFormat:@"%@ %u", [[self parentDeviceHandler] locationID], [[self deviceDescription] cookie]];
+}
+
 @end

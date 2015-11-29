@@ -51,7 +51,7 @@ static NSNumber *_OEDeviceIdentifierKey(id obj)
     NSMutableDictionary *_valueIdentifierToControlValue;
 }
 
-- (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name __attribute__((objc_method_family(init)));
+- (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name cookie:(uint32_t)cookie __attribute__((objc_method_family(init)));
 - (id)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation __attribute__((objc_method_family(init)));
 
 @end
@@ -87,7 +87,7 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     }
 }
 
-+ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product
++ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie
 {
     // Some devices have no HID Product string descriptor
     if(product == nil) product = @"Unknown USB Gamepad";
@@ -102,7 +102,7 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
 
     if(ret == nil)
     {
-        OEControllerDescription *desc = [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:product];
+        OEControllerDescription *desc = [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:product cookie:cookie];
         [self OE_installControllerDescription:desc];
         ret = _deviceNameToDeviceDescriptions[product];
 
@@ -158,12 +158,13 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     return self;
 }
 
-- (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name
+- (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name cookie:(uint32_t)cookie
 {
     if((self = [super init]))
     {
         _isGeneric = YES;
         _name = name;
+        _cookie = cookie;
         _controls = [NSMutableDictionary dictionary];
         _identifierToControlValue = [NSMutableDictionary dictionary];
         _valueIdentifierToControlValue = [NSMutableDictionary dictionary];
@@ -173,7 +174,8 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
                                          @"OEControllerDeviceName"    : _name,
                                          @"OEControllerProductName"   : _name,
                                          @"OEControllerVendorID"      : @(vendorID),
-                                         @"OEControllerProductID"     : @(productID)
+                                         @"OEControllerProductID"     : @(productID),
+                                         @"OEControllerCookie"        : @(cookie),
                                      }];
         [desc setControllerDescription:self];
 

@@ -44,6 +44,8 @@
 - (void)stopWiimoteSearch;
 - (BOOL)isBluetoothEnabled;
 
+- (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier;
+
 - (void)deviceHandler:(OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
 
 - (id)addGlobalEventMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;

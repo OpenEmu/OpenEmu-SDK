@@ -41,7 +41,7 @@
 @class OEDeviceDescription;
 @class OEControlDescription;
 
-@interface OEDeviceHandler : NSObject <NSCopying>
+@interface OEDeviceHandler : NSObject <NSCopying, NSSecureCoding>
 
 - (id)initWithDeviceDescription:(OEDeviceDescription *)deviceDescription;
 
@@ -56,6 +56,7 @@
 @property(readonly) OEControllerDescription *controllerDescription;
 @property(readonly) OEDeviceDescription *deviceDescription;
 
+@property(readonly) NSString *uniqueIdentifier;
 @property(readonly) NSString *serialNumber;
 @property(readonly) NSString *manufacturer;
 @property(readonly) NSString *product;

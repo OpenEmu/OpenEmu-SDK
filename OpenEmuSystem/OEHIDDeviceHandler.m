@@ -95,10 +95,20 @@
 
 - (void)dealloc
 {
+    if (_device == NULL)
+        return;
+
     [self OE_removeDeviceHandlerForDevice:_device];
 
-    if(_device != NULL) CFRelease(_device);
-    if(_ffDevice != NULL) FFReleaseDevice(_ffDevice);
+    CFRelease(_device);
+
+    if(_ffDevice != NULL)
+        FFReleaseDevice(_ffDevice);
+}
+
+- (NSString *)uniqueIdentifier
+{
+    return [[self locationID] stringValue];
 }
 
 - (NSString *)serialNumber
