@@ -31,6 +31,8 @@
 #import "OEHIDEvent.h"
 #import <IOKit/hid/IOHIDUsageTables.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEHIDEvent ()
 + (instancetype)OE_eventWithElement:(IOHIDElementRef)element value:(NSInteger)value;
 @end
@@ -113,10 +115,10 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     return ret;
 }
 
-+ (NSDictionary *)OE_dequeueRepresentationForDeviceDescription:(OEDeviceDescription *)deviceDescription;
++ (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)OE_dequeueRepresentationForDeviceDescription:(OEDeviceDescription *)deviceDescription;
 {
     OEControllerDescription *ctrlDesc = [deviceDescription controllerDescription];
-    NSDictionary *ret = _mappingRepresentations[[ctrlDesc identifier]];
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *ret = _mappingRepresentations[[ctrlDesc identifier]];
     [_mappingRepresentations removeObjectForKey:[ctrlDesc identifier]];
     return ret;
 }
@@ -186,7 +188,7 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(nullable NSZone *)zone
 {
     return self;
 }
@@ -230,7 +232,7 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     return _valueIdentifierToControlValue[controlValueIdentifier];
 }
 
-- (OEControlDescription *)addControlWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event;
+- (OEControlDescription *)addControlWithIdentifier:(nullable NSString *)identifier name:(nullable NSString *)name event:(OEHIDEvent *)event;
 {
     OEControlDescription *desc = [[OEControlDescription alloc] OE_initWithIdentifier:identifier name:name genericEvent:event];
     NSAssert(_controls[[desc identifier]] == nil, @"There is already a control %@ with the identifier %@", _controls[[desc identifier]], identifier);
@@ -293,3 +295,5 @@ NSUInteger OEUsageFromUsageStringWithType(NSString *usageString, OEHIDEventType 
 
     return 0;
 }
+
+NS_ASSUME_NONNULL_END

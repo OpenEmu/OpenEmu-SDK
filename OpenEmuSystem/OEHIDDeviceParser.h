@@ -27,6 +27,10 @@
 #import <Foundation/Foundation.h>
 #import "OEHIDDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEHIDDeviceParser : NSObject <OEHIDDeviceParser>
 
 @end
+
+NS_ASSUME_NONNULL_END

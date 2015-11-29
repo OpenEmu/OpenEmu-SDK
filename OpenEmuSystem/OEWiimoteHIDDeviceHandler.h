@@ -27,6 +27,7 @@
 #import <Cocoa/Cocoa.h>
 #import "OEHIDDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
 typedef enum : unsigned char {
     OEWiimoteDeviceHandlerLED1   = 0x10,
@@ -52,6 +53,8 @@ typedef enum {
     OEWiimoteIRModeFull     = 0x05,
 } OEWiimoteIRMode;
 
+extern NSString *const OEWiimoteDeviceHandlerDidDisconnectNotification;
+
 @interface OEWiimoteHIDDeviceHandler : OEHIDDeviceHandler
 
 @property(nonatomic) OEWiimoteDeviceHandlerLED illuminatedLEDs;
@@ -63,4 +66,4 @@ typedef enum {
 
 @end
 
-extern NSString *const OEWiimoteDeviceHandlerDidDisconnectNotification;
+NS_ASSUME_NONNULL_END

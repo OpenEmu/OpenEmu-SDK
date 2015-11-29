@@ -29,6 +29,8 @@
 
 #import <OpenEmuSystem/OEBindingDescription.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class OEKeyBindingGroupDescription;
 
 typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
@@ -63,19 +65,19 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 
 @interface OEKeyBindingDescription : OEBindingDescription
 
-@property(readonly, copy) NSString   *name;
-@property(readonly)       NSUInteger  index;
+@property(readonly, copy) NSString *name;
+@property(readonly) NSUInteger index;
 @property(readonly, getter=isAnalogic) BOOL analogic;
-@property(weak, nonatomic, readonly) OEKeyBindingGroupDescription *hatSwitchGroup;
-@property(weak, nonatomic, readonly) OEKeyBindingGroupDescription *axisGroup;
+@property(weak, nullable, nonatomic, readonly) OEKeyBindingGroupDescription *hatSwitchGroup;
+@property(weak, nullable, nonatomic, readonly) OEKeyBindingGroupDescription *axisGroup;
 
 // Returns YES if the key does not depend on the player number
 @property(readonly, getter=isSystemWide) BOOL systemWide;
 
 // Returns nil if the key does not have an opposite key
-@property(readonly, weak) OEKeyBindingDescription *oppositeKey;
+@property(readonly, nullable, weak) OEKeyBindingDescription *oppositeKey;
 // Returns nil if the key is not part of a hat switch
-@property(readonly, copy) NSArray *hatSwitchKeys;
+@property(readonly, nullable, copy) NSArray<OEKeyBindingDescription *> *hatSwitchKeys;
 
 - (void)enumerateHatSwitchKeysUsingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
 
@@ -84,3 +86,5 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 @interface OEGlobalKeyBindingDescription : OEKeyBindingDescription
 @property (readonly) OEGlobalButtonIdentifier buttonIdentifier;
 @end
+
+NS_ASSUME_NONNULL_END

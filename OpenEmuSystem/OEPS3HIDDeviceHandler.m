@@ -8,17 +8,15 @@
 
 #import "OEPS3HIDDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEDeviceHandler ()
 @property(readwrite) NSUInteger deviceNumber;
 @end
 
-@interface OEPS3HIDDeviceHandler ()
-{
+@implementation OEPS3HIDDeviceHandler {
     uint8_t _reportBuffer[128];
 }
-@end
-
-@implementation OEPS3HIDDeviceHandler
 
 - (BOOL)connect
 {
@@ -56,3 +54,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

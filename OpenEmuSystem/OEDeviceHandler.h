@@ -30,6 +30,8 @@
 #import <IOKit/hid/IOHIDUsageTables.h>
 #import <ForceFeedback/ForceFeedback.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class OEHIDEvent;
 
 #define kOEHIDElementIsTriggerKey        "OEHIDElementIsTrigger"
@@ -46,7 +48,9 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 
 @interface OEDeviceHandler : NSObject <NSCopying, NSSecureCoding>
 
-- (id)initWithDeviceDescription:(OEDeviceDescription *)deviceDescription;
+- (nullable instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithDeviceDescription:(nullable OEDeviceDescription *)deviceDescription NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithCoder:(NSCoder *)aDecoder NS_DESIGNATED_INITIALIZER;
 
 - (void)setUpControllerDescription:(OEControllerDescription *)description usingRepresentation:(NSDictionary *)controlRepresentations;
 
@@ -56,8 +60,8 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 
 @property(readonly) NSUInteger deviceNumber;
 
-@property(readonly) OEControllerDescription *controllerDescription;
-@property(readonly) OEDeviceDescription *deviceDescription;
+@property(nullable, readonly) OEControllerDescription *controllerDescription;
+@property(nullable, readonly) OEDeviceDescription *deviceDescription;
 
 @property(readonly) NSString *uniqueIdentifier;
 @property(readonly) NSString *serialNumber;
@@ -86,3 +90,5 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 - (instancetype)initWithUniqueIdentifier:(NSString *)uniqueIdentifier;
 - (void)notifyOriginalDeviceDidBecomeAvailable;
 @end
+
+NS_ASSUME_NONNULL_END

@@ -26,20 +26,26 @@
 
 #import "OEHIDDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+@class OEHIDSubdeviceHandler;
+
 @interface OEMultiHIDDeviceHandler : OEHIDDeviceHandler
 
-- (id)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceDescriptions:(NSDictionary *)descriptions;
+- (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceDescriptions:(NSDictionary<NSNumber *, OEDeviceDescription *> *)descriptions;
 
-@property(readonly) NSArray *subdeviceHandlers;
-@property(readonly) NSDictionary *subdeviceDescriptions;
+@property(readonly) NSArray<OEHIDSubdeviceHandler *> *subdeviceHandlers;
+@property(readonly) NSDictionary<NSNumber *, OEDeviceDescription *> *subdeviceDescriptions;
 
 @end
 
 @interface OEHIDSubdeviceHandler : OEDeviceHandler
 
-- (id)initWithParentDeviceHandler:(OEMultiHIDDeviceHandler *)parentHandler deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceIdentifier:(id)identifier;
+- (instancetype)initWithParentDeviceHandler:(OEMultiHIDDeviceHandler *)parentHandler deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceIdentifier:(id)identifier;
 
 @property(readonly) OEMultiHIDDeviceHandler *parentDeviceHandler;
 @property(readonly) id subdeviceIdentifier;
 
 @end
+
+NS_ASSUME_NONNULL_END

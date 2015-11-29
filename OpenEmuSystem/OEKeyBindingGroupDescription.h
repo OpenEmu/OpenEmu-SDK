@@ -29,24 +29,25 @@
 
 #import <OpenEmuSystem/OEBindingDescription.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class OEKeyBindingDescription, OEOrientedKeyGroupBindingDescription;
 
-typedef enum _OEKeyGroupType
-{
+typedef NS_ENUM(NSInteger, OEKeyGroupType) {
     OEKeyGroupTypeUnknown,
     OEKeyGroupTypeAxis,
     OEKeyGroupTypeHatSwitch,
-} OEKeyGroupType;
+};
 
 extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 
 // OEKeyGroupBindingsDescription allows OEKeyBindingsDescription objects to know about their peers, this class is only used by OESystemBindings
 @interface OEKeyBindingGroupDescription : OEBindingDescription
 
-@property(readonly)       OEKeyGroupType  type;
+@property(readonly) OEKeyGroupType type;
 @property(readonly, copy) NSString *groupIdentifier;
-@property(readonly, copy) NSArray        *keys;
-@property(readonly, copy) NSArray        *keyNames;
+@property(readonly, copy) NSArray *keys;
+@property(readonly, copy) NSArray *keyNames;
 @property(readonly, getter=isAnalogic) BOOL analogic;
 
 - (OEKeyBindingDescription *)oppositeKeyOfKey:(OEKeyBindingDescription *)aKey;
@@ -64,7 +65,7 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 @interface OEOrientedKeyGroupBindingDescription : OEKeyBindingGroupDescription
 
 @property(readonly, weak) OEKeyBindingGroupDescription *parentKeyGroup;
-@property(readonly, weak) OEKeyBindingDescription      *baseKey;
+@property(readonly, weak) OEKeyBindingDescription *baseKey;
 
 - (OEKeyBindingDescription *)oppositeKey;
 
@@ -73,3 +74,5 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 - (void)enumerateOrientedKeyGroupsFromBaseKeyUsingBlock:(void(^)(OEOrientedKeyGroupBindingDescription *key, BOOL *stop))block;
 
 @end
+
+NS_ASSUME_NONNULL_END

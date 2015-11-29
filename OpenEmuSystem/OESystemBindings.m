@@ -25,15 +25,18 @@
  */
 
 #import "OESystemBindings.h"
+
 #import "OEBindingsController_Internal.h"
-#import "OEDeviceHandler.h"
-#import "OESystemController.h"
-#import "OEHIDEvent.h"
-#import "OEHIDDeviceHandler.h"
-#import "OEControllerDescription.h"
 #import "OEControlDescription.h"
+#import "OEControllerDescription.h"
 #import "OEDeviceDescription.h"
+#import "OEDeviceHandler.h"
+#import "OEHIDDeviceHandler.h"
+#import "OEHIDEvent.h"
 #import "OEKeyBindingDescription.h"
+#import "OESystemController.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const _OEKeyboardPlayerBindingRepresentationsKey = @"keyboardPlayerBindings";
 static NSString *const _OEControllerBindingRepresentationsKey = @"controllerBindings";
@@ -63,26 +66,21 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 @interface OESystemBindings ()
 {
-    NSMutableSet           *_bindingsObservers;
+    NSMutableSet<id<OESystemBindingsObserver>> *_bindingsObservers;
 
-    NSDictionary           *_allKeyBindingsDescriptions;
-    NSDictionary           *_systemKeyBindingsDescriptions;
-    NSDictionary           *_keyBindingsDescriptions;
-    NSArray                *_keyGroupBindingsDescriptions;
-
-    NSMutableDictionary    *_keyboardPlayerBindings;
+    NSMutableDictionary<NSNumber *, OEKeyboardPlayerBindings *> *_keyboardPlayerBindings;
 
     // Map devices identifiers to an array of saved bindings
     // Each object in the array represent settings in the order they were added to the app
     // When a new device with the same manufacturer is plugged in, it inherits the settings
     // of the player they were first setup or the first player if the device doesn't exists
-    NSMutableDictionary    *_parsedManufacturerBindings;
-    NSMutableDictionary    *_unparsedManufactuerBindings;
-    NSMutableDictionary    *_deviceHandlersToBindings;
+    NSMutableDictionary<id, NSMutableArray *> *_parsedManufacturerBindings;
+    NSMutableDictionary<NSString *, NSArray<NSDictionary<NSString *, id> *> *> *_unparsedManufactuerBindings;
+    NSMutableDictionary<OEDeviceHandler *, OEDevicePlayerBindings *> *_deviceHandlersToBindings;
 
-    NSMutableDictionary    *_devicePlayerBindings;
+    NSMutableDictionary<NSNumber *, OEDevicePlayerBindings *> *_devicePlayerBindings;
 
-    NSMutableDictionary    *_defaultDeviceBindings;
+    NSMutableDictionary<OEControllerDescription *, OEDevicePlayerBindings *> *_defaultDeviceBindings;
 
     OEDevicePlayerBindings *_emptyConfiguration;
 }
@@ -96,7 +94,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 @implementation OESystemBindings
 
-- (id)OE_initWithBindingsController:(OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary
+- (id)OE_initWithBindingsController:(nullable OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary
 {
     if(aController == nil) return nil;
 
@@ -200,21 +198,21 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     OEControllerDescription *controllerDescription = [deviceDescription controllerDescription];
     NSString *genericDeviceIdentifier = [deviceDescription genericDeviceIdentifier];
-    NSArray *genericDeviceBindingsToParse = _unparsedManufactuerBindings[genericDeviceIdentifier];
+    NSArray<NSDictionary *> *genericDeviceBindingsToParse = _unparsedManufactuerBindings[genericDeviceIdentifier];
     [_unparsedManufactuerBindings removeObjectForKey:genericDeviceIdentifier];
 
     if(genericDeviceBindingsToParse == nil && _parsedManufacturerBindings[controllerDescription] != nil) return;
 
-    NSMutableArray *parsedBindings = _parsedManufacturerBindings[controllerDescription] ? : [NSMutableArray array];
+    NSMutableArray<OEDevicePlayerBindings *> *parsedBindings = _parsedManufacturerBindings[controllerDescription] ? : [NSMutableArray array];
 
-    for(NSDictionary *representation in genericDeviceBindingsToParse)
+    for(NSDictionary<NSString *, id> *representation in genericDeviceBindingsToParse)
         [parsedBindings addObject:[self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:YES]];
 
     if(![controllerDescription isGeneric])
     {
         [self OE_parseDefaultControlValuesForControllerDescription:controllerDescription];
 
-        for(NSDictionary *representation in _unparsedManufactuerBindings[[controllerDescription identifier]])
+        for(NSDictionary<NSString *, id> *representation in _unparsedManufactuerBindings[[controllerDescription identifier]])
             [parsedBindings addObject:[self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO]];
         [_unparsedManufactuerBindings removeObjectForKey:[controllerDescription identifier]];
         _parsedManufacturerBindings[controllerDescription] = parsedBindings;
@@ -223,7 +221,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     _parsedManufacturerBindings[deviceDescription] = parsedBindings;
 }
 
-- (OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary *)representation withControllerDescription:(OEControllerDescription *)controllerDescription useValueIdentifier:(BOOL)useValueIdentifier
+- (OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary<NSString *, id> *)representation withControllerDescription:(OEControllerDescription *)controllerDescription useValueIdentifier:(BOOL)useValueIdentifier
 {
     NSMutableDictionary<OEBindingDescription *, OEControlValueDescription *> *rawBindings = [NSMutableDictionary dictionaryWithCapacity:[_systemController.allKeyBindingsDescriptions count]];
     [_systemController.allKeyBindingsDescriptions enumerateKeysAndObjectsUsingBlock:^(NSString *keyName, OEKeyBindingDescription *keyDesc, BOOL *stop) {
@@ -286,7 +284,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 - (NSDictionary *)OE_dictionaryRepresentationForControllerBindings;
 {
-    NSMutableDictionary *ret = [_unparsedManufactuerBindings mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[_parsedManufacturerBindings count]];
+    NSMutableDictionary<NSString *, NSArray *> *ret = [_unparsedManufactuerBindings mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[_parsedManufacturerBindings count]];
 
     [_parsedManufacturerBindings enumerateKeysAndObjectsUsingBlock:
      ^(id description, NSArray *controllers, BOOL *stop)
@@ -296,21 +294,19 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             || (!isDeviceDescription &&   [description isGeneric]))
              return;
 
-         NSMutableArray *controllerRepresentations = [NSMutableArray arrayWithCapacity:[controllers count]];
+         NSMutableArray<NSDictionary<NSString *, id> *> *controllerRepresentations = [NSMutableArray arrayWithCapacity:[controllers count]];
          for(OEDevicePlayerBindings *controller in controllers)
          {
-             NSDictionary *rawBindings = [controller bindingEvents];
-             NSMutableDictionary *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
+             NSDictionary<__kindof OEBindingDescription *, OEControlValueDescription *> *rawBindings = [controller bindingEvents];
+             NSMutableDictionary<NSString *, id> *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
              [rawBindings enumerateKeysAndObjectsUsingBlock:
-              ^(id key, OEControlValueDescription *obj, BOOL *stop)
+              ^(__kindof OEBindingDescription *key, OEControlValueDescription *obj, BOOL *stop)
               {
                   NSString *saveKey = nil;
                   if([key isKindOfClass:[OEKeyBindingDescription class]])
                       saveKey = [key name];
                   else if([key isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
                       saveKey = [[key baseKey] name];
-                  else if([key isKindOfClass:[NSString class]])
-                      saveKey = key;
                   else
                   {
                       NSLog(@"WARNING: Unkown Bindings key");
@@ -330,16 +326,16 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     return ret;
 }
 
-- (NSMutableArray *)OE_arrayRepresentationForKeyboardBindings
+- (NSMutableArray<NSDictionary<NSString *, OEHIDEvent *> *> *)OE_arrayRepresentationForKeyboardBindings
 {
-    NSMutableArray *ret = [NSMutableArray arrayWithCapacity:[_keyboardPlayerBindings count]];
+    NSMutableArray<NSDictionary<NSString *, OEHIDEvent *> *> *ret = [NSMutableArray arrayWithCapacity:[_keyboardPlayerBindings count]];
     NSUInteger numberOfPlayers = [self numberOfPlayers];
     NSUInteger lastValidPlayerNumber = 1;
 
     for(NSUInteger i = 1; i <= numberOfPlayers; i++)
     {
         NSDictionary *rawBindings = [_keyboardPlayerBindings[@(i)] bindingEvents];
-        NSMutableDictionary *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
+        NSMutableDictionary<NSString *, OEHIDEvent *> *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
         [rawBindings enumerateKeysAndObjectsUsingBlock:
          ^(OEKeyBindingDescription *key, OEHIDEvent *event, BOOL *stop)
          {
@@ -367,7 +363,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     OEDeviceHandler *handler = [anEvent deviceHandler];
 
     return [[[_devicePlayerBindings keysOfEntriesPassingTest:
-              ^ BOOL (id key, OEDevicePlayerBindings *obj, BOOL *stop)
+              ^ BOOL (NSNumber *key, OEDevicePlayerBindings *obj, BOOL *stop)
               {
                   if([obj deviceHandler] == handler)
                   {
@@ -398,7 +394,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         ret = [[OEKeyboardPlayerBindings alloc] OE_initWithSystemBindings:self playerNumber:playerNumber];
 
         // At this point, if a keyboard bindings doesn't exist, it means none were saved for this player
-        [ret OE_setBindingDescriptions:[self OE_stringValuesForBindings:nil possibleKeys:_keyBindingsDescriptions]];
+        [ret OE_setBindingDescriptions:[self OE_stringValuesForBindings:nil possibleKeys:_systemController.keyBindingsDescriptions]];
         [ret OE_setBindingEvents:@{ }];
 
         _keyboardPlayerBindings[@(playerNumber)] = ret;
@@ -477,12 +473,12 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             : [anEvent description]);
 }
 
-- (NSDictionary *)OE_stringValuesForBindings:(NSDictionary *)bindingsToConvert possibleKeys:(NSDictionary *)nameToKeyMap;
+- (NSDictionary<NSString *, NSString *> *)OE_stringValuesForBindings:(nullable NSDictionary<__kindof OEBindingDescription *, OEControlValueDescription *> *)bindingsToConvert possibleKeys:(NSDictionary<NSString *, OEKeyBindingDescription *> *)nameToKeyMap;
 {
-    NSMutableDictionary *ret = [NSMutableDictionary dictionaryWithCapacity:[nameToKeyMap count]];
+    NSMutableDictionary<NSString *, NSString *> *ret = [NSMutableDictionary dictionaryWithCapacity:[nameToKeyMap count]];
 
     [bindingsToConvert enumerateKeysAndObjectsUsingBlock:
-     ^(id key, id obj, BOOL *stop)
+     ^(__kindof OEBindingDescription *key, OEControlValueDescription *obj, BOOL *stop)
      {
          NSAssert(![obj isKindOfClass:[OEControlDescription class]], @"A OEControlDescription object was wrongfully associated to the key '%@'.", key);
 
@@ -543,29 +539,29 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     return ret;
 }
 
-- (id)OE_playerBindings:(OEPlayerBindings *)sender didAssignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)keyName;
+- (__kindof OEBindingDescription *)OE_playerBindings:(__kindof OEPlayerBindings *)sender didAssignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)keyName;
 {
     NSAssert([anEvent isKindOfClass:[OEHIDEvent class]], @"Can only set OEHIDEvents for bindings.");
 
     // Make a copy because events are reused to remember the previous state/timestamp
     anEvent = [anEvent copy];
 
-    id ret = ([anEvent type] == OEHIDEventTypeKeyboard
-              ? [self OE_playerBindings:(OEKeyboardPlayerBindings *)sender didSetKeyboardEvent:anEvent forKey:keyName]
-              : [self OE_playerBindings:(OEDevicePlayerBindings *)sender didSetDeviceEvent:anEvent forKey:keyName]);
+    __kindof OEBindingDescription *ret = ([anEvent type] == OEHIDEventTypeKeyboard
+        ? [self OE_playerBindings:sender didSetKeyboardEvent:anEvent forKey:keyName]
+        : [self OE_playerBindings:sender didSetDeviceEvent:anEvent forKey:keyName]);
 
     return ret;
 }
 
-- (void)OE_playerBindings:(OEPlayerBindings *)sender didRemoveEventForKeyWithName:(NSString *)aKey;
+- (void)OE_playerBindings:(__kindof OEPlayerBindings *)sender didRemoveEventForKeyWithName:(NSString *)aKey;
 {
     if([sender isKindOfClass:[OEKeyboardPlayerBindings class]])
-        [self OE_playerBindings:(OEKeyboardPlayerBindings *)sender didUnsetKeyboardEventForKey:aKey];
+        [self OE_playerBindings:sender didUnsetKeyboardEventForKey:aKey];
     else if([sender isKindOfClass:[OEDevicePlayerBindings class]])
-        [self OE_playerBindings:(OEDevicePlayerBindings *)sender didUnsetDeviceEventForKey:aKey];
+        [self OE_playerBindings:sender didUnsetDeviceEventForKey:aKey];
 }
 
-- (id)OE_playerBindings:(OEKeyboardPlayerBindings *)sender didSetKeyboardEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
+- (__kindof OEBindingDescription *)OE_playerBindings:(OEKeyboardPlayerBindings *)sender didSetKeyboardEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
 {
     NSAssert([sender isKindOfClass:[OEKeyboardPlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
 
@@ -621,7 +617,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     [self OE_notifyObserversDidUnsetEvent:event forBindingKey:keyDesc playerNumber:[keyDesc isSystemWide] ? 0 : [sender playerNumber]];
 }
 
-- (id)OE_playerBindings:(OEDevicePlayerBindings *)sender didSetDeviceEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
+- (__kindof OEBindingDescription *)OE_playerBindings:(OEDevicePlayerBindings *)sender didSetDeviceEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
 {
     NSAssert([sender isKindOfClass:[OEDevicePlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
 
@@ -640,7 +636,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     }
 
     // Search for keys bound to the same event.
-    NSArray *keys = [[sender bindingEvents] allKeysForObject:valueDesc];
+    NSArray<__kindof OEBindingDescription *> *keys = [[sender bindingEvents] allKeysForObject:valueDesc];
     if([keys count] == 0)
     {
         keys = [[[sender bindingEvents] keysOfEntriesPassingTest:
@@ -654,11 +650,11 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     // Remove bindings for these keys
     NSAssert([keys count] <= 1, @"More than one key is attached to the same event: %@ -> %@", anEvent, keys);
-    id keyDesc = [keys lastObject];
+    __kindof OEBindingDescription *keyDesc = [keys lastObject];
 
     if(keyDesc != nil)
     {
-        NSArray *keys = nil;
+        NSArray<NSString *> *keys = nil;
         if([keyDesc isKindOfClass:[OEKeyBindingDescription class]])
             keys = @[ [keyDesc name] ];
         else if([keyDesc isKindOfClass:[OEKeyBindingGroupDescription class]])
@@ -771,7 +767,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     OEHIDEvent *eventToRemove = [[valueDescToRemove event] eventWithDeviceHandler:[sender deviceHandler]];
 
-    NSArray *keys = nil;
+    NSArray<NSString *> *keys = nil;
     if([keyDesc isKindOfClass:[OEKeyBindingDescription class]])
         keys = @[ [keyDesc name] ];
     else if([keyDesc isKindOfClass:[OEKeyBindingGroupDescription class]])
@@ -785,7 +781,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 - (void)OE_removeConcurrentBindings:(OEDevicePlayerBindings *)sender ofKey:(OEKeyBindingDescription *)keyDesc withEvent:(OEHIDEvent *)anEvent;
 {
-    NSDictionary                 *rawBindings = [[sender bindingEvents] copy];
+    NSDictionary<__kindof OEBindingDescription *, OEControlValueDescription *> *rawBindings = [[sender bindingEvents] copy];
     OEKeyBindingGroupDescription *axisGroup = keyDesc.axisGroup;
     OEKeyBindingGroupDescription *hatGroup = keyDesc.hatSwitchGroup;
 
@@ -851,7 +847,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             break;
         case OEHIDEventTypeHatSwitch :
         {
-            NSMutableSet *visitedAxisGroups = [NSMutableSet setWithObjects:axisGroup, hatGroup, nil];
+            NSMutableSet<OEKeyBindingGroupDescription *> *visitedAxisGroups = [NSMutableSet setWithObjects:axisGroup, hatGroup, nil];
             for(OEKeyBindingDescription *keyDesc in [hatGroup keys])
             {
                 OEControlValueDescription *valueDesc = [rawBindings objectForKey:keyDesc];
@@ -1024,13 +1020,13 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 #pragma mark -
 #pragma mark Bindings Observers
 
-- (void)OE_notifyObserversDidSetEvent:(OEHIDEvent *)anEvent forBindingKey:(id)bindingKey playerNumber:(NSUInteger)playerNumber;
+- (void)OE_notifyObserversDidSetEvent:(OEHIDEvent *)anEvent forBindingKey:(__kindof OEBindingDescription *)bindingKey playerNumber:(NSUInteger)playerNumber;
 {
     for(id<OESystemBindingsObserver> observer in _bindingsObservers)
         [observer systemBindings:self didSetEvent:anEvent forBinding:bindingKey playerNumber:playerNumber];
 }
 
-- (void)OE_notifyObserversDidUnsetEvent:(OEHIDEvent *)anEvent forBindingKey:(id)bindingKey playerNumber:(NSUInteger)playerNumber;
+- (void)OE_notifyObserversDidUnsetEvent:(OEHIDEvent *)anEvent forBindingKey:(__kindof OEBindingDescription *)bindingKey playerNumber:(NSUInteger)playerNumber;
 {
     for(id<OESystemBindingsObserver> observer in _bindingsObservers)
         [observer systemBindings:self didUnsetEvent:anEvent forBinding:bindingKey playerNumber:playerNumber];
@@ -1084,3 +1080,5 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

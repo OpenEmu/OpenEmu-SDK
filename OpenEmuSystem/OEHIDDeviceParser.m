@@ -36,6 +36,8 @@
 #import "OEWiimoteHIDDeviceHandler.h"
 #import "OEControllerDescription_Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 #define ELEM(e) ((__bridge IOHIDElementRef)e)
 #define ELEM_TO_VALUE(e) ([NSValue valueWithPointer:e])
 #define VALUE_TO_ELEM(e) ((IOHIDElementRef)[e pointerValue])
@@ -61,42 +63,38 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
 @interface _OEHIDDeviceAttributes : NSObject
 
-- (id)initWithDeviceHandlerClass:(Class)handlerClass;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithDeviceHandlerClass:(Class)handlerClass;
 
 @property(readonly) Class deviceHandlerClass;
 
 - (void)applyAttributesToDevice:(IOHIDDeviceRef)device;
 - (void)applyAttributesToElement:(IOHIDElementRef)element;
-- (void)setAttributes:(NSDictionary *)attributes forElementCookie:(NSUInteger)cookie;
+- (void)setAttributes:(NSDictionary<NSString *, id> *)attributes forElementCookie:(NSUInteger)cookie;
 
-@property(nonatomic, copy) NSDictionary *subdeviceIdentifiersToDeviceDescriptions;
+@property(nonatomic, copy) NSDictionary<NSNumber *, OEDeviceDescription *> *subdeviceIdentifiersToDeviceDescriptions;
 
-@end
-
-@interface OEHIDDeviceParser ()
-{
-    NSMutableDictionary *_controllerDescriptionsToDeviceAttributes;
-}
 @end
 
 @interface _OEHIDDeviceElementTree : NSObject
 
-- (id)initWithHIDDevice:(IOHIDDeviceRef)device;
+- (instancetype)initWithHIDDevice:(IOHIDDeviceRef)device;
 
 - (NSUInteger)numberOfChildrenOfElement:(IOHIDElementRef)element;
-- (NSArray *)childrenOfElement:(IOHIDElementRef)element;
-- (void)enumerateChildrenOfElement:(IOHIDElementRef)element usingBlock:(void(^)(IOHIDElementRef element, BOOL *stop))block;
+- (NSArray<NSValue *> *)childrenOfElement:(IOHIDElementRef)element;
+- (void)enumerateChildrenOfElement:(nullable IOHIDElementRef)element usingBlock:(void(^)(IOHIDElementRef element, BOOL *stop))block;
 
 @end
 
-@implementation OEHIDDeviceParser
+@implementation OEHIDDeviceParser {
+    NSMutableDictionary<OEControllerDescription *, _OEHIDDeviceAttributes *> *_controllerDescriptionsToDeviceAttributes;
+}
 
-- (id)init
+- (instancetype)init
 {
     if((self = [super init]))
-    {
         _controllerDescriptionsToDeviceAttributes = [[NSMutableDictionary alloc] init];
-    }
+
     return self;
 }
 
@@ -127,7 +125,8 @@ static BOOL OE_isXboxControllerName(NSString *name)
     Class deviceHandlerClass = [self OE_deviceHandlerClassForIOHIDDevice:device];
     id<OEHIDDeviceParser> parser = [deviceHandlerClass deviceParser];
 
-    if(parser != self) return [parser deviceHandlerForIOHIDDevice:device];
+    if(parser != self)
+        return [parser deviceHandlerForIOHIDDevice:device];
 
     return [self OE_parseIOHIDDevice:device];
 }
@@ -136,17 +135,14 @@ static BOOL OE_isXboxControllerName(NSString *name)
 {
     NSArray *allElements = (__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, NULL, 0);
 
-    for(id e in allElements)
-    {
+    for(id e in allElements) {
         IOHIDElementRef elem = (__bridge IOHIDElementRef)e;
 
         NSDictionary *attributes = elementAttributes[@(IOHIDElementGetCookie(elem))];
 
-        [attributes enumerateKeysAndObjectsUsingBlock:
-         ^(NSString *key, id attribute, BOOL *stop)
-         {
-             IOHIDElementSetProperty(elem, (__bridge CFStringRef)key, (__bridge CFTypeRef)attribute);
-         }];
+        [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, id attribute, BOOL *stop) {
+            IOHIDElementSetProperty(elem, (__bridge CFStringRef)key, (__bridge CFTypeRef)attribute);
+        }];
     }
 }
 
@@ -157,12 +153,10 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
     _OEHIDDeviceAttributes *attributes = _controllerDescriptionsToDeviceAttributes[controllerDesc];
 
-    if(attributes == nil)
-    {
+    if(attributes == nil) {
         attributes = [self OE_deviceAttributesForIOHIDDevice:device deviceDescription:deviceDesc];
         _controllerDescriptionsToDeviceAttributes[controllerDesc] = attributes;
-    }
-    else
+    } else
         [attributes applyAttributesToDevice:device];
 
     OEHIDDeviceHandler *handler = nil;
@@ -176,7 +170,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
 - (_OEHIDDeviceAttributes *)OE_deviceAttributesForIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDescription
 {
-    NSDictionary *representation = [OEControllerDescription OE_dequeueRepresentationForDeviceDescription:deviceDescription];
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *representation = [OEControllerDescription OE_dequeueRepresentationForDeviceDescription:deviceDescription];
 
     _OEHIDDeviceAttributes *attributes = nil;
     if(representation != nil)
@@ -187,7 +181,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
     return attributes;
 }
 
-- (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc representations:(NSDictionary *)controlRepresentations
+- (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc representations:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)controlRepresentations
 {
     OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
 
@@ -196,68 +190,61 @@ static BOOL OE_isXboxControllerName(NSString *name)
     NSMutableArray *genericDesktopElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_GenericDesktop) }, 0) mutableCopy];
     NSMutableArray *buttonElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_Button) }, 0) mutableCopy];
 
-    [controlRepresentations enumerateKeysAndObjectsUsingBlock:
-     ^(NSString *identifier, NSDictionary *rep, BOOL *stop)
-     {
-         OEHIDEventType type = OEHIDEventTypeFromNSString(rep[@"Type"]);
-         NSUInteger cookie = [rep[@"Cookie"] integerValue];
-         NSUInteger usage = OEUsageFromUsageStringWithType(rep[@"Usage"], type);
+    [controlRepresentations enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary<NSString *, id> *rep, BOOL *stop) {
+        OEHIDEventType type = OEHIDEventTypeFromNSString(rep[@"Type"]);
+        NSUInteger cookie = [rep[@"Cookie"] integerValue];
+        NSUInteger usage = OEUsageFromUsageStringWithType(rep[@"Usage"], type);
 
-         __block IOHIDElementRef elem = NULL;
+        __block IOHIDElementRef elem = NULL;
 
-         // Find the element for the current description.
-         NSMutableArray *targetArray = type == OEHIDEventTypeButton ? buttonElements : genericDesktopElements;
-         [targetArray enumerateObjectsUsingBlock:
-          ^(id obj, NSUInteger idx, BOOL *stop)
-          {
-              IOHIDElementRef testedElement = (__bridge IOHIDElementRef)obj;
+        // Find the element for the current description.
+        NSMutableArray *targetArray = type == OEHIDEventTypeButton ? buttonElements : genericDesktopElements;
+        [targetArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IOHIDElementRef testedElement = (__bridge IOHIDElementRef)obj;
 
-              if(   IOHIDElementGetType(testedElement) == kIOHIDElementTypeCollection
-                 || (cookie != OEUndefinedCookie && cookie != IOHIDElementGetCookie(testedElement))
-                 || usage != IOHIDElementGetUsage(testedElement))
-                  return;
+            if(IOHIDElementGetType(testedElement) == kIOHIDElementTypeCollection
+               || (cookie != OEUndefinedCookie && cookie != IOHIDElementGetCookie(testedElement))
+               || usage != IOHIDElementGetUsage(testedElement))
+                return;
 
-              elem = testedElement;
-              // Make sure you stop enumerating right after modifying the array
-              // or else it will throw an exception.
-              [targetArray removeObjectAtIndex:idx];
-              *stop = YES;
-          }];
+            elem = testedElement;
+            // Make sure you stop enumerating right after modifying the array
+            // or else it will throw an exception.
+            [targetArray removeObjectAtIndex:idx];
+            *stop = YES;
+        }];
 
-         if(elem == NULL) return;
+        if(elem == NULL)
+            return;
 
-         cookie = IOHIDElementGetCookie(elem);
+        cookie = IOHIDElementGetCookie(elem);
 
-         // Create attributes for the element if necessary. We need to apply the attributes
-         // on the elements because OEHIDEvent depend on them to setup the event.
-         switch(type)
-         {
-             case OEHIDEventTypeTrigger :
-                 [attributes setAttributes:@{ @kOEHIDElementIsTriggerKey : @YES } forElementCookie:cookie];
-                 [attributes applyAttributesToElement:elem];
-                 break;
-             case OEHIDEventTypeHatSwitch :
-                 [attributes setAttributes:@{ @kOEHIDElementHatSwitchTypeKey : @([self OE_hatSwitchTypeForElement:elem]) } forElementCookie:cookie];
-                 [attributes applyAttributesToElement:elem];
-                 break;
-             default :
-                 break;
-         }
+        // Create attributes for the element if necessary. We need to apply the attributes
+        // on the elements because OEHIDEvent depend on them to setup the event.
+        switch(type) {
+            case OEHIDEventTypeTrigger :
+                [attributes setAttributes:@{ @kOEHIDElementIsTriggerKey : @YES } forElementCookie:cookie];
+                [attributes applyAttributesToElement:elem];
+                break;
+            case OEHIDEventTypeHatSwitch :
+                [attributes setAttributes:@{ @kOEHIDElementHatSwitchTypeKey : @([self OE_hatSwitchTypeForElement:elem]) } forElementCookie:cookie];
+                [attributes applyAttributesToElement:elem];
+                break;
+            default :
+                break;
+        }
 
-         // Attempt to create an event for it, dump it if it's not possible.
-         OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
-         if(genericEvent == nil) return;
+        // Attempt to create an event for it, dump it if it's not possible.
+        OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
+        if(genericEvent == nil) return;
 
-         // Add the control description.
-         [controllerDesc addControlWithIdentifier:identifier name:rep[@"Name"] event:genericEvent valueRepresentations:rep[@"Values"]];
-     }];
+        // Add the control description.
+        [controllerDesc addControlWithIdentifier:identifier name:rep[@"Name"] event:genericEvent valueRepresentations:rep[@"Values"]];
+    }];
 
-    [genericDesktopElements removeObjectsAtIndexes:
-     [genericDesktopElements indexesOfObjectsPassingTest:
-      ^ BOOL (id elem, NSUInteger idx, BOOL *stop)
-      {
-          return [OEHIDEvent OE_eventWithElement:(__bridge IOHIDElementRef)elem value:0] == nil;
-      }]];
+    [genericDesktopElements removeObjectsAtIndexes:[genericDesktopElements indexesOfObjectsPassingTest:^ BOOL (id elem, NSUInteger idx, BOOL *stop) {
+        return [OEHIDEvent OE_eventWithElement:(__bridge IOHIDElementRef)elem value:0] == nil;
+    }]];
 
     if([genericDesktopElements count] > 0)
         NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", [genericDesktopElements count], [deviceDesc product]);
@@ -274,22 +261,19 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
     _OEHIDDeviceElementTree *tree = [[_OEHIDDeviceElementTree alloc] initWithHIDDevice:device];
 
-    NSMutableArray *rootJoysticks = [NSMutableArray array];
-    [tree enumerateChildrenOfElement:nil usingBlock:
-     ^(IOHIDElementRef element, BOOL *stop)
-     {
-         if(IOHIDElementGetUsagePage(element) != kHIDPage_GenericDesktop) return;
+    NSMutableArray<NSValue *> *rootJoysticks = [NSMutableArray array];
+    [tree enumerateChildrenOfElement:nil usingBlock:^(IOHIDElementRef element, BOOL *stop)  {
+        if(IOHIDElementGetUsagePage(element) != kHIDPage_GenericDesktop) return;
 
-         NSUInteger usage = IOHIDElementGetUsage(element);
-         if(usage == kHIDUsage_GD_Joystick || usage == kHIDUsage_GD_GamePad)
-             [rootJoysticks addObject:ELEM_TO_VALUE(element)];
-     }];
+        NSUInteger usage = IOHIDElementGetUsage(element);
+        if(usage == kHIDUsage_GD_Joystick || usage == kHIDUsage_GD_GamePad)
+            [rootJoysticks addObject:ELEM_TO_VALUE(element)];
+    }];
 
     if([rootJoysticks count] == 0)
         return nil;
 
-    if([rootJoysticks count] == 1)
-    {
+    if([rootJoysticks count] == 1) {
         _OEHIDDeviceAttributes *attributes = [[_OEHIDDeviceAttributes alloc] initWithDeviceHandlerClass:[OEHIDDeviceHandler class]];
 
         [self OE_parseJoystickElement:VALUE_TO_ELEM(rootJoysticks[0]) intoControllerDescription:controllerDesc attributes:attributes deviceIdentifier:nil usingElementTree:tree];
@@ -303,11 +287,10 @@ static BOOL OE_isXboxControllerName(NSString *name)
     const NSUInteger subdeviceProductIDBase = [deviceDesc productID] << 32;
     NSUInteger lastDeviceIndex = 0;
 
-    NSMutableDictionary *deviceIdentifiers = [[NSMutableDictionary alloc] initWithCapacity:[rootJoysticks count]];
+    NSMutableDictionary<NSNumber *, OEDeviceDescription *> *deviceIdentifiers = [[NSMutableDictionary alloc] initWithCapacity:[rootJoysticks count]];
 
-    for(id e in rootJoysticks)
-    {
-        id deviceIdentifier = @(++lastDeviceIndex);
+    for(id e in rootJoysticks) {
+        NSNumber *deviceIdentifier = @(++lastDeviceIndex);
         IOHIDElementRef elem = VALUE_TO_ELEM(e);
 
         OEDeviceDescription *subdeviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex product:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier] cookie:IOHIDElementGetCookie(elem)];
@@ -317,7 +300,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
         deviceIdentifiers[deviceIdentifier] = subdeviceDesc;
     }
 
-    [attributes setSubdeviceIdentifiersToDeviceDescriptions:deviceIdentifiers];
+    attributes.subdeviceIdentifiersToDeviceDescriptions = deviceIdentifiers;
 
     return attributes;
 }
@@ -335,70 +318,63 @@ typedef enum {
 {
     BOOL isJoystickCollection = [self OE_isCollectionElement:rootElement joystickCollectionInElementTree:elementTree];
 
-    [elementTree enumerateChildrenOfElement:rootElement usingBlock:
-     ^(IOHIDElementRef element, BOOL *stop)
-     {
-         if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection)
-         {
-             [self OE_enumerateChildrenOfElement:element inElementTree:elementTree usingBlock:block];
-             return;
-         }
+    [elementTree enumerateChildrenOfElement:rootElement usingBlock:^(IOHIDElementRef element, BOOL *stop) {
+        if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection) {
+            [self OE_enumerateChildrenOfElement:element inElementTree:elementTree usingBlock:block];
+            return;
+        }
 
-         switch(OEHIDEventTypeFromIOHIDElement(element))
-         {
-             case OEHIDEventTypeAxis :
-                 if(isJoystickCollection)
-                     block(element, OEParsedTypeGroupedAxis);
-                 else
-                 {
-                     if(IOHIDElementGetLogicalMin(element) >= 0)     block(element, OEParsedTypePositiveAxis);
-                     else if(IOHIDElementGetLogicalMax(element) > 0) block(element, OEParsedTypeSymmetricAxis);
-                 }
-                 break;
-             case OEHIDEventTypeButton :
-                 block(element, OEParsedTypeButton);
-                 break;
-             case OEHIDEventTypeHatSwitch :
-                 block(element, OEParsedTypeHatSwitch);
-                 break;
-             default :
-                 break;
-         }
-     }];
+        switch(OEHIDEventTypeFromIOHIDElement(element)) {
+            case OEHIDEventTypeAxis :
+                if(isJoystickCollection)
+                    block(element, OEParsedTypeGroupedAxis);
+                else if(IOHIDElementGetLogicalMin(element) >= 0)
+                    block(element, OEParsedTypePositiveAxis);
+                else if(IOHIDElementGetLogicalMax(element) > 0)
+                    block(element, OEParsedTypeSymmetricAxis);
+                break;
+            case OEHIDEventTypeButton :
+                block(element, OEParsedTypeButton);
+                break;
+            case OEHIDEventTypeHatSwitch :
+                block(element, OEParsedTypeHatSwitch);
+                break;
+            default :
+                break;
+        }
+    }];
 }
 
 - (BOOL)OE_isCollectionElement:(IOHIDElementRef)rootElement joystickCollectionInElementTree:(_OEHIDDeviceElementTree *)elementTree
 {
     __block NSUInteger axisElementsCount = 0;
-    [elementTree enumerateChildrenOfElement:rootElement usingBlock:
-     ^(IOHIDElementRef element, BOOL *stop)
-     {
-         // Ignore subcollections.
-         if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection) return;
+    [elementTree enumerateChildrenOfElement:rootElement usingBlock:^(IOHIDElementRef element, BOOL *stop) {
+        // Ignore subcollections.
+        if(IOHIDElementGetType(element) == kIOHIDElementTypeCollection)
+            return;
 
-         switch(OEHIDEventTypeFromIOHIDElement(element))
-         {
-             case OEHIDEventTypeAxis :
-                 axisElementsCount++;
-                 break;
-             case OEHIDEventTypeButton :
-             case OEHIDEventTypeHatSwitch :
-                 // If we find a non-axis element, we can just stop the search,
-                 // we will need to sort out the axis types later.
-                 axisElementsCount = 0;
-                 *stop = YES;
-                 break;
-             default:
-                 break;
-         }
-     }];
+        switch(OEHIDEventTypeFromIOHIDElement(element)) {
+            case OEHIDEventTypeAxis :
+                axisElementsCount++;
+                break;
+            case OEHIDEventTypeButton :
+            case OEHIDEventTypeHatSwitch :
+                // If we find a non-axis element, we can just stop the search,
+                // we will need to sort out the axis types later.
+                axisElementsCount = 0;
+                *stop = YES;
+                break;
+            default:
+                break;
+        }
+    }];
 
     // Joysticks go by pairs, 2 by 2 like on the 360 or 4 for all joysticks on PS3.
     // If we don't have an even number just forget it.
     return axisElementsCount != 0 && axisElementsCount % 2 == 0;
 }
 
-- (void)OE_parseJoystickElement:(IOHIDElementRef)rootElement intoControllerDescription:(OEControllerDescription *)desc attributes:(_OEHIDDeviceAttributes *)attributes deviceIdentifier:(id)deviceIdentifier usingElementTree:(_OEHIDDeviceElementTree *)elementTree
+- (void)OE_parseJoystickElement:(IOHIDElementRef)rootElement intoControllerDescription:(OEControllerDescription *)desc attributes:(_OEHIDDeviceAttributes *)attributes deviceIdentifier:(nullable id)deviceIdentifier usingElementTree:(_OEHIDDeviceElementTree *)elementTree
 {
     NSMutableArray *buttonElements      = [NSMutableArray array];
     NSMutableArray *hatSwitchElements   = [NSMutableArray array];
@@ -407,24 +383,31 @@ typedef enum {
     NSMutableArray *posNegAxisElements  = [NSMutableArray array];
     NSMutableArray *posAxisElements     = [NSMutableArray array];
 
-    [self OE_enumerateChildrenOfElement:rootElement inElementTree:elementTree usingBlock:
-     ^(IOHIDElementRef element, OEParsedType parsedType)
-     {
-         id elem = (__bridge id)element;
-         switch(parsedType)
-         {
-             case OEParsedTypeButton        : [buttonElements      addObject:elem]; break;
-             case OEParsedTypeHatSwitch     : [hatSwitchElements   addObject:elem]; break;
-             case OEParsedTypeGroupedAxis   : [groupedAxisElements addObject:elem]; break;
-             case OEParsedTypePositiveAxis  : [posAxisElements     addObject:elem]; break;
-             case OEParsedTypeSymmetricAxis : [posNegAxisElements  addObject:elem]; break;
-             default : break;
-         }
-     }];
+    [self OE_enumerateChildrenOfElement:rootElement inElementTree:elementTree usingBlock:^(IOHIDElementRef element, OEParsedType parsedType) {
+        id elem = (__bridge id)element;
+        switch(parsedType) {
+            case OEParsedTypeButton :
+                [buttonElements addObject:elem];
+                break;
+            case OEParsedTypeHatSwitch :
+                [hatSwitchElements addObject:elem];
+                break;
+            case OEParsedTypeGroupedAxis :
+                [groupedAxisElements addObject:elem];
+                break;
+            case OEParsedTypePositiveAxis :
+                [posAxisElements addObject:elem];
+                break;
+            case OEParsedTypeSymmetricAxis :
+                [posNegAxisElements addObject:elem];
+                break;
+            default :
+                break;
+        }
+    }];
 
     // Setup HatSwitch element attributes and create a control in the controller description.
-    for(id e in hatSwitchElements)
-    {
+    for(id e in hatSwitchElements) {
         IOHIDElementRef elem = ELEM(e);
 
         NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -436,34 +419,31 @@ typedef enum {
         [attributes applyAttributesToElement:elem];
 
         OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
-        if(genericEvent != nil) [desc addControlWithIdentifier:nil name:nil event:genericEvent];
+        if(genericEvent != nil)
+            [desc addControlWithIdentifier:nil name:nil event:genericEvent];
     }
 
     // Setup events that only have the device identifier as attribute.
-    void(^setUpControlsInArray)(NSArray *) =
-    ^(NSArray *elements)
-    {
-        for(id e in elements)
-        {
+    void(^setUpControlsInArray)(NSArray *) = ^(NSArray *elements) {
+        for(id e in elements) {
             IOHIDElementRef elem = ELEM(e);
             OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
-            if(genericEvent == nil) continue;
+            if(genericEvent == nil)
+                continue;
 
-            if(deviceIdentifier != nil)
-            {
+            if(deviceIdentifier != nil) {
                 [attributes setAttributes:@{ @kOEHIDElementDeviceIdentifierKey : deviceIdentifier } forElementCookie:IOHIDElementGetCookie(elem)];
                 [attributes applyAttributesToElement:elem];
             }
+
             [desc addControlWithIdentifier:nil name:nil event:genericEvent];
         }
     };
 
     // We assume that axis events that have only positive values when
     // other axis are grouped or have positive and negative values.
-    if(([posNegAxisElements count] + [groupedAxisElements count]) != 0 && [posAxisElements count] != 0)
-    {
-        for(id e in posAxisElements)
-        {
+    if(([posNegAxisElements count] + [groupedAxisElements count]) != 0 && [posAxisElements count] != 0) {
+        for(id e in posAxisElements) {
             IOHIDElementRef elem = ELEM(e);
 
             NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -477,8 +457,8 @@ typedef enum {
             OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
             if(genericEvent != nil) [desc addControlWithIdentifier:nil name:nil event:genericEvent];
         }
-    }
-    else setUpControlsInArray(posAxisElements);
+    } else
+        setUpControlsInArray(posAxisElements);
 
     setUpControlsInArray(buttonElements);
     setUpControlsInArray(groupedAxisElements);
@@ -489,27 +469,30 @@ typedef enum {
 {
     NSInteger count = IOHIDElementGetLogicalMax(element) - IOHIDElementGetLogicalMin(element) + 1;
     OEHIDEventHatSwitchType type = OEHIDEventHatSwitchTypeUnknown;
-    switch(count)
-    {
-        case 4 : type = OEHIDEventHatSwitchType4Ways; break;
-        case 8 : type = OEHIDEventHatSwitchType8Ways; break;
+    switch(count) {
+        case 4 :
+            type = OEHIDEventHatSwitchType4Ways;
+            break;
+        case 8 :
+            type = OEHIDEventHatSwitchType8Ways;
+            break;
     }
+
     return type;
 }
 
 @end
 
-@implementation _OEHIDDeviceAttributes
-{
-    NSMutableDictionary *_elementAttributes;
+@implementation _OEHIDDeviceAttributes {
+    NSMutableDictionary<NSNumber *, NSDictionary<NSString *, id> *> *_elementAttributes;
 }
 
-- (id)init
+- (instancetype)init
 {
     return nil;
 }
 
-- (id)initWithDeviceHandlerClass:(Class)handlerClass;
+- (instancetype)initWithDeviceHandlerClass:(Class)handlerClass;
 {
     if((self = [super init]))
     {
@@ -521,13 +504,11 @@ typedef enum {
 
 - (void)applyAttributesToDevice:(IOHIDDeviceRef)device
 {
-    [_elementAttributes enumerateKeysAndObjectsUsingBlock:
-     ^(NSNumber *cookie, NSDictionary *attributes, BOOL *stop)
-     {
-         NSArray *elements = (__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementCookieKey : cookie }, 0);
-         NSAssert(elements.count == 1, @"There should be only one element attached to a given cookie.");
-         [self _applyAttributes:attributes toElement:(__bridge IOHIDElementRef)elements[0]];
-     }];
+    [_elementAttributes enumerateKeysAndObjectsUsingBlock:^(NSNumber *cookie, NSDictionary<NSString *, id> *attributes, BOOL *stop) {
+        NSArray *elements = (__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementCookieKey : cookie }, 0);
+        NSAssert(elements.count == 1, @"There should be only one element attached to a given cookie.");
+        [self _applyAttributes:attributes toElement:(__bridge IOHIDElementRef)elements[0]];
+    }];
 }
 - (void)applyAttributesToElement:(IOHIDElementRef)element;
 {
@@ -536,25 +517,22 @@ typedef enum {
 
 - (void)_applyAttributes:(NSDictionary *)attributes toElement:(IOHIDElementRef)element;
 {
-    [attributes enumerateKeysAndObjectsUsingBlock:
-     ^(NSString *key, id attribute, BOOL *stop)
-     {
-         IOHIDElementSetProperty(element, (__bridge CFStringRef)key, (__bridge CFTypeRef)attribute);
-     }];
+    [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, id attribute, BOOL *stop) {
+        IOHIDElementSetProperty(element, (__bridge CFStringRef)key, (__bridge CFTypeRef)attribute);
+    }];
 }
 
-- (void)setAttributes:(NSDictionary *)attributes forElementCookie:(NSUInteger)cookie;
+- (void)setAttributes:(NSDictionary<NSString *, id> *)attributes forElementCookie:(NSUInteger)cookie;
 {
     _elementAttributes[@(cookie)] = [attributes copy];
 }
 
 @end
 
-@implementation _OEHIDDeviceElementTree
-{
+@implementation _OEHIDDeviceElementTree {
     IOHIDDeviceRef _device;
     CFArrayRef _elements;
-    NSDictionary *_elementTree;
+    NSDictionary<NSValue *, NSValue *> *_elementTree;
 }
 
 - (void)dealloc
@@ -563,41 +541,39 @@ typedef enum {
     CFRelease(_elements);
 }
 
-- (id)init
+- (instancetype)init
 {
     return nil;
 }
 
-- (id)initWithHIDDevice:(IOHIDDeviceRef)device;
+- (instancetype)initWithHIDDevice:(IOHIDDeviceRef)device;
 {
-    if((self = [super init]))
-    {
-        _device = (IOHIDDeviceRef)CFRetain(device);
-        _elements = IOHIDDeviceCopyMatchingElements(_device, NULL, 0);
+    if(!(self = [super init]))
+        return nil;
 
-        NSMutableDictionary *elementTree = [NSMutableDictionary dictionary];
-        for(id e in (__bridge NSArray *)_elements)
-        {
-            IOHIDElementRef elem = ELEM(e);
-            IOHIDElementRef parent = IOHIDElementGetParent(elem);
+    _device = (IOHIDDeviceRef)CFRetain(device);
+    _elements = IOHIDDeviceCopyMatchingElements(_device, NULL, 0);
 
-            elementTree[ELEM_TO_VALUE(elem)] = ELEM_TO_VALUE(parent);
-        }
-        
-        _elementTree = [elementTree copy];
+    NSMutableDictionary<NSValue *, NSValue *> *elementTree = [NSMutableDictionary dictionary];
+    for(id e in (__bridge NSArray *)_elements) {
+        IOHIDElementRef elem = ELEM(e);
+        IOHIDElementRef parent = IOHIDElementGetParent(elem);
+
+        elementTree[ELEM_TO_VALUE(elem)] = ELEM_TO_VALUE(parent);
     }
+
+    _elementTree = [elementTree copy];
+
     return self;
 }
 
-- (NSArray *)childrenOfElement:(IOHIDElementRef)element
+- (NSArray<NSValue *> *)childrenOfElement:(IOHIDElementRef)element
 {
-    NSArray *children = [_elementTree allKeysForObject:ELEM_TO_VALUE(element)];
+    NSArray<NSValue *> *children = [_elementTree allKeysForObject:ELEM_TO_VALUE(element)];
 
-    return [children sortedArrayUsingComparator:
-            ^ NSComparisonResult (id obj1, id obj2)
-            {
-                return [@(IOHIDElementGetCookie(VALUE_TO_ELEM(obj1))) compare:@(IOHIDElementGetCookie(VALUE_TO_ELEM(obj2)))];
-            }];
+    return [children sortedArrayUsingComparator:^NSComparisonResult (NSValue *obj1, NSValue *obj2) {
+        return [@(IOHIDElementGetCookie(VALUE_TO_ELEM(obj1))) compare:@(IOHIDElementGetCookie(VALUE_TO_ELEM(obj2)))];
+    }];
 }
 
 - (NSUInteger)numberOfChildrenOfElement:(IOHIDElementRef)element;
@@ -605,25 +581,23 @@ typedef enum {
     return [[_elementTree allKeysForObject:ELEM_TO_VALUE(element)] count];
 }
 
-- (void)enumerateChildrenOfElement:(IOHIDElementRef)element usingBlock:(void(^)(IOHIDElementRef element, BOOL *stop))block;
+- (void)enumerateChildrenOfElement:(nullable IOHIDElementRef)element usingBlock:(void(^)(IOHIDElementRef element, BOOL *stop))block;
 {
-    [[self childrenOfElement:element] enumerateObjectsUsingBlock:
-     ^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         block(VALUE_TO_ELEM(obj), stop);
-     }];
+    [[self childrenOfElement:element] enumerateObjectsUsingBlock:^(NSValue *obj, NSUInteger idx, BOOL *stop) {
+        block(VALUE_TO_ELEM(obj), stop);
+    }];
 }
 
 - (NSString *)description
 {
     NSMutableString *string = [NSMutableString stringWithFormat:@"<%@ %p {\n", [self class], self];
-    [_elementTree enumerateKeysAndObjectsUsingBlock:
-     ^(NSValue *key, NSValue *obj, BOOL *stop)
-     {
-         [string appendFormat:@"\t%p --> %p\n", [obj pointerValue], [key pointerValue]];
-     }];
+    [_elementTree enumerateKeysAndObjectsUsingBlock:^(NSValue *key, NSValue *obj, BOOL *stop) {
+        [string appendFormat:@"\t%p --> %p\n", [obj pointerValue], [key pointerValue]];
+    }];
     [string appendString:@"}>"];
     return string;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

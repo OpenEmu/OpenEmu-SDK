@@ -30,6 +30,8 @@
 #import <OpenEmuSystem/OEKeyBindingDescription.h>
 #import <OpenEmuSystem/OESystemBindings.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class    OEEvent;
 @class    OESystemController;
 @protocol OESystemResponderClient;
@@ -37,8 +39,8 @@
 
 @interface OESystemResponder : NSResponder
 
-// Designated initializer
-- (id)initWithController:(OESystemController *)controller;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithController:(OESystemController *)controller NS_DESIGNATED_INITIALIZER;
 
 @property(strong, readonly) OESystemController *controller;
 @property(weak, nonatomic) id<OESystemResponderClient> client;
@@ -87,3 +89,5 @@
 - (void)toggleEmulationPaused:(id)sender;
 - (void)takeScreenshot:(id)sender;
 @end
+
+NS_ASSUME_NONNULL_END

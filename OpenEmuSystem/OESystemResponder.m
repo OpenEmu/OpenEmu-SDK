@@ -36,6 +36,8 @@
 #import <OpenEmuBase/OpenEmuBase.h>
 #import <objc/runtime.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
 
 typedef enum : NSUInteger {
@@ -44,6 +46,9 @@ typedef enum : NSUInteger {
     OEAxisSystemKeyTypeJointAnalog    = 2,
 } OEAxisSystemKeyType;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
+
 @implementation OESystemResponder
 {
     CFMutableDictionaryRef _joystickStates;
@@ -51,12 +56,12 @@ typedef enum : NSUInteger {
     BOOL                   _handlesEscapeKey;
 }
 
-- (id)init
+- (instancetype)init
 {
-    return [self initWithController:nil];
+    return nil;
 }
 
-- (id)initWithController:(OESystemController *)controller;
+- (instancetype)initWithController:(OESystemController *)controller;
 {
     if((self = [super init]))
     {
@@ -80,7 +85,7 @@ typedef enum : NSUInteger {
     return @protocol(OESystemResponderClient);
 }
 
-- (void)setClient:(id<OESystemResponderClient>)value;
+- (void)setClient:(nullable id<OESystemResponderClient>)value;
 {
     if(_client != value)
     {
@@ -246,7 +251,6 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
             SEND_ACTION(takeScreenshot:);
             return;
 
-        //case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierSlowMotion :
             NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
@@ -330,7 +334,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
     
 }
 
-static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
+static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 {
     NSUInteger ret = [[anEvent deviceHandler] deviceIdentifier];
 
@@ -338,7 +342,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     {
         case OEHIDEventTypeAxis      : ret |= [anEvent axis] << 32; break;
         case OEHIDEventTypeHatSwitch : ret |=         0x39lu << 32; break;
-        default : return NULL;
+        default : NSCAssert(NO, @"Wrong type");
     }
 
     return (void *)ret;
@@ -645,3 +649,7 @@ static void *_OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 }
 
 @end
+
+#pragma clang diagnostic pop
+
+NS_ASSUME_NONNULL_END

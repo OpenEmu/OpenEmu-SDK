@@ -31,10 +31,11 @@
 #import "OEDeviceHandler.h"
 #import "OEHIDEvent.h"
 
-@implementation OEPlayerBindings
-{
-    NSMutableDictionary *_bindingDescriptions;
-    NSMutableDictionary *_bindingEvents;
+NS_ASSUME_NONNULL_BEGIN
+
+@implementation OEPlayerBindings {
+    NSMutableDictionary<NSString *, NSString *> *_bindingDescriptions;
+    NSMutableDictionary<id, OEHIDEvent *> *_bindingEvents;
 }
 
 @synthesize systemBindingsController, playerNumber;
@@ -56,12 +57,12 @@
     return self;
 }
 
-- (NSDictionary *)bindingDescriptions
+- (NSDictionary<NSString *, NSString *> *)bindingDescriptions
 {
     return _bindingDescriptions;
 }
 
-- (void)OE_setBindingDescriptions:(NSDictionary *)value
+- (void)OE_setBindingDescriptions:(NSDictionary<NSString *, NSString *> *)value
 {
     if(_bindingDescriptions != value)
     {
@@ -82,14 +83,14 @@
     }
 }
 
-- (id)valueForKey:(NSString *)key
+- (nullable id)valueForKey:(NSString *)key
 {
     if([key hasPrefix:@"@"]) return [super valueForKey:[key substringFromIndex:1]];
     
     return [[self bindingDescriptions] objectForKey:key];
 }
 
-- (id)assignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)aKeyName;
+- (nullable id)assignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)aKeyName;
 {
     return anEvent != nil ? [[self systemBindingsController] OE_playerBindings:self didAssignEvent:anEvent toKeyWithName:aKeyName] : nil;
 }
@@ -99,7 +100,7 @@
     [[self systemBindingsController] OE_playerBindings:self didRemoveEventForKeyWithName:aKeyName];
 }
 
-- (void)setValue:(id)value forKey:(NSString *)key
+- (void)setValue:(nullable id)value forKey:(NSString *)key
 {
     if([key hasPrefix:@"@"]) return [super setValue:value forKey:[key substringFromIndex:1]];
 }
@@ -109,13 +110,15 @@
     return [[self bindingDescriptions] objectForKey:aKey];
 }
 
-- (void)OE_setBindingDescription:(id)value forKey:(NSString *)aKey;
+- (void)OE_setBindingDescription:(nullable NSString *)value forKey:(NSString *)aKey;
 {
     [self willChangeValueForKey:@"bindingDescriptions"];
     [self willChangeValueForKey:aKey];
     
-    if(value == nil) [_bindingDescriptions removeObjectForKey:aKey];
-    else             [_bindingDescriptions setObject:value forKey:aKey];
+    if(value == nil)
+        [_bindingDescriptions removeObjectForKey:aKey];
+    else
+        [_bindingDescriptions setObject:value forKey:aKey];
     
     [self didChangeValueForKey:aKey];
     [self didChangeValueForKey:@"bindingDescriptions"];
@@ -126,12 +129,14 @@
     return [[self bindingEvents] objectForKey:aKey];
 }
 
-- (void)OE_setBindingEvent:(id)value forKey:(id)aKey;
+- (void)OE_setBindingEvent:(nullable id)value forKey:(id)aKey;
 {
     [self willChangeValueForKey:@"bindingEvents"];
     
-    if(value == nil) [_bindingEvents removeObjectForKey:aKey];
-    else             [_bindingEvents setObject:value forKey:aKey];
+    if(value == nil)
+        [_bindingEvents removeObjectForKey:aKey];
+    else
+        [_bindingEvents setObject:value forKey:aKey];
     
     [self didChangeValueForKey:@"bindingEvents"];
 }
@@ -144,6 +149,7 @@
 @end
 
 @implementation OEKeyboardPlayerBindings
+@dynamic bindingEvents;
 @end
 
 @interface OEDevicePlayerBindings ()
@@ -155,7 +161,7 @@
 // If originalBindingsController then self is changed
 // If self is changed then originalBindingsController will become nil
 // and self will manage its own configuration
-@property(nonatomic, getter=OE_originalBindingsController, setter=OE_setOriginalBindingsController:) OEDevicePlayerBindings *originalBindingsController;
+@property(nonatomic, nullable, getter=OE_originalBindingsController, setter=OE_setOriginalBindingsController:) OEDevicePlayerBindings *originalBindingsController;
 
 - (void)OE_devicePlayerBindingsDidBecomeIndependent:(OEDevicePlayerBindings *)bindings;
 
@@ -164,18 +170,18 @@
 static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDevicePlayerBindingOriginalBindingsObserver;
 
 @implementation OEDevicePlayerBindings
-@synthesize deviceHandler;
+@dynamic bindingEvents;
 
 - (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber
 {
     return [self OE_initWithSystemBindings:aController playerNumber:playerNumber deviceHandler:nil];
 }
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(OEDeviceHandler *)handler;
+- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler;
 {
     if((self = [super OE_initWithSystemBindings:aController playerNumber:playerNumber]))
     {
-        deviceHandler = handler;
+        _deviceHandler = handler;
     }
     
     return self;
@@ -223,14 +229,14 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
     if([dependentBindings count] == 0) dependentBindings = nil;
 }
 
-- (void)OE_setBindingDescription:(id)value forKey:(NSString *)aKey;
+- (void)OE_setBindingDescription:(nullable id)value forKey:(NSString *)aKey;
 {
     NSAssert(_originalBindingsController == nil, @"Cannot set bindings when %@ is dependent on %@", self, _originalBindingsController);
     
     [super OE_setBindingDescription:value forKey:aKey];
 }
 
-- (void)OE_setBindingEvent:(id)value forKey:(NSString *)aKey;
+- (void)OE_setBindingEvent:(nullable id)value forKey:(NSString *)aKey;
 {
     NSAssert(_originalBindingsController == nil, @"Cannot set raw bindings when %@ is dependent on %@", self, _originalBindingsController);
     
@@ -249,23 +255,18 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
     [super OE_setBindingDescriptions:value];
 }
 
-- (OEDeviceHandler *)deviceHandler
+- (void)OE_setDeviceHandler:(nullable OEDeviceHandler *)value
 {
-    return deviceHandler;
-}
+    if(_deviceHandler == value)
+        return;
 
-- (void)OE_setDeviceHandler:(OEDeviceHandler *)value
-{
-    if(deviceHandler != value)
-    {
-        if(deviceHandler != nil && value != nil)
-            NSLog(@"ERROR: Something fishy is happening here, %@ received handler %@, when handler %@ was already set.", self, deviceHandler, value);
-        
-        deviceHandler = value;
-        
-        // Forces bindings to be set to a specific device
-        [self OE_setBindingEvents:[self bindingEvents]];
-    }
+    if(_deviceHandler != nil && value != nil)
+        NSLog(@"ERROR: Something fishy is happening here, %@ received handler %@, when handler %@ was already set.", self, _deviceHandler, value);
+
+    _deviceHandler = value;
+
+    // Forces bindings to be set to a specific device
+    [self OE_setBindingEvents:[self bindingEvents]];
 }
 
 - (NSDictionary *)bindingEvents
@@ -273,7 +274,7 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
     return _originalBindingsController != nil ? [_originalBindingsController bindingEvents] : [super bindingEvents];
 }
 
-- (void)OE_setBindingEvents:(NSDictionary *)value
+- (void)OE_setBindingEvents:(NSDictionary<id, OEControlValueDescription *> *)value
 {
     NSAssert(_originalBindingsController == nil, @"Cannot set raw bindings when %@ is dependent on %@", self, _originalBindingsController);
     [super OE_setBindingEvents:value];
@@ -294,3 +295,5 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

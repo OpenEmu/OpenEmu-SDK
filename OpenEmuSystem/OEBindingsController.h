@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class OESystemController, OEDeviceHandler, OESystemBindings, OEPlayerBindings;
 
 /// Manages all bindings for all systems available
@@ -39,14 +41,14 @@
 
 + (OEBindingsController *)defaultBindingsController;
 
-+ (OEBindingsController *)bindingsControllerWithConfigurationName:(NSString *)aName;
-- (id)initWithConfigurationName:(NSString *)aName;
++ (OEBindingsController *)bindingsControllerWithConfigurationName:(nullable NSString *)aName;
+- (instancetype)initWithConfigurationName:(nullable NSString *)aName;
 
 @property(readonly) NSString *configurationName;
 
 - (NSString *)filePath;
 
-@property(readonly, copy) NSArray *systemBindings;
+@property(readonly, copy) NSArray<OESystemBindings *> *systemBindings;
 
 - (OESystemBindings *)systemBindingsForSystemIdentifier:(NSString *)systemIdentifier;
 - (OESystemBindings *)systemBindingsForSystemController:(OESystemController *)systemController;
@@ -54,3 +56,5 @@
 - (BOOL)synchronize;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -25,7 +25,9 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "OEDeviceHandler.h"
+#import <OpenEmuSystem/OEDeviceHandler.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @protocol OEHIDDeviceParser;
 
@@ -33,7 +35,8 @@
 
 + (id<OEHIDDeviceParser>)deviceParser;
 
-- (id)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(OEDeviceDescription *)deviceDescription;
+- (instancetype)initWithDeviceDescription:(nullable OEDeviceDescription *)deviceDescription NS_UNAVAILABLE;
+- (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription NS_DESIGNATED_INITIALIZER;
 
 @property(readonly) IOHIDDeviceRef device;
 
@@ -55,3 +58,5 @@
 @protocol OEHIDDeviceParser <NSObject>
 - (OEHIDDeviceHandler *)deviceHandlerForIOHIDDevice:(IOHIDDeviceRef)aDevice;
 @end
+
+NS_ASSUME_NONNULL_END

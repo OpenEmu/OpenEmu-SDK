@@ -28,6 +28,8 @@
 #import "OEKeyBindingGroupDescription.h"
 #import "OEBindingDescription_Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 {
     NSString *ret = @"<invalid>";
@@ -50,16 +52,16 @@ static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyB
 
 @implementation OEKeyBindingGroupDescription
 {
-    NSMutableDictionary     *_orientedGroups;
+    NSMutableDictionary<OEKeyBindingDescription *, OEOrientedKeyGroupBindingDescription *> *_orientedGroups;
     OEKeyBindingDescription *_axisKeys[2];
 }
 
-- (instancetype)initWithSystemController:(OESystemController *)systemController
+- (instancetype)initWithSystemController:(nullable OESystemController *)systemController
 {
     return nil;
 }
 
-- (instancetype)initWithSystemController:(OESystemController *)systemController groupType:(OEKeyGroupType)aType keys:(NSArray *)groupedKeys
+- (instancetype)initWithSystemController:(nullable OESystemController *)systemController groupType:(OEKeyGroupType)aType keys:(NSArray *)groupedKeys
 {
     if(aType != OEKeyGroupTypeAxis && aType != OEKeyGroupTypeHatSwitch) return nil;
 
@@ -75,14 +77,14 @@ static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyB
                                               ? @selector(OE_setAxisGroup:)
                                               : @selector(OE_setHatSwitchGroup:))
                                   withObject:self];
-        
+
         if(_type == OEKeyGroupTypeAxis)
         {
-            _axisKeys[0] = [groupedKeys objectAtIndex:0];
-            _axisKeys[1] = [groupedKeys objectAtIndex:1];
+            _axisKeys[0] = groupedKeys[0];
+            _axisKeys[1] = groupedKeys[1];
         }
     }
-    
+
     return self;
 }
 
@@ -105,7 +107,7 @@ static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyB
     [aCoder encodeObject:_groupIdentifier forKey:OEKeyBindingGroupDescriptionGroupIdentifierKey];
 }
 
-- (NSArray *)keyNames
+- (NSArray<NSString *> *)keyNames
 {
     return [_keys valueForKey:@"name"];
 }
@@ -150,12 +152,12 @@ static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyB
 {
     NSAssert([_keys containsObject:aKey], @"The base key must belong to the key group.");
     
-    OEOrientedKeyGroupBindingDescription *ret = [_orientedGroups objectForKey:aKey];
+    OEOrientedKeyGroupBindingDescription *ret = _orientedGroups[aKey];
     
     if(ret == nil)
     {
         ret = [[OEOrientedKeyGroupBindingDescription alloc] OE_initWithParentKeyGroup:self baseKey:aKey];
-        [_orientedGroups setObject:ret forKey:aKey];
+        _orientedGroups[aKey] = ret;
     }
     
     return ret;
@@ -219,7 +221,7 @@ static NSString *const OEOrientedKeyGroupBindingDescriptionBaseKeyKey = @"OEOrie
     if((self = [super initWithSystemController:parent.systemController groupType:parent.type keys:parent.keys]))
     {
         _parentKeyGroup = parent;
-        _baseKey        = base;
+        _baseKey = base;
     }
     
     return self;
@@ -292,3 +294,5 @@ static NSString *const OEOrientedKeyGroupBindingDescriptionBaseKeyKey = @"OEOrie
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

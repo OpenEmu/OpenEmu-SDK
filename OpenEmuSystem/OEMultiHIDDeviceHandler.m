@@ -28,31 +28,30 @@
 #import "OEDeviceDescription.h"
 #import "OEControllerDescription.h"
 
-@implementation OEMultiHIDDeviceHandler
-{
-    NSDictionary *_subdeviceHandlers;
+NS_ASSUME_NONNULL_BEGIN
+
+@implementation OEMultiHIDDeviceHandler {
+    NSDictionary<NSNumber *, OEHIDSubdeviceHandler *> *_subdeviceHandlers;
 }
 
-- (id)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceDescriptions:(NSDictionary *)descriptions;
+- (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceDescriptions:(NSDictionary<NSNumber *, OEDeviceDescription *> *)descriptions;
 {
-    if((self = [super initWithIOHIDDevice:aDevice deviceDescription:deviceDescription]))
-    {
+    if((self = [super initWithIOHIDDevice:aDevice deviceDescription:deviceDescription])) {
         _subdeviceDescriptions = descriptions;
 
         NSMutableDictionary *subhandlers = [[NSMutableDictionary alloc] initWithCapacity:[_subdeviceDescriptions count]];
 
-        [_subdeviceDescriptions enumerateKeysAndObjectsUsingBlock:
-         ^(id key, OEDeviceDescription *desc, BOOL *stop) {
-             OEHIDSubdeviceHandler *subhandler = [[OEHIDSubdeviceHandler alloc] initWithParentDeviceHandler:self deviceDescription:desc subdeviceIdentifier:key];
-             subhandlers[key] = subhandler;
-         }];
+        [_subdeviceDescriptions enumerateKeysAndObjectsUsingBlock:^(NSNumber *key, OEDeviceDescription *desc, BOOL *stop) {
+            OEHIDSubdeviceHandler *subhandler = [[OEHIDSubdeviceHandler alloc] initWithParentDeviceHandler:self deviceDescription:desc subdeviceIdentifier:key];
+            subhandlers[key] = subhandler;
+        }];
 
         _subdeviceHandlers = [subhandlers copy];
     }
     return self;
 }
 
-- (NSArray *)subdeviceHandlers
+- (NSArray<OEHIDSubdeviceHandler *> *)subdeviceHandlers
 {
     return [_subdeviceHandlers allValues];
 }
@@ -72,13 +71,13 @@
 
 @implementation OEHIDSubdeviceHandler
 
-- (id)initWithParentDeviceHandler:(OEMultiHIDDeviceHandler *)parentHandler deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceIdentifier:(id)identifier;
+- (instancetype)initWithParentDeviceHandler:(OEMultiHIDDeviceHandler *)parentHandler deviceDescription:(OEDeviceDescription *)deviceDescription subdeviceIdentifier:(id)identifier;
 {
-    if((self = [super initWithDeviceDescription:deviceDescription]))
-    {
+    if((self = [super initWithDeviceDescription:deviceDescription])) {
         _parentDeviceHandler = parentHandler;
         _subdeviceIdentifier = identifier;
     }
+
     return self;
 }
 
@@ -88,3 +87,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

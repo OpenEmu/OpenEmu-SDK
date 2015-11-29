@@ -29,6 +29,8 @@
 #import "OEHIDEvent.h"
 #import "OEControllerDescription_Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 NSString *const OEWiimoteDeviceHandlerDidDisconnectNotification = @"OEWiimoteDeviceHandlerDidDisconnectNotification";
 
 @interface OEHIDEvent ()
@@ -254,59 +256,6 @@ static void _OEWiimoteIdentifierEnumerateUsingBlock(NSRange range, void(^block)(
 }
 
 @interface OEWiimoteHIDDeviceHandler ()
-{
-    uint8_t                       _reportBuffer[128];
-    OEWiimoteExpansionType        _expansionType;
-    OEExpansionInitializationStep _expansionInitilization;
-    struct {
-        uint16_t wiimote;
-        uint8_t  nunchuck;
-        uint8_t  nunchuckVirtualJoystick;
-        uint16_t classicController;
-        uint32_t proController;
-    } _latestButtonReports;
-
-    BOOL       _statusReportRequested;
-    BOOL       _isConnected;
-    uint8_t    _batteryLevel;   // value from 0-4
-    BOOL       _charging;
-    BOOL       _pluggedIn;
-    BOOL       _analogSettled;  // Allows short delay before events are issued; fixes Issue 544
-}
-
-@property(readwrite) BOOL lowBatteryWarning;
-
-- (void)OE_writeData:(const uint8_t *)data length:(NSUInteger)length atAddress:(uint32_t)address;
-- (void)OE_readDataOfLength:(NSUInteger)length atAddress:(uint32_t)address;
-- (void)OE_sendCommandWithData:(const uint8_t *)data length:(NSUInteger)length;
-
-- (void)OE_handleStatusReportData:(const uint8_t *)response length:(NSUInteger)length;
-- (void)OE_handleDataReportData:(const uint8_t *)response length:(NSUInteger)length;
-- (void)OE_handleWriteResponseData:(const uint8_t *)response length:(NSUInteger)length;
-- (void)OE_handleReadResponseData:(const uint8_t *)response length:(NSUInteger)length;
-
-- (void)OE_handleExpansionReportData:(const uint8_t *)data length:(NSUInteger)length;
-
-- (void)OE_requestStatus;
-- (void)OE_readExpansionPortType;
-- (void)OE_configureReportType;
-- (void)OE_synchronizeRumbleAndLEDStatus;
-- (void)OE_checkBatteryLevel;
-
-- (void)OE_parseWiimoteButtonData:(uint16_t)data;
-
-- (void)OE_parseNunchuckButtonData:(uint8_t)data;
-- (void)OE_parseNunchuckJoystickXData:(uint8_t)xData yData:(uint8_t)yData;
-
-- (void)OE_parseClassicControllerButtonData:(uint16_t)data;
-- (void)OE_parseClassicControllerJoystickAndTriggerData:(const uint8_t *)data;
-
-- (void)OE_parseProControllerButtonData:(uint32_t)data;
-- (void)OE_parseProControllerJoystickData:(const uint8_t *)data;
-
-- (void)OE_dispatchButtonEventWithUsage:(NSUInteger)usage state:(OEHIDEventState)state timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
-- (void)OE_dispatchAxisEventWithAxis:(OEHIDEventAxis)axis minimum:(NSInteger)minimum value:(NSInteger)value maximum:(NSInteger)maximum timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
-- (void)OE_dispatchTriggerEventWithAxis:(OEHIDEventAxis)axis value:(NSInteger)value maximum:(NSInteger)maximum timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
 - (void)readReportData:(void*)dataPointer length:(size_t)dataLength;
 @end
 
@@ -324,7 +273,29 @@ static void OE_wiimoteIOHIDReportCallback(void            *context,
 @interface OEWiimoteHIDDeviceParser : NSObject <OEHIDDeviceParser>
 @end
 
-@implementation OEWiimoteHIDDeviceHandler
+@implementation OEWiimoteHIDDeviceHandler {
+    uint8_t _reportBuffer[128];
+    OEWiimoteExpansionType _expansionType;
+    OEExpansionInitializationStep _expansionInitilization;
+    struct {
+        uint16_t wiimote;
+        uint8_t  nunchuck;
+        uint8_t  nunchuckVirtualJoystick;
+        uint16_t classicController;
+        uint32_t proController;
+    } _latestButtonReports;
+
+    BOOL _statusReportRequested;
+    BOOL _isConnected;
+
+    // Value from 0-4.
+    uint8_t _batteryLevel;
+    BOOL _charging;
+    BOOL _pluggedIn;
+
+    // Allows short delay before events are issued; fixes Issue #544.
+    BOOL _analogSettled;
+}
 
 + (id<OEHIDDeviceParser>)deviceParser;
 {
@@ -337,7 +308,7 @@ static void OE_wiimoteIOHIDReportCallback(void            *context,
     return parser;
 }
 
-- (id)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(OEDeviceDescription *)deviceDescription
+- (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription
 {
     if((self = [super initWithIOHIDDevice:aDevice deviceDescription:deviceDescription]))
     {
@@ -981,3 +952,5 @@ enum {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

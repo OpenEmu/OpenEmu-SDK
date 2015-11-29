@@ -8,6 +8,10 @@
 
 #import "OEHIDDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEPS3HIDDeviceHandler : OEHIDDeviceHandler
 
 @end
+
+NS_ASSUME_NONNULL_END

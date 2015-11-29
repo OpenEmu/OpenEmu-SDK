@@ -31,13 +31,17 @@
 #import "OESystemBindings.h"
 #import "OEPlayerBindings.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+@class OEControlValueDescription;
+
 @interface OEBindingsController ()
 - (void)OE_setRequiresSynchronization;
 @end
 
 @interface OESystemBindings ()
 
-- (id)OE_initWithBindingsController:(OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithBindingsController:(nullable OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary __attribute__((objc_method_family(init)));
 
 - (NSDictionary *)OE_dictionaryRepresentation;
 
@@ -57,28 +61,40 @@
 
 // Keys:   NSString - All key-name for each existing bindings excluding key groups
 // Values: NSString - String representation of the associated event
-@property(readwrite, copy, setter=OE_setBindingDescriptions:) NSDictionary *bindingDescriptions;
+@property(readwrite, copy, setter=OE_setBindingDescriptions:) NSDictionary<NSString *, NSString *> *bindingDescriptions;
 
 - (id)OE_bindingDescriptionForKey:(NSString *)aKey;
-- (void)OE_setBindingDescription:(id)value forKey:(NSString *)aKey;
+- (void)OE_setBindingDescription:(nullable NSString *)value forKey:(NSString *)aKey;
 
 // Keys:   OEKeyBindingsDescription or OEOrientedKeyGroupBindingDescription - All keys for saved bindings
 // Values: OEHIDEvent - Associated event
-@property(readwrite, copy, setter=OE_setBindingEvents:) NSDictionary *bindingEvents;
+@property(readwrite, copy, setter=OE_setBindingEvents:) NSDictionary<id, OEHIDEvent *> *bindingEvents;
 
 - (id)OE_bindingEventForKey:(id)aKey;
-- (void)OE_setBindingEvent:(id)value forKey:(id)aKey;
+- (void)OE_setBindingEvent:(nullable id)value forKey:(id)aKey;
 
 @end
 
 @interface OEDevicePlayerBindings ()
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(OEDeviceHandler *)handler __attribute__((objc_method_family(init)));
+- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler __attribute__((objc_method_family(init)));
 
 - (id)OE_playerBindingsWithDeviceHandler:(OEDeviceHandler *)aHandler playerNumber:(NSUInteger)aPlayerNumber;
 
 - (void)OE_makeIndependent;
-@property(readwrite, setter=OE_setDeviceHandler:) OEDeviceHandler *deviceHandler;
+@property(readwrite, nullable, nonatomic, setter=OE_setDeviceHandler:) OEDeviceHandler *deviceHandler;
 @property(readonly, getter=OE_isDependent) BOOL _isDependent;
 
 @end
+
+@interface OEDevicePlayerBindings (TypeOverrides)
+- (OEControlValueDescription *)OE_bindingEventForKey:(__kindof OEBindingDescription *)aKey;
+- (void)OE_setBindingEvent:(nullable OEControlValueDescription *)value forKey:(__kindof OEBindingDescription *)aKey;
+@end
+
+@interface OEKeyboardPlayerBindings (TypeOverrides)
+- (OEHIDEvent *)OE_bindingEventForKey:(OEKeyBindingDescription *)aKey;
+- (void)OE_setBindingEvent:(nullable OEHIDEvent *)value forKey:(OEKeyBindingDescription *)aKey;
+@end
+
+NS_ASSUME_NONNULL_END

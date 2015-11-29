@@ -31,6 +31,8 @@
 #import "OEHIDDeviceHandler.h"
 #import "OEControlDescription.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 #if __has_feature(objc_bool)
 #undef YES
 #undef NO
@@ -55,12 +57,12 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 
 @implementation OEDeviceHandler
 
-- (id)init
+- (nullable instancetype)init
 {
     return nil;
 }
 
-- (id)initWithDeviceDescription:(OEDeviceDescription *)deviceDescription
+- (instancetype)initWithDeviceDescription:(nullable OEDeviceDescription *)deviceDescription
 {
     if((self = [super init]))
     {
@@ -73,7 +75,7 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     return self;
 }
 
-- (OEControllerDescription *)controllerDescription
+- (nullable OEControllerDescription *)controllerDescription
 {
     return [[self deviceDescription] controllerDescription];
 }
@@ -83,7 +85,7 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     NSAssert(NO, @"Need to implement the method in a subclass.");
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(nullable NSZone *)zone
 {
     return self;
 }
@@ -230,3 +232,5 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

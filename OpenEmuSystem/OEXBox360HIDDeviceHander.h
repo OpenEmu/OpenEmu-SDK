@@ -8,6 +8,10 @@
 
 #import "OEHIDDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEXBox360HIDDeviceHander : OEHIDDeviceHandler
 
 @end
+
+NS_ASSUME_NONNULL_END

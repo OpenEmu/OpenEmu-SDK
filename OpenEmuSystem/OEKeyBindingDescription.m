@@ -28,6 +28,8 @@
 #import "OEKeyBindingDescription.h"
 #import "OEBindingDescription_Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static NSString *const OEKeyBindingDescriptionNameKey = @"OEKeyBindingDescriptionName";
 
 NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifier)
@@ -130,17 +132,17 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
 
 @implementation OEKeyBindingDescription
 
-- (instancetype)initWithSystemController:(OESystemController *)systemController
+- (instancetype)initWithSystemController:(nullable OESystemController *)systemController
 {
     return nil;
 }
 
-- (instancetype)initWithSystemController:(OESystemController *)systemController name:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide
+- (instancetype)initWithSystemController:(nullable OESystemController *)systemController name:(nullable NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide
 {
     if((self = [super initWithSystemController:systemController]))
     {
-        _name       = [keyName copy];
-        _index      = keyIndex;
+        _name = [keyName copy];
+        _index = keyIndex;
         _systemWide = systemWide;
     }
     
@@ -166,7 +168,7 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
     [aCoder encodeObject:_name forKey:OEKeyBindingDescriptionNameKey];
 }
 
-- (void)OE_setAxisGroup:(OEKeyBindingGroupDescription *)value
+- (void)OE_setAxisGroup:(nullable OEKeyBindingGroupDescription *)value
 {
     NSAssert(_axisGroup == nil, @"Cannot change axisGroup after it was set, attempted to change axisGroup of %@ from %@ to %@.", self, _axisGroup, value);
     
@@ -175,7 +177,7 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
     _axisGroup = value;
 }
 
-- (void)OE_setHatSwitchGroup:(OEKeyBindingGroupDescription *)value
+- (void)OE_setHatSwitchGroup:(nullable OEKeyBindingGroupDescription *)value
 {
     NSAssert(_hatSwitchGroup == nil, @"Cannot change hatSwitchGroup after it was set, attempted to change hatSwitchGroup of %@ from %@ to %@.", self, _hatSwitchGroup, value);
     
@@ -184,12 +186,12 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
     _hatSwitchGroup = value;
 }
 
-- (OEKeyBindingDescription *)oppositeKey
+- (nullable OEKeyBindingDescription *)oppositeKey
 {
     return [_axisGroup oppositeKeyOfKey:self];
 }
 
-- (NSArray *)hatSwitchKeys
+- (nullable NSArray<OEKeyBindingDescription *> *)hatSwitchKeys
 {
     return [_hatSwitchGroup keys];
 }
@@ -219,7 +221,7 @@ static NSString *const OEGlobalKeyBindingDescriptionIdentifierKey = @"OEGlobalKe
 
 @implementation OEGlobalKeyBindingDescription
 
-- (instancetype)initWithSystemController:(OESystemController *)systemController name:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide
+- (instancetype)initWithSystemController:(nullable OESystemController *)systemController name:(nullable NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide
 {
     return nil;
 }
@@ -253,32 +255,32 @@ static NSString *const OEGlobalKeyBindingDescriptionIdentifierKey = @"OEGlobalKe
     [aCoder encodeInteger:_buttonIdentifier forKey:OEGlobalKeyBindingDescriptionIdentifierKey];
 }
 
-- (OEKeyBindingGroupDescription *)OE_axisGroup
+- (nullable OEKeyBindingGroupDescription *)axisGroup
 {
     return nil;
 }
 
-- (void)OE_setAxisGroup:(OEKeyBindingGroupDescription *)value
+- (void)OE_setAxisGroup:(nullable OEKeyBindingGroupDescription *)value
 {
     NSAssert(NO, @"You cannot set an Axis Group on a OEGlobalKeyBindingDescription");
 }
 
-- (OEKeyBindingGroupDescription *)OE_hatSwitchGroup
+- (nullable OEKeyBindingGroupDescription *)hatSwitchGroup
 {
     return nil;
 }
 
-- (void)OE_setHatSwitchGroup:(OEKeyBindingGroupDescription *)_hatSwitchGroup
+- (void)OE_setHatSwitchGroup:(nullable OEKeyBindingGroupDescription *)_hatSwitchGroup
 {
     NSAssert(NO, @"You cannot set an Axis Group on a OEGlobalKeyBindingDescription");
 }
 
-- (NSArray *)hatSwitchKeys
+- (nullable NSArray *)hatSwitchKeys
 {
     return nil;
 }
 
-- (OEKeyBindingDescription *)oppositeKey
+- (nullable OEKeyBindingDescription *)oppositeKey
 {
     return nil;
 }
@@ -328,3 +330,5 @@ static NSString *const OEGlobalKeyBindingDescriptionIdentifierKey = @"OEGlobalKe
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

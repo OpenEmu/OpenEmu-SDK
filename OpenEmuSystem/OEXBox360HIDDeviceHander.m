@@ -8,6 +8,8 @@
 
 #import "OEXBox360HIDDeviceHander.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEDeviceHandler ()
 @property(readwrite) NSUInteger deviceNumber;
 @end
@@ -29,3 +31,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

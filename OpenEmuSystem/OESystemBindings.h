@@ -27,7 +27,10 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol OESystemBindingsObserver;
+@class OEBindingDescription;
 @class OEBindingsController;
 @class OEDeviceHandler;
 @class OEDevicePlayerBindings;
@@ -87,7 +90,9 @@ extern NSString *const OEGlobalButtonScreenshot;
 /// @param event OEHIDEvent object representing the event to watch
 /// @param bindingDescription OEKeyBindingsDescription or OEOrientedKeyGroupBindingDescription object representing the key to trigger for the event
 /// @param playerNumber NSUInteger from 0 to numberOfPlayers included, 0 indicates system bindings
-- (void)systemBindings:(OESystemBindings *)sender didSetEvent:(OEHIDEvent *)event forBinding:(id)bindingDescription playerNumber:(NSUInteger)playerNumber;
-- (void)systemBindings:(OESystemBindings *)sender didUnsetEvent:(OEHIDEvent *)event forBinding:(id)bindingDescription playerNumber:(NSUInteger)playerNumber;
+- (void)systemBindings:(OESystemBindings *)sender didSetEvent:(OEHIDEvent *)event forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber;
+- (void)systemBindings:(OESystemBindings *)sender didUnsetEvent:(OEHIDEvent *)event forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -29,16 +29,25 @@
 #import <IOKit/hid/IOHIDLib.h>
 #import <IOKit/hid/IOHIDUsageTables.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class OEHIDEvent;
 @class OEDeviceHandler;
+
+extern NSString *const OEWiimoteSupportEnabled;
+
+extern NSString *const OEDeviceManagerDidAddDeviceHandlerNotification;
+extern NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification;
+
+extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 
 @interface OEDeviceManager : NSObject
 
 + (OEDeviceManager *)sharedDeviceManager;
 
-@property(readonly) NSArray *deviceHandlers;
-@property(readonly) NSArray *controllerDeviceHandlers;
-@property(readonly) NSArray *keyboardDeviceHandlers;
+@property(readonly) NSArray<OEDeviceHandler *> *deviceHandlers;
+@property(readonly) NSArray<OEDeviceHandler *> *controllerDeviceHandlers;
+@property(readonly) NSArray<OEDeviceHandler *> *keyboardDeviceHandlers;
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;
@@ -47,7 +56,7 @@
 // If the device has not yet been retrieved, this method will return an OEDeviceHandlerPlaceholder that must be resolved manually.
 - (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier;
 
-- (void)deviceHandler:(OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
+- (void)deviceHandler:(nullable OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
 
 - (BOOL)hasEventMonitor;
 
@@ -58,9 +67,4 @@
 
 @end
 
-extern NSString *const OEWiimoteSupportEnabled;
-
-extern NSString *const OEDeviceManagerDidAddDeviceHandlerNotification;
-extern NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification;
-
-extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
+NS_ASSUME_NONNULL_END

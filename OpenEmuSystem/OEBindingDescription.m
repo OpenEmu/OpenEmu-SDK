@@ -10,6 +10,8 @@
 
 #import "OESystemController.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static NSString *const OEBindingDescriptionSystemControllerKey = @"OEBindingDescriptionSystemController";
 
 @implementation OEBindingDescription
@@ -29,7 +31,7 @@ static NSString *const OEBindingDescriptionSystemControllerKey = @"OEBindingDesc
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(nullable NSZone *)zone
 {
     return self;
 }
@@ -39,7 +41,7 @@ static NSString *const OEBindingDescriptionSystemControllerKey = @"OEBindingDesc
     return YES;
 }
 
-- (instancetype)initWithCoder:(NSCoder *)aDecoder
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     if (!(self = [super init]))
         return nil;
@@ -55,3 +57,5 @@ static NSString *const OEBindingDescriptionSystemControllerKey = @"OEBindingDesc
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

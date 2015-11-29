@@ -27,6 +27,8 @@
 #import <Foundation/Foundation.h>
 #import "OEHIDEvent.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class OEControlDescription;
 @class OEControlValueDescription;
 @class OEDeviceHandler;
@@ -50,10 +52,12 @@
 - (OEControlValueDescription *)controlValueDescriptionForIdentifier:(NSString *)controlIdentifier;
 - (OEControlValueDescription *)controlValueDescriptionForValueIdentifier:(NSNumber *)controlValueIdentifier;
 
-- (OEControlDescription *)addControlWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event;
+- (OEControlDescription *)addControlWithIdentifier:(nullable NSString *)identifier name:(nullable NSString *)name event:(OEHIDEvent *)event;
 - (OEControlDescription *)addControlWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event valueRepresentations:(NSDictionary *)valueRepresentations;
 
 @end
 
 OEHIDEventType OEHIDEventTypeFromNSString(NSString *string);
 NSUInteger OEUsageFromUsageStringWithType(NSString *usageString, OEHIDEventType type);
+
+NS_ASSUME_NONNULL_END

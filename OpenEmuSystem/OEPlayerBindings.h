@@ -27,7 +27,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class OESystemBindings, OEDeviceHandler, OEHIDEvent;
+#import <OpenEmuSystem/OEBindingDescription.h>
+#import <OpenEmuSystem/OEKeyBindingDescription.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class OEBindingDescription, OEControlValueDescription, OEKeyBindingDescription, OESystemBindings, OEDeviceHandler, OEHIDEvent;
 
 /// Manages the bindings for a specific player in a system, useful for preferences
 /// Instances of this class are allocated by OESystemBindings
@@ -40,25 +45,29 @@
 // Keys:   NSString - All key-name for each existing bindings excluding key groups
 // Values: NSString - String representation of the associated event
 // There are no key-groups in this case, all keys have their own strings
-@property(readonly, copy) NSDictionary *bindingDescriptions;
+@property(readonly, copy) NSDictionary<NSString *, NSString *> *bindingDescriptions;
 
 // Keys:   OEKeyBindingsDescription or OEOrientedKeyGroupBindingDescription - All keys for saved bindings
-// Values: OEHIDEvent - Associated event
-@property(readonly, copy) NSDictionary *bindingEvents;
+// Values: OEHIDEvent or OEControlValueDescription - Associated event
+@property(readonly, copy) NSDictionary<__kindof OEBindingDescription *, id> *bindingEvents;
 
 /// @param key one of the control keys
 /// @result the event value for the specific type
-- (id)valueForKey:(NSString *)key;
+- (nullable id)valueForKey:(NSString *)key;
 
 /// @result the key or key group that got assigned
-- (id)assignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)aKeyName;
+- (nullable id)assignEvent:(OEHIDEvent *)anEvent toKeyWithName:(NSString *)aKeyName;
 - (void)removeEventForKeyWithName:(NSString *)aKeyName;
 
 @end
 
 @interface OEDevicePlayerBindings : OEPlayerBindings
-@property(readonly) OEDeviceHandler *deviceHandler;
+@property(readonly, nonatomic, nullable) OEDeviceHandler *deviceHandler;
+@property(readonly, copy) NSDictionary<__kindof OEBindingDescription *, OEControlValueDescription *> *bindingEvents;
 @end
 
 @interface OEKeyboardPlayerBindings : OEPlayerBindings
+@property(readonly, copy) NSDictionary<OEKeyBindingDescription *, OEHIDEvent *> *bindingEvents;
 @end
+
+NS_ASSUME_NONNULL_END

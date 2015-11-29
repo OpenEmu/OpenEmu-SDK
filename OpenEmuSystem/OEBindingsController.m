@@ -31,10 +31,12 @@
 #import "OEDeviceManager.h"
 #import "OEDeviceHandler.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OEBindingsController ()
 {
-    NSMutableDictionary *systems;
-    NSMutableDictionary *systemRepresentations;
+    NSMutableDictionary<NSString *, OESystemBindings *> *systems;
+    NSMutableDictionary<NSString *, NSDictionary *> *systemRepresentations;
     
     BOOL requiresSynchronization;
 }
@@ -53,10 +55,10 @@
 @implementation OEBindingsController
 @synthesize configurationName;
 
-static dispatch_queue_t     bindingsControllerQueue  = nil;
-static NSMutableDictionary *bindingsControllers      = nil;
-static NSMutableSet        *systemControllers        = nil;
-static NSString            *configurationsFolderPath = nil;
+static dispatch_queue_t bindingsControllerQueue;
+static NSMutableDictionary<NSString *, OEBindingsController *> *bindingsControllers;
+static NSMutableSet<OESystemController *> *systemControllers;
+static NSString *configurationsFolderPath;
 
 + (void)initialize
 {
@@ -64,8 +66,8 @@ static NSString            *configurationsFolderPath = nil;
     {
         bindingsControllerQueue = dispatch_queue_create("org.openemu.system.OEBindingsController", DISPATCH_QUEUE_SERIAL);
         
-        systemControllers       = [[NSMutableSet alloc] init];
-        bindingsControllers     = [[NSMutableDictionary alloc] initWithCapacity:1];
+        systemControllers = [[NSMutableSet alloc] init];
+        bindingsControllers = [[NSMutableDictionary alloc] initWithCapacity:1];
         
         NSArray  *paths  = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         
@@ -100,7 +102,7 @@ static NSString            *configurationsFolderPath = nil;
     return sharedSystemUserDefaultsController;
 }
 
-+ (OEBindingsController *)bindingsControllerWithConfigurationName:(NSString *)aName;
++ (OEBindingsController *)bindingsControllerWithConfigurationName:(nullable NSString *)aName;
 {
     return [[self alloc] initWithConfigurationName:aName];
 }
@@ -120,7 +122,7 @@ static NSString            *configurationsFolderPath = nil;
     return [self initWithConfigurationName:nil];
 }
 
-- (id)initWithConfigurationName:(NSString *)aName;
+- (id)initWithConfigurationName:(nullable NSString *)aName;
 {
     if([aName length] == 0) aName = @"Default";
     
@@ -214,7 +216,7 @@ static NSString            *configurationsFolderPath = nil;
      * was not yet registered, so we have to save the already registered
      * system controllers but also keep the unregistered ones.
      */
-    NSMutableDictionary *systemReps = [systemRepresentations mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[systems count]];
+    NSMutableDictionary<NSString *, NSDictionary *> *systemReps = [systemRepresentations mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[systems count]];
     
     [systems enumerateKeysAndObjectsUsingBlock:
      ^(NSString *identifier, OESystemBindings *ctrl, BOOL *stop)
@@ -254,7 +256,7 @@ static NSString            *configurationsFolderPath = nil;
     }
 }
 
-- (NSArray *)systemBindings
+- (NSArray<OESystemBindings *> *)systemBindings
 {
     return [systems allValues];
 }
@@ -272,3 +274,5 @@ static NSString            *configurationsFolderPath = nil;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
