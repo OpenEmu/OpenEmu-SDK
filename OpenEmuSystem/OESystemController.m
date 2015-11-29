@@ -26,32 +26,13 @@
 
 #import "OESystemController.h"
 
+#import "OEBindingDescription_Internal.h"
 #import "OEBindingsController.h"
 #import "OELocalizationHelper.h"
 #import "OESystemResponder.h"
 
 #define OEHIDAxisTypeString      @"OEHIDAxisType"
 #define OEHIDHatSwitchTypeString @"OEHIDEventHatSwitchType"
-
-@interface OESystemController ()
-{
-    NSMutableArray *_gameSystemResponders;
-
-    NSString       *_systemName;
-    NSImage        *_systemIcon;
-}
-
-@property(readwrite, copy) NSArray *systemControlNames;
-@property(readwrite, copy) NSArray *genericControlNames;
-
-@property(readwrite, copy) NSArray *analogControls;
-@property(readwrite, copy) NSArray *axisControls;
-@property(readwrite, copy) NSArray *hatSwitchControls;
-
-- (void)OE_setUpControlTypes;
-- (id)OE_propertyListWithFileName:(NSString *)fileName;
-
-@end
 
 NSString *const OESettingValueKey            = @"OESettingValueKey";
 NSString *const OEHIDEventValueKey           = @"OEHIDEventValueKey";
@@ -89,8 +70,28 @@ NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
 
 NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
-@implementation OESystemController
-@synthesize controllerImage = _controllerImage, controllerImageMask = _controllerImageMask;
+@implementation OESystemController {
+    NSString *_systemName;
+    NSImage *_systemIcon;
+    NSImage *_controllerImage;
+    NSImage *_controllerImageMask;
+}
+
+static NSMapTable<NSString *, OESystemController *> *_registeredSystemController;
+
++ (void)initialize
+{
+    if (self != [OESystemController class])
+        return;
+
+
+    _registeredSystemController = [NSMapTable strongToWeakObjectsMapTable];
+}
+
++ (OESystemController *)systemControllerWithIdentifier:(NSString *)systemIdentifier
+{
+    return [_registeredSystemController objectForKey:systemIdentifier];
+}
 
 - (BOOL)OE_isBundleValid:(NSBundle *)aBundle forClass:(Class)aClass
 {
@@ -109,20 +110,18 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
     if((self = [super init]))
     {
-        _bundle               = aBundle;
-        _gameSystemResponders = [[NSMutableArray alloc] init];
-        _systemIdentifier     = ([[_bundle infoDictionary] objectForKey:OESystemIdentifier]
-                                 ? : [_bundle bundleIdentifier]);
+        _bundle = aBundle;
+        _systemIdentifier = _bundle.infoDictionary[OESystemIdentifier] ? : _bundle.bundleIdentifier;
 
-        _systemName = [[[_bundle infoDictionary] objectForKey:OESystemName] copy];
+        _systemName = [_bundle.infoDictionary[OESystemName] copy];
 
-        NSString *iconFileName = [[_bundle infoDictionary] objectForKey:OESystemIconName];
+        NSString *iconFileName = _bundle.infoDictionary[OESystemIconName];
         NSString *iconFilePath = [_bundle pathForImageResource:iconFileName];
         _systemIcon = [[NSImage alloc] initWithContentsOfFile:iconFilePath];
-        _coverAspectRatio = [[[_bundle infoDictionary] objectForKey:OESystemCoverAspectRatio] floatValue];
-        _numberOfPlayers = [[[_bundle infoDictionary] objectForKey:OENumberOfPlayersKey] integerValue];
+        _coverAspectRatio = [_bundle.infoDictionary[OESystemCoverAspectRatio] floatValue];
+        _numberOfPlayers = [_bundle.infoDictionary[OENumberOfPlayersKey] integerValue];
 
-        Class cls = NSClassFromString([[_bundle infoDictionary] objectForKey:OEResponderClassKey]);
+        Class cls = NSClassFromString(_bundle.infoDictionary[OEResponderClassKey]);
         if(cls != [OESystemResponder class] && [cls isSubclassOfClass:[OESystemResponder class]])
             _responderClass = cls;
 
@@ -130,19 +129,18 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
         _defaultDeviceControls = [self OE_propertyListWithFileName:OEControllerMappingsFileName];
 
-        [self setGenericControlNames:[[_bundle infoDictionary] objectForKey:OEGenericControlNamesKey]];
-        [self setSystemControlNames: [[_bundle infoDictionary] objectForKey:OESystemControlNamesKey]];
-
-        [self OE_setUpControlTypes];
+        [self OE_setUpKeyBindingDescriptions];
         [self OE_setUpControllerPreferencesKeys];
 
-        _fileTypes = [[_bundle infoDictionary] objectForKey:OEFileTypes];
+        _fileTypes = _bundle.infoDictionary[OEFileTypes];
+
+        [_registeredSystemController setObject:self forKey:_systemIdentifier];
     }
 
     return self;
 }
 
-- (id)OE_propertyListWithFileName:(NSString *)fileName
+- (NSDictionary<NSString *, id> *)OE_propertyListWithFileName:(NSString *)fileName
 {
     NSString *path = [_bundle pathForResource:fileName ofType:@"plist"];
 
@@ -176,21 +174,12 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
     return nil;
 }
 
-- (void)OE_setUpControlTypes;
-{
-    NSDictionary *dict = [[_bundle infoDictionary] objectForKey:OEControlTypesKey];
-
-    [self setAnalogControls:   [dict objectForKey:OEAnalogControlsKey]];
-    [self setHatSwitchControls:[dict objectForKey:OEHatSwitchControlsKey]];
-    [self setAxisControls:     [dict objectForKey:OEAxisControlsKey]];
-}
-
-- (NSDictionary *)OE_defaultControllerPreferences;
+- (NSDictionary<NSString *, id> *)OE_defaultControllerPreferences;
 {
     return [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:[_bundle pathForResource:@"Controller-Preferences" ofType:@"plist"]] options:NSPropertyListImmutable format:NULL error:NULL];
 }
 
-- (NSDictionary *)OE_localizedControllerPreferences;
+- (NSDictionary<NSString *, id> *)OE_localizedControllerPreferences;
 {
     NSString *fileName = nil;
 
@@ -207,13 +196,13 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
     return (fileName == nil ? nil : [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:fileName] options:NSPropertyListImmutable format:NULL error:NULL]);
 }
 
-- (NSArray *)OE_globalButtonsControlList
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)OE_globalButtonsControlList
 {
 #define Button(_LABEL_, _DESCRIPTION_, _NAME_) @{                          \
       OEControlListKeyLabelKey : NSLocalizedString(_LABEL_, _DESCRIPTION_),\
       OEControlListKeyNameKey : _NAME_,                                    \
       }
-    static NSArray *globalKeys;
+    static NSArray<NSDictionary<NSString *, NSString *> *> *globalKeys;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         globalKeys = @[[[NSUserDefaults standardUserDefaults] boolForKey:OEPrefControlsShowAllGlobalKeys] ?
@@ -256,40 +245,36 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 - (void)OE_setUpControllerPreferencesKeys;
 {
     // TODO: Support local setup with different plists
-    NSDictionary *plist          = [self OE_defaultControllerPreferences];
-    NSDictionary *localizedPlist = [self OE_localizedControllerPreferences];
+    NSDictionary<NSString *, id> *plist = [self OE_defaultControllerPreferences];
+    NSDictionary<NSString *, id> *localizedPlist = [self OE_localizedControllerPreferences];
 
-    _controllerImageName     = [localizedPlist objectForKey:OEControllerImageKey]     ? : [plist objectForKey:OEControllerImageKey];
-    _controllerImageMaskName = [localizedPlist objectForKey:OEControllerImageMaskKey] ? : [plist objectForKey:OEControllerImageMaskKey];
+    _controllerImageName = localizedPlist[OEControllerImageKey] ? : plist[OEControllerImageKey];
+    _controllerImageMaskName = localizedPlist[OEControllerImageMaskKey] ? : plist[OEControllerImageMaskKey];
 
-    NSDictionary *positions = [plist objectForKey:OEControllerKeyPositionKey];
-    NSDictionary *localPos  = [localizedPlist objectForKey:OEControllerKeyPositionKey];
+    NSDictionary<NSString *, NSString *> *positions = [plist objectForKey:OEControllerKeyPositionKey];
+    NSDictionary<NSString *, NSString *> *localPos = [localizedPlist objectForKey:OEControllerKeyPositionKey];
 
-    NSMutableDictionary *converted = [[NSMutableDictionary alloc] initWithCapacity:[positions count]];
+    NSMutableDictionary<NSString *, NSValue *> *converted = [[NSMutableDictionary alloc] initWithCapacity:[positions count]];
 
     for(NSString *key in positions)
     {
         NSString *value = [localPos objectForKey:key] ? : [positions objectForKey:key];
-
-        [converted setObject:[NSValue valueWithPoint:value != nil ? NSPointFromString(value) : NSZeroPoint] forKey:key];
+        converted[key] = [NSValue valueWithPoint:value != nil ? NSPointFromString(value) : NSZeroPoint];
     }
 
     _controllerKeyPositions = [converted copy];
     _controlPageList = @[
-                         NSLocalizedString(@"Gameplay Buttons", @"Title of the gameplay buttons section in controller keys."),
-                         [[_bundle infoDictionary] objectForKey:OEControlListKey],
+        NSLocalizedString(@"Gameplay Buttons", @"Title of the gameplay buttons section in controller keys."),
+        [[_bundle infoDictionary] objectForKey:OEControlListKey],
 
-                         NSLocalizedString(@"Special Keys", @"Title of the global buttons section in controller keys."),
-                         [self OE_globalButtonsControlList]
-                         ];
+        NSLocalizedString(@"Special Keys", @"Title of the global buttons section in controller keys."),
+        [self OE_globalButtonsControlList],
+    ];
 }
 
 - (id)newGameSystemResponder;
 {
-    OESystemResponder *responder = [[[self responderClass] alloc] initWithController:self];
-    [self registerGameSystemResponder:responder];
-
-    return responder;
+    return [[[self responderClass] alloc] initWithController:self];
 }
 
 - (NSString *)systemName
@@ -320,27 +305,102 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
 - (BOOL)supportsDiscs
 {
-    NSArray *discBasedExtensions = @[@"cue", @"ccd", @"m3u"];
-    for(NSString *discExtension in discBasedExtensions){
+    for(NSString *discExtension in @[ @"cue", @"ccd", @"m3u" ]) {
         if ([[self fileTypes] containsObject:discExtension])
-            return true;
+            return YES;
     }
-    return false;
+
+    return NO;
 }
 
-#pragma mark -
-#pragma mark Responder management
+#pragma mark - Key Descriptions
 
-- (void)registerGameSystemResponder:(OESystemResponder *)responder;
++ (NSDictionary<NSString *, OEGlobalKeyBindingDescription *> *)globalKeyBindingDescriptions
 {
-    [[[OEBindingsController defaultBindingsController] systemBindingsForSystemController:self] addBindingsObserver:responder];
-    [_gameSystemResponders addObject:responder];
+    static NSDictionary<NSString *, OEGlobalKeyBindingDescription *> *keyNameToDescription = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableDictionary *keys = [NSMutableDictionary dictionaryWithCapacity:OEGlobalButtonIdentifierCount];
+
+        for(OEGlobalButtonIdentifier i = 1; i < OEGlobalButtonIdentifierCount; i++) {
+            OEGlobalKeyBindingDescription *desc = [[OEGlobalKeyBindingDescription alloc] initWithButtonIdentifier:i];
+            if (desc.name != nil)
+                keys[desc.name] = desc;
+        }
+
+        keyNameToDescription = [keys copy];
+    });
+
+    return keyNameToDescription;
 }
 
-- (void)unregisterGameSystemResponder:(OESystemResponder *)responder;
+- (NSDictionary<NSString *, OEGlobalKeyBindingDescription *> *)globalKeyBindingDescriptions
 {
-    [[[OEBindingsController defaultBindingsController] systemBindingsForSystemController:self] removeBindingsObserver:responder];
-    [_gameSystemResponders removeObject:responder];
+    return [self.class globalKeyBindingDescriptions];
+}
+
+- (void)OE_setUpKeyBindingDescriptions
+{
+    NSArray<NSString *> *genericControlNames = _bundle.infoDictionary[OEGenericControlNamesKey];
+    NSArray<NSString *> *systemControlNames = _bundle.infoDictionary[OESystemControlNamesKey];
+
+    NSMutableDictionary<NSString *, OEKeyBindingDescription *> *systemKeyDescs  = systemControlNames != nil ? [NSMutableDictionary dictionaryWithCapacity:systemControlNames.count] : nil;
+    NSMutableDictionary<NSString *, OEKeyBindingDescription *> *genericKeyDescs = [NSMutableDictionary dictionaryWithCapacity:[genericControlNames count]];
+    NSMutableDictionary<NSString *, OEKeyBindingDescription *> *allKeyDescs     = [NSMutableDictionary dictionaryWithCapacity:[genericControlNames count]];
+
+    [genericControlNames enumerateObjectsUsingBlock:^(NSString *name, NSUInteger idx, BOOL *stop) {
+        BOOL systemWide = systemControlNames != nil && [systemControlNames containsObject:name];
+
+        OEKeyBindingDescription *keyDesc = [[OEKeyBindingDescription alloc] initWithSystemController:self name:name index:idx isSystemWide:systemWide];
+
+        (systemWide ? systemKeyDescs : genericKeyDescs)[name] = keyDesc;
+        allKeyDescs[name] = keyDesc;
+    }];
+
+    _systemKeyBindingsDescriptions = [systemKeyDescs  copy];
+    _keyBindingsDescriptions = [genericKeyDescs copy];
+
+    [allKeyDescs addEntriesFromDictionary:self.globalKeyBindingDescriptions];
+    _allKeyBindingsDescriptions = [allKeyDescs copy];
+
+    [self OE_setUpKeyBindingGroupDescriptions];
+}
+
+- (void)OE_setUpKeyBindingGroupDescriptions
+{
+    NSDictionary<NSString *, NSArray *> *dict = [_bundle infoDictionary][OEControlTypesKey];
+
+    NSArray<NSString *> *analogControls = dict[OEAnalogControlsKey];
+    NSArray<NSArray<NSString *> *> *axisControls = dict[OEAxisControlsKey];
+    NSArray<NSArray<NSString *> *> *hatSwitchControls = dict[OEHatSwitchControlsKey];
+
+    for(NSString *keyName in analogControls)
+        _allKeyBindingsDescriptions[keyName].analogic = YES;
+
+    NSMutableDictionary<NSString *, OEKeyBindingGroupDescription *> *groups = [self OE_keyGroupsForControls:hatSwitchControls type:OEKeyGroupTypeHatSwitch availableKeys:_keyBindingsDescriptions];
+    [groups addEntriesFromDictionary:[self OE_keyGroupsForControls:axisControls type:OEKeyGroupTypeAxis availableKeys:_keyBindingsDescriptions]];
+
+    _keyBindingGroupDescriptions = [groups copy];
+
+    for(OEKeyBindingGroupDescription *group in _keyBindingGroupDescriptions.allValues)
+        NSAssert([group isMemberOfClass:[OEKeyBindingGroupDescription class]], @"SOMETHING'S FISHY");
+}
+
+- (NSMutableDictionary<NSString *, OEKeyBindingGroupDescription *> *)OE_keyGroupsForControls:(NSArray<NSArray<NSString *> *> *)controls type:(OEKeyGroupType)aType availableKeys:(NSDictionary<NSString *, OEKeyBindingDescription *> *)availableKeys;
+{
+    NSMutableDictionary<NSString *, OEKeyBindingGroupDescription *> *ret = [NSMutableDictionary dictionaryWithCapacity:controls.count];
+
+    for(NSArray<NSString *> *keyNames in controls) {
+        NSMutableArray<OEKeyBindingDescription *> *keys = [NSMutableArray arrayWithCapacity:keyNames.count];
+
+        for(NSString *keyName in keyNames)
+            [keys addObject:availableKeys[keyName]];
+
+        OEKeyBindingGroupDescription *group = [[OEKeyBindingGroupDescription alloc] initWithSystemController:self groupType:aType keys:keys];
+        ret[group.groupIdentifier] = group;
+    }
+
+    return ret;
 }
 
 @end

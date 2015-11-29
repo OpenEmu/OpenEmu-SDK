@@ -27,13 +27,17 @@
 #import "OEEvent.h"
 #import <QuartzCore/QuartzCore.h>
 
+static NSString *const OEEventLocationXKey = @"OEEventLocationX";
+static NSString *const OEEventLocationYKey = @"OEEventLocationY";
+static NSString *const OEEventRealEventDataKey = @"OEEventRealEventData";
+
 @implementation OEEvent
 {
     NSEvent    *_realEvent;
     OEIntPoint  _location;
 }
 
-+ (id)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
++ (instancetype)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
 {
     return [[self alloc] initWithMouseEvent:anEvent withLocationInGameView:aLocation];
 }
@@ -43,7 +47,7 @@
     return nil;
 }
 
-- (id)initWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
+- (instancetype)initWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
 {
     if((self = [super init]))
     {
@@ -69,15 +73,31 @@
     return [_realEvent type];
 }
 
-@end
-
-@implementation NSEvent (OEEventAdditions)
-
-- (OEIntPoint)locationInGameView;
++ (BOOL)supportsSecureCoding
 {
-    CGPoint p = [self locationInWindow];
+    return YES;
+}
 
-    return (OEIntPoint){ .x = p.x, .y = p.y };
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (!(self = [super init]))
+        return nil;
+
+    _location.x = [aDecoder decodeIntForKey:OEEventLocationXKey];
+    _location.y = [aDecoder decodeIntForKey:OEEventLocationYKey];
+
+    CGEventRef realCGEvent = CGEventCreateFromData(NULL, (__bridge CFDataRef)[aDecoder decodeObjectOfClass:[NSData class] forKey:OEEventRealEventDataKey]);
+    _realEvent = [NSEvent eventWithCGEvent:realCGEvent];
+    CFRelease(realCGEvent);
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeInt:_location.x forKey:OEEventLocationXKey];
+    [aCoder encodeInt:_location.y forKey:OEEventLocationYKey];
+    [aCoder encodeObject:(__bridge_transfer NSData *)CGEventCreateData(NULL, _realEvent.CGEvent) forKey:OEEventRealEventDataKey];
 }
 
 @end

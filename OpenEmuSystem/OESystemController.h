@@ -27,6 +27,9 @@
 #import <Foundation/Foundation.h>
 
 @class OEHIDEvent;
+@class OEGlobalKeyBindingDescription;
+@class OEKeyBindingDescription;
+@class OEKeyBindingGroupDescription;
 @class OESystemResponder;
 
 extern NSString *const OESettingValueKey;
@@ -100,48 +103,49 @@ typedef enum
 
 @interface OESystemController : NSObject
 
-- (id)initWithBundle:(NSBundle *)aBundle;
++ (OESystemController *)systemControllerWithIdentifier:(NSString *)systemIdentifier;
 
-@property(readonly)       NSBundle     *bundle;
-@property(readonly, copy) NSString     *systemIdentifier;
-@property(readonly)       NSString     *systemName;
-@property(readonly)       NSImage      *systemIcon;
+- (instancetype)initWithBundle:(NSBundle *)aBundle;
 
-@property(readonly)       NSUInteger    numberOfPlayers;
-@property(readonly)       Class         responderClass;
-@property(readonly, copy) NSArray      *systemControlNames;
-@property(readonly, copy) NSArray      *genericControlNames;
-@property(readonly, copy) NSArray      *analogControls;
-@property(readonly, copy) NSArray      *axisControls;
-@property(readonly, copy) NSArray      *hatSwitchControls;
+@property(readonly) NSBundle *bundle;
+@property(readonly, copy) NSString *systemIdentifier;
+@property(readonly) NSString *systemName;
+@property(readonly) NSImage *systemIcon;
 
-@property(readonly, copy) NSArray      *controlPageList;
-@property(readonly, copy) NSDictionary *controllerKeyPositions;
-@property(readonly, copy) NSString     *controllerImageName;
-@property(readonly, copy) NSString     *controllerImageMaskName;
++ (NSDictionary<NSString *, OEGlobalKeyBindingDescription *> *)globalKeyBindingDescriptions;
+@property(readonly) NSDictionary<NSString *, OEGlobalKeyBindingDescription *> *globalKeyBindingDescriptions;
 
-@property(readonly, copy) NSImage      *controllerImage;
-@property(readonly, copy) NSImage      *controllerImageMask;
+@property(readonly) Class responderClass;
+@property(readonly) NSUInteger numberOfPlayers;
+@property(readonly) NSDictionary<NSString *, OEKeyBindingDescription *> *allKeyBindingsDescriptions;
+@property(readonly) NSDictionary<NSString *, OEKeyBindingDescription *> *systemKeyBindingsDescriptions;
+@property(readonly) NSDictionary<NSString *, OEKeyBindingDescription *> *keyBindingsDescriptions;
+@property(readonly) NSDictionary<NSString *, OEKeyBindingGroupDescription *> *keyBindingGroupDescriptions;
 
-@property(readonly)       CGFloat       coverAspectRatio;
+@property(readonly, copy) NSArray<NSString *> *controlPageList;
+@property(readonly, copy) NSDictionary<NSString *, NSValue *> *controllerKeyPositions;
+@property(readonly, copy) NSString *controllerImageName;
+@property(readonly, copy) NSString *controllerImageMaskName;
 
-@property (readonly, nonatomic) BOOL supportsDiscs;
-#pragma mark -
-#pragma mark Bindings settings
+@property(readonly, copy) NSImage *controllerImage;
+@property(readonly, copy) NSImage *controllerImageMask;
+
+@property(readonly) CGFloat coverAspectRatio;
+
+@property(readonly, nonatomic) BOOL supportsDiscs;
+
+#pragma mark - Bindings settings
 
 // Dictionary containing the default values to register for the system
-@property(readonly) NSDictionary *defaultKeyboardControls;
-@property(readonly) NSDictionary *defaultDeviceControls;
+@property(readonly) NSDictionary<NSString *, NSNumber *> *defaultKeyboardControls;
+@property(readonly) NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *defaultDeviceControls;
 
-#pragma mark -
-#pragma mark Game System Responder objects
+#pragma mark - Game System Responder objects
 
 - (id)newGameSystemResponder;
-- (void)registerGameSystemResponder:(OESystemResponder *)responder;
-- (void)unregisterGameSystemResponder:(OESystemResponder *)responder;
 
-#pragma mark -
-#pragma mark ROM Handling
+#pragma mark - ROM Handling
+
 @property(readonly, copy) NSArray *fileTypes;
 
 /* Whether the system plugin can verifiably handle a file. This should be a more thorough check than just

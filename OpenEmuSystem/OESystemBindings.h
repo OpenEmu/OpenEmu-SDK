@@ -65,8 +65,6 @@ extern NSString *const OEGlobalButtonScreenshot;
 
 @property(readonly) NSUInteger numberOfPlayers;
 
-- (OEGlobalKeyBindingDescription *)globalKeyBindingDescriptionForKey:(NSString *)keyName;
-
 - (OEDevicePlayerBindings *)devicePlayerBindingsForPlayer:(NSUInteger)playerNumber;
 - (OEKeyboardPlayerBindings *)keyboardPlayerBindingsForPlayer:(NSUInteger)playerNumber;
 

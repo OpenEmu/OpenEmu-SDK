@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <OpenEmuSystem/OEBindingDescription.h>
+
 typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
     OEGlobalButtonIdentifierUnknown,
 
@@ -57,7 +59,7 @@ typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
 
 NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifier);
 
-@interface OEKeyBindingDescription : NSObject <NSCopying>
+@interface OEKeyBindingDescription : OEBindingDescription
 
 @property(readonly, copy) NSString   *name;
 @property(readonly)       NSUInteger  index;

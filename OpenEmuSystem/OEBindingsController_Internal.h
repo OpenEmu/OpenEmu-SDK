@@ -35,24 +35,6 @@
 - (void)OE_setRequiresSynchronization;
 @end
 
-@interface OEKeyBindingGroupDescription ()
-- (id)initWithGroupType:(OEKeyGroupType)aType keys:(NSArray *)groupedKeys;
-@end
-
-@interface OEKeyBindingDescription ()
-
-- (id)OE_initWithName:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide __attribute__((objc_method_family(init)));
-
-@property(readwrite, getter=isAnalogic, setter=OE_setAnalogic:) BOOL analogic;
-@property(weak, nonatomic, getter=OE_hatSwitchGroup, setter=OE_setHatSwitchGroup:) OEKeyBindingGroupDescription *_hatSwitchGroup;
-@property(weak, nonatomic, getter=OE_axisGroup     , setter=OE_setAxisGroup:)      OEKeyBindingGroupDescription *_axisGroup;
-
-@end
-
-@interface OEGlobalKeyBindingDescription ()
-- (id)OE_initWithButtonIdentifier:(OEGlobalButtonIdentifier)identifier __attribute__((objc_method_family(init)));
-@end
-
 @interface OESystemBindings ()
 
 - (id)OE_initWithBindingsController:(OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary __attribute__((objc_method_family(init)));

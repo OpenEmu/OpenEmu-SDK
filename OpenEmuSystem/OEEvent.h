@@ -27,16 +27,10 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenEmuBase/OpenEmuBase.h>
 
-@class OEGameView;
+@interface OEEvent : NSObject <NSSecureCoding>
 
-@interface NSEvent (OEEventAdditions)
-- (OEIntPoint)locationInGameView;
-@end
-
-@interface OEEvent : NSObject
-
-+ (id)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
-- (id)initWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
++ (instancetype)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
+- (instancetype)initWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
 - (OEIntPoint)locationInGameView;
 - (NSEventType)type;
 

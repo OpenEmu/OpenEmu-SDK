@@ -26,7 +26,9 @@
  */
 
 #import "OEKeyBindingDescription.h"
-#import "OEBindingsController_Internal.h"
+#import "OEBindingDescription_Internal.h"
+
+static NSString *const OEKeyBindingDescriptionNameKey = @"OEKeyBindingDescriptionName";
 
 NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifier)
 {
@@ -79,18 +81,65 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
     return @"<Unknown value>";
 }
 
+static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonIdentifier buttonIdentifier)
+{
+    switch(buttonIdentifier)
+    {
+        case OEGlobalButtonIdentifierSaveState :
+            return OEGlobalButtonSaveState;
+        case OEGlobalButtonIdentifierLoadState :
+            return OEGlobalButtonLoadState;
+        case OEGlobalButtonIdentifierQuickSave :
+            return OEGlobalButtonQuickSave;
+        case OEGlobalButtonIdentifierQuickLoad :
+            return OEGlobalButtonQuickLoad;
+        case OEGlobalButtonIdentifierFullScreen :
+            return OEGlobalButtonFullScreen;
+        case OEGlobalButtonIdentifierMute :
+            return OEGlobalButtonMute;
+        case OEGlobalButtonIdentifierVolumeDown :
+            return OEGlobalButtonVolumeDown;
+        case OEGlobalButtonIdentifierVolumeUp :
+            return OEGlobalButtonVolumeUp;
+        case OEGlobalButtonIdentifierStop:
+            return OEGlobalButtonStop;
+        case OEGlobalButtonIdentifierReset :
+            return OEGlobalButtonReset;
+        case OEGlobalButtonIdentifierPause :
+            return OEGlobalButtonPause;
+        case OEGlobalButtonIdentifierRewind :
+            return OEGlobalButtonRewind;
+        case OEGlobalButtonIdentifierFastForward :
+            return OEGlobalButtonFastForward;
+        case OEGlobalButtonIdentifierSlowMotion :
+            return OEGlobalButtonSlowMotion;
+        case OEGlobalButtonIdentifierStepFrameBackward :
+            return OEGlobalButtonStepFrameBackward;
+        case OEGlobalButtonIdentifierStepFrameForward :
+            return OEGlobalButtonStepFrameForward;
+        case OEGlobalButtonIdentifierDisplayMode :
+            return OEGlobalButtonDisplayMode;
+        case OEGlobalButtonIdentifierScreenshot :
+            return OEGlobalButtonScreenshot;
+        default :
+            break;
+    }
+
+    return nil;
+}
+
 @implementation OEKeyBindingDescription
 @synthesize _hatSwitchGroup = _hatSwitchGroup;
 @synthesize _axisGroup = _axisGroup;
 
-- (id)init
+- (instancetype)initWithSystemController:(OESystemController *)systemController
 {
     return nil;
 }
 
-- (id)OE_initWithName:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)isSystemWide
+- (instancetype)initWithSystemController:(OESystemController *)systemController name:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide
 {
-    if((self = [super init]))
+    if((self = [super initWithSystemController:systemController]))
     {
         _name       = [keyName copy];
         _index      = keyIndex;
@@ -100,9 +149,23 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
++ (BOOL)supportsSecureCoding
 {
-    return self;
+    return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (!(self = [super initWithCoder:aDecoder]))
+        return nil;
+
+    return [self.systemController allKeyBindingsDescriptions][[aDecoder decodeObjectOfClass:[NSString class] forKey:OEKeyBindingDescriptionNameKey]];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [super encodeWithCoder:aCoder];
+    [aCoder encodeObject:_name forKey:OEKeyBindingDescriptionNameKey];
 }
 
 - (void)OE_setAxisGroup:(OEKeyBindingGroupDescription *)value
@@ -154,21 +217,42 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 
 @end
 
+static NSString *const OEGlobalKeyBindingDescriptionIdentifierKey = @"OEGlobalKeyBindingDescriptionIdentifier";
+
 @implementation OEGlobalKeyBindingDescription
 
-- (id)OE_initWithName:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)isSystemWide
+- (instancetype)initWithSystemController:(OESystemController *)systemController name:(NSString *)keyName index:(NSUInteger)keyIndex isSystemWide:(BOOL)systemWide
 {
     return nil;
 }
 
-- (id)OE_initWithButtonIdentifier:(OEGlobalButtonIdentifier)identifier
+- (instancetype)initWithButtonIdentifier:(OEGlobalButtonIdentifier)identifier
 {
-    if((self = [super OE_initWithName:nil index:0 isSystemWide:YES]))
+    if((self = [super initWithSystemController:nil name:nil index:0 isSystemWide:YES]))
     {
         _buttonIdentifier = identifier;
     }
 
     return self;
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    // Shut the compiler up.
+    self = [super initWithCoder:aDecoder];
+
+    NSUInteger buttonIdentifier = [aDecoder decodeIntegerForKey:OEGlobalKeyBindingDescriptionIdentifierKey];
+    return [OESystemController globalKeyBindingDescriptions][OEGlobalKeyBindingDescriptionNameForIdentifier(buttonIdentifier)];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeInteger:_buttonIdentifier forKey:OEGlobalKeyBindingDescriptionIdentifierKey];
 }
 
 - (OEKeyBindingGroupDescription *)OE_axisGroup
@@ -232,49 +316,7 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
 
 - (NSString *)name
 {
-    switch(_buttonIdentifier)
-    {
-        case OEGlobalButtonIdentifierSaveState :
-            return OEGlobalButtonSaveState;
-        case OEGlobalButtonIdentifierLoadState :
-            return OEGlobalButtonLoadState;
-        case OEGlobalButtonIdentifierQuickSave :
-            return OEGlobalButtonQuickSave;
-        case OEGlobalButtonIdentifierQuickLoad :
-            return OEGlobalButtonQuickLoad;
-        case OEGlobalButtonIdentifierFullScreen :
-            return OEGlobalButtonFullScreen;
-        case OEGlobalButtonIdentifierMute :
-            return OEGlobalButtonMute;
-        case OEGlobalButtonIdentifierVolumeDown :
-            return OEGlobalButtonVolumeDown;
-        case OEGlobalButtonIdentifierVolumeUp :
-            return OEGlobalButtonVolumeUp;
-        case OEGlobalButtonIdentifierStop:
-            return OEGlobalButtonStop;
-        case OEGlobalButtonIdentifierReset :
-            return OEGlobalButtonReset;
-        case OEGlobalButtonIdentifierPause :
-            return OEGlobalButtonPause;
-        case OEGlobalButtonIdentifierRewind :
-            return OEGlobalButtonRewind;
-        case OEGlobalButtonIdentifierFastForward :
-            return OEGlobalButtonFastForward;
-        case OEGlobalButtonIdentifierSlowMotion :
-            return OEGlobalButtonSlowMotion;
-        case OEGlobalButtonIdentifierStepFrameBackward :
-            return OEGlobalButtonStepFrameBackward;
-        case OEGlobalButtonIdentifierStepFrameForward :
-            return OEGlobalButtonStepFrameForward;
-        case OEGlobalButtonIdentifierDisplayMode :
-            return OEGlobalButtonDisplayMode;
-        case OEGlobalButtonIdentifierScreenshot :
-            return OEGlobalButtonScreenshot;
-        default :
-            break;
-    }
-
-    return nil;
+    return OEGlobalKeyBindingDescriptionNameForIdentifier(_buttonIdentifier);
 }
 
 - (NSUInteger)index

@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <OpenEmuSystem/OEBindingDescription.h>
+
 @class OEKeyBindingDescription, OEOrientedKeyGroupBindingDescription;
 
 typedef enum _OEKeyGroupType
@@ -39,9 +41,10 @@ typedef enum _OEKeyGroupType
 extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 
 // OEKeyGroupBindingsDescription allows OEKeyBindingsDescription objects to know about their peers, this class is only used by OESystemBindings
-@interface OEKeyBindingGroupDescription : NSObject <NSCopying>
+@interface OEKeyBindingGroupDescription : OEBindingDescription
 
 @property(readonly)       OEKeyGroupType  type;
+@property(readonly, copy) NSString *groupIdentifier;
 @property(readonly, copy) NSArray        *keys;
 @property(readonly, copy) NSArray        *keyNames;
 @property(readonly, getter=isAnalogic) BOOL analogic;

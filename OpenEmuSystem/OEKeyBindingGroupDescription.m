@@ -26,7 +26,7 @@
  */
 
 #import "OEKeyBindingGroupDescription.h"
-#import "OEBindingsController_Internal.h"
+#import "OEBindingDescription_Internal.h"
 
 NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 {
@@ -42,6 +42,8 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     return ret;
 }
 
+static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyBindingGroupDescriptionGroupIdentifier";
+
 @interface OEOrientedKeyGroupBindingDescription ()
 - (id)OE_initWithParentKeyGroup:(OEKeyBindingGroupDescription *)parent baseKey:(OEKeyBindingDescription *)base __attribute__((objc_method_family(init)));
 @end
@@ -52,21 +54,22 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     OEKeyBindingDescription *_axisKeys[2];
 }
 
-- (id)init
+- (instancetype)initWithSystemController:(OESystemController *)systemController
 {
     return nil;
 }
 
-- (id)initWithGroupType:(OEKeyGroupType)aType keys:(NSArray *)groupedKeys;
+- (instancetype)initWithSystemController:(OESystemController *)systemController groupType:(OEKeyGroupType)aType keys:(NSArray *)groupedKeys
 {
     if(aType != OEKeyGroupTypeAxis && aType != OEKeyGroupTypeHatSwitch) return nil;
-    
-    if((self = [super init]))
+
+    if((self = [super initWithSystemController:systemController]))
     {
         _orientedGroups = [NSMutableDictionary dictionaryWithCapacity:[groupedKeys count]];
         _type = aType;
         _keys = [groupedKeys copy];
-        
+        _groupIdentifier = [[_keys valueForKey:@"name"] componentsJoinedByString:@"-"];
+
         if([self class] == [OEKeyBindingGroupDescription class])
             [_keys makeObjectsPerformSelector:(aType == OEKeyGroupTypeAxis
                                               ? @selector(OE_setAxisGroup:)
@@ -83,9 +86,23 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
++ (BOOL)supportsSecureCoding
 {
-    return self;
+    return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (!(self = [super initWithCoder:aDecoder]))
+        return nil;
+
+    return self.systemController.keyBindingGroupDescriptions[[aDecoder decodeObjectOfClass:[NSString class] forKey:OEKeyBindingGroupDescriptionGroupIdentifierKey]];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [super encodeWithCoder:aCoder];
+    [aCoder encodeObject:_groupIdentifier forKey:OEKeyBindingGroupDescriptionGroupIdentifierKey];
 }
 
 - (NSArray *)keyNames
@@ -186,6 +203,8 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 
 @end
 
+static NSString *const OEOrientedKeyGroupBindingDescriptionBaseKeyKey = @"OEOrientedKeyGroupBindingDescriptionBaseKey";
+
 @implementation OEOrientedKeyGroupBindingDescription
 
 - (id)init
@@ -197,13 +216,31 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 {
     NSAssert([[parent keys] containsObject:base], @"The base key must belong to the key group.");
     
-    if((self = [super initWithGroupType:[parent type] keys:[parent keys]]))
+    if((self = [super initWithSystemController:parent.systemController groupType:parent.type keys:parent.keys]))
     {
         _parentKeyGroup = parent;
         _baseKey        = base;
     }
     
     return self;
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    OEKeyBindingGroupDescription *parentKeyGroup = [super initWithCoder:aDecoder];
+
+    return [parentKeyGroup orientedKeyGroupWithBaseKey:[aDecoder decodeObjectOfClass:[OEKeyBindingDescription class] forKey:OEOrientedKeyGroupBindingDescriptionBaseKeyKey]];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [super encodeWithCoder:aCoder];
+    [aCoder encodeObject:_baseKey forKey:OEOrientedKeyGroupBindingDescriptionBaseKeyKey];
 }
 
 - (NSUInteger)hash
