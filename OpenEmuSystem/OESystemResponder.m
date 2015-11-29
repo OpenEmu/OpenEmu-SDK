@@ -193,7 +193,6 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 
 - (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 {
-    
     switch(identifier)
     {
         case OEGlobalButtonIdentifierSaveState :

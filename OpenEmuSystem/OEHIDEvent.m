@@ -26,6 +26,7 @@
 
 #import "OEHIDEvent.h"
 #import "OEDeviceHandler.h"
+#import "OEDeviceManager.h"
 #import <IOKit/hid/IOHIDUsageTables.h>
 #import <Carbon/Carbon.h>
 #import "OEHIDUsageToVK.h"
@@ -747,6 +748,20 @@ static CGEventSourceRef _keyboardEventSource;
     return YES;
 }
 
+- (BOOL)hasDeviceHandlerPlaceholder
+{
+    return _deviceHandler.isPlaceholder;
+}
+
+- (void)resolveDeviceHandlerPlaceholder
+{
+    NSAssert(self.hasDeviceHandlerPlaceholder, @"Attempting to resolve non-placeholder device handler.");
+
+    _deviceHandler = [[OEDeviceManager sharedDeviceManager] deviceHandlerForUniqueIdentifier:_deviceHandler.uniqueIdentifier];
+
+    NSAssert(_deviceHandler && !self.hasDeviceHandlerPlaceholder, @"Attempting to resolve device that is not yet ready.");
+}
+
 - (OEHIDEvent *)OE_eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler;
 {
     OEHIDEvent *ret = [self copy];
@@ -1080,8 +1095,6 @@ static CGEventSourceRef _keyboardEventSource;
             break;
         case OEHIDEventTypeHatSwitch :
             hash |= 0x80000000u;
-            break;
-        default :
             break;
     }
 

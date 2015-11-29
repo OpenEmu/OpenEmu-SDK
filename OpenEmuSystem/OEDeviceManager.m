@@ -93,7 +93,9 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 @interface OEDeviceManager () <IOBluetoothDeviceInquiryDelegate>
 {
+    dispatch_queue_t _uniqueIdentifiersToDeviceHandlersQueue;
     NSMutableDictionary<NSString *, __kindof OEDeviceHandler *> *_uniqueIdentifiersToDeviceHandlers;
+
     NSMutableSet             *_keyboardHandlers;
     NSMutableSet             *_deviceHandlers;
     NSMutableSet             *_multiDeviceHandlers;
@@ -145,7 +147,9 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 {
 	if((self = [super init]))
 	{
+        _uniqueIdentifiersToDeviceHandlersQueue = dispatch_queue_create("org.openemu.uniqueIdentifiersToDeviceHandlersQueue", DISPATCH_QUEUE_CONCURRENT);
         _uniqueIdentifiersToDeviceHandlers = [[NSMutableDictionary alloc] init];
+
         _keyboardHandlers    = [[NSMutableSet alloc] init];
         _deviceHandlers      = [[NSMutableSet alloc] init];
         _multiDeviceHandlers = [[NSMutableSet alloc] init];
@@ -226,7 +230,19 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier
 {
-    return _uniqueIdentifiersToDeviceHandlers[uniqueIdentifier];
+    __block OEDeviceHandler *handler;
+
+    dispatch_sync(_uniqueIdentifiersToDeviceHandlersQueue, ^{
+        handler = _uniqueIdentifiersToDeviceHandlers[uniqueIdentifier];
+
+        if (handler)
+            return;
+
+        handler = [[OEDeviceHandlerPlaceholder alloc] initWithUniqueIdentifier:uniqueIdentifier];
+        _uniqueIdentifiersToDeviceHandlers[uniqueIdentifier] = handler;
+    });
+
+    return handler;
 }
 
 - (void)deviceHandler:(OEDeviceHandler *)device didReceiveEvent:(OEHIDEvent *)event
@@ -400,7 +416,17 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (void)OE_addDeviceHandler:(OEDeviceHandler *)handler
 {
-    _uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier] = handler;
+    dispatch_barrier_async(_uniqueIdentifiersToDeviceHandlersQueue, ^{
+        OEDeviceHandlerPlaceholder *placeholder = _uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier];
+        _uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier] = handler;
+
+        if (![placeholder isKindOfClass:[OEDeviceHandlerPlaceholder class]])
+            return;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [placeholder notifyOriginalDeviceDidBecomeAvailable];
+        });
+    });
 
     if([handler isKindOfClass:[OEMultiHIDDeviceHandler class]])
     {
@@ -447,6 +473,10 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (void)OE_removeDeviceHandler:(OEDeviceHandler *)handler
 {
+    dispatch_barrier_async(_uniqueIdentifiersToDeviceHandlersQueue, ^{
+        [_uniqueIdentifiersToDeviceHandlers removeObjectForKey:handler.uniqueIdentifier];
+    });
+
     if([handler isKindOfClass:[OEMultiHIDDeviceHandler class]])
     {
         if(![_multiDeviceHandlers containsObject:handler]) return;

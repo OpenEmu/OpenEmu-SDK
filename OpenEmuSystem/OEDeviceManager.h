@@ -44,6 +44,7 @@
 - (void)stopWiimoteSearch;
 - (BOOL)isBluetoothEnabled;
 
+// If the device has not yet been retrieved, this method will return an OEDeviceHandlerPlaceholder that must be resolved manually.
 - (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier;
 
 - (void)deviceHandler:(OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;

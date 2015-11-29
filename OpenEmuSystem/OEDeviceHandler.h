@@ -41,6 +41,9 @@
 @class OEDeviceDescription;
 @class OEControlDescription;
 
+extern NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification;
+extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification;
+
 @interface OEDeviceHandler : NSObject <NSCopying, NSSecureCoding>
 
 - (id)initWithDeviceDescription:(OEDeviceDescription *)deviceDescription;
@@ -69,6 +72,8 @@
 
 - (BOOL)isKeyboardDevice;
 
+- (BOOL)isPlaceholder;
+
 @property(nonatomic) CGFloat defaultDeadZone;
 
 - (CGFloat)deadZoneForControlCookie:(NSUInteger)controlCookie;
@@ -77,4 +82,7 @@
 
 @end
 
-extern NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification;
+@interface OEDeviceHandlerPlaceholder : OEDeviceHandler
+- (instancetype)initWithUniqueIdentifier:(NSString *)uniqueIdentifier;
+- (void)notifyOriginalDeviceDidBecomeAvailable;
+@end

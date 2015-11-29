@@ -98,8 +98,6 @@
     if (_device == NULL)
         return;
 
-    [self OE_removeDeviceHandlerForDevice:_device];
-
     CFRelease(_device);
 
     if(_ffDevice != NULL)

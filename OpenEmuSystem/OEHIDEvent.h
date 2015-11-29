@@ -112,7 +112,10 @@ extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 + (instancetype)hatSwitchEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp type:(OEHIDEventHatSwitchType)hatSwitchType direction:(OEHIDEventHatDirection)aDirection cookie:(NSUInteger)cookie;
 + (instancetype)keyEventWithTimestamp:(NSTimeInterval)timestamp keyCode:(NSUInteger)keyCode state:(OEHIDEventState)state cookie:(NSUInteger)cookie;
 
-@property(readonly) OEDeviceHandler        *deviceHandler;
+@property(readonly) __kindof OEDeviceHandler *deviceHandler;
+@property(readonly) BOOL hasDeviceHandlerPlaceholder;
+- (void)resolveDeviceHandlerPlaceholder;
+
 @property(readonly) NSTimeInterval          timestamp;
 @property(readonly) OEHIDEventType          type;
 @property(readonly) NSUInteger              cookie;

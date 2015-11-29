@@ -39,6 +39,7 @@
 #endif
 
 NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDeviceHandlerDidReceiveLowBatteryWarningNotification";
+NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification = @"OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification";
 
 static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUniqueIdentifier";
 
@@ -103,6 +104,11 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 }
 
 - (BOOL)isKeyboardDevice;
+{
+    return NO;
+}
+
+- (BOOL)isPlaceholder
 {
     return NO;
 }
@@ -174,6 +180,53 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     NSAssert(controlDesc != nil, @"Cannot set the dead zone of nil!");
     NSAssert([controlDesc type] == OEHIDEventTypeAxis || [controlDesc type] == OEHIDEventTypeTrigger, @"Only analogic controls have dead zones.");
     _deadZones[@([[controlDesc genericEvent] cookie])] = @(deadZone);
+}
+
+@end
+
+@implementation OEDeviceHandlerPlaceholder {
+    NSString *_uniqueIdentifier;
+}
+
+- (instancetype)initWithUniqueIdentifier:(NSString *)uniqueIdentifier
+{
+    if (!(self = [super initWithDeviceDescription:nil]))
+        return nil;
+
+    _uniqueIdentifier = [uniqueIdentifier copy];
+
+    return self;
+}
+
+- (NSString *)uniqueIdentifier
+{
+    return _uniqueIdentifier;
+}
+
+- (BOOL)isPlaceholder
+{
+    return YES;
+}
+
+- (NSUInteger)hash
+{
+    return _uniqueIdentifier.hash;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+        return YES;
+
+    if (![object isKindOfClass:[OEDeviceHandlerPlaceholder class]])
+        return NO;
+
+    return [_uniqueIdentifier isEqualToString:[object uniqueIdentifier]];
+}
+
+- (void)notifyOriginalDeviceDidBecomeAvailable
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification object:self];
 }
 
 @end
