@@ -235,6 +235,13 @@ OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
                     break;
                 case kHIDUsage_GD_Hatswitch :
                     return OEHIDEventTypeHatSwitch;
+                case kHIDUsage_GD_DPadUp    :
+                case kHIDUsage_GD_DPadDown  :
+                case kHIDUsage_GD_DPadLeft  :
+                case kHIDUsage_GD_DPadRight :
+                case kHIDUsage_GD_Start     :
+                case kHIDUsage_GD_Select    :
+                    return OEHIDEventTypeButton;
             }
             break;
         }
@@ -420,6 +427,21 @@ static CGEventSourceRef _keyboardEventSource;
         case OEHIDEventTypeHatSwitch :
             return NSLocalizedStringFromOEHIDHatDirection(_data.hatSwitch.hatDirection);
         case OEHIDEventTypeButton :
+            switch(_data.button.buttonNumber)
+            {
+                case kHIDUsage_GD_DPadUp :
+                    return [NSString stringWithFormat:NSLocalizedString(@"D-pad Up", @"Generic D-pad Up.")];
+                case kHIDUsage_GD_DPadDown :
+                    return [NSString stringWithFormat:NSLocalizedString(@"D-pad Down", @"Generic D-pad Down.")];
+                case kHIDUsage_GD_DPadLeft :
+                    return [NSString stringWithFormat:NSLocalizedString(@"D-pad Left", @"Generic D-pad Left.")];
+                case kHIDUsage_GD_DPadRight :
+                    return [NSString stringWithFormat:NSLocalizedString(@"D-pad Right", @"Generic D-pad Right.")];
+                case kHIDUsage_GD_Start :
+                    return [NSString stringWithFormat:NSLocalizedString(@"Start", @"Generic button Start.")];
+                case kHIDUsage_GD_Select :
+                    return [NSString stringWithFormat:NSLocalizedString(@"Select", @"Generic button Select.")];
+            }
             // Example: ret = @"P1 B12" for Pad One Button 12
             return [NSString stringWithFormat:NSLocalizedString(@"Button %ld", @"Button key name with button number.") , _data.button.buttonNumber];
             break;
