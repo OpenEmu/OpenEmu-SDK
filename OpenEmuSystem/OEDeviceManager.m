@@ -643,6 +643,11 @@ static void OEHandle_DeviceMatchingCallback(void *inContext, IOReturn inResult, 
         return;
     }
 
+    if(IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDLocationIDKey)) == NULL) {
+        NSLog(@"Device does not have a location ID");
+        return;
+    }
+
     if(IOHIDDeviceOpen(inIOHIDDeviceRef, kIOHIDOptionsTypeNone) != kIOReturnSuccess) {
         NSLog(@"%s: failed to open device at %p", __PRETTY_FUNCTION__, inIOHIDDeviceRef);
         return;
