@@ -67,6 +67,7 @@ typedef enum : NSInteger {
     OEGameCoreCouldNotLoadStateError = -3,
     OEGameCoreStateHasWrongSizeError = -4,
     OEGameCoreCouldNotSaveStateError = -5,
+    OEGameCoreDoesNotSupportSaveStatesError = -6,
 } _OEGameCoreErrorCodes;
 
 /*!
@@ -462,15 +463,9 @@ OE_EXPORTED_CLASS
 // These methods will be removed after some time.
 @interface OEGameCore (Deprecated)
 
-// Deprecated - Called by -saveStateToFileAtPath:completionHandler:.
-- (BOOL)saveStateToFileAtPath:(NSString *)fileName OE_DEPRECATED("use the version with completionHandler:");
-// Deprecated - Called by -loadStateFromFileAtPath:completionHandler:.
-- (BOOL)loadStateFromFileAtPath:(NSString *)fileName OE_DEPRECATED("use the version with completionHandler:");
-
 - (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE;
 
 @property(getter=isEmulationPaused) BOOL pauseEmulation OE_DEPRECATED("use -rate");
-- (void)executeFrameSkippingFrame:(BOOL)skip OE_DEPRECATED("check -shouldSkipFrame");
 
 - (void)fastForward:(BOOL)flag OE_DEPRECATED("use -rate");
 - (void)rewind:(BOOL)fla OE_DEPRECATED("use -rate");

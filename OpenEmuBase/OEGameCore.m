@@ -375,11 +375,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [self doesNotImplementSelector:_cmd];
 }
 
-- (void)executeFrameSkippingFrame:(BOOL)skip
-{
-    [self executeFrame];
-}
-
 - (void)executeFrame
 {
     [self doesNotImplementSelector:_cmd];
@@ -585,24 +580,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
-- (BOOL)saveStateToFileAtPath:(NSString *)fileName
-{
-    return NO;
-}
-
-- (BOOL)loadStateFromFileAtPath:(NSString *)fileName
-{
-    return NO;
-}
-
 - (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    block([self saveStateToFileAtPath:fileName], nil);
+    block(NO, [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreDoesNotSupportSaveStatesError userInfo:nil]);
 }
 
 - (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block
 {
-    block([self loadStateFromFileAtPath:fileName], nil);
+    block(NO, [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreDoesNotSupportSaveStatesError userInfo:nil]);
 }
 
 #pragma mark - Cheats
