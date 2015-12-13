@@ -1207,33 +1207,54 @@ static NSString *OEHIDEventHatSwitchTypeKey      = @"OEHIDEventHatSwitchType";
 static NSString *OEHIDEventHatSwitchDirectionKey = @"OEHIDEventHatSwitchDirection";
 static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
 
+- (NSString*)_keyForNewerKey:(NSString*)k inCoder:(NSCoder*)d
+{
+    static dispatch_once_t onceToken;
+    NSString *legacyKey;
+    
+    if ([d containsValueForKey:k])
+        return k;
+    
+    legacyKey = [k stringByAppendingString:@"Key"];
+    if ([d containsValueForKey:legacyKey])
+    {
+        dispatch_once(&onceToken, ^{
+            NSLog(@"Legacy encoding of OEHIDEvent detected; new encoding format will be incompatible with OpenEmu 1.0.4 and previous.");
+        });
+        return legacyKey;
+    }
+    
+    NSLog(@"Key %@ not found while decoding an OEHIDEvent!!", k);
+    return k;
+}
+
 - (id)initWithCoder:(NSCoder *)decoder
 {
     if((self = [super init]))
     {
         _deviceHandler = [decoder decodeObjectOfClass:[OEDeviceHandler class] forKey:OEHIDEventDeviceHandlerKey];
-        _type   = [decoder decodeIntegerForKey:OEHIDEventTypeKey];
-        _cookie = [decoder decodeIntegerForKey:OEHIDEventCookieKey];
+        _type   = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventTypeKey inCoder:decoder]];
+        _cookie = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventCookieKey inCoder:decoder]];
 
         switch([self type])
         {
             case OEHIDEventTypeAxis :
             case OEHIDEventTypeTrigger :
-                _data.axis.axis               = [decoder decodeIntegerForKey:OEHIDEventAxisKey];
-                _data.axis.direction          = [decoder decodeIntegerForKey:OEHIDEventDirectionKey];
+                _data.axis.axis               = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventAxisKey inCoder:decoder]];
+                _data.axis.direction          = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventDirectionKey inCoder:decoder]];
                 break;
             case OEHIDEventTypeButton :
-                _data.button.buttonNumber     = [decoder decodeIntegerForKey:OEHIDEventButtonNumberKey];
-                _data.button.state            = [decoder decodeIntegerForKey:OEHIDEventStateKey];
+                _data.button.buttonNumber     = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventButtonNumberKey inCoder:decoder]];
+                _data.button.state            = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventStateKey inCoder:decoder]];
                 break;
             case OEHIDEventTypeHatSwitch :
-                _data.hatSwitch.hatSwitchType = [decoder decodeIntegerForKey:OEHIDEventHatSwitchTypeKey];
-                _data.hatSwitch.hatDirection  = [decoder decodeIntegerForKey:OEHIDEventHatSwitchDirectionKey];
+                _data.hatSwitch.hatSwitchType = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventHatSwitchTypeKey inCoder:decoder]];
+                _data.hatSwitch.hatDirection  = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventHatSwitchDirectionKey inCoder:decoder]];
                 break;
             case OEHIDEventTypeKeyboard :
                 _cookie                       = OEUndefinedCookie;
-                _data.key.keycode             = [decoder decodeIntegerForKey:OEHIDEventKeycodeKey];
-                _data.key.state               = [decoder decodeIntegerForKey:OEHIDEventStateKey];
+                _data.key.keycode             = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventKeycodeKey inCoder:decoder]];
+                _data.key.state               = [decoder decodeIntegerForKey:[self _keyForNewerKey:OEHIDEventStateKey inCoder:decoder]];
                 break;
         }
     }
