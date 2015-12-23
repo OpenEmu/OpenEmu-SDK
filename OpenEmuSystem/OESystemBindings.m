@@ -33,6 +33,7 @@
 #import "OEDeviceHandler.h"
 #import "OEHIDDeviceHandler.h"
 #import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 #import "OEKeyBindingDescription.h"
 #import "OESystemController.h"
 
@@ -160,26 +161,23 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     // Convert keyboard bindings
     _keyboardPlayerBindings = [[NSMutableDictionary alloc] initWithCapacity:[representations count]];
 
-    [representations enumerateObjectsUsingBlock:
-     ^(NSDictionary *encoded, NSUInteger idx, BOOL *stop)
-     {
-         NSMutableDictionary *decodedBindings = [NSMutableDictionary dictionaryWithCapacity:[encoded count]];
+    [representations enumerateObjectsUsingBlock:^(NSDictionary *encoded, NSUInteger idx, BOOL *stop) {
+        NSMutableDictionary *decodedBindings = [NSMutableDictionary dictionaryWithCapacity:[encoded count]];
 
-         [encoded enumerateKeysAndObjectsUsingBlock:
-          ^(NSString *keyName, id value, BOOL *stop)
-          {
-              OEKeyBindingDescription *desc = _systemController.allKeyBindingsDescriptions[keyName];
-              if(desc == nil) return;
-              decodedBindings[desc] = value;
-          }];
+        [encoded enumerateKeysAndObjectsUsingBlock:^(NSString *keyName, id value, BOOL *stop) {
+            OEKeyBindingDescription *desc = _systemController.allKeyBindingsDescriptions[keyName];
 
-         OEKeyboardPlayerBindings *controller = [[OEKeyboardPlayerBindings alloc] OE_initWithSystemBindings:self playerNumber:idx + 1];
+            if(desc)
+                decodedBindings[desc] = [OEHIDEvent eventWithDictionaryRepresentation:value];
+        }];
 
-         [controller OE_setBindingEvents:decodedBindings];
-         [controller OE_setBindingDescriptions:[self OE_stringValuesForBindings:decodedBindings possibleKeys:_systemController.keyBindingsDescriptions]];
+        OEKeyboardPlayerBindings *controller = [[OEKeyboardPlayerBindings alloc] OE_initWithSystemBindings:self playerNumber:idx + 1];
 
-         _keyboardPlayerBindings[@([controller playerNumber])] = controller;
-     }];
+        [controller OE_setBindingEvents:decodedBindings];
+        [controller OE_setBindingDescriptions:[self OE_stringValuesForBindings:decodedBindings possibleKeys:_systemController.keyBindingsDescriptions]];
+
+        _keyboardPlayerBindings[@([controller playerNumber])] = controller;
+    }];
 }
 
 - (void)OE_parseDefaultControlValuesForControllerDescription:(OEControllerDescription *)controllerDescription
@@ -229,11 +227,9 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         if(controlIdentifier == nil)
             return;
 
-        NSAssert(![controlIdentifier isKindOfClass:[NSDictionary class]], @"Default for key %@ in System %@ was not converted to the new system.", keyName, [_systemController systemName]);
-        OEControlValueDescription *controlValue = (useValueIdentifier
-            ? [controllerDescription controlValueDescriptionForValueIdentifier:controlIdentifier]
-            : [controllerDescription controlValueDescriptionForIdentifier:controlIdentifier]);
+        NSAssert(![controlIdentifier isKindOfClass:[NSNumber class]], @"Default for key %@ in System %@ was not converted to the new system.", keyName, [_systemController systemName]);
 
+        OEControlValueDescription *controlValue = [controllerDescription controlValueDescriptionForRepresentation:controlIdentifier];
         OEHIDEvent *event = [controlValue event];
 
         NSAssert(controlValue != nil, @"Unknown control value for identifier: '%@' associated with key name: '%@'", controlIdentifier, keyName);
@@ -264,25 +260,24 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 #pragma mark - Construct the receiver's representation dictionaries
 
-- (NSDictionary *)OE_dictionaryRepresentation;
+- (NSDictionary<NSString *, __kindof id<OEPropertyList>> *)OE_dictionaryRepresentation;
 {
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:2];
+    NSMutableDictionary<NSString *, __kindof id<OEPropertyList>> *dictionary = [NSMutableDictionary dictionaryWithCapacity:2];
 
     void (^addToDictionary)(NSString *key, id value) =
-    ^(NSString *key, id value)
+    ^(NSString *key, __kindof id<OEPropertyList> value)
     {
-        if(value == nil) return;
-
-        [dictionary setObject:value forKey:key];
+        if(value)
+            dictionary[key] = value;
     };
 
-    addToDictionary(_OEControllerBindingRepresentationsKey    , [self OE_dictionaryRepresentationForControllerBindings]);
+    addToDictionary(_OEControllerBindingRepresentationsKey, [self OE_dictionaryRepresentationForControllerBindings]);
     addToDictionary(_OEKeyboardPlayerBindingRepresentationsKey, [self OE_arrayRepresentationForKeyboardBindings]);
 
     return [dictionary copy];
 }
 
-- (NSDictionary *)OE_dictionaryRepresentationForControllerBindings;
+- (NSDictionary<NSString *, __kindof id<OEPropertyList>> *)OE_dictionaryRepresentationForControllerBindings;
 {
     NSMutableDictionary<NSString *, NSArray *> *ret = [_unparsedManufactuerBindings mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[_parsedManufacturerBindings count]];
 
@@ -314,7 +309,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
                       saveKey = @"";
                   }
 
-                  bindingRepresentations[saveKey] = isDeviceDescription ? [obj valueIdentifier] : [obj identifier];
+                  bindingRepresentations[saveKey] = obj.representation;
               }];
 
              [controllerRepresentations addObject:bindingRepresentations];
@@ -326,20 +321,20 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     return ret;
 }
 
-- (NSMutableArray<NSDictionary<NSString *, OEHIDEvent *> *> *)OE_arrayRepresentationForKeyboardBindings
+- (NSMutableArray<NSDictionary<NSString *, __kindof id<OEPropertyList>> *> *)OE_arrayRepresentationForKeyboardBindings
 {
-    NSMutableArray<NSDictionary<NSString *, OEHIDEvent *> *> *ret = [NSMutableArray arrayWithCapacity:[_keyboardPlayerBindings count]];
+    NSMutableArray<NSDictionary<NSString *, __kindof id<OEPropertyList>> *> *ret = [NSMutableArray arrayWithCapacity:[_keyboardPlayerBindings count]];
     NSUInteger numberOfPlayers = [self numberOfPlayers];
     NSUInteger lastValidPlayerNumber = 1;
 
     for(NSUInteger i = 1; i <= numberOfPlayers; i++)
     {
         NSDictionary *rawBindings = [_keyboardPlayerBindings[@(i)] bindingEvents];
-        NSMutableDictionary<NSString *, OEHIDEvent *> *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
+        NSMutableDictionary<NSString *, __kindof id<OEPropertyList>> *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
         [rawBindings enumerateKeysAndObjectsUsingBlock:
          ^(OEKeyBindingDescription *key, OEHIDEvent *event, BOOL *stop)
          {
-             bindingRepresentations[[key name]] = event;
+             bindingRepresentations[[key name]] = event.dictionaryRepresentation;
          }];
 
         ret[[ret count]] = bindingRepresentations;

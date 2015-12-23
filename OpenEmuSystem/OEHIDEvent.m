@@ -32,6 +32,7 @@
 #import "OEHIDUsageToVK.h"
 #import "OEHIDDeviceHandler.h"
 #import "OEWiimoteHIDDeviceHandler.h"
+#import "OEHIDEvent_Internal.h"
 
 static BOOL _OEHIDElementIsTrigger(IOHIDElementRef elem)
 {
@@ -1206,6 +1207,69 @@ static NSString *OEHIDEventStateKey              = @"OEHIDEventState";
 static NSString *OEHIDEventHatSwitchTypeKey      = @"OEHIDEventHatSwitchType";
 static NSString *OEHIDEventHatSwitchDirectionKey = @"OEHIDEventHatSwitchDirection";
 static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
+
++ (instancetype)eventWithDictionaryRepresentation:(NSDictionary<NSString *, __kindof id<OEPropertyList>> *)dictionaryRepresentation
+{
+    NSUInteger cookie = [dictionaryRepresentation[OEHIDEventCookieKey] unsignedIntegerValue];
+    OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:nil timestamp:0 cookie:cookie];
+    ret->_type = [dictionaryRepresentation[OEHIDEventTypeKey] unsignedIntegerValue];
+
+    switch (ret->_type) {
+        case OEHIDEventTypeAxis :
+        case OEHIDEventTypeTrigger :
+            ret->_data.axis.axis = [dictionaryRepresentation[OEHIDEventAxisKey] unsignedIntegerValue];
+            ret->_data.axis.direction = [dictionaryRepresentation[OEHIDEventDirectionKey] integerValue];
+            break;
+            
+        case OEHIDEventTypeButton :
+            ret->_data.button.buttonNumber = [dictionaryRepresentation[OEHIDEventButtonNumberKey] unsignedIntegerValue];
+            ret->_data.button.state = [dictionaryRepresentation[OEHIDEventStateKey] integerValue];
+            break;
+
+        case OEHIDEventTypeHatSwitch :
+            ret->_data.hatSwitch.hatSwitchType = [dictionaryRepresentation[OEHIDEventHatSwitchTypeKey] unsignedIntegerValue];
+            ret->_data.hatSwitch.hatDirection = [dictionaryRepresentation[OEHIDEventHatSwitchDirectionKey] unsignedIntegerValue];
+            break;
+
+        case OEHIDEventTypeKeyboard :
+            ret->_cookie = OEUndefinedCookie;
+            ret->_data.key.keycode = [dictionaryRepresentation[OEHIDEventKeycodeKey] unsignedIntegerValue];
+            ret->_data.key.state = [dictionaryRepresentation[OEHIDEventStateKey] integerValue];
+            break;
+    }
+
+    return ret;
+}
+
+- (NSDictionary<NSString *, __kindof id<OEPropertyList>> *)dictionaryRepresentation
+{
+    NSMutableDictionary<NSString *, __kindof id<OEPropertyList>> *representation = [@{
+        OEHIDEventTypeKey: @(_type),
+        OEHIDEventCookieKey: @(_cookie),
+    } mutableCopy];
+
+    switch (_type) {
+        case OEHIDEventTypeAxis :
+        case OEHIDEventTypeTrigger :
+            representation[OEHIDEventAxisKey] = @(self.axis);
+            representation[OEHIDEventDirectionKey] = @(self.direction);
+            break;
+        case OEHIDEventTypeButton :
+            representation[OEHIDEventButtonNumberKey] = @(self.buttonNumber);
+            representation[OEHIDEventStateKey] = @(self.state);
+            break;
+        case OEHIDEventTypeHatSwitch :
+            representation[OEHIDEventHatSwitchTypeKey] = @(self.hatSwitchType);
+            representation[OEHIDEventHatSwitchDirectionKey] = @(self.hatDirection);
+            break;
+        case OEHIDEventTypeKeyboard :
+            representation[OEHIDEventKeycodeKey] = @(self.keycode);
+            representation[OEHIDEventStateKey] = @(self.state);
+            break;
+    }
+
+    return representation;
+}
 
 - (id)initWithCoder:(NSCoder *)decoder
 {

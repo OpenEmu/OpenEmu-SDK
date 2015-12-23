@@ -27,6 +27,7 @@
 #import "OEControlDescription.h"
 #import "OEControllerDescription_Internal.h"
 #import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 
 static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
 {
@@ -206,10 +207,9 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
 {
     if((self = [super init]))
     {
-        _identifier      = [identifier copy] ? : OEControlGenericIdentifierFromEvent(event);
-        _name            = [name copy]       ? : [event displayDescription];
-        _event           = [event copy];
-        _valueIdentifier = @([event controlValueIdentifier]);
+        _identifier = [identifier copy] ? : OEControlGenericIdentifierFromEvent(event);
+        _name = [name copy] ? : [event displayDescription];
+        _event = [event copy];
     }
 
     return self;
@@ -224,14 +224,19 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
     return ret;
 }
 
-- (id)representationIdentifier
+- (NSNumber *)valueIdentifier
 {
-    return [_controlDescription isGenericControl] ? _valueIdentifier : _identifier;
+    return @(_event.controlValueIdentifier);
+}
+
+- (id)representation
+{
+    return _identifier;
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %@ %@ %@>", _identifier, _name, _event, _valueIdentifier];
+    return [NSString stringWithFormat:@"<%@ %@ %@>", _identifier, _name, _event];
 }
 
 @end

@@ -30,6 +30,7 @@
 #import "OEKeyBindingDescription.h"
 #import "OESystemBindings.h"
 #import "OEPlayerBindings.h"
+#import <OpenEmuBase/OEPropertyList.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)OE_initWithBindingsController:(nullable OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary __attribute__((objc_method_family(init)));
 
-- (NSDictionary *)OE_dictionaryRepresentation;
+- (NSDictionary<NSString *, __kindof id<OEPropertyList>> *)OE_dictionaryRepresentation;
 
 - (void)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler;
 - (void)OE_didRemoveDeviceHandler:(OEDeviceHandler *)aHandler;

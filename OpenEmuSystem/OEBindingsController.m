@@ -30,6 +30,7 @@
 #import "OEBindingsController_Internal.h"
 #import "OEDeviceManager.h"
 #import "OEDeviceHandler.h"
+#import <OpenEmuBase/OEPropertyList.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -138,7 +139,9 @@ static NSString *configurationsFolderPath;
         {
             dispatch_sync(bindingsControllerQueue, ^{
                 configurationName     = [aName copy];
-                systemRepresentations = [NSKeyedUnarchiver unarchiveObjectWithFile:[[self class] filePathForConfigurationWithName:aName]];
+
+                NSData *data = [NSData dataWithContentsOfFile:[[self class] filePathForConfigurationWithName:aName]];
+                systemRepresentations = data ? [[NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:nil] mutableCopy] : nil;
                 [self OE_setupBindingsController];
                 [self OE_setupNotificationObservation];
                 [bindingsControllers setObject:self forKey:configurationName];
@@ -209,27 +212,34 @@ static NSString *configurationsFolderPath;
 
 - (BOOL)synchronize;
 {
-    if(!requiresSynchronization) return YES;
+    if(!requiresSynchronization)
+        return YES;
     
     /* systemRepresentations contains all the representations that were stored
      * in the original file but not yet parsed because its OESystemController
      * was not yet registered, so we have to save the already registered
      * system controllers but also keep the unregistered ones.
      */
-    NSMutableDictionary<NSString *, NSDictionary *> *systemReps = [systemRepresentations mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[systems count]];
+    NSMutableDictionary<NSString *, __kindof id<OEPropertyList>> *systemReps = [systemRepresentations mutableCopy] ? : [NSMutableDictionary dictionaryWithCapacity:[systems count]];
     
-    [systems enumerateKeysAndObjectsUsingBlock:
-     ^(NSString *identifier, OESystemBindings *ctrl, BOOL *stop)
-     {
-         [systemReps setObject:[ctrl OE_dictionaryRepresentation] forKey:identifier];
-     }];
-    
-    if([NSKeyedArchiver archiveRootObject:systemReps toFile:[self filePath]])
-    {
+    [systems enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, OESystemBindings *ctrl, BOOL *stop) {
+        [systemReps setObject:[ctrl OE_dictionaryRepresentation] forKey:identifier];
+    }];
+
+    NSError *error;
+    NSData *data = [NSPropertyListSerialization dataWithPropertyList:systemReps format:NSPropertyListBinaryFormat_v1_0 options:0 error:&error];
+
+    if (!data) {
+        NSLog(@"Could not make plist with error: %@", error);
+        return NO;
+    }
+
+    if([data writeToFile:self.filePath options:NSDataWritingAtomic error:&error]) {
         requiresSynchronization = NO;
         return YES;
     }
-    
+
+    NSLog(@"Could not save with error: %@", error);
     return NO;
 }
 

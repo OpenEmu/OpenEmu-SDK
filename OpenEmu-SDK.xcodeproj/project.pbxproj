@@ -90,6 +90,8 @@
 		C6772C331710EC3600ED580A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C321710EC3500ED580A /* IOKit.framework */; };
 		C6772C351710EC4500ED580A /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C341710EC4500ED580A /* IOBluetooth.framework */; };
 		C6772C371710EC6B00ED580A /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C361710EC6B00ED580A /* Carbon.framework */; };
+		C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC11C2A065400DFD15C /* OEPropertyList.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		C694EEC61C2A0A7D00DFD15C /* OEHIDEvent_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */; };
 		C6A726831C059BF000E35961 /* OEBindingDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = C6A726811C059BF000E35961 /* OEBindingDescription.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6A726841C059BF000E35961 /* OEBindingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = C6A726821C059BF000E35961 /* OEBindingDescription.m */; };
 /* End PBXBuildFile section */
@@ -194,6 +196,8 @@
 		C6772C321710EC3500ED580A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
 		C6772C341710EC4500ED580A /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/IOBluetooth.framework; sourceTree = DEVELOPER_DIR; };
 		C6772C361710EC6B00ED580A /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
+		C694EEC11C2A065400DFD15C /* OEPropertyList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEPropertyList.h; sourceTree = "<group>"; };
+		C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEHIDEvent_Internal.h; sourceTree = "<group>"; };
 		C6A726811C059BF000E35961 /* OEBindingDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingDescription.h; sourceTree = "<group>"; };
 		C6A726821C059BF000E35961 /* OEBindingDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBindingDescription.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -287,6 +291,7 @@
 				27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */,
 				27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */,
 				8363A433193CA52400F18425 /* OEGeometry.h */,
+				C694EEC11C2A065400DFD15C /* OEPropertyList.h */,
 				C6772A301710A4BA00ED580A /* Supporting Files */,
 			);
 			path = OpenEmuBase;
@@ -383,6 +388,7 @@
 				C6772B771710E21900ED580A /* OEEvent.m */,
 				C6772BAD1710E28900ED580A /* OEHIDEvent.h */,
 				C6772BAE1710E28900ED580A /* OEHIDEvent.m */,
+				C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */,
 				C6772BB11710E28900ED580A /* OEHIDUsageToVK.h */,
 				C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */,
 				C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */,
@@ -438,6 +444,7 @@
 				C6772A741710BD6200ED580A /* OEGameCoreController.h in Headers */,
 				C6772A761710BD6200ED580A /* OERingBuffer.h in Headers */,
 				8363A434193CA52400F18425 /* OEGeometry.h in Headers */,
+				C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */,
 				27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */,
 				C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */,
 				C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */,
@@ -467,6 +474,7 @@
 				C6772B981710E25300ED580A /* OEKeyBindingGroupDescription.h in Headers */,
 				C6772BDF1710E41C00ED580A /* OELocalizationHelper.h in Headers */,
 				C6772B9E1710E25300ED580A /* OEPlayerBindings.h in Headers */,
+				C694EEC61C2A0A7D00DFD15C /* OEHIDEvent_Internal.h in Headers */,
 				C6A726831C059BF000E35961 /* OEBindingDescription.h in Headers */,
 				C6772B9C1710E25300ED580A /* OESystemBindings.h in Headers */,
 				C6772B791710E21900ED580A /* OESystemController.h in Headers */,

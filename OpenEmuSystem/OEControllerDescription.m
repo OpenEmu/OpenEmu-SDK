@@ -29,6 +29,7 @@
 #import "OEDeviceHandler.h"
 #import "OEHIDDeviceHandler.h"
 #import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 #import <IOKit/hid/IOHIDUsageTables.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -227,9 +228,15 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     return _identifierToControlValue[controlIdentifier];
 }
 
-- (OEControlValueDescription *)controlValueDescriptionForValueIdentifier:(NSNumber *)controlValueIdentifier;
+- (OEControlValueDescription *)controlValueDescriptionForRepresentation:(id)representation
 {
-    return _valueIdentifierToControlValue[controlValueIdentifier];
+    if ([representation isKindOfClass:[NSDictionary class]])
+        return [self controlValueDescriptionForEvent:[OEHIDEvent eventWithDictionaryRepresentation:representation]];
+
+    if ([representation isKindOfClass:[NSString class]])
+        return [self controlValueDescriptionForIdentifier:representation];
+
+    return nil;
 }
 
 - (OEControlDescription *)addControlWithIdentifier:(nullable NSString *)identifier name:(nullable NSString *)name event:(OEHIDEvent *)event;

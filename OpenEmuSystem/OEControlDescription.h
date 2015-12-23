@@ -52,10 +52,10 @@
 
 @property(readonly, weak) OEControlDescription *controlDescription;
 
-@property(readonly) NSString   *name;
-@property(readonly) NSString   *identifier;
-@property(readonly) NSNumber   *valueIdentifier;
-@property(readonly) id          representationIdentifier;
+@property(readonly) NSString *name;
+@property(readonly) NSString *identifier;
+@property(readonly) NSNumber *valueIdentifier;
+@property(readonly) id representation;
 @property(readonly) OEHIDEvent *event;
 
 - (OEControlValueDescription *)associatedControlValueDescriptionForEvent:(OEHIDEvent *)anEvent;
