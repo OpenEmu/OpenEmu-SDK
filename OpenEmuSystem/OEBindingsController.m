@@ -74,7 +74,7 @@ static NSString *configurationsFolderPath;
         
         if([paths count] > 0)
         {
-            configurationsFolderPath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"OpenEmu"] stringByAppendingPathComponent:@"Bindings Configurations"];
+            configurationsFolderPath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"OpenEmu"] stringByAppendingPathComponent:@"Bindings"];
             [[NSFileManager defaultManager] createDirectoryAtPath:configurationsFolderPath withIntermediateDirectories:YES attributes:nil error:NULL];
         }
     }
