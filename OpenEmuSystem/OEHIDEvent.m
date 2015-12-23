@@ -246,6 +246,8 @@ OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
             }
             break;
         }
+        case kHIDPage_Consumer :
+            return OEHIDEventTypeButton;
         case kHIDPage_Button :
             return OEHIDEventTypeButton;
         case kHIDPage_KeyboardOrKeypad :

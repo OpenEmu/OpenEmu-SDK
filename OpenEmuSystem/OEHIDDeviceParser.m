@@ -203,10 +203,16 @@ static BOOL OE_isXboxControllerName(NSString *name)
     return elem;
 }
 
-- (BOOL)OE_isButtonElementsForType:(OEHIDEventType)eventType usage:(NSUInteger)usage
+typedef NS_ENUM(NSInteger, OEElementType) {
+    OEElementTypeButton,
+    OEElementTypeGenericDesktop,
+    OEElementTypeConsumer,
+};
+
+- (OEElementType)OE_elementTypeForHIDEventType:(OEHIDEventType)eventType usage:(NSUInteger)usage
 {
     if (eventType != OEHIDEventTypeButton)
-        return NO;
+        return OEElementTypeGenericDesktop;
 
     switch(usage) {
         case kHIDUsage_GD_DPadUp :
@@ -215,10 +221,15 @@ static BOOL OE_isXboxControllerName(NSString *name)
         case kHIDUsage_GD_DPadRight :
         case kHIDUsage_GD_Start :
         case kHIDUsage_GD_Select :
-            return NO;
+            return OEElementTypeGenericDesktop;
+
+        case kHIDUsage_Csmr_ACHome :
+        case kHIDUsage_Csmr_ACBack :
+        case kHIDUsage_Csmr_ACForward :
+            return OEElementTypeConsumer;
     }
 
-    return YES;
+    return OEElementTypeButton;
 }
 
 - (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc representations:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)controlRepresentations
@@ -229,6 +240,7 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
     NSMutableArray *genericDesktopElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_GenericDesktop) }, 0) mutableCopy];
     NSMutableArray *buttonElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_Button) }, 0) mutableCopy];
+    NSMutableArray *consumerElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_Consumer) }, 0) mutableCopy];
 
     [controlRepresentations enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary<NSString *, id> *rep, BOOL *stop) {
         OEHIDEventType type = OEHIDEventTypeFromNSString(rep[@"Type"]);
@@ -236,7 +248,19 @@ static BOOL OE_isXboxControllerName(NSString *name)
         NSUInteger usage = OEUsageFromUsageStringWithType(rep[@"Usage"], type);
 
         // Find the element for the current description.
-        NSMutableArray *targetArray = [self OE_isButtonElementsForType:type usage:usage] ? buttonElements : genericDesktopElements;
+        NSMutableArray *targetArray;
+        switch ([self OE_elementTypeForHIDEventType:type usage:usage]) {
+            case OEElementTypeButton:
+                targetArray = buttonElements;
+                break;
+            case OEElementTypeGenericDesktop:
+                targetArray = genericDesktopElements;
+                break;
+            case OEElementTypeConsumer:
+                targetArray = consumerElements;
+                break;
+        }
+
         IOHIDElementRef elem = [self OE_findElementInArray:targetArray withCookie:cookie usage:usage];
 
         if(elem == NULL) {
