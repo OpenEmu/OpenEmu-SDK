@@ -46,8 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchEventWithHIDValue:(IOHIDValueRef)aValue;
 - (io_service_t)serviceRef;
 
-- (IOHIDElementRef)elementForEvent:(OEHIDEvent *)anEvent;
-
 - (void)forceFeedbackWithStrongIntensity:(CGFloat)strongIntensity weakIntensity:(CGFloat)weakIntensity;
 - (BOOL)supportsForceFeedback;
 - (void)enableForceFeedback;

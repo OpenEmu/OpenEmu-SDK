@@ -119,7 +119,6 @@ extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
 @property(readonly) NSTimeInterval          timestamp;
 @property(readonly) OEHIDEventType          type;
 @property(readonly) NSUInteger              cookie;
-@property(readonly) NSUInteger              usagePage;
 @property(readonly) NSUInteger              usage;
 @property(readonly) BOOL                    hasOffState;
 

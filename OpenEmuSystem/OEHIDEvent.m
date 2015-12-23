@@ -796,20 +796,6 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-- (NSUInteger)usagePage
-{
-    switch([self type])
-    {
-        case OEHIDEventTypeAxis      :
-        case OEHIDEventTypeHatSwitch :
-        case OEHIDEventTypeTrigger   : return kHIDPage_GenericDesktop;
-        case OEHIDEventTypeButton    : return kHIDPage_Button;
-        case OEHIDEventTypeKeyboard  : return kHIDPage_KeyboardOrKeypad;
-    }
-
-    return 0;
-}
-
 - (NSUInteger)usage
 {
     switch([self type])
