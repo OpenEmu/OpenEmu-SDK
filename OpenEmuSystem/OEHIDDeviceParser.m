@@ -181,6 +181,46 @@ static BOOL OE_isXboxControllerName(NSString *name)
     return attributes;
 }
 
+- (nullable IOHIDElementRef)OE_findElementInArray:(NSMutableArray *)targetArray withCookie:(NSUInteger)cookie usage:(NSUInteger)usage
+{
+    __block IOHIDElementRef elem = NULL;
+
+    [targetArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        IOHIDElementRef testedElement = (__bridge IOHIDElementRef)obj;
+
+        if(IOHIDElementGetType(testedElement) == kIOHIDElementTypeCollection
+           || (cookie != OEUndefinedCookie && cookie != IOHIDElementGetCookie(testedElement))
+           || usage != IOHIDElementGetUsage(testedElement))
+            return;
+
+        elem = testedElement;
+        // Make sure you stop enumerating right after modifying the array
+        // or else it will throw an exception.
+        [targetArray removeObjectAtIndex:idx];
+        *stop = YES;
+    }];
+
+    return elem;
+}
+
+- (BOOL)OE_isButtonElementsForType:(OEHIDEventType)eventType usage:(NSUInteger)usage
+{
+    if (eventType != OEHIDEventTypeButton)
+        return NO;
+
+    switch(usage) {
+        case kHIDUsage_GD_DPadUp :
+        case kHIDUsage_GD_DPadDown :
+        case kHIDUsage_GD_DPadLeft :
+        case kHIDUsage_GD_DPadRight :
+        case kHIDUsage_GD_Start :
+        case kHIDUsage_GD_Select :
+            return YES;
+    }
+
+    return NO;
+}
+
 - (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc representations:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)controlRepresentations
 {
     OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
@@ -195,27 +235,14 @@ static BOOL OE_isXboxControllerName(NSString *name)
         NSUInteger cookie = [rep[@"Cookie"] integerValue];
         NSUInteger usage = OEUsageFromUsageStringWithType(rep[@"Usage"], type);
 
-        __block IOHIDElementRef elem = NULL;
-
         // Find the element for the current description.
-        NSMutableArray *targetArray = type == OEHIDEventTypeButton ? buttonElements : genericDesktopElements;
-        [targetArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            IOHIDElementRef testedElement = (__bridge IOHIDElementRef)obj;
+        NSMutableArray *targetArray = [self OE_isButtonElementsForType:type usage:usage] ? buttonElements : genericDesktopElements;
+        IOHIDElementRef elem = [self OE_findElementInArray:targetArray withCookie:cookie usage:usage];
 
-            if(IOHIDElementGetType(testedElement) == kIOHIDElementTypeCollection
-               || (cookie != OEUndefinedCookie && cookie != IOHIDElementGetCookie(testedElement))
-               || usage != IOHIDElementGetUsage(testedElement))
-                return;
-
-            elem = testedElement;
-            // Make sure you stop enumerating right after modifying the array
-            // or else it will throw an exception.
-            [targetArray removeObjectAtIndex:idx];
-            *stop = YES;
-        }];
-
-        if(elem == NULL)
+        if(elem == NULL) {
+            NSLog(@"Could not find element for control of type: %@, cookie: %@, usage: %@", rep[@"Type"], rep[@"Cookie"], rep[@"Usage"]);
             return;
+        }
 
         cookie = IOHIDElementGetCookie(elem);
 
