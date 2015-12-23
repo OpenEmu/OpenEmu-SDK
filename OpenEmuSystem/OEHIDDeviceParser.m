@@ -215,10 +215,10 @@ static BOOL OE_isXboxControllerName(NSString *name)
         case kHIDUsage_GD_DPadRight :
         case kHIDUsage_GD_Start :
         case kHIDUsage_GD_Select :
-            return YES;
+            return NO;
     }
 
-    return NO;
+    return YES;
 }
 
 - (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc representations:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)controlRepresentations
