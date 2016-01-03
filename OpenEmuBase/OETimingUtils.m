@@ -32,12 +32,12 @@ static double mach_to_sec = 0;
 
 static void init_mach_time(void)
 {
-    if(mach_to_sec == 0.0)
-    {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         struct mach_timebase_info base;
         mach_timebase_info(&base);
         mach_to_sec = 1e-9 * (base.numer / (double)base.denom);
-    }
+    });
 }
 
 NSTimeInterval OEMonotonicTime(void)
