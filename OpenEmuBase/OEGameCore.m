@@ -44,24 +44,14 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
     OERingBuffer __strong **ringBuffers;
 
-    @public NSTimeInterval  frameInterval;
-    NSTimeInterval          frameRateModifier;
-
-    NSUInteger              frameSkip;
-    NSUInteger              frameCounter;
-    NSUInteger              tenFrameCounter;
-    NSUInteger              autoFrameSkipLastTime;
-    NSUInteger              frameskipadjust;
-
     OEDiffQueue            *rewindQueue;
     NSUInteger              rewindCounter;
 
-    BOOL                    willSkipFrame;
     BOOL                    shouldStop;
-    BOOL                    isFastForwarding;
+    BOOL                    singleFrameStep;
     BOOL                    isRewinding;
-    BOOL                    stepFrameForward;
-    BOOL                    stepFrameBackward;
+
+    NSTimeInterval          lastRate;
 }
 
 static Class GameCoreClass = Nil;
@@ -80,11 +70,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     self = [super init];
     if(self != nil)
     {
-        tenFrameCounter = 10;
-        frameRateModifier = 1;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
-        rewindQueue = nil;
     }
     return self;
 }
@@ -162,10 +149,19 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
-- (void)setPauseEmulation:(BOOL)flag
+- (void)setPauseEmulation:(BOOL)paused
 {
-    if(flag) isRunning = NO;
-    else     isRunning = YES;
+    if (_rate == 0 && paused) return;
+    if (_rate != 0 && !paused) return;
+
+    // Set rate to 0 and store the previous rate.
+
+    if (paused) {
+        lastRate = _rate;
+        _rate = 0;
+    } else {
+        _rate = lastRate;
+    }
 }
 
 - (void)setupEmulation
@@ -185,9 +181,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
     NSTimeInterval realTime, emulatedTime = OEMonotonicTime();
 
-    willSkipFrame = NO;
-    frameSkip = 0;
-
 #if 0
     __block NSTimeInterval gameTime = 0;
     __block int wasZero=1;
@@ -195,77 +188,78 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     DLog(@"main thread: %s", BOOL_STR([NSThread isMainThread]));
 
-    OESetThreadRealtime(1. / (frameRateModifier * [self frameInterval]), .007, .03); // guessed from bsnes
+    OESetThreadRealtime(1. / (_rate * [self frameInterval]), .007, .03); // guessed from bsnes
 
     while(!shouldStop)
     {
-        @autoreleasepool
-        {
+    @autoreleasepool
+    {
 #if 0
-            gameTime += 1. / [self frameInterval];
-            if(wasZero && gameTime >= 1)
-            {
-                NSUInteger audioBytesGenerated = ringBuffers[0].bytesWritten;
-                double expectedRate = [self audioSampleRateForBuffer:0];
-                NSUInteger audioSamplesGenerated = audioBytesGenerated/(2*[self channelCount]);
-                double realRate = audioSamplesGenerated/gameTime;
-                NSLog(@"AUDIO STATS: sample rate %f, real rate %f", expectedRate, realRate);
-                wasZero = 0;
-            }
+        gameTime += 1. / [self frameInterval];
+        if(wasZero && gameTime >= 1)
+        {
+            NSUInteger audioBytesGenerated = ringBuffers[0].bytesWritten;
+            double expectedRate = [self audioSampleRateForBuffer:0];
+            NSUInteger audioSamplesGenerated = audioBytesGenerated/(2*[self channelCount]);
+            double realRate = audioSamplesGenerated/gameTime;
+            NSLog(@"AUDIO STATS: sample rate %f, real rate %f", expectedRate, realRate);
+            wasZero = 0;
+        }
 #endif
 
-            willSkipFrame = (frameCounter != frameSkip);
+        // Frame skipping actually isn't possible with LLE...
+        self.shouldSkipFrame = NO;
 
-            self.shouldSkipFrame = willSkipFrame;
-            
-            BOOL executing = self.rate > 0 || stepFrameForward || stepFrameBackward;
-            BOOL rewinding = isRewinding || stepFrameBackward;
-            
-            if(executing && rewinding)
-            {
-                stepFrameBackward = NO;
-                
-                NSData *state = [[self rewindQueue] pop];
-                if(state)
-                {
-                    [_renderDelegate willExecute];
-                    [self executeFrame];
-                    [_renderDelegate didExecute];
-                    
-                    [self deserializeState:state withError:nil];
-                }
+        BOOL executing = _rate > 0 || singleFrameStep;
+
+        if(executing && isRewinding)
+        {
+            if (singleFrameStep) {
+                singleFrameStep = isRewinding = NO;
             }
-            else if(executing)
+
+            NSData *state = [[self rewindQueue] pop];
+            if(state)
             {
-                stepFrameForward = NO;
-                //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
-                
-                if([self supportsRewinding] && rewindCounter == 0 && !willSkipFrame)
-                {
-                    NSData *state = [self serializeStateWithError:nil];
-                    if(state)
-                    {
-                        [[self rewindQueue] push:state];
-                    }
-                    rewindCounter = [self rewindInterval];
-                }
-                else
-                {
-                    --rewindCounter;
-                }
-                
                 [_renderDelegate willExecute];
                 [self executeFrame];
                 [_renderDelegate didExecute];
-                //});
+
+                [self deserializeState:state withError:nil];
             }
-            
-            if(frameCounter >= frameSkip) frameCounter = 0;
-            else                          frameCounter++;
         }
+        else if(executing)
+        {
+            singleFrameStep = NO;
+            //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
+
+            if([self supportsRewinding] && rewindCounter == 0)
+            {
+                NSData *state = [self serializeStateWithError:nil];
+                if(state)
+                {
+                    [[self rewindQueue] push:state];
+                }
+                rewindCounter = [self rewindInterval];
+            }
+            else
+            {
+                --rewindCounter;
+            }
+
+            [_renderDelegate willExecute];
+            [self executeFrame];
+            [_renderDelegate didExecute];
+            //});
+        }
+
+        // Process the event loop exactly once.
+        // TODO: If paused, this burns CPU waiting to unpause.
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
 
-        NSTimeInterval advance = 1.0 / (frameRateModifier * [self frameInterval]);
+        NSTimeInterval frameInterval = self.frameInterval;
+        NSTimeInterval adjustedRate = _rate ?: 1;
+        NSTimeInterval advance = 1.0 / (adjustedRate * frameInterval);
 
         emulatedTime += advance;
         realTime = OEMonotonicTime();
@@ -279,11 +273,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
         OEWaitUntil(emulatedTime);
     }
+    }
 
     [[self delegate] gameCoreDidFinishFrameRefreshThread:self];
 }
 
-// TODO: Delete
 - (BOOL)isEmulationPaused
 {
     return _rate == 0;
@@ -292,7 +286,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (void)stopEmulation
 {
     shouldStop = YES;
-    _rate      = 0;
     DLog(@"Ending thread");
     [self didStopEmulation];
 }
@@ -317,18 +310,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)startEmulation
 {
-    if([self class] != GameCoreClass)
-    {
-        if(self.rate == 0)
-        {
-            self.rate  = 1;
-            shouldStop = NO;
+    if ([self class] == GameCoreClass) return;
+    if (_rate != 0) return;
 
-            // The selector is performed after a delay to let the application loop finish,
-            // afterwards, the GameCore's runloop takes over and only stops when the whole helper stops.
-            [self performSelector:@selector(frameRefreshThread:) withObject:nil afterDelay:0.0];
-        }
-    }
+    self.rate = 1;
+    shouldStop = NO;
+
+    // The selector is performed after a delay to let the application loop finish,
+    // afterwards, the GameCore's runloop takes over and only stops when the whole helper stops.
+    [self performSelector:@selector(frameRefreshThread:) withObject:nil afterDelay:0.0];
 }
 
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
@@ -348,26 +338,19 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)stepFrameForward
 {
-    self.rate = 0;
-    stepFrameForward = YES;
+    singleFrameStep = YES;
 }
 
 - (void)stepFrameBackward
 {
-    self.rate = 0;
-    stepFrameBackward = YES;
+    singleFrameStep = isRewinding = YES;
 }
 
 - (void)setRate:(float)rate
 {
-    if (_rate == rate) return;
+    NSLog(@"Rate change %f -> %f", _rate, rate);
 
-    isRunning = rate > 0;
     _rate = rate;
-
-    if ([self respondsToSelector:@selector(setPauseEmulation:)]) {
-        [self setPauseEmulation:!isRunning];
-    }
 }
 
 #pragma mark - ABSTRACT METHODS
@@ -475,29 +458,24 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)fastForward:(BOOL)flag
 {
-    if(flag == isFastForwarding)
-        return;
-
     if(flag)
     {
-        isFastForwarding = YES;
-        frameRateModifier = 5; // 5x speed
+        self.rate = 5;
     }
     else
     {
-        isFastForwarding = NO;
-        frameRateModifier = 1;
+        self.rate = 1;
     }
 
-    [_renderDelegate setEnableVSync:!isFastForwarding];
-    OESetThreadRealtime(1./(frameRateModifier * [self frameInterval]), .007, .03);
+    [_renderDelegate setEnableVSync:_rate == 1];
+    OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
 }
 
 - (void)rewind:(BOOL)flag
 {
-    if([self supportsRewinding] && ![[self rewindQueue] isEmpty])
+    if(flag && [self supportsRewinding] && ![[self rewindQueue] isEmpty])
     {
-        isRewinding = flag;
+        isRewinding = YES;
     }
     else
     {

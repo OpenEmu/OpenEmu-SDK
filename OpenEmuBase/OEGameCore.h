@@ -163,9 +163,6 @@ typedef enum : NSUInteger {
 
 OE_EXPORTED_CLASS
 @interface OEGameCore : NSResponder <OESystemResponderClient>
-{
-    BOOL                    isRunning OE_DEPRECATED("check -rate instead"); //used
-}
 
 // TODO: Move all ivars/properties that don't need overriding to a category?
 @property(weak)     id<OEGameCoreDelegate> delegate;
@@ -233,7 +230,7 @@ OE_EXPORTED_CLASS
  * @abstract The ideal time between -executeFrame calls when rate=1.0.
  * This property is only read at the start and cannot be changed.
  */
-@property (nonatomic, readonly) NSTimeInterval        frameInterval;
+@property (nonatomic, readonly) NSTimeInterval frameInterval;
 
 /*!
  * @property rate
@@ -472,7 +469,7 @@ OE_EXPORTED_CLASS
 
 - (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE;
 
-@property(getter=isEmulationPaused) BOOL pauseEmulation OE_DEPRECATED("use -rate");
+@property(getter=isEmulationPaused) BOOL pauseEmulation;
 
 - (void)fastForward:(BOOL)flag OE_DEPRECATED("use -rate");
 - (void)rewind:(BOOL)fla OE_DEPRECATED("use -rate");
