@@ -27,45 +27,39 @@
 #import "NSResponder+OEHIDAdditions.h"
 #import "OEHIDEvent.h"
 
-static dispatch_queue_t oehid_queue;
-
 @implementation NSResponder (OEHIDAdditions)
 
 - (void)handleHIDEvent:(OEHIDEvent *)anEvent
 {
-    if(oehid_queue == NULL) oehid_queue = dispatch_queue_create("OEHIDAdditions HID forwarding", DISPATCH_QUEUE_SERIAL);
-
-    dispatch_async(oehid_queue, ^{
-        switch([anEvent type])
-        {
-            case OEHIDEventTypeAxis :
-                [self axisMoved:anEvent];
-                break;
-            case OEHIDEventTypeTrigger :
-                if([anEvent hasOffState])
-                    [self triggerRelease:anEvent];
-                else
-                    [self triggerPull:anEvent];
-                break;
-            case OEHIDEventTypeButton :
-                if([anEvent hasOffState])
-                    [self buttonUp:anEvent];
-                else
-                    [self buttonDown:anEvent];
-                break;
-            case OEHIDEventTypeHatSwitch :
-                [self hatSwitchChanged:anEvent];
-                break;
-            case OEHIDEventTypeKeyboard :
-                if([anEvent hasOffState])
-                    [self HIDKeyUp:anEvent];
-                else
-                    [self HIDKeyDown:anEvent];
-                break;
-            default:
-                break;
-        }
-    });
+    switch([anEvent type])
+    {
+        case OEHIDEventTypeAxis :
+            [self axisMoved:anEvent];
+            break;
+        case OEHIDEventTypeTrigger :
+            if([anEvent hasOffState])
+                [self triggerRelease:anEvent];
+            else
+                [self triggerPull:anEvent];
+            break;
+        case OEHIDEventTypeButton :
+            if([anEvent hasOffState])
+                [self buttonUp:anEvent];
+            else
+                [self buttonDown:anEvent];
+            break;
+        case OEHIDEventTypeHatSwitch :
+            [self hatSwitchChanged:anEvent];
+            break;
+        case OEHIDEventTypeKeyboard :
+            if([anEvent hasOffState])
+                [self HIDKeyUp:anEvent];
+            else
+                [self HIDKeyDown:anEvent];
+            break;
+        default:
+            break;
+    }
 }
 
 #define FORWARD_MESSAGE(name, type) \
