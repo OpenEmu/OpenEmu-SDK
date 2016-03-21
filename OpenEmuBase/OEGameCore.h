@@ -247,7 +247,7 @@ OE_EXPORTED_CLASS
 /*!
  * @method executeFrame
  * @discussion
- * Called every 1/(rate*frameInterval) seconds by -frameRefreshThread.
+ * Called every 1/(rate*frameInterval) seconds by -runGameLoop:.
  * The core should produce 1 frameInterval worth of audio and can output 1 frame of video.
  * If the game core option OEGameCoreOptionCanSkipFrames is set, the property shouldSkipFrame may be YES.
  * In this case the core can read from videoBuffer but must not write to it. All work done to render video can be skipped.
@@ -438,12 +438,12 @@ OE_EXPORTED_CLASS
 // There should be no need to override these methods.
 @interface OEGameCore (Internal)
 /*!
- * @method frameRefreshThread:
+ * @method runGameLoop:
  * @discussion
  * Cores may implement this if they wish to control their entire event loop.
  * This is not recommended.
  */
-- (void)frameRefreshThread:(id)anArgument;
+- (void)runGameLoop:(id)anArgument;
 
 /*!
  * @method startEmulation

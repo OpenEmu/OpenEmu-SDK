@@ -177,7 +177,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     handler();
 }
 
-- (void)frameRefreshThread:(id)anArgument
+- (void)runGameLoop:(id)anArgument
 {
     NSTimeInterval realTime, emulatedTime = OEMonotonicTime();
 
@@ -315,10 +315,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     self.rate = 1;
     shouldStop = NO;
-
-    // The selector is performed after a delay to let the application loop finish,
-    // afterwards, the GameCore's runloop takes over and only stops when the whole helper stops.
-    [self performSelector:@selector(frameRefreshThread:) withObject:nil afterDelay:0.0];
 }
 
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
