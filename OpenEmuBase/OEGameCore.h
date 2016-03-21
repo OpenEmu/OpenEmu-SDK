@@ -101,6 +101,14 @@ typedef enum : NSUInteger {
 - (void)didExecute;
 
 /*!
+ * @method presentDoubleBufferedFBO
+ * @discussion
+ * If the core returns YES from needsDoubleBufferedFBO,
+ * call this method when you wish to swap buffers.
+ */
+- (void)presentDoubleBufferedFBO;
+
+/*!
  * @method willRenderFrameOnAlternateThread
  * @discussion
  * 2D - Not used.
@@ -302,10 +310,9 @@ OE_EXPORTED_CLASS
  * @abstract If the game flickers when rendering directly to IOSurface.
  * @discussion
  * 3D -
- * Because the game's IOSurface will update on the app side if glFlushRender()
- * or some other GL functions are called, it can see incompletely rendered frames.
- * OE can work around this by rendering to two framebuffers and copying between them.
- * Definitely needed by Mupen+Rice at least.
+ * Some cores' OpenGL renderers accidentally cause the IOSurface to update early,
+ * either by calling glFlush() or through GL driver bugs. This implements a workaround.
+ * Used by Mupen64Plus.
  */
 @property (nonatomic, readonly) BOOL needsDoubleBufferedFBO;
 
