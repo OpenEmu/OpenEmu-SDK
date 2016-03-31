@@ -50,6 +50,7 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     BOOL                    shouldStop;
     BOOL                    singleFrameStep;
     BOOL                    isRewinding;
+    BOOL                    isPausedExecution;
 
     NSTimeInterval          lastRate;
 }
@@ -149,21 +150,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
-- (void)setPauseEmulation:(BOOL)paused
-{
-    if (_rate == 0 && paused) return;
-    if (_rate != 0 && !paused) return;
-
-    // Set rate to 0 and store the previous rate.
-
-    if (paused) {
-        lastRate = _rate;
-        _rate = 0;
-    } else {
-        _rate = lastRate;
-    }
-}
-
 - (void)setupEmulation
 {
 }
@@ -210,7 +196,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         // Frame skipping actually isn't possible with LLE...
         self.shouldSkipFrame = NO;
 
-        BOOL executing = _rate > 0 || singleFrameStep;
+        BOOL executing = _rate > 0 || singleFrameStep || isPausedExecution;
 
         if(executing && isRewinding)
         {
@@ -278,13 +264,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [[self delegate] gameCoreDidFinishFrameRefreshThread:self];
 }
 
-- (BOOL)isEmulationPaused
-{
-    return _rate == 0;
-}
-
 - (void)stopEmulation
 {
+    [_renderDelegate suspendFPSLimiting];
     shouldStop = YES;
     DLog(@"Ending thread");
     [self didStopEmulation];
@@ -313,40 +295,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     if ([self class] == GameCoreClass) return;
     if (_rate != 0) return;
 
+    [_renderDelegate resumeFPSLimiting];
     self.rate = 1;
-    shouldStop = NO;
-}
-
-- (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
-{
-    // FIXME: Need implementation.
-}
-
-- (void)rewindAtSpeed:(CGFloat)rewindSpeed;
-{
-    // FIXME: Need implementation.
-}
-
-- (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
-{
-    // FIXME: Need implementation.
-}
-
-- (void)stepFrameForward
-{
-    singleFrameStep = YES;
-}
-
-- (void)stepFrameBackward
-{
-    singleFrameStep = isRewinding = YES;
-}
-
-- (void)setRate:(float)rate
-{
-    NSLog(@"Rate change %f -> %f", _rate, rate);
-
-    _rate = rate;
 }
 
 #pragma mark - ABSTRACT METHODS
@@ -477,6 +427,75 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     {
         isRewinding = NO;
     }
+}
+
+- (void)setPauseEmulation:(BOOL)paused
+{
+    if (_rate == 0 && paused)  return;
+    if (_rate != 0 && !paused) return;
+
+    // Set rate to 0 and store the previous rate.
+    if (paused) {
+        lastRate = _rate;
+        _rate = 0;
+    } else {
+        _rate = lastRate;
+    }
+}
+
+- (BOOL)isEmulationPaused
+{
+    return _rate == 0;
+}
+
+- (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)rewindAtSpeed:(CGFloat)rewindSpeed;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
+{
+    // FIXME: Need implementation.
+}
+
+- (void)stepFrameForward
+{
+    singleFrameStep = YES;
+}
+
+- (void)stepFrameBackward
+{
+    singleFrameStep = isRewinding = YES;
+}
+
+- (void)setRate:(float)rate
+{
+    NSLog(@"Rate change %f -> %f", _rate, rate);
+
+    _rate = rate;
+}
+
+- (void)beginPausedExecution
+{
+    if (isPausedExecution == YES) return;
+
+    isPausedExecution = YES;
+    [_renderDelegate suspendFPSLimiting];
+    [_audioDelegate pauseAudio];
+}
+
+- (void)endPausedExecution
+{
+    if (isPausedExecution == NO) return;
+
+    isPausedExecution = NO;
+    [_renderDelegate resumeFPSLimiting];
+    [_audioDelegate resumeAudio];
 }
 
 #pragma mark - Audio

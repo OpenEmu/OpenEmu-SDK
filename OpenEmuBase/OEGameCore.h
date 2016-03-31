@@ -85,22 +85,6 @@ typedef enum : NSUInteger {
 @required
 
 /*!
- * @method willExecute
- * @discussion
- * If the core implements its own event loop,
- * call before rendering a frame.
- */
-- (void)willExecute;
-
-/*!
- * @method willExecute
- * @discussion
- * If the core implements its own event loop,
- * call after rendering a frame.
- */
-- (void)didExecute;
-
-/*!
  * @method presentDoubleBufferedFBO
  * @discussion
  * If the core returns YES from needsDoubleBufferedFBO,
@@ -137,16 +121,18 @@ typedef enum : NSUInteger {
  * allows porting of cores that overwrite GL_DRAW_FRAMEBUFFER.
  */
 @property (nonatomic, readonly) id presentationFramebuffer;
+
+// For internal use only.
+- (void)willExecute;
+- (void)didExecute;
+- (void)suspendFPSLimiting;
+- (void)resumeFPSLimiting;
 @end
 
 @protocol OEGameCoreDelegate <NSObject>
 @required
-/*!
- * @method willExecute
- * @discussion
- * If the core implements its own event loop,
- * call when the alternate rendering thread is exiting.
- */
+
+// For internal use only.
 - (void)gameCoreDidFinishFrameRefreshThread:(OEGameCore *)gameCore;
 @end
 
@@ -155,6 +141,10 @@ typedef enum : NSUInteger {
 @protocol OEAudioDelegate
 @required
 - (void)audioSampleRateDidChange;
+
+// If you expect no audio for an extended period of time, stop the playback thread.
+- (void)pauseAudio;
+- (void)resumeAudio;
 @end
 
 @class OEHIDEvent, OERingBuffer;
@@ -259,6 +249,16 @@ OE_EXPORTED_CLASS
  * @abstract Presses the reset button on the console.
  */
 - (void)resetEmulation;
+
+/*!
+ * @method beginPausedExecution
+ * @abstract Run the thread without appearing to execute the game.
+ * @discussion OpenEmu may ask the core to save the game, etc. even though it is paused.
+ * Some cores need to be run their -executeFrame to process the save message (e.g. Mupen).
+ * Call this method from inside the save method to handle this case without disturbing the UI.
+ */
+- (void)beginPausedExecution;
+- (void)endPausedExecution;
 
 #pragma mark - Video
 
@@ -401,26 +401,26 @@ OE_EXPORTED_CLASS
 - (NSUInteger)audioBufferSizeForBuffer:(NSUInteger)buffer;
 - (double)audioSampleRateForBuffer:(NSUInteger)buffer;
 
+#pragma mark - Save States
+
+- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
+
+- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
+
 @end
 
 #pragma mark - Optional
 
 @interface OEGameCore (OptionalMethods)
 
-- (IBAction)pauseEmulation:(id)sender;
-
 - (NSTrackingAreaOptions)mouseTrackingOptions;
 
-- (NSSize)outputSize;
 - (void)setRandomByte;
 
 #pragma mark - Save state - Optional
 
 - (NSData *)serializeStateWithError:(NSError **)outError;
 - (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError;
-
-- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
-- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
 
 #pragma mark - Cheats - Optional
 
@@ -459,6 +459,18 @@ OE_EXPORTED_CLASS
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler;
 
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+
+/*!
+ * @property pauseEmulation
+ * @discussion Pauses the emulator "nicely".
+ * When set to YES, pauses emulation. When set to NO,
+ * resets the rate to whatever it previously was.
+ * The FPS limiter will stop, causing your rendering thread to pause.
+ * You should probably not override this.
+ */
+@property(getter=isEmulationPaused) BOOL pauseEmulation;
+- (void)setPauseEmulation:(BOOL)pauseEmulation NS_REQUIRES_SUPER;
+
 @end
 
 
@@ -468,8 +480,6 @@ OE_EXPORTED_CLASS
 @interface OEGameCore (Deprecated)
 
 - (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE;
-
-@property(getter=isEmulationPaused) BOOL pauseEmulation;
 
 - (void)fastForward:(BOOL)flag OE_DEPRECATED("use -rate");
 - (void)rewind:(BOOL)fla OE_DEPRECATED("use -rate");
