@@ -239,10 +239,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             //});
         }
 
-        // Process the event loop exactly once.
-        // TODO: If paused, this burns CPU waiting to unpause.
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
-
         NSTimeInterval frameInterval = self.frameInterval;
         NSTimeInterval adjustedRate = _rate ?: 1;
         NSTimeInterval advance = 1.0 / (adjustedRate * frameInterval);
@@ -258,6 +254,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         }
 
         OEWaitUntil(emulatedTime);
+
+        // Service the event loop, which may now contain HID events, exactly once.
+        // TODO: If paused, this burns CPU waiting to unpause, because it still runs at 1x rate.
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
     }
     }
 
