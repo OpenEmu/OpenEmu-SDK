@@ -234,6 +234,22 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
         NSAssert(controlValue != nil, @"Unknown control value for identifier: '%@' associated with key name: '%@'", controlIdentifier, keyName);
 
+        if([event type] == OEHIDEventTypeHatSwitch)
+        {
+            // Sync the key direction with the hat switch direction, in case they're different.
+            enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
+            
+            OEHIDEventHatDirection direction  = [event hatDirection];
+            NSUInteger     currentDir = NORTH;
+            
+            if(direction & OEHIDEventHatDirectionNorth) currentDir = NORTH;
+            if(direction & OEHIDEventHatDirectionEast)  currentDir = EAST;
+            if(direction & OEHIDEventHatDirectionSouth) currentDir = SOUTH;
+            if(direction & OEHIDEventHatDirectionWest)  currentDir = WEST;
+            
+            keyDesc = [[keyDesc hatSwitchGroup] keys][currentDir];
+        }
+        
         rawBindings[[self OE_keyIdentifierForKeyDescription:keyDesc event:event]] = controlValue;
     }];
 
@@ -673,7 +689,21 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             break;
         case OEHIDEventTypeHatSwitch :
             if([keyDesc hatSwitchGroup] != nil)
-                keyDesc = [[keyDesc hatSwitchGroup] orientedKeyGroupWithBaseKey:keyDesc];
+            {
+                OEKeyBindingGroupDescription *hatSwitchGroup = [keyDesc hatSwitchGroup];
+                
+                // Sync the key direction with the hat switch direction, in case they're different.
+                enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
+                OEHIDEventHatDirection direction  = [anEvent hatDirection];
+                NSUInteger     currentDir = NORTH;
+                
+                if(direction & OEHIDEventHatDirectionNorth) currentDir = NORTH;
+                if(direction & OEHIDEventHatDirectionEast)  currentDir = EAST;
+                if(direction & OEHIDEventHatDirectionSouth) currentDir = SOUTH;
+                if(direction & OEHIDEventHatDirectionWest)  currentDir = WEST;
+                
+                keyDesc = [hatSwitchGroup orientedKeyGroupWithBaseKey:hatSwitchGroup.keys[currentDir]];
+            }
             break;
         default :
             break;
