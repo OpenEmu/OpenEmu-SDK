@@ -247,7 +247,11 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             if(direction & OEHIDEventHatDirectionSouth) currentDir = SOUTH;
             if(direction & OEHIDEventHatDirectionWest)  currentDir = WEST;
             
-            keyDesc = [[keyDesc hatSwitchGroup] keys][currentDir];
+            OEKeyBindingDescription *newKeyDesc = [[keyDesc hatSwitchGroup] keys][currentDir];
+            
+            if (newKeyDesc != nil) {
+                keyDesc = newKeyDesc;
+            }
         }
         
         rawBindings[[self OE_keyIdentifierForKeyDescription:keyDesc event:event]] = controlValue;
