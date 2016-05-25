@@ -234,7 +234,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
         NSAssert(controlValue != nil, @"Unknown control value for identifier: '%@' associated with key name: '%@'", controlIdentifier, keyName);
 
-        if([event type] == OEHIDEventTypeHatSwitch)
+        if([event type] == OEHIDEventTypeHatSwitch && [keyDesc hatSwitchGroup] != nil)
         {
             // Sync the key direction with the hat switch direction, in case they're different.
             enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
@@ -247,11 +247,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             if(direction & OEHIDEventHatDirectionSouth) currentDir = SOUTH;
             if(direction & OEHIDEventHatDirectionWest)  currentDir = WEST;
             
-            OEKeyBindingDescription *newKeyDesc = [[keyDesc hatSwitchGroup] keys][currentDir];
-            
-            if (newKeyDesc != nil) {
-                keyDesc = newKeyDesc;
-            }
+            keyDesc = [[keyDesc hatSwitchGroup] keys][currentDir];
         }
         
         rawBindings[[self OE_keyIdentifierForKeyDescription:keyDesc event:event]] = controlValue;
