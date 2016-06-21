@@ -80,6 +80,26 @@ static inline BOOL OEIntRectIsEmpty(OEIntRect rect)
     return OEIntSizeIsEmpty(rect.size);
 }
 
+static inline int OEIntRectMinY(OEIntRect rect)
+{
+    return MIN(rect.origin.y, rect.origin.y + rect.size.height);
+}
+
+static inline int OEIntRectMinX(OEIntRect rect)
+{
+    return MIN(rect.origin.x, rect.origin.x + rect.size.width);
+}
+
+static inline int OEIntRectMaxY(OEIntRect rect)
+{
+    return MAX(rect.origin.y, rect.origin.y + rect.size.height);
+}
+
+static inline int OEIntRectMaxX(OEIntRect rect)
+{
+    return MAX(rect.origin.x, rect.origin.x + rect.size.width);
+}
+
 static inline NSSize NSSizeFromOEIntSize(OEIntSize size)
 {
     return NSMakeSize(size.width, size.height);

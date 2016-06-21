@@ -428,6 +428,55 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return GL_RGB;
 }
 
+- (NSInteger)bytesPerRow
+{
+    // This default implementation returns bufferSize.width * bytesPerPixel
+    // Calculating bytes per pixel from the OpenGL enums needs a lot of entries.
+
+    GLenum pixelFormat = self.pixelFormat;
+    GLenum pixelType = self.pixelType;
+    int nComponents = 0, bytesPerComponent = 0, bytesPerPixel = 0;
+
+    switch (pixelFormat) {
+        case GL_LUMINANCE:
+            nComponents = 1;
+            break;
+        case GL_RGB:
+        case GL_BGR:
+            nComponents = 3;
+            break;
+        case GL_RGBA:
+        case GL_BGRA:
+            nComponents = 4;
+            break;
+    }
+
+    switch (pixelType) {
+        case GL_UNSIGNED_BYTE:
+            bytesPerComponent = 1;
+            break;
+        case GL_UNSIGNED_SHORT_5_6_5:
+        case GL_UNSIGNED_SHORT_5_6_5_REV:
+        case GL_UNSIGNED_SHORT_4_4_4_4:
+        case GL_UNSIGNED_SHORT_4_4_4_4_REV:
+        case GL_UNSIGNED_SHORT_5_5_5_1:
+        case GL_UNSIGNED_SHORT_1_5_5_5_REV:
+            bytesPerPixel = 2;
+            break;
+        case GL_UNSIGNED_INT_8_8_8_8:
+        case GL_UNSIGNED_INT_8_8_8_8_REV:
+        case GL_UNSIGNED_INT_10_10_10_2:
+        case GL_UNSIGNED_INT_2_10_10_10_REV:
+            bytesPerPixel = 4;
+            break;
+    }
+
+    if (!bytesPerPixel) bytesPerPixel = nComponents * bytesPerComponent;
+    NSAssert(bytesPerPixel, @"Couldn't calculate bytesPerRow: %#x %#x", pixelFormat, pixelType);
+
+    return bytesPerPixel * self.bufferSize.width;
+}
+
 - (BOOL)hasAlternateRenderingThread
 {
     return NO;

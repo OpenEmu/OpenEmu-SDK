@@ -110,8 +110,6 @@ typedef enum : NSUInteger {
  */
 - (void)didRenderFrameOnAlternateThread;
 
-@property (nonatomic) BOOL enableVSync;
-
 /*!
  * @property presentationFramebuffer
  * @discussion
@@ -247,7 +245,7 @@ OE_EXPORTED_CLASS
  * @method beginPausedExecution
  * @abstract Run the thread without appearing to execute the game.
  * @discussion OpenEmu may ask the core to save the game, etc. even though it is paused.
- * Some cores need to be run their -executeFrame to process the save message (e.g. Mupen).
+ * Some cores need to run their -executeFrame to process the save message (e.g. Mupen).
  * Call this method from inside the save method to handle this case without disturbing the UI.
  */
 - (void)beginPausedExecution;
@@ -321,8 +319,8 @@ OE_EXPORTED_CLASS
 /*!
  * @property screenRect
  * @discussion
- * The rect inside the framebuffer showing the currently displayed picture, not including overdraw, but
- * without aspect ratio correction.
+ * The rect inside the framebuffer showing the currently displayed picture,
+ * not including overdraw, but without aspect ratio correction.
  * Aspect ratio correction is not used for 3D.
  */
 @property(readonly) OEIntRect   screenRect;
@@ -339,11 +337,11 @@ OE_EXPORTED_CLASS
 /*!
  * @property internalPixelFormat
  * @discussion
- * The 'internalPixelFormat' parameter to glTexImage2D, used to create the framebuffer.
- * Defaults to GL_RGB.
+ * The 'internalFormat' parameter to glTexImage2D, used to create the framebuffer.
+ * Defaults to GL_RGB (sometimes GL_SRGB8). You probably do not need to override this.
  * Ignored for 3D cores.
  */
-@property(readonly) GLenum internalPixelFormat;
+@property(readonly) GLenum      internalPixelFormat;
 
 /*!
  * @property pixelFormat
@@ -363,6 +361,16 @@ OE_EXPORTED_CLASS
  * Ignored for 3D cores.
  */
 @property(readonly) GLenum      pixelFormat;
+
+/*!
+ * @property bytesPerRow
+ * @discussion
+ * If the core outputs pixels with custom padding, and that padding cannot be expressed
+ * as overscan with bufferSize, you can implement this to return the distance between
+ * the first two rows in bytes.
+ * Ignored for 3D cores.
+ */
+@property(readonly) NSInteger   bytesPerRow;
 
 /*!
  * @property shouldSkipFrame
