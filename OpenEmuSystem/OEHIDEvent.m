@@ -247,7 +247,10 @@ OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
             break;
         }
         case kHIDPage_Consumer :
-            return OEHIDEventTypeButton;
+        case kHIDPage_Simulation :
+        case kHIDPage_VR :
+        case kHIDPage_Sport :
+        case kHIDPage_Game :
         case kHIDPage_Button :
             return OEHIDEventTypeButton;
         case kHIDPage_KeyboardOrKeypad :
