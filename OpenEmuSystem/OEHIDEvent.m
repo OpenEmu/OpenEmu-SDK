@@ -662,6 +662,10 @@ static CGEventSourceRef _keyboardEventSource;
     _cookie = (uint32_t)IOHIDElementGetCookie(anElement);
     _type = OEHIDEventTypeFromIOHIDElement(anElement);
 
+    if([self OE_elementRepresentsMouseEvent:anElement]) {
+        return NO;
+    }
+    
     switch(_type)
     {
         case OEHIDEventTypeAxis :
@@ -685,6 +689,19 @@ static CGEventSourceRef _keyboardEventSource;
             return YES;
     }
 
+    return NO;
+}
+
+- (BOOL)OE_elementRepresentsMouseEvent:(IOHIDElementRef)anElement {
+    for(IOHIDElementRef element = anElement; element != NULL; element = IOHIDElementGetParent(element)) {
+        uint32_t usagePage = IOHIDElementGetUsagePage(element);
+        uint32_t usage = IOHIDElementGetUsage(element);
+        
+        if(usagePage == kHIDPage_GenericDesktop && usage == kHIDUsage_GD_Mouse) {
+            return YES;
+        }
+    }
+    
     return NO;
 }
 
