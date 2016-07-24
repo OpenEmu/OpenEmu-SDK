@@ -27,6 +27,11 @@
 #import <Foundation/Foundation.h>
 
 __BEGIN_DECLS
+uint64_t OEAbsoluteTimeToNanoseconds(uint64_t absoluteTime);
+uint64_t OENanosecondsToAbsoluteTime(uint64_t nanoseconds);
+
+uint64_t OEMonotonicTimeInNanoseconds(void);
+
 NSTimeInterval OEMonotonicTime(void);
 void OEWaitUntil(NSTimeInterval time);
 

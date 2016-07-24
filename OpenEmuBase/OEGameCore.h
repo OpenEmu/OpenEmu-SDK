@@ -178,6 +178,9 @@ OE_EXPORTED_CLASS
 @property(nonatomic, copy)     NSString             *ROMHeader;
 @property(nonatomic, copy)     NSString             *ROMSerial;
 
+- (void)dispatchBlock:(void(^)(void))block;
+- (void)runBlockInQueue:(void(^)(void))block;
+
 #pragma mark - Starting
 
 /*!
@@ -188,17 +191,10 @@ OE_EXPORTED_CLASS
  */
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error;
 
-/*!
- * @method setupEmulation
- * @discussion
- * Try to setup emulation as much as possible before the UI appears.
- * Audio/video properties don't need to be valid before this method, but
- * do need to be valid after.
- *
- * It's not necessary to implement this, all setup can be done in loadFileAtPath
- * or in the first executeFrame. But you're more likely to run into OE bugs that way.
- */
-- (void)setupEmulation;
+- (void)setupEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+- (void)startEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+- (void)resetEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+- (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 
 #pragma mark - Stopping
 
@@ -220,6 +216,7 @@ OE_EXPORTED_CLASS
  * @abstract The ideal time between -executeFrame calls when rate=1.0.
  * This property is only read at the start and cannot be changed.
  */
+@property (nonatomic, readonly) CGFloat numberOfFramesPerSeconds;
 @property (nonatomic, readonly) NSTimeInterval frameInterval;
 
 /*!
@@ -446,6 +443,18 @@ OE_EXPORTED_CLASS
 - (void)runGameLoop:(id)anArgument;
 
 /*!
+ * @method setupEmulation
+ * @discussion
+ * Try to setup emulation as much as possible before the UI appears.
+ * Audio/video properties don't need to be valid before this method, but
+ * do need to be valid after.
+ *
+ * It's not necessary to implement this, all setup can be done in loadFileAtPath
+ * or in the first executeFrame. But you're more likely to run into OE bugs that way.
+ */
+- (void)setupEmulation;
+
+/*!
  * @method startEmulation
  * @discussion
  * A method called on OEGameCore after -setupEmulation and
@@ -457,8 +466,6 @@ OE_EXPORTED_CLASS
 - (void)startEmulation;
 - (void)didStopEmulation;
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler;
-
-- (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 
 /*!
  * @property pauseEmulation

@@ -36,10 +36,19 @@
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
 #endif
 
+#define DYNAMIC_TIMER 0
+
 NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
 @implementation OEGameCore
 {
+    dispatch_queue_t _internalQueue;
+    dispatch_source_t _gameLoopTimerSource;
+
+#if DYNAMIC_TIMER
+    dispatch_time_t _lastFrameTime;
+#endif
+
     void (^_stopEmulationHandler)(void);
 
     OERingBuffer __strong **ringBuffers;
@@ -73,6 +82,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     {
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
+
+        dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
+        _internalQueue = dispatch_queue_create([NSString stringWithFormat:@"org.openemu.OEGameCore.%@.%p.internalQueue", self.class, self].UTF8String, attrs);
     }
     return self;
 }
@@ -85,6 +97,20 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         ringBuffers[i] = nil;
 
     free(ringBuffers);
+}
+
+- (void)dispatchBlock:(void(^)(void))block
+{
+    dispatch_async(_internalQueue, ^{
+        block();
+    });
+}
+
+- (void)runBlockInQueue:(void(^)(void))block
+{
+    dispatch_sync(_internalQueue, ^{
+        block();
+    });
 }
 
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
@@ -150,8 +176,139 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
+- (void)setupEmulationWithCompletionHandler:(void(^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        [self setupEmulation];
+
+        if (completionHandler)
+            dispatch_async(dispatch_get_main_queue(), completionHandler);
+    }];
+}
+
 - (void)setupEmulation
 {
+}
+
+- (void)_runFrame
+{
+    self.shouldSkipFrame = NO;
+
+    if (!(_rate > 0 || singleFrameStep || isPausedExecution))
+        return;
+
+    if (isRewinding) {
+        if (singleFrameStep)
+            singleFrameStep = isRewinding = NO;
+
+        NSData *state = [[self rewindQueue] pop];
+        if (state == nil)
+            return;
+
+        [_renderDelegate willExecute];
+        [self executeFrame];
+        [_renderDelegate didExecute];
+
+        [self deserializeState:state withError:nil];
+        return;
+    }
+
+    singleFrameStep = NO;
+    //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
+
+    if([self supportsRewinding] && rewindCounter == 0) {
+        NSData *state = [self serializeStateWithError:nil];
+        if(state)
+            [[self rewindQueue] push:state];
+
+        rewindCounter = [self rewindInterval];
+    }
+    else
+        --rewindCounter;
+
+    [_renderDelegate willExecute];
+    [self executeFrame];
+    [_renderDelegate didExecute];
+    //});
+}
+
+#if DYNAMIC_TIMER
+
+- (void)_scheduleTimerForNextFrame
+{
+    dispatch_async(_internalQueue, ^{
+        uint64_t frameDuration = NSEC_PER_SEC / (_rate * self.numberOfFramesPerSeconds);
+        uint64_t frameDurationAbsoluteTime = OENanosecondsToAbsoluteTime(frameDuration);
+        dispatch_time_t nextFrameTime = dispatch_time(_lastFrameTime, frameDurationAbsoluteTime);
+
+        dispatch_source_set_timer(_gameLoopTimerSource, nextFrameTime, DISPATCH_TIME_FOREVER, OENanosecondsToAbsoluteTime(0));
+    });
+}
+
+#endif
+
+- (void)startEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        [self startEmulation];
+
+        _gameLoopTimerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _internalQueue);
+
+#if DYNAMIC_TIMER
+        dispatch_source_set_event_handler(_gameLoopTimerSource, ^{
+            _lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+
+            [self _runFrame];
+            [self _scheduleTimerForNextFrame];
+        });
+
+        dispatch_source_set_registration_handler(_gameLoopTimerSource, ^{
+            [self _scheduleTimerForNextFrameWithAdjustedProcessingTime:0];
+
+            if (completionHandler)
+                dispatch_async(dispatch_get_main_queue(), completionHandler);
+        });
+#else
+        uint64_t frameDuration = NSEC_PER_SEC / (_rate * self.numberOfFramesPerSeconds);
+
+        dispatch_source_set_registration_handler(_gameLoopTimerSource, ^{
+            dispatch_source_set_timer(_gameLoopTimerSource, dispatch_time(DISPATCH_TIME_NOW, 0), frameDuration, OENanosecondsToAbsoluteTime(0));
+
+            if (completionHandler)
+                dispatch_async(dispatch_get_main_queue(), completionHandler);
+        });
+#endif
+
+        dispatch_resume(_gameLoopTimerSource);
+    }];
+}
+
+- (void)resetEmulationWithCompletionHandler:(void(^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        [self resetEmulation];
+        if (completionHandler)
+            completionHandler();
+    }];
+}
+
+- (void)stopEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        if (self.hasAlternateRenderingThread)
+            [_renderDelegate willRenderFrameOnAlternateThread];
+        else
+            [_renderDelegate willExecute];
+
+        dispatch_source_set_cancel_handler(_gameLoopTimerSource, ^{
+            [self stopEmulation];
+
+            if (completionHandler)
+                dispatch_async(dispatch_get_main_queue(), completionHandler);
+        });
+
+        dispatch_source_cancel(_gameLoopTimerSource);
+    }];
 }
 
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
@@ -269,19 +426,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [_renderDelegate suspendFPSLimiting];
     shouldStop = YES;
     DLog(@"Ending thread");
-    [self didStopEmulation];
-}
-
-- (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
-{
-    _stopEmulationHandler = [completionHandler copy];
-
-    if (self.hasAlternateRenderingThread) {
-        [_renderDelegate willRenderFrameOnAlternateThread];
-    } else {
-        [_renderDelegate willExecute];
-    }
-    [self stopEmulation];
 }
 
 - (void)didStopEmulation
@@ -397,6 +541,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return YES;
 }
 
+- (CGFloat)numberOfFramesPerSeconds
+{
+    return self.frameInterval;
+}
+
 - (NSTimeInterval)frameInterval
 {
     return defaultTimeInterval;
@@ -414,7 +563,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     }
 
     [_renderDelegate setEnableVSync:_rate == 1];
-    OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
+//    OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
 }
 
 - (void)rewind:(BOOL)flag
@@ -543,12 +692,13 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     NSUInteger channelCount = [self channelCountForBuffer:buffer];
     NSUInteger bytesPerSample = [self audioBitDepth] / 8;
     NSAssert(frameSampleCount, @"frameSampleCount is 0");
-    return channelCount*bytesPerSample * frameSampleCount;
+    return channelCount * bytesPerSample * frameSampleCount;
 }
 
 - (double)audioSampleRateForBuffer:(NSUInteger)buffer
 {
-    if(buffer == 0) return [self audioSampleRate];
+    if(buffer == 0)
+        return [self audioSampleRate];
 
     NSLog(@"Buffer count is greater than 1, must implement %@", NSStringFromSelector(_cmd));
     [self doesNotImplementSelector:_cmd];

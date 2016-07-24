@@ -29,6 +29,7 @@
 #import <mach/mach_time.h>
 
 static double mach_to_sec = 0;
+static mach_timebase_info_data_t timebaseInfo;
 
 static void init_mach_time(void)
 {
@@ -38,6 +39,36 @@ static void init_mach_time(void)
         mach_timebase_info(&base);
         mach_to_sec = 1e-9 * (base.numer / (double)base.denom);
     });
+}
+
+static void initTimeBaseInfo(void) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        mach_timebase_info(&timebaseInfo);
+    });
+}
+
+uint64_t OEAbsoluteTimeToNanoseconds(uint64_t absoluteTime)
+{
+    initTimeBaseInfo();
+
+    return absoluteTime * timebaseInfo.numer / timebaseInfo.denom;
+}
+
+uint64_t OENanosecondsToAbsoluteTime(uint64_t nanoseconds)
+{
+    initTimeBaseInfo();
+
+    return nanoseconds * timebaseInfo.denom / timebaseInfo.numer;
+}
+
+uint64_t OEMonotonicTimeInNanoseconds(void)
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+    });
+
+    return mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
 }
 
 NSTimeInterval OEMonotonicTime(void)
