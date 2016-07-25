@@ -36,7 +36,7 @@
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
 #endif
 
-#define DYNAMIC_TIMER 0
+#define DYNAMIC_TIMER 1
 
 NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
@@ -239,9 +239,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     dispatch_async(_internalQueue, ^{
         uint64_t frameDuration = NSEC_PER_SEC / (_rate * self.numberOfFramesPerSeconds);
         uint64_t frameDurationAbsoluteTime = OENanosecondsToAbsoluteTime(frameDuration);
-        dispatch_time_t nextFrameTime = dispatch_time(_lastFrameTime, frameDurationAbsoluteTime);
-
-        dispatch_source_set_timer(_gameLoopTimerSource, nextFrameTime, DISPATCH_TIME_FOREVER, OENanosecondsToAbsoluteTime(0));
+        _lastFrameTime = dispatch_time(_lastFrameTime, frameDurationAbsoluteTime);
+        dispatch_source_set_timer(_gameLoopTimerSource, _lastFrameTime, DISPATCH_TIME_FOREVER, OENanosecondsToAbsoluteTime(0));
     });
 }
 
@@ -256,14 +255,13 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #if DYNAMIC_TIMER
         dispatch_source_set_event_handler(_gameLoopTimerSource, ^{
-            _lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
-
             [self _runFrame];
             [self _scheduleTimerForNextFrame];
         });
 
         dispatch_source_set_registration_handler(_gameLoopTimerSource, ^{
-            [self _scheduleTimerForNextFrameWithAdjustedProcessingTime:0];
+            _lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+            [self _scheduleTimerForNextFrame];
 
             if (completionHandler)
                 dispatch_async(dispatch_get_main_queue(), completionHandler);
