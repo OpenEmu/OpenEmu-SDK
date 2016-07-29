@@ -36,18 +36,30 @@
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
 #endif
 
+#define INTERNAL_RUNLOOP 1
 #define DYNAMIC_TIMER 1
 
 NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
 @implementation OEGameCore
 {
+#if INTERNAL_RUNLOOP
+    NSThread *_internalThread;
+    NSRunLoop *_internalRunLoop;
+
+    dispatch_group_t _threadStartUpGroup;
+    dispatch_group_t _threadTerminationGroup;
+#else
     dispatch_queue_t _internalQueue;
     dispatch_source_t _gameLoopTimerSource;
 
 #if DYNAMIC_TIMER
     dispatch_time_t _lastFrameTime;
 #endif
+
+#endif
+
+    NSThread *_expectedThread;
 
     void (^_stopEmulationHandler)(void);
 
@@ -83,8 +95,16 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
 
+#if INTERNAL_RUNLOOP
+        _threadStartUpGroup = dispatch_group_create();
+        dispatch_group_enter(_threadStartUpGroup);
+
+        _internalThread = [[NSThread alloc] initWithTarget:self selector:@selector(_gameCoreThread:) object:nil];
+        [_internalThread start];
+#else
         dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
         _internalQueue = dispatch_queue_create([NSString stringWithFormat:@"org.openemu.OEGameCore.%@.%p.internalQueue", self.class, self].UTF8String, attrs);
+#endif
     }
     return self;
 }
@@ -101,16 +121,54 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)dispatchBlock:(void(^)(void))block
 {
+#if INTERNAL_RUNLOOP
+    @synchronized (self) {
+        if (_threadStartUpGroup != nil) {
+            dispatch_group_notify(_threadStartUpGroup, dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+                [self dispatchBlock:block];
+            });
+            return;
+        }
+    }
+
+    CFRunLoopRef runLoop = [_internalRunLoop getCFRunLoop];
+    CFRunLoopPerformBlock(runLoop, kCFRunLoopDefaultMode, ^{
+        block();
+    });
+
+    CFRunLoopWakeUp(runLoop);
+#else
     dispatch_async(_internalQueue, ^{
         block();
     });
+#endif
 }
 
 - (void)runBlockInQueue:(void(^)(void))block
 {
+#if INTERNAL_RUNLOOP
+    @synchronized (self) {
+        if (_threadStartUpGroup != nil)
+            dispatch_group_wait(_threadStartUpGroup, DISPATCH_TIME_FOREVER);
+    }
+
+    dispatch_semaphore_t waitForRunLoopSemaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t waitForBlockSemaphore = dispatch_semaphore_create(0);
+
+    CFRunLoopRef runLoop = [_internalRunLoop getCFRunLoop];
+    CFRunLoopPerformBlock(runLoop, kCFRunLoopDefaultMode, ^{
+        dispatch_semaphore_signal(waitForRunLoopSemaphore);
+        dispatch_semaphore_wait(waitForBlockSemaphore, DISPATCH_TIME_FOREVER);
+    });
+
+    dispatch_semaphore_wait(waitForRunLoopSemaphore, DISPATCH_TIME_FOREVER);
+    block();
+    dispatch_semaphore_signal(waitForBlockSemaphore);
+#else
     dispatch_sync(_internalQueue, ^{
         block();
     });
+#endif
 }
 
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
@@ -168,12 +226,81 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - Execution
 
-// GameCores that render direct to OpenGL rather than a buffer should override this and return YES
-// If the GameCore subclass returns YES, the renderDelegate will set the appropriate GL Context
-// So the GameCore subclass can just draw to OpenGL
-- (BOOL)rendersToOpenGL
+- (void)_gameCoreThread:(id)backgroundThread
 {
-    return NO;
+    @autoreleasepool {
+        _internalRunLoop = [NSRunLoop currentRunLoop];
+
+        NSTimer *dummyTimer = [NSTimer timerWithTimeInterval:365 * 24 * 3600 target:self selector:@selector(_dummyTimer:) userInfo:nil repeats:NO];
+        [_internalRunLoop addTimer:dummyTimer forMode:NSDefaultRunLoopMode];
+
+        @synchronized (self) {
+            dispatch_group_t group = _threadStartUpGroup;
+            _threadStartUpGroup = nil;
+            dispatch_group_leave(group);
+        }
+
+        @autoreleasepool {
+            while (!shouldStop)
+                [_internalRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+
+        shouldStop = NO;
+
+        OESetThreadRealtime(1. / (_rate * [self frameInterval]), .007, .03); // guessed from bsnes
+
+        NSDate *lastFrameDate = [NSDate date];
+        uint64_t lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+        uint64_t test_lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+
+
+        uint64_t averageTimeFrameDuration = 0;
+        NSInteger numberOfFrames = -100;
+        uint64_t highestFrameDuration = 0;
+        uint64_t lowestFrameDuration = LLONG_MAX;
+
+        while (!shouldStop) @autoreleasepool {
+            [self _runFrame];
+
+            NSTimeInterval frameDuration = 1. / (_rate * [self frameInterval]);
+            lastFrameTime += frameDuration * NSEC_PER_SEC;
+            lastFrameDate = [lastFrameDate dateByAddingTimeInterval:frameDuration / 2.0];
+            [_internalRunLoop runMode:NSDefaultRunLoopMode beforeDate:lastFrameDate];
+
+            mach_wait_until(lastFrameTime);
+
+            dispatch_time_t test_nextFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+            uint64_t diff = test_nextFrameTime - test_lastFrameTime;
+            test_lastFrameTime = test_nextFrameTime;
+
+            if (numberOfFrames < 0) { }
+            else if (numberOfFrames == 0)
+                averageTimeFrameDuration = diff;
+            else
+                averageTimeFrameDuration = (averageTimeFrameDuration * numberOfFrames + diff) / (numberOfFrames + 1);
+
+            ++numberOfFrames;
+
+            highestFrameDuration = MAX(highestFrameDuration, diff);
+            lowestFrameDuration = MIN(lowestFrameDuration, diff);
+
+            if ((numberOfFrames % 500) == 0) {
+                NSLog(@"Average number of frames per seconds: %f, expected: %f, diff: %f, max: %f, min: %f", 1.0 / (averageTimeFrameDuration / 1e9), [self frameInterval], 1.0 / (averageTimeFrameDuration / 1e9) - [self frameInterval], 1.0 / (highestFrameDuration / 1e9), 1.0 / (lowestFrameDuration / 1e9));
+                averageTimeFrameDuration = 0;
+                numberOfFrames = 0;
+                highestFrameDuration = 0;
+                lowestFrameDuration = LLONG_MAX;
+            }
+        }
+
+        [self stopEmulation];
+
+        dispatch_group_leave(_threadTerminationGroup);
+    }
+}
+
+- (void)_dummyTimer:(NSTimer *)timer
+{
 }
 
 - (void)setupEmulationWithCompletionHandler:(void(^)(void))completionHandler
@@ -232,7 +359,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     //});
 }
 
-#if DYNAMIC_TIMER
+#if DYNAMIC_TIMER && !INTERNAL_RUNLOOP
 
 - (void)_scheduleTimerForNextFrame
 {
@@ -251,7 +378,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     [self dispatchBlock:^{
         [self startEmulation];
 
-        _gameLoopTimerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _internalQueue);
+#if INTERNAL_RUNLOOP
+        shouldStop = YES;
+        CFRunLoopStop(_internalRunLoop.getCFRunLoop);
+
+        if (completionHandler)
+            dispatch_async(dispatch_get_main_queue(), completionHandler);
+#else
+        _gameLoopTimerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, DISPATCH_TIMER_STRICT, _internalQueue);
 
 #if DYNAMIC_TIMER
         dispatch_source_set_event_handler(_gameLoopTimerSource, ^{
@@ -278,6 +412,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 #endif
 
         dispatch_resume(_gameLoopTimerSource);
+#endif
     }];
 }
 
@@ -298,6 +433,18 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         else
             [_renderDelegate willExecute];
 
+#if INTERNAL_RUNLOOP
+        _threadTerminationGroup = dispatch_group_create();
+        dispatch_group_enter(_threadTerminationGroup);
+
+        dispatch_group_notify(_threadTerminationGroup, dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
+            if (completionHandler)
+                dispatch_async(dispatch_get_main_queue(), completionHandler);
+        });
+
+        shouldStop = YES;
+        CFRunLoopStop(_internalRunLoop.getCFRunLoop);
+#else
         dispatch_source_set_cancel_handler(_gameLoopTimerSource, ^{
             [self stopEmulation];
 
@@ -306,6 +453,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         });
 
         dispatch_source_cancel(_gameLoopTimerSource);
+#endif
     }];
 }
 
@@ -468,6 +616,14 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 }
 
 #pragma mark - Video
+
+// GameCores that render direct to OpenGL rather than a buffer should override this and return YES
+// If the GameCore subclass returns YES, the renderDelegate will set the appropriate GL Context
+// So the GameCore subclass can just draw to OpenGL
+- (BOOL)rendersToOpenGL
+{
+    return NO;
+}
 
 - (OEIntRect)screenRect
 {
