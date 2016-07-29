@@ -62,15 +62,6 @@ uint64_t OENanosecondsToAbsoluteTime(uint64_t nanoseconds)
     return nanoseconds * timebaseInfo.denom / timebaseInfo.numer;
 }
 
-uint64_t OEMonotonicTimeInNanoseconds(void)
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-    });
-
-    return mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
-}
-
 NSTimeInterval OEMonotonicTime(void)
 {
     init_mach_time();
