@@ -94,6 +94,8 @@
 		C694EEC61C2A0A7D00DFD15C /* OEHIDEvent_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */; };
 		C6A726831C059BF000E35961 /* OEBindingDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = C6A726811C059BF000E35961 /* OEBindingDescription.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6A726841C059BF000E35961 /* OEBindingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = C6A726821C059BF000E35961 /* OEBindingDescription.m */; };
+		C6EB60611D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = C6EB605F1D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.h */; };
+		C6EB60621D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = C6EB60601D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -200,6 +202,8 @@
 		C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEHIDEvent_Internal.h; sourceTree = "<group>"; };
 		C6A726811C059BF000E35961 /* OEBindingDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingDescription.h; sourceTree = "<group>"; };
 		C6A726821C059BF000E35961 /* OEBindingDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBindingDescription.m; sourceTree = "<group>"; };
+		C6EB605F1D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+OEQueueAdditions.h"; sourceTree = "<group>"; };
+		C6EB60601D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+OEQueueAdditions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -286,6 +290,8 @@
 				C6772A6B1710BD6200ED580A /* TPCircularBuffer.h */,
 				C6772A6C1710BD6200ED580A /* OETimingUtils.h */,
 				C6772A6D1710BD6200ED580A /* OETimingUtils.m */,
+				C6EB605F1D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.h */,
+				C6EB60601D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.m */,
 				C6772A801710C6D100ED580A /* NSString+UUID.h */,
 				C6772A811710C6D100ED580A /* NSString+UUID.m */,
 				27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */,
@@ -446,6 +452,7 @@
 				8363A434193CA52400F18425 /* OEGeometry.h in Headers */,
 				C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */,
 				27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */,
+				C6EB60611D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.h in Headers */,
 				C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */,
 				C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */,
 				C6772A7A1710BD6200ED580A /* OETimingUtils.h in Headers */,
@@ -589,6 +596,7 @@
 				C6772A781710BD6200ED580A /* TPCircularBuffer.c in Sources */,
 				C6772A7B1710BD6200ED580A /* OETimingUtils.m in Sources */,
 				C6772A831710C6D100ED580A /* NSString+UUID.m in Sources */,
+				C6EB60621D4B22E600C4F936 /* NSMutableArray+OEQueueAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

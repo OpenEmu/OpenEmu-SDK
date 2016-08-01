@@ -179,7 +179,6 @@ OE_EXPORTED_CLASS
 @property(nonatomic, copy)     NSString             *ROMSerial;
 
 - (void)dispatchBlock:(void(^)(void))block;
-- (void)runBlockInQueue:(void(^)(void))block;
 
 #pragma mark - Starting
 

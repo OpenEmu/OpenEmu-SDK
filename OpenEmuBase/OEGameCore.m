@@ -31,6 +31,7 @@
 #import "OEAbstractAdditions.h"
 #import "OERingBuffer.h"
 #import "OETimingUtils.h"
+#import "NSMutableArray+OEQueueAdditions.h"
 
 #ifndef BOOL_STR
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
@@ -43,23 +44,11 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
 @implementation OEGameCore
 {
-#if INTERNAL_RUNLOOP
     NSThread *_internalThread;
-    NSRunLoop *_internalRunLoop;
 
-    dispatch_group_t _threadStartUpGroup;
-    dispatch_group_t _threadTerminationGroup;
-#else
-    dispatch_queue_t _internalQueue;
-    dispatch_source_t _gameLoopTimerSource;
-
-#if DYNAMIC_TIMER
-    dispatch_time_t _lastFrameTime;
-#endif
-
-#endif
-
-    NSThread *_expectedThread;
+    NSMutableArray<dispatch_block_t> *_blockQueue;
+    dispatch_semaphore_t _blockQueueSignalSemaphore;
+    NSLock *_blockQueueLock;
 
     void (^_stopEmulationHandler)(void);
 
@@ -95,16 +84,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
 
-#if INTERNAL_RUNLOOP
-        _threadStartUpGroup = dispatch_group_create();
-        dispatch_group_enter(_threadStartUpGroup);
+        _blockQueue = [NSMutableArray array];
+        _blockQueueLock = [[NSLock alloc] init];
 
         _internalThread = [[NSThread alloc] initWithTarget:self selector:@selector(_gameCoreThread:) object:nil];
         [_internalThread start];
-#else
-        dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-        _internalQueue = dispatch_queue_create([NSString stringWithFormat:@"org.openemu.OEGameCore.%@.%p.internalQueue", self.class, self].UTF8String, attrs);
-#endif
     }
     return self;
 }
@@ -121,54 +105,12 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)dispatchBlock:(void(^)(void))block
 {
-#if INTERNAL_RUNLOOP
-    @synchronized (self) {
-        if (_threadStartUpGroup != nil) {
-            dispatch_group_notify(_threadStartUpGroup, dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-                [self dispatchBlock:block];
-            });
-            return;
-        }
-    }
+    [_blockQueueLock lock];
+    [_blockQueue pushObject:[block copy]];
+    [_blockQueueLock unlock];
 
-    CFRunLoopRef runLoop = [_internalRunLoop getCFRunLoop];
-    CFRunLoopPerformBlock(runLoop, kCFRunLoopDefaultMode, ^{
-        block();
-    });
-
-    CFRunLoopWakeUp(runLoop);
-#else
-    dispatch_async(_internalQueue, ^{
-        block();
-    });
-#endif
-}
-
-- (void)runBlockInQueue:(void(^)(void))block
-{
-#if INTERNAL_RUNLOOP
-    @synchronized (self) {
-        if (_threadStartUpGroup != nil)
-            dispatch_group_wait(_threadStartUpGroup, DISPATCH_TIME_FOREVER);
-    }
-
-    dispatch_semaphore_t waitForRunLoopSemaphore = dispatch_semaphore_create(0);
-    dispatch_semaphore_t waitForBlockSemaphore = dispatch_semaphore_create(0);
-
-    CFRunLoopRef runLoop = [_internalRunLoop getCFRunLoop];
-    CFRunLoopPerformBlock(runLoop, kCFRunLoopDefaultMode, ^{
-        dispatch_semaphore_signal(waitForRunLoopSemaphore);
-        dispatch_semaphore_wait(waitForBlockSemaphore, DISPATCH_TIME_FOREVER);
-    });
-
-    dispatch_semaphore_wait(waitForRunLoopSemaphore, DISPATCH_TIME_FOREVER);
-    block();
-    dispatch_semaphore_signal(waitForBlockSemaphore);
-#else
-    dispatch_sync(_internalQueue, ^{
-        block();
-    });
-#endif
+    if (_blockQueueSignalSemaphore != nil)
+        dispatch_semaphore_signal(_blockQueueSignalSemaphore);
 }
 
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
@@ -221,87 +163,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         NSUInteger capacity = ceil(([self frameInterval]*[self rewindBufferSeconds]) / ([self rewindInterval]+1));
         rewindQueue = [[OEDiffQueue alloc] initWithCapacity:capacity];
     }
+
     return rewindQueue;
 }
 
 #pragma mark - Execution
-
-- (void)_gameCoreThread:(id)backgroundThread
-{
-    @autoreleasepool {
-        _internalRunLoop = [NSRunLoop currentRunLoop];
-
-        NSTimer *dummyTimer = [NSTimer timerWithTimeInterval:365 * 24 * 3600 target:self selector:@selector(_dummyTimer:) userInfo:nil repeats:NO];
-        [_internalRunLoop addTimer:dummyTimer forMode:NSDefaultRunLoopMode];
-
-        @synchronized (self) {
-            dispatch_group_t group = _threadStartUpGroup;
-            _threadStartUpGroup = nil;
-            dispatch_group_leave(group);
-        }
-
-        @autoreleasepool {
-            while (!shouldStop)
-                [_internalRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-        }
-
-        shouldStop = NO;
-
-        OESetThreadRealtime(1. / (_rate * [self frameInterval]), .007, .03); // guessed from bsnes
-
-        NSDate *lastFrameDate = [NSDate date];
-        uint64_t lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
-        uint64_t test_lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
-
-
-        uint64_t averageTimeFrameDuration = 0;
-        NSInteger numberOfFrames = -100;
-        uint64_t highestFrameDuration = 0;
-        uint64_t lowestFrameDuration = LLONG_MAX;
-
-        while (!shouldStop) @autoreleasepool {
-            [self _runFrame];
-
-            NSTimeInterval frameDuration = 1. / (_rate * [self frameInterval]);
-            lastFrameTime += frameDuration * NSEC_PER_SEC;
-            lastFrameDate = [lastFrameDate dateByAddingTimeInterval:frameDuration / 2.0];
-            [_internalRunLoop runMode:NSDefaultRunLoopMode beforeDate:lastFrameDate];
-
-            mach_wait_until(lastFrameTime);
-
-            dispatch_time_t test_nextFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
-            uint64_t diff = test_nextFrameTime - test_lastFrameTime;
-            test_lastFrameTime = test_nextFrameTime;
-
-            if (numberOfFrames < 0) { }
-            else if (numberOfFrames == 0)
-                averageTimeFrameDuration = diff;
-            else
-                averageTimeFrameDuration = (averageTimeFrameDuration * numberOfFrames + diff) / (numberOfFrames + 1);
-
-            ++numberOfFrames;
-
-            highestFrameDuration = MAX(highestFrameDuration, diff);
-            lowestFrameDuration = MIN(lowestFrameDuration, diff);
-
-            if ((numberOfFrames % 500) == 0) {
-                NSLog(@"Average number of frames per seconds: %f, expected: %f, diff: %f, max: %f, min: %f", 1.0 / (averageTimeFrameDuration / 1e9), [self frameInterval], 1.0 / (averageTimeFrameDuration / 1e9) - [self frameInterval], 1.0 / (highestFrameDuration / 1e9), 1.0 / (lowestFrameDuration / 1e9));
-                averageTimeFrameDuration = 0;
-                numberOfFrames = 0;
-                highestFrameDuration = 0;
-                lowestFrameDuration = LLONG_MAX;
-            }
-        }
-
-        [self stopEmulation];
-
-        dispatch_group_leave(_threadTerminationGroup);
-    }
-}
-
-- (void)_dummyTimer:(NSTimer *)timer
-{
-}
 
 - (void)setupEmulationWithCompletionHandler:(void(^)(void))completionHandler
 {
@@ -315,6 +181,142 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)setupEmulation
 {
+}
+
+- (void)startEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        [self startEmulation];
+        shouldStop = YES;
+
+        if (completionHandler)
+            dispatch_async(dispatch_get_main_queue(), completionHandler);
+    }];
+}
+
+- (void)resetEmulationWithCompletionHandler:(void(^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        [self resetEmulation];
+        if (completionHandler)
+            completionHandler();
+    }];
+}
+
+- (void)stopEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    [self dispatchBlock:^{
+        if (self.hasAlternateRenderingThread)
+            [_renderDelegate willRenderFrameOnAlternateThread];
+        else
+            [_renderDelegate willExecute];
+
+        _stopEmulationHandler = completionHandler;
+
+        shouldStop = YES;
+    }];
+}
+
+- (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
+{
+    [_renderDelegate willExecute];
+    [self executeFrame];
+    [_renderDelegate didExecute];
+
+    handler();
+}
+
+- (void)_gameCoreThread:(id)backgroundThread
+{
+    @autoreleasepool {
+        shouldStop = NO;
+        while (!shouldStop)
+            [self dequeueOrWaitForBlockQueue];
+
+        shouldStop = NO;
+
+        OESetThreadRealtime(1. / (_rate * [self frameInterval]), .007, .03); // guessed from bsnes
+
+        uint64_t lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+        BOOL wasEmulationPaused = YES;
+
+        while (!shouldStop) {
+            @autoreleasepool {
+                if (_rate == 0) {
+                    [self dequeueOrWaitForBlockQueue];
+                    wasEmulationPaused = YES;
+                    continue;
+                }
+
+                if (wasEmulationPaused) {
+                    wasEmulationPaused = NO;
+                    lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+                }
+
+                [self _runFrame];
+
+                NSTimeInterval frameDuration = NSEC_PER_SEC / (_rate * [self frameInterval]);
+
+                dispatch_time_t currentTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+                dispatch_time_t nextFrameTime = lastFrameTime + frameDuration;
+
+                if (currentTime >= nextFrameTime) {
+                    [self dequeueBlocksUntilTime:DISPATCH_TIME_NOW];
+                    lastFrameTime = nextFrameTime;
+                    continue;
+                }
+
+                dispatch_time_t handlingLimit = nextFrameTime - frameDuration * 3.0 / 4.0;
+
+                if (![self dequeueBlocksUntilTime:handlingLimit]) {
+                    _blockQueueSignalSemaphore = dispatch_semaphore_create(0);
+                    dispatch_time_t semaphoreLimit = nextFrameTime - frameDuration * 2.0 / 3;
+
+                    if (dispatch_semaphore_wait(_blockQueueSignalSemaphore, semaphoreLimit) == 0)
+                        [self dequeueBlocksUntilTime:handlingLimit];
+                }
+
+                lastFrameTime = nextFrameTime;
+                mach_wait_until(lastFrameTime);
+            }
+        }
+
+        [self stopEmulation];
+    }
+}
+
+- (BOOL)dequeueBlocksUntilTime:(dispatch_time_t)limit
+{
+    BOOL didHandleBlock = NO;
+
+    [_blockQueueLock lock];
+    dispatch_block_t currentBlock;
+    while ((currentBlock = [_blockQueue popObject])) {
+        [_blockQueueLock unlock];
+
+        didHandleBlock = YES;
+
+        currentBlock();
+
+        [_blockQueueLock lock];
+
+        if (dispatch_time(DISPATCH_TIME_NOW, 0) >= limit)
+            break;
+    }
+    [_blockQueueLock unlock];
+
+    return didHandleBlock;
+}
+
+- (void)dequeueOrWaitForBlockQueue
+{
+    if ([self dequeueBlocksUntilTime:DISPATCH_TIME_FOREVER])
+        return;
+
+    _blockQueueSignalSemaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_wait(_blockQueueSignalSemaphore, DISPATCH_TIME_FOREVER);
+
+    _blockQueueSignalSemaphore = nil;
 }
 
 - (void)_runFrame
@@ -347,231 +349,24 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         NSData *state = [self serializeStateWithError:nil];
         if(state)
             [[self rewindQueue] push:state];
-
+        
         rewindCounter = [self rewindInterval];
     }
     else
         --rewindCounter;
-
+    
     [_renderDelegate willExecute];
     [self executeFrame];
     [_renderDelegate didExecute];
     //});
 }
 
-#if DYNAMIC_TIMER && !INTERNAL_RUNLOOP
-
-- (void)_scheduleTimerForNextFrame
-{
-    dispatch_async(_internalQueue, ^{
-        uint64_t frameDuration = NSEC_PER_SEC / (_rate * self.numberOfFramesPerSeconds);
-        uint64_t frameDurationAbsoluteTime = OENanosecondsToAbsoluteTime(frameDuration);
-        _lastFrameTime = dispatch_time(_lastFrameTime, frameDurationAbsoluteTime);
-        dispatch_source_set_timer(_gameLoopTimerSource, _lastFrameTime, DISPATCH_TIME_FOREVER, OENanosecondsToAbsoluteTime(0));
-    });
-}
-
-#endif
-
-- (void)startEmulationWithCompletionHandler:(void (^)(void))completionHandler
-{
-    [self dispatchBlock:^{
-        [self startEmulation];
-
-#if INTERNAL_RUNLOOP
-        shouldStop = YES;
-        CFRunLoopStop(_internalRunLoop.getCFRunLoop);
-
-        if (completionHandler)
-            dispatch_async(dispatch_get_main_queue(), completionHandler);
-#else
-        _gameLoopTimerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, DISPATCH_TIMER_STRICT, _internalQueue);
-
-#if DYNAMIC_TIMER
-        dispatch_source_set_event_handler(_gameLoopTimerSource, ^{
-            [self _runFrame];
-            [self _scheduleTimerForNextFrame];
-        });
-
-        dispatch_source_set_registration_handler(_gameLoopTimerSource, ^{
-            _lastFrameTime = dispatch_time(DISPATCH_TIME_NOW, 0);
-            [self _scheduleTimerForNextFrame];
-
-            if (completionHandler)
-                dispatch_async(dispatch_get_main_queue(), completionHandler);
-        });
-#else
-        uint64_t frameDuration = NSEC_PER_SEC / (_rate * self.numberOfFramesPerSeconds);
-
-        dispatch_source_set_registration_handler(_gameLoopTimerSource, ^{
-            dispatch_source_set_timer(_gameLoopTimerSource, dispatch_time(DISPATCH_TIME_NOW, 0), frameDuration, OENanosecondsToAbsoluteTime(0));
-
-            if (completionHandler)
-                dispatch_async(dispatch_get_main_queue(), completionHandler);
-        });
-#endif
-
-        dispatch_resume(_gameLoopTimerSource);
-#endif
-    }];
-}
-
-- (void)resetEmulationWithCompletionHandler:(void(^)(void))completionHandler
-{
-    [self dispatchBlock:^{
-        [self resetEmulation];
-        if (completionHandler)
-            completionHandler();
-    }];
-}
-
-- (void)stopEmulationWithCompletionHandler:(void (^)(void))completionHandler
-{
-    [self dispatchBlock:^{
-        if (self.hasAlternateRenderingThread)
-            [_renderDelegate willRenderFrameOnAlternateThread];
-        else
-            [_renderDelegate willExecute];
-
-#if INTERNAL_RUNLOOP
-        _threadTerminationGroup = dispatch_group_create();
-        dispatch_group_enter(_threadTerminationGroup);
-
-        dispatch_group_notify(_threadTerminationGroup, dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-            if (completionHandler)
-                dispatch_async(dispatch_get_main_queue(), completionHandler);
-        });
-
-        shouldStop = YES;
-        CFRunLoopStop(_internalRunLoop.getCFRunLoop);
-#else
-        dispatch_source_set_cancel_handler(_gameLoopTimerSource, ^{
-            [self stopEmulation];
-
-            if (completionHandler)
-                dispatch_async(dispatch_get_main_queue(), completionHandler);
-        });
-
-        dispatch_source_cancel(_gameLoopTimerSource);
-#endif
-    }];
-}
-
-- (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
-{
-    [_renderDelegate willExecute];
-    [self executeFrame];
-    [_renderDelegate didExecute];
-
-    handler();
-}
-
-- (void)runGameLoop:(id)anArgument
-{
-    NSTimeInterval realTime, emulatedTime = OEMonotonicTime();
-
-#if 0
-    __block NSTimeInterval gameTime = 0;
-    __block int wasZero=1;
-#endif
-
-    DLog(@"main thread: %s", BOOL_STR([NSThread isMainThread]));
-
-    OESetThreadRealtime(1. / (_rate * [self frameInterval]), .007, .03); // guessed from bsnes
-
-    while(!shouldStop)
-    {
-    @autoreleasepool
-    {
-#if 0
-        gameTime += 1. / [self frameInterval];
-        if(wasZero && gameTime >= 1)
-        {
-            NSUInteger audioBytesGenerated = ringBuffers[0].bytesWritten;
-            double expectedRate = [self audioSampleRateForBuffer:0];
-            NSUInteger audioSamplesGenerated = audioBytesGenerated/(2*[self channelCount]);
-            double realRate = audioSamplesGenerated/gameTime;
-            NSLog(@"AUDIO STATS: sample rate %f, real rate %f", expectedRate, realRate);
-            wasZero = 0;
-        }
-#endif
-
-        // Frame skipping actually isn't possible with LLE...
-        self.shouldSkipFrame = NO;
-
-        BOOL executing = _rate > 0 || singleFrameStep || isPausedExecution;
-
-        if(executing && isRewinding)
-        {
-            if (singleFrameStep) {
-                singleFrameStep = isRewinding = NO;
-            }
-
-            NSData *state = [[self rewindQueue] pop];
-            if(state)
-            {
-                [_renderDelegate willExecute];
-                [self executeFrame];
-                [_renderDelegate didExecute];
-
-                [self deserializeState:state withError:nil];
-            }
-        }
-        else if(executing)
-        {
-            singleFrameStep = NO;
-            //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
-
-            if([self supportsRewinding] && rewindCounter == 0)
-            {
-                NSData *state = [self serializeStateWithError:nil];
-                if(state)
-                {
-                    [[self rewindQueue] push:state];
-                }
-                rewindCounter = [self rewindInterval];
-            }
-            else
-            {
-                --rewindCounter;
-            }
-
-            [_renderDelegate willExecute];
-            [self executeFrame];
-            [_renderDelegate didExecute];
-            //});
-        }
-
-        NSTimeInterval frameInterval = self.frameInterval;
-        NSTimeInterval adjustedRate = _rate ?: 1;
-        NSTimeInterval advance = 1.0 / (adjustedRate * frameInterval);
-
-        emulatedTime += advance;
-        realTime = OEMonotonicTime();
-
-        // if we are running more than a second behind, synchronize
-        if(realTime - emulatedTime > 1.0)
-        {
-            NSLog(@"Synchronizing because we are %g seconds behind", realTime - emulatedTime);
-            emulatedTime = realTime;
-        }
-
-        OEWaitUntil(emulatedTime);
-
-        // Service the event loop, which may now contain HID events, exactly once.
-        // TODO: If paused, this burns CPU waiting to unpause, because it still runs at 1x rate.
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, 0);
-    }
-    }
-
-    [[self delegate] gameCoreDidFinishFrameRefreshThread:self];
-}
-
 - (void)stopEmulation
 {
     [_renderDelegate suspendFPSLimiting];
-    shouldStop = YES;
     DLog(@"Ending thread");
+
+    [self didStopEmulation];
 }
 
 - (void)didStopEmulation
