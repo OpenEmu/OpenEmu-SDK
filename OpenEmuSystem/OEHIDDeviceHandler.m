@@ -301,6 +301,18 @@ NS_ASSUME_NONNULL_BEGIN
     IOHIDDeviceRegisterRemovalCallback(_device, OEHandle_DeviceRemovalCallback, (__bridge void *)self);
 
     // Register for input
+    NOTE("If supporting additional HID Usage Pages add them here to whitelist!");
+    IOHIDDeviceSetInputValueMatchingMultiple(_device, (__bridge CFArrayRef)@[
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_GenericDesktop) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Consumer) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Simulation) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_VR) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Sport) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Game) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Button) },
+        @{ @kIOHIDElementUsagePageKey: @(kHIDPage_KeyboardOrKeypad) },
+    ]);
+
     IOHIDDeviceRegisterInputValueCallback(_device, OEHandle_InputValueCallback, (__bridge void *)self);
 
     // Attach to the runloop
