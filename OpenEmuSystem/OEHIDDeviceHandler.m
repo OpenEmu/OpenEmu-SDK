@@ -133,7 +133,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSNumber *)locationID
 {
-    return (__bridge NSNumber *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDLocationIDKey));
+    NSNumber * num = (__bridge NSNumber *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDLocationIDKey));
+    if (num == nil)
+    {
+        unsigned long sum = 0;
+        NSString * str = [self product];
+        const char * cs = [str UTF8String];
+        while (*cs)
+        {
+            sum += (unsigned long)(unsigned char)(*cs);
+            cs++;
+        }
+        num = [NSNumber numberWithLong:sum];
+    }
+    return num;
 }
 
 - (BOOL)isKeyboardDevice;
