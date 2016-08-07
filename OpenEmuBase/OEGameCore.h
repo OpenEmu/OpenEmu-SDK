@@ -188,17 +188,9 @@ OE_EXPORTED_CLASS
  */
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error;
 
-/*!
- * @method setupEmulation
- * @discussion
- * Try to setup emulation as much as possible before the UI appears.
- * Audio/video properties don't need to be valid before this method, but
- * do need to be valid after.
- *
- * It's not necessary to implement this, all setup can be done in loadFileAtPath
- * or in the first executeFrame. But you're more likely to run into OE bugs that way.
- */
-- (void)setupEmulation;
+- (void)setupEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+- (void)startEmulationWithCompletionHandler:(void(^)(void))completionHandler;
+- (void)resetEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 
 #pragma mark - Stopping
 
@@ -212,6 +204,7 @@ OE_EXPORTED_CLASS
  * The OpenGL context is available in this method.
  */
 - (void)stopEmulation;
+- (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 
 #pragma mark - Execution
 
@@ -455,6 +448,19 @@ OE_EXPORTED_CLASS
  * The OpenGL context is available in this method.
  */
 - (void)startEmulation;
+
+/*!
+ * @method setupEmulation
+ * @discussion
+ * Try to setup emulation as much as possible before the UI appears.
+ * Audio/video properties don't need to be valid before this method, but
+ * do need to be valid after.
+ *
+ * It's not necessary to implement this, all setup can be done in loadFileAtPath
+ * or in the first executeFrame. But you're more likely to run into OE bugs that way.
+ */
+- (void)setupEmulation;
+
 - (void)didStopEmulation;
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler;
 

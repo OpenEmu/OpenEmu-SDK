@@ -40,6 +40,9 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
 
 @implementation OEGameCore
 {
+    NSThread *_gameCoreThread;
+    CFRunLoopRef _gameCoreRunLoop;
+
     void (^_stopEmulationHandler)(void);
 
     OERingBuffer __strong **ringBuffers;
@@ -142,6 +145,36 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - Execution
 
+- (void)performBlock:(void(^)(void))block
+{
+    if (_gameCoreRunLoop == nil) {
+        block();
+        return;
+    }
+
+    CFRunLoopPerformBlock(_gameCoreRunLoop, kCFRunLoopCommonModes, ^{
+        block();
+    });
+}
+
+- (void)_gameCoreThreadWithStartEmulationCompletionHandler:(void (^)(void))startCompletionHandler
+{
+    @autoreleasepool {
+        _gameCoreRunLoop = CFRunLoopGetCurrent();
+
+        [self startEmulation];
+
+        if (startCompletionHandler != nil)
+            dispatch_async(dispatch_get_main_queue(), startCompletionHandler);
+
+        [self runGameLoop:nil];
+
+        _gameCoreRunLoop = nil;
+
+        [self stopEmulation];
+    }
+}
+
 // GameCores that render direct to OpenGL rather than a buffer should override this and return YES
 // If the GameCore subclass returns YES, the renderDelegate will set the appropriate GL Context
 // So the GameCore subclass can just draw to OpenGL
@@ -150,8 +183,35 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return NO;
 }
 
+- (void)setupEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    [self setupEmulation];
+
+    if (completionHandler != nil)
+        completionHandler();
+}
+
 - (void)setupEmulation
 {
+}
+
+- (void)startEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    _gameCoreThread = [[NSThread alloc] initWithTarget:self selector:@selector(_gameCoreThreadWithStartEmulationCompletionHandler:) object:completionHandler];
+    _gameCoreThread.name = @"org.openemu.core-thread";
+    _gameCoreThread.qualityOfService = NSQualityOfServiceUserInteractive;
+
+    [_gameCoreThread start];
+}
+
+- (void)resetEmulationWithCompletionHandler:(void (^)(void))completionHandler
+{
+    [self performBlock:^{
+        [self resetEmulation];
+
+        if (completionHandler)
+            dispatch_async(dispatch_get_main_queue(), completionHandler);
+    }];
 }
 
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
@@ -274,19 +334,23 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 {
-    _stopEmulationHandler = [completionHandler copy];
+    [self performBlock:^{
+        _stopEmulationHandler = [completionHandler copy];
 
-    if (self.hasAlternateRenderingThread) {
-        [_renderDelegate willRenderFrameOnAlternateThread];
-    } else {
-        [_renderDelegate willExecute];
-    }
-    [self stopEmulation];
+        if (self.hasAlternateRenderingThread)
+            [_renderDelegate willRenderFrameOnAlternateThread];
+        else
+            [_renderDelegate willExecute];
+
+        [self stopEmulation];
+    }];
 }
 
 - (void)didStopEmulation
 {
-    if(_stopEmulationHandler != nil) _stopEmulationHandler();
+    if(_stopEmulationHandler != nil)
+        dispatch_async(dispatch_get_main_queue(), _stopEmulationHandler);
+
     _stopEmulationHandler = nil;
 }
 

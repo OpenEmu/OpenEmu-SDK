@@ -103,52 +103,58 @@ static inline void _OEBasicSystemResponderPressSystemKey(OESystemResponder *self
 {
     if(key == nil) return;
 
-    if([key isGlobalButtonKey])
-    {
-        OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
-        if(isAnalogic)
-            [self changeAnalogGlobalButtonIdentifier:ident value:1.0];
+    [[self client] performBlock:^{
+        if([key isGlobalButtonKey])
+        {
+            OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
+            if(isAnalogic)
+                [self changeAnalogGlobalButtonIdentifier:ident value:1.0];
+            else
+                [self pressGlobalButtonWithIdentifier:ident];
+        }
         else
-            [self pressGlobalButtonWithIdentifier:ident];
-    }
-    else
-    {
-        if(isAnalogic)
-            [self changeAnalogEmulatorKey:key value:1.0];
-        else
-            [self pressEmulatorKey:key];
-    }
+        {
+            if(isAnalogic)
+                [self changeAnalogEmulatorKey:key value:1.0];
+            else
+                [self pressEmulatorKey:key];
+        }
+    }];
 }
 
 static inline void _OEBasicSystemResponderReleaseSystemKey(OESystemResponder *self, OESystemKey *key, BOOL isAnalogic)
 {
     if(key == nil) return;
 
-    if([key isGlobalButtonKey])
-    {
-        OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
-        if(isAnalogic)
-            [self changeAnalogGlobalButtonIdentifier:ident value:0.0];
+    [[self client] performBlock:^{
+        if([key isGlobalButtonKey])
+        {
+            OEGlobalButtonIdentifier ident = [key key] & ~OEGlobalButtonIdentifierFlag;
+            if(isAnalogic)
+                [self changeAnalogGlobalButtonIdentifier:ident value:0.0];
+            else
+                [self releaseGlobalButtonWithIdentifier:ident];
+        }
         else
-            [self releaseGlobalButtonWithIdentifier:ident];
-    }
-    else
-    {
-        if(isAnalogic)
-            [self changeAnalogEmulatorKey:key value:0.0];
-        else
-            [self releaseEmulatorKey:key];
-    }
+        {
+            if(isAnalogic)
+                [self changeAnalogEmulatorKey:key value:0.0];
+            else
+                [self releaseEmulatorKey:key];
+        }
+    }];
 }
 
 static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponder *self, OESystemKey *key, CGFloat value)
 {
     if(key == nil) return;
 
-    if([key isGlobalButtonKey])
-        [self changeAnalogGlobalButtonIdentifier:[key key] & ~OEGlobalButtonIdentifierFlag value:value];
-    else
-        [self changeAnalogEmulatorKey:key value:value];
+    [[self client] performBlock:^{
+        if([key isGlobalButtonKey])
+            [self changeAnalogGlobalButtonIdentifier:[key key] & ~OEGlobalButtonIdentifierFlag value:value];
+        else
+            [self changeAnalogEmulatorKey:key value:value];
+    }];
 }
 
 - (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
@@ -624,28 +630,31 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 - (void)handleMouseEvent:(OEEvent *)event
 {
     OEIntPoint point = [event locationInGameView];
-    switch([event type])
-    {
-        case NSLeftMouseDown :
-        case NSLeftMouseDragged :
-            [self mouseDownAtPoint:point];
-            break;
-        case NSLeftMouseUp :
-            [self mouseUpAtPoint];
-            break;
-        case NSRightMouseDown :
-        case NSRightMouseDragged :
-            [self rightMouseDownAtPoint:point];
-            break;
-        case NSRightMouseUp :
-            [self rightMouseUpAtPoint];
-            break;
-        case NSMouseMoved :
-            [self mouseMovedAtPoint:point];
-            break;
-        default :
-            break;
-    }
+
+    [_client performBlock:^{
+        switch([event type])
+        {
+            case NSLeftMouseDown :
+            case NSLeftMouseDragged :
+                [self mouseDownAtPoint:point];
+                break;
+            case NSLeftMouseUp :
+                [self mouseUpAtPoint];
+                break;
+            case NSRightMouseDown :
+            case NSRightMouseDragged :
+                [self rightMouseDownAtPoint:point];
+                break;
+            case NSRightMouseUp :
+                [self rightMouseUpAtPoint];
+                break;
+            case NSMouseMoved :
+                [self mouseMovedAtPoint:point];
+                break;
+            default :
+                break;
+        }
+    }];
 }
 
 @end
