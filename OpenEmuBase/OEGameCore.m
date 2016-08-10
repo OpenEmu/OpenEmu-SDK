@@ -170,8 +170,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         [self runGameLoop:nil];
 
         _gameCoreRunLoop = nil;
-
-        [self stopEmulation];
     }
 }
 
