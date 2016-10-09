@@ -34,6 +34,7 @@
 #import <OpenEmuSystem/NSResponder+OEHIDAdditions.h>
 #import <OpenEmuSystem/OEBindingMap.h>
 #import <OpenEmuSystem/OEBindingsController.h>
+#import <OpenEmuSystem/OECDSheet.h>
 #import <OpenEmuSystem/OECUESheet.h>
 #import <OpenEmuSystem/OECloneCD.h>
 #import <OpenEmuSystem/OEControlDescription.h>
@@ -42,6 +43,7 @@
 #import <OpenEmuSystem/OEDeviceHandler.h>
 #import <OpenEmuSystem/OEDeviceManager.h>
 #import <OpenEmuSystem/OEEvent.h>
+#import <OpenEmuSystem/OEFile.h>
 #import <OpenEmuSystem/OEHIDEvent.h>
 #import <OpenEmuSystem/OEKeyBindingDescription.h>
 #import <OpenEmuSystem/OEKeyBindingGroupDescription.h>

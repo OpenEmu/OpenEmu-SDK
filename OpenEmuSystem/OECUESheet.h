@@ -25,27 +25,23 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <OpenEmuSystem/OECDSheet.h>
 
 // Options to handle 'broken' cue files:
 #define OECUESheetImproveReadingByUsingBinExtension 0 // If a referenced file does not have an extension we automatically append .bin and see if that works better
 #define OECUESheetImproveReadingByUsingSheetBin 0 // if there's only one referenced file which is not available we check if there's a bin file with the same name as the cue and use that instead
 
+extern NSString *const OECUESheetErrorDomain;
+
+NS_ENUM(NSInteger) {
+    OECUESheetNoFileNameFoundError = -1,
+    OECUESheetInvalidFileFormatError = -2,
+    OECUESheetInvalidQuotationMarkError = -3,
+};
+
 /**
  Class to handle .cue files and manage track files references in cue sheets.
  Only does some very basic parsing.
  */
-@interface OECUESheet : NSObject
-
-- (id)initWithPath:(NSString *)path;
-- (id)initWithPath:(NSString *)path andReferencedFilesDirectory:(NSString *)referencedFiles;
-
-#pragma mark - File Handling
-- (BOOL)moveReferencedFilesToPath:(NSString *)newDirectory withError:(NSError **)outError;
-- (BOOL)copyReferencedFilesToPath:(NSString *)newDirectory withError:(NSError **)outError;
-
-- (BOOL)allFilesAvailable;
-- (NSArray *)referencedFiles;
-- (NSArray *)referencedFileNames;
-- (NSString *)dataTrackPath;
-
+@interface OECUESheet : OECDSheet
 @end

@@ -25,22 +25,14 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <OpenEmuSystem/OECDSheet.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  Class to handle .ccd files and manage img/sub files.
  */
-@interface OECloneCD : NSObject
-
-- (id)initWithURL:(NSURL *)url;
-- (id)initWithURL:(NSURL *)url andReferencedFilesDirectory:(NSURL *)referencedFiles;
-
-#pragma mark - File Handling
-- (BOOL)moveReferencedFilesToURL:(NSURL *)newDirectory withError:(NSError **)outError;
-- (BOOL)copyReferencedFilesToURL:(NSURL *)newDirectory withError:(NSError **)outError;
-
-- (BOOL)allFilesAvailable;
-- (NSArray *)referencedFiles;
-- (NSArray *)referencedFileNames;
-- (NSString *)dataTrackPath;
-
+@interface OECloneCD : OECDSheet
 @end
+
+NS_ASSUME_NONNULL_END

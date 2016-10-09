@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2015, OpenEmu Team
+ Copyright (c) 2016, OpenEmu Team
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -24,25 +24,38 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "OECloneCD.h"
+#import <Foundation/Foundation.h>
+#import <OpenEmuSystem/OEFile.h>
 
-#import "OECDSheet_Internal.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation OECloneCD
+extern NSString *const OECDSheetErrorDomain;
 
-- (BOOL)_setUpFileReferencesWithError:(NSError **)error
-{
-    if (![self _fileContentWithError:error])
-        return NO;
+NS_ENUM(NSInteger) {
+    OECDSheetUnreadableSheetError = -1,
+    OECDSheetMissingFilesError = -2,
+};
 
-    NSURL *URLWithoutFileExtension = self.fileURL.URLByDeletingPathExtension;
-    NSURL *IMGFileURL = [URLWithoutFileExtension URLByAppendingPathExtension:@"img"];
-    NSURL *SUBFileURL = [URLWithoutFileExtension URLByAppendingPathExtension:@"sub"];
+@interface OECDSheet : OEFile
 
-    self.dataTrackFileURL = IMGFileURL;
-    self.referencedBinaryFileURLs = self.allReferencedFileURLs = self.referencedFileURLs = @[ IMGFileURL, SUBFileURL ];
+/// URLs of the files directly referenced by the receiver.
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *referencedFileURLs;
 
-    return YES;
-}
+/// URLs of the files referenced by the receiver including subsheets where applicable.
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *allReferencedFileURLs;
+
+/// URLs of the all the binary files referenced by the receiver.
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *referencedBinaryFileURLs;
+
+/// URL of the main data track file.
+@property (nonatomic, copy, readonly) NSURL *dataTrackFileURL;
+
+/// Move all the referenced files to the destinationURL directory.
+- (BOOL)moveReferencedFilesToDirectoryAtURL:(NSURL *)destinationURL error:(NSError **)error;
+
+/// Copy all the referenced files to the destinationURL directory.
+- (BOOL)copyReferencedFilesToDirectoryAtURL:(NSURL *)destinationURL error:(NSError **)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -154,9 +154,9 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 #pragma mark -
 #pragma mark Rom Handling
 
-- (OECanHandleState)canHandleFile:(NSString *)path
+- (OEFileSupport)canHandleFile:(__kindof OEFile *)file
 {
-    return OECanHandleUncertain;
+    return OEFileSupportUncertain;
 }
 
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension

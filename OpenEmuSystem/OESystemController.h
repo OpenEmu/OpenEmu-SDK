@@ -26,6 +26,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class OEFile;
 @class OEHIDEvent;
 @class OEGlobalKeyBindingDescription;
 @class OEKeyBindingDescription;
@@ -94,12 +95,11 @@ extern NSString *const OEControllerImageKey;       // NSString - file name of th
 extern NSString *const OEControllerImageMaskKey;   // NSString - file name of the controller image mask
 extern NSString *const OEControllerKeyPositionKey; // NSDictionary - KeyName -> NSPoint as NSString
 
-typedef enum
-{
-    OECanHandleYes,
-    OECanHandleNo,
-    OECanHandleUncertain,
-} OECanHandleState;
+typedef NS_ENUM(NSInteger, OEFileSupport) {
+    OEFileSupportNo,
+    OEFileSupportYes,
+    OEFileSupportUncertain,
+};
 
 @interface OESystemController : NSObject
 
@@ -152,7 +152,7 @@ typedef enum
    testing file extensions, which is what -canHandleFileExtension: does. When importing a file, systems that
    can handle that file are preferred over systems that can only (potentially) handle its extension. Only implement -canHandleFile: if you can verify that it's valid for the system.
 */
-- (OECanHandleState)canHandleFile:(NSString *)path;
+- (OEFileSupport)canHandleFile:(__kindof OEFile *)file;
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension;
 
 - (NSString *)headerLookupForFile:(NSString *)path;

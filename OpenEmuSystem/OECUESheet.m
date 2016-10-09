@@ -26,230 +26,79 @@
 
 #import "OECUESheet.h"
 
-@interface OECUESheet ()
+#import "OECDSheet_Internal.h"
 
-@property NSString *sheetPath;
-@property NSString *sheetFile;
-@property NSString *referencedFilesDirectoryPath;
-@property NSArray  *referencedFiles;
-
-- (void)OE_enumerateFilesUsingBlock:(void(^)(NSString *path, BOOL *stop))block;
-- (void)OE_refreshReferencedFiles;
-
-@end
+NSString *const OECUESheetErrorDomain = @"org.openemu.OECUESheet.ErrorDomain";
 
 @implementation OECUESheet
-/**
- Returns an OECueSheet object initialized from the given file.
- @param path    absolute path to .cue file
- @returns An initialized OECueSheet object for the given path. Returns nil if the cue file does not exist or can't be read.
- */
-- (id)initWithPath:(NSString *)path
+
+- (BOOL)_setUpFileReferencesWithError:(NSError **)error
 {
-    if((self = [super init]))
-    {
-        NSString *file = [NSString stringWithContentsOfFile:path usedEncoding:0 error:nil];
-        if(file == nil) return nil;
+    NSString *fileContent = [self _fileContentWithError:error];
+    if (fileContent == nil)
+        return NO;
 
-        [self setSheetPath:path];
-        [self setSheetFile:file];
+    NSRegularExpression *fileLinePattern = [NSRegularExpression regularExpressionWithPattern:@"^FILE .+$" options:NSRegularExpressionAnchorsMatchLines error:nil];
+    NSRegularExpression *fileNamePattern = [NSRegularExpression regularExpressionWithPattern:@"(?<=FILE \")[^\"]*" options:0 error:nil];
 
-        [self setReferencedFilesDirectoryPath:[path stringByDeletingLastPathComponent]];
-        [self OE_refreshReferencedFiles];
+    NSRange fullRange = NSMakeRange(0, fileContent.length);
+    NSArray *matches = [fileLinePattern matchesInString:fileContent options:0 range:fullRange];
+
+    if (matches.count == 0) {
+        if (error == nil)
+            return NO;
+
+        *error = [NSError errorWithDomain:OECUESheetErrorDomain code:OECUESheetNoFileNameFoundError userInfo:@{
+            NSLocalizedDescriptionKey: NSLocalizedString(@"CUE sheet does not contain any file name", @"Missing FILE reference in cue file error description"),
+            NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"The .cue sheet %@ should contain file names referencing CD segments but none could be found.", @"Missing FILE reference in cue file error failure reason"), self.fileURL.lastPathComponent],
+        }];
+
+        return NO;
     }
-    return self;
-}
 
-/**
- Returns an OECueSheet object initialized from the given file. The CueSheet expects to find additional files in the specified directory.
- @param path                absolute path to .cue file
- @param referencedFiles     path to directory containing additional files
- @returns An initialized OECueSheet object for the given path. Returns nil if the cue file does not exist or can't be read.
- */
-- (id)initWithPath:(NSString *)path andReferencedFilesDirectory:(NSString *)referencedFiles
-{
-    if((self = [self initWithPath:path]))
-    {
-        [self setReferencedFilesDirectoryPath:referencedFiles];
-        [self OE_refreshReferencedFiles];
-    }
-    return self;
-}
+    NSURL *folderURL = self.fileURL.URLByDeletingLastPathComponent;
+    NSMutableArray<NSURL *> *fileURLs = [NSMutableArray array];
 
-#pragma mark - File Handling
-/**
- Move files referenced by a cue sheet to a new directory
- @param newDirectory    absolute path to destination directory
- @param outError        On input, a pointer to an error object. If an error occurs, this pointer is set to an actual error object containing the error information. You may specify nil for this parameter if you do not want the error information.
- @returns YES if all files were moved successfully. Returns NO if an error occurred.
- */
-- (BOOL)moveReferencedFilesToPath:(NSString *)newDirectory withError:(NSError **)outError
-{
-    __block BOOL     success = YES;
-    __block NSError *error   = nil;
+    for (NSTextCheckingResult *match in matches) {
+        NSString *FILEString = [fileContent substringWithRange:match.range];
 
-    NSFileManager *fileManger      = [NSFileManager defaultManager];
-    NSString      *directory       = [self referencedFilesDirectoryPath];
-    NSArray       *referencedFiles = [self referencedFiles];
-
-    [referencedFiles enumerateObjectsUsingBlock:
-     ^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         NSString *fullPath = [directory stringByAppendingPathComponent:obj];
-         NSString *newPath = [newDirectory stringByAppendingPathComponent:[fullPath lastPathComponent]];
-         if(![fileManger moveItemAtPath:fullPath toPath:newPath error:&error])
-         {
-             *stop   = YES;
-             success = NO;
-         }
-     }];
-
-    if(outError != NULL)
-        *outError = error;
-
-    return success;
-}
-
-/**
- Copies all files referenced by a cue sheet to a new directory
- @param newDirectory    absolute path to destination directory
- @param outError        On input, a pointer to an error object. If an error occurs, this pointer is set to an actual error object containing the error information. You may specify nil for this parameter if you do not want the error information.
- @returns YES if all files were copied successfully. Returns NO if an error occurred.
- */
-- (BOOL)copyReferencedFilesToPath:(NSString *)newDirectory withError:(NSError **)outError
-{
-    __block BOOL     success = YES;
-    __block NSError *error   = nil;
-
-    NSFileManager *fileManger      = [NSFileManager defaultManager];
-    NSString      *directory       = [self referencedFilesDirectoryPath];
-    NSArray       *referencedFiles = [self referencedFiles];
-
-    [referencedFiles enumerateObjectsUsingBlock:
-     ^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         NSString *fullPath = [directory stringByAppendingPathComponent:obj];
-         NSString *newPath = [newDirectory stringByAppendingPathComponent:[fullPath lastPathComponent]];
-
-         if(![fileManger copyItemAtPath:fullPath toPath:newPath error:&error])
-         {
-             *stop   = YES;
-             success = NO;
-         }
-     }];
-
-    if(outError != NULL)
-        *outError = error;
-
-    return success;
-}
-
-/**
- Determine if all files referenced by a cue sheeet exist.
- @returns YES if all files exist.
- */
-- (BOOL)allFilesAvailable
-{
-    NSFileManager *fileManger      = [NSFileManager defaultManager];
-    __block BOOL   success         = YES;
-    NSString      *directory       = [self referencedFilesDirectoryPath];
-    NSArray       *referencedFiles = [self referencedFiles];
-
-    [referencedFiles enumerateObjectsUsingBlock:
-     ^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         NSString *fullPath = [directory stringByAppendingPathComponent:obj];
-         if(![fileManger fileExistsAtPath:fullPath])
-         {
-             *stop   = YES;
-             success = NO;
-         }
-     }];
-
-    return success;
-}
-
-/**
- Get path to file containing the data track.
- @returns Path to data track or nil if no data track is listed.
- */
-- (NSString *)dataTrackPath
-{
-    return [[self referencedFiles] count] > 0 ? [[self referencedFiles] objectAtIndex:0] : nil;
-}
-
-/**
- Get files referenced by the cue sheet.
- @returns Array containing NSString objects that specfiy the names of all referenced files.
- */
-- (NSArray *)referencedFileNames
-{
-    NSArray *files = [self referencedFiles];
-    NSMutableArray *names = [NSMutableArray arrayWithCapacity:[files count]];
-    [files enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [names addObject:[obj lastPathComponent]];
-    }];
-    return names;
-}
-
-#pragma mark - Private Helpers
-
-- (void)OE_enumerateFilesUsingBlock:(void(^)(NSString *path, BOOL *stop))block
-{
-    NSString *directory     = [[self sheetPath] stringByDeletingLastPathComponent];
-    NSString *sheetFileName = [[self sheetPath] lastPathComponent];
-    NSArray  *allFiles      = [[self referencedFiles] arrayByAddingObject:sheetFileName];
-
-    [allFiles enumerateObjectsUsingBlock:
-     ^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         block([directory stringByAppendingPathComponent:obj], stop);
-     }];
-}
-
-- (void)OE_refreshReferencedFiles
-{
-    NSRegularExpression *pattern   = [NSRegularExpression regularExpressionWithPattern:@"(?<=FILE \")[^\"]*" options:0 error:nil];
-    NSRange              fullRange = NSMakeRange(0, [[self sheetFile] length]);
-    NSArray             *matches   = [pattern matchesInString:[self sheetFile] options:0 range:fullRange];
-    NSMutableArray      *files     = [NSMutableArray arrayWithCapacity:[matches count]];
-
-#if OECUESheetImproveReadingByUsingBinExtension || OECUESheetImproveReadingByUsingSheetBin
-    NSString *referencedDirectory = [self referencedFilesDirectoryPath];
-#endif
-
-    for(NSTextCheckingResult *match in matches)
-    {
-        NSString *matchedString = [[self sheetFile] substringWithRange:[match range]];
-
-#if OECUESheetImproveReadingByUsingBinExtension
-        if([[matchedString pathExtension] length] == 0)
-        {
-            NSString *absolutePath   = [referencedDirectory stringByAppendingPathComponent:matchedString];
-            if(![[NSFileManager defaultManager] fileExistsAtPath:absolutePath])
-            {
-                NSString *fileNameWithBinExtension = [[absolutePath lastPathComponent] stringByAppendingPathExtension:@"bin"];
-                if([[NSFileManager defaultManager] fileExistsAtPath:[referencedDirectory stringByAppendingPathComponent:fileNameWithBinExtension]])
-                    matchedString = fileNameWithBinExtension;
-            }
+        NSTextCheckingResult *fileNameMatch = [fileNamePattern firstMatchInString:FILEString options:0 range:NSMakeRange(0, match.range.length)];
+        if (fileNameMatch.range.length != 0) {
+            [fileURLs addObject:[folderURL URLByAppendingPathComponent:[FILEString substringWithRange:fileNameMatch.range]]];
+            continue;
         }
-#endif
-        [files addObject:matchedString];
-    }
 
-#if OECUESheetImproveReadingByUsingSheetBin
-    if([files count] == 1)
-    {
-        NSString *absolutePath = [referencedDirectory stringByAppendingPathComponent:[files lastObject]];
-        if(![[NSFileManager defaultManager] fileExistsAtPath:absolutePath])
-        {
-            NSString *sheetNameWithBinExtension = [[[[self sheetPath] lastPathComponent] stringByDeletingPathExtension] stringByAppendingPathExtension:@"bin"];
-            if([[NSFileManager defaultManager] fileExistsAtPath:[referencedDirectory stringByAppendingPathComponent:sheetNameWithBinExtension]])
-                [files replaceObjectAtIndex:0 withObject:sheetNameWithBinExtension];
+        NSCharacterSet *brokenQuoteCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"'‘’“”„«»‹›<>"];
+        NSRange brokenCharacterRange = [FILEString rangeOfCharacterFromSet:brokenQuoteCharacterSet];
+        if (brokenCharacterRange.location != NSNotFound) {
+            if (error == nil)
+                return NO;
+
+            *error = [NSError errorWithDomain:OECUESheetErrorDomain code:OECUESheetInvalidQuotationMarkError userInfo:@{
+                NSLocalizedDescriptionKey: NSLocalizedString(@"CUE sheet contains an invalid quotation mark.", @"CUE sheet file quotation format error description"),
+                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"CUE sheet format requires \" quotation marks, but instead uses %@.", @"CUE sheet file quotation format error failure reason"), [fileContent substringWithRange:brokenCharacterRange]],
+            }];
+
+            return NO;
+        }
+
+        if (fileNameMatch.range.length == 0) {
+            if (error == nil)
+                return NO;
+
+            *error = [NSError errorWithDomain:OECUESheetErrorDomain code:OECUESheetInvalidFileFormatError userInfo:@{
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:NSLocalizedString(@"Invalid CUE sheet format", @"CUE sheet invalid file format error description"), self.fileURL.lastPathComponent],
+                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"The file %@ does not respect the CUE sheet format.", @"CUE sheet invalid file format error failure reason"), self.fileURL.lastPathComponent, [fileContent substringWithRange:brokenCharacterRange]],
+            }];
+
+            return NO;
         }
     }
-#endif
 
-    [self setReferencedFiles:files];
+    self.dataTrackFileURL = fileURLs.firstObject;
+    self.referencedBinaryFileURLs = self.allReferencedFileURLs = self.referencedFileURLs = fileURLs;
+
+    return YES;
 }
+
 @end
