@@ -79,11 +79,10 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
     return _fileURL;
 }
 
-
 - (NSData *)readDataInRange:(NSRange)dataRange
 {
     if (_fileHandle == nil)
-        _fileHandle = [NSFileHandle fileHandleForReadingFromURL:_fileURL error:nil];
+        _fileHandle = [NSFileHandle fileHandleForReadingFromURL:self.dataTrackFileURL error:nil];
 
     if (_fileHandle == nil)
         return [NSData data];

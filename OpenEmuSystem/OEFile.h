@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OEFile : NSObject
 
 + (void)registerClass:(Class)class forFileExtension:(NSString *)fileExtension;
-+ (__kindof OEFile *)fileWithURL:(NSURL *)fileURL error:(NSError **)error;
++ (nullable __kindof OEFile *)fileWithURL:(NSURL *)fileURL error:(NSError **)error;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (nullable instancetype)initWithFileURL:(NSURL *)fileURL error:(NSError **)error;
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)readDataInRange:(NSRange)dataRange;
 
 /// Return empty string if the range is invalid or
-/// if the data could be read as an ASCII string.
+/// if the data could not be read as an ASCII string.
 - (NSString *)readASCIIStringInRange:(NSRange)dataRange;
 
 - (nullable instancetype)fileByMovingFileToURL:(NSURL *)destinationURL error:(NSError **)error;
