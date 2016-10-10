@@ -164,12 +164,12 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     return [_fileTypes containsObject:[fileExtension lowercaseString]];
 }
 
-- (NSString *)headerLookupForFile:(NSString *)path
+- (NSString *)headerLookupForFile:(__kindof OEFile *)file
 {
     return nil;
 }
 
-- (NSString *)serialLookupForFile:(NSString *)path
+- (NSString *)serialLookupForFile:(__kindof OEFile *)file
 {
     return nil;
 }

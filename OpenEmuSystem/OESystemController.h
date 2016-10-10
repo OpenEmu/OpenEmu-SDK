@@ -155,7 +155,7 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 - (OEFileSupport)canHandleFile:(__kindof OEFile *)file;
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension;
 
-- (NSString *)headerLookupForFile:(NSString *)path;
-- (NSString *)serialLookupForFile:(NSString *)path;
+- (NSString *)headerLookupForFile:(__kindof OEFile *)file;
+- (NSString *)serialLookupForFile:(__kindof OEFile *)file;
 
 @end
