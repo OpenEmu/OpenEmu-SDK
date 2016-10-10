@@ -57,8 +57,9 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 
 @implementation OEDeviceHandler
 
-- (nullable instancetype)init
+- (instancetype)init
 {
+    NSAssert(NO, @"Use designated initializer instead.");
     return nil;
 }
 
