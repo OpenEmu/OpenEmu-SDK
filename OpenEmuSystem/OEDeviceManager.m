@@ -645,6 +645,10 @@ static void OEHandle_DeviceMatchingCallback(void *inContext, IOReturn inResult, 
 
     if(IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDLocationIDKey)) == NULL) {
         NSLog(@"Device does not have a location ID");
+        if (IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDProductKey)) == NULL) {
+            NSLog(@"Device does not have a product name.");
+            return;
+        }
     }
 
     if(IOHIDDeviceOpen(inIOHIDDeviceRef, kIOHIDOptionsTypeNone) != kIOReturnSuccess) {
