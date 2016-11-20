@@ -76,7 +76,19 @@ NSString *const OECUESheetErrorDomain = @"org.openemu.OECUESheet.ErrorDomain";
 
             *error = [NSError errorWithDomain:OECUESheetErrorDomain code:OECUESheetInvalidQuotationMarkError userInfo:@{
                 NSLocalizedDescriptionKey: NSLocalizedString(@"CUE sheet contains an invalid quotation mark.", @"CUE sheet file quotation format error description"),
-                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"CUE sheet format requires \" quotation marks, but instead uses %@.", @"CUE sheet file quotation format error failure reason"), [fileContent substringWithRange:brokenCharacterRange]],
+                NSLocalizedRecoverySuggestionErrorKey: [NSString stringWithFormat:NSLocalizedString(@"CUE sheet format requires \" quotation marks, but instead uses %@.", @"CUE sheet file quotation format error failure reason"), [fileContent substringWithRange:brokenCharacterRange]],
+            }];
+
+            return NO;
+        }
+
+        if ([FILEString rangeOfString:@"\""].length == 0) {
+            if (error == nil)
+                return NO;
+
+            *error = [NSError errorWithDomain:OECUESheetErrorDomain code:OECUESheetInvalidFileFormatError userInfo:@{
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:NSLocalizedString(@"Invalid CUE sheet format", @"CUE sheet invalid file format error description"), self.fileURL.lastPathComponent],
+                NSLocalizedRecoverySuggestionErrorKey: NSLocalizedString(@"CUE sheet format requires \" quotation marks around file names but none were found.", @"CUE sheet invalid file format error failure reason when double quotes are missing"),
             }];
 
             return NO;
@@ -88,7 +100,7 @@ NSString *const OECUESheetErrorDomain = @"org.openemu.OECUESheet.ErrorDomain";
 
             *error = [NSError errorWithDomain:OECUESheetErrorDomain code:OECUESheetInvalidFileFormatError userInfo:@{
                 NSLocalizedDescriptionKey: [NSString stringWithFormat:NSLocalizedString(@"Invalid CUE sheet format", @"CUE sheet invalid file format error description"), self.fileURL.lastPathComponent],
-                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"The file %@ does not respect the CUE sheet format.", @"CUE sheet invalid file format error failure reason"), self.fileURL.lastPathComponent, [fileContent substringWithRange:brokenCharacterRange]],
+                NSLocalizedRecoverySuggestionErrorKey: [NSString stringWithFormat:NSLocalizedString(@"The file %@ does not respect the CUE sheet format.", @"CUE sheet invalid file format error failure reason"), self.fileURL.lastPathComponent],
             }];
 
             return NO;
