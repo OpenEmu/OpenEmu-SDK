@@ -69,7 +69,7 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     {
         _deviceDescription = deviceDescription;
         FIXME("Save default dead zones in user defaults based on device description.");
-        _defaultDeadZone = 0.2;
+        _defaultDeadZone = 0.125;
         _deadZones = [[NSMutableDictionary alloc] init];
     }
 
