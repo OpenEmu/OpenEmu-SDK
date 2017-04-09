@@ -34,7 +34,8 @@ NSString *const OEM3UFileErrorDomain = @"org.openemu.OEM3UFile.ErrorDomain";
 
         __kindof OEFile *referencedFile = [OEFile fileWithURL:url error:&localError];
         if (![referencedFile isKindOfClass:[OECDSheet class]]) {
-            // This URL points to a non-sheet URL, so we consider it a binary file and don't import or write it to the m3u.
+            // Don't import the m3u if it contains invalid referenced files (unreachable or non-OECDSheet).
+            failedToValidateContainedFiles = YES;
             return;
         }
 
