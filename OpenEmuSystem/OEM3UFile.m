@@ -20,6 +20,8 @@ NSString *const OEM3UFileErrorDomain = @"org.openemu.OEM3UFile.ErrorDomain";
     if (!fileContent)
         return NO;
 
+    fileContent = [fileContent stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
     NSURL *directoryURL = self.fileURL.URLByDeletingLastPathComponent;
 
     NSMutableArray<NSURL *> *referencedFileURLs = [NSMutableArray array];
