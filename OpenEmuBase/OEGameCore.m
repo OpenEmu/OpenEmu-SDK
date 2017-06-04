@@ -537,7 +537,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
     _rate = rate;
     [_renderDelegate setEnableVSync:_rate == 1];
-    OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
+    if (_rate > 0.001)
+      OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
 }
 
 - (void)beginPausedExecution
