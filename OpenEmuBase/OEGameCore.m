@@ -466,17 +466,13 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)fastForward:(BOOL)flag
 {
-    if(flag)
-    {
-        self.rate = 5;
+    float newrate = flag ? 5.0 : 1.0;
+  
+    if (self.isEmulationPaused) {
+        lastRate = newrate;
+    } else {
+        self.rate = newrate;
     }
-    else
-    {
-        self.rate = 1;
-    }
-
-    [_renderDelegate setEnableVSync:_rate == 1];
-    OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
 }
 
 - (void)rewind:(BOOL)flag
@@ -493,21 +489,21 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)setPauseEmulation:(BOOL)paused
 {
-    if (_rate == 0 && paused)  return;
-    if (_rate != 0 && !paused) return;
+    if (self.rate == 0 && paused)  return;
+    if (self.rate != 0 && !paused) return;
 
     // Set rate to 0 and store the previous rate.
     if (paused) {
-        lastRate = _rate;
-        _rate = 0;
+        lastRate = self.rate;
+        self.rate = 0;
     } else {
-        _rate = lastRate;
+        self.rate = lastRate;
     }
 }
 
 - (BOOL)isEmulationPaused
 {
-    return _rate == 0;
+    return self.rate == 0;
 }
 
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
@@ -540,6 +536,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     NSLog(@"Rate change %f -> %f", _rate, rate);
 
     _rate = rate;
+    [_renderDelegate setEnableVSync:_rate == 1];
+    if (_rate > 0.001)
+      OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
 }
 
 - (void)beginPausedExecution
