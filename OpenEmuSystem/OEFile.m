@@ -29,7 +29,7 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
 
 + (__kindof OEFile *)fileWithURL:(NSURL *)fileURL error:(NSError **)error
 {
-    Class sheetClass = extensionToSubclassDictionary[fileURL.pathExtension];
+    Class sheetClass = extensionToSubclassDictionary[fileURL.pathExtension.lowercaseString];
     if (sheetClass != Nil)
         return [[sheetClass alloc] initWithFileURL:fileURL error:error];
 
