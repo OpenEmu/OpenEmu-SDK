@@ -110,6 +110,8 @@ typedef enum : NSUInteger {
  */
 - (void)didRenderFrameOnAlternateThread;
 
+@property (nonatomic) BOOL enableVSync;
+
 /*!
  * @property presentationFramebuffer
  * @discussion

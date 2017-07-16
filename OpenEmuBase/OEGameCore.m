@@ -585,7 +585,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     NSLog(@"Rate change %f -> %f", _rate, rate);
 
     _rate = rate;
-    [_renderDelegate setEnableVSync:_rate == 1];
+    [_renderDelegate setEnableVSync:_rate == 1]; // TODO: Remove this and enableVSync property when remote-layer lands
     if (_rate > 0.001)
       OESetThreadRealtime(1./(_rate * [self frameInterval]), .007, .03);
 }
