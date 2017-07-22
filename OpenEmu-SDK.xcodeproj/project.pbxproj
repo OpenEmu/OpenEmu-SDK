@@ -249,6 +249,7 @@
 				C6772A271710A4BA00ED580A /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		C6772A271710A4BA00ED580A /* Products */ = {
 			isa = PBXGroup;
