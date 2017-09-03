@@ -63,6 +63,12 @@
 - (NSUInteger)write:(const void *)inBuffer maxLength:(NSUInteger)length
 {
     bytesWritten += length;
+
+    if(buffer.fillCount + length > buffer.length)
+    {
+        NSLog(@"OERingBuffer: Tried to write %lu bytes, but only %d bytes free", length, buffer.length - buffer.fillCount);
+    }
+
     return TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
 }
 
@@ -70,6 +76,12 @@
 {
     int availableBytes = 0;
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
+
+    if(len > availableBytes)
+    {
+        NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available", len, availableBytes);
+    }
+
     availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
     TPCircularBufferConsume(&buffer, availableBytes);
@@ -78,12 +90,12 @@
 
 - (NSUInteger)availableBytes
 {
-    return buffer.length - buffer.fillCount;
+    return buffer.fillCount;
 }
 
-- (NSUInteger)usedBytes
+- (NSUInteger)freeBytes
 {
-    return buffer.fillCount;
+    return buffer.length - buffer.fillCount;
 }
 
 @end
