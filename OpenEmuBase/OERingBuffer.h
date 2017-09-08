@@ -37,7 +37,7 @@
 
 @property           NSUInteger length;
 @property(readonly) NSUInteger availableBytes;
-@property(readonly) NSUInteger usedBytes;
+@property(readonly) NSUInteger freeBytes;
 @property(readonly) NSUInteger bytesWritten;
 
 - (NSUInteger)read:(void *)buffer maxLength:(NSUInteger)len;
