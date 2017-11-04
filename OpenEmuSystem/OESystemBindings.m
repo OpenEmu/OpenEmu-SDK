@@ -626,6 +626,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     [sender OE_setBindingEvent:nil forKey:keyDesc];
 
     [self OE_notifyObserversDidUnsetEvent:event forBindingKey:keyDesc playerNumber:[keyDesc isSystemWide] ? 0 : [sender playerNumber]];
+    [[self bindingsController] OE_setRequiresSynchronization];
 }
 
 - (__kindof OEBindingDescription *)OE_playerBindings:(OEDevicePlayerBindings *)sender didSetDeviceEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
@@ -802,6 +803,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     [sender OE_setBindingEvent:nil forKey:keyDesc];
     [self OE_notifyObserversDidUnsetEvent:eventToRemove forBindingKey:keyDesc playerNumber:[sender playerNumber]];
+    [[self bindingsController] OE_setRequiresSynchronization];
 }
 
 - (void)OE_removeConcurrentBindings:(OEDevicePlayerBindings *)sender ofKey:(OEKeyBindingDescription *)keyDesc withEvent:(OEHIDEvent *)anEvent;
