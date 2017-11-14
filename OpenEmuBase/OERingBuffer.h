@@ -39,6 +39,7 @@
 @property(readonly) NSUInteger availableBytes;
 @property(readonly) NSUInteger freeBytes;
 @property(readonly) NSUInteger bytesWritten;
+@property(readonly) NSUInteger usedBytes __attribute__((deprecated("use -freeBytes")));
 
 - (NSUInteger)read:(void *)buffer maxLength:(NSUInteger)len;
 - (NSUInteger)write:(const void *)buffer maxLength:(NSUInteger)length;

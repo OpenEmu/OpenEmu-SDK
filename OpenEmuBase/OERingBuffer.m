@@ -98,4 +98,9 @@
     return buffer.length - buffer.fillCount;
 }
 
+- (NSUInteger)usedBytes
+{
+    return buffer.length - buffer.fillCount;
+}
+
 @end
