@@ -144,9 +144,9 @@ static const OEHIDEventAxis OEWiimoteClassicControllerRightTriggerAxisUsage   = 
 typedef enum {
     OEWiimoteProControllerJoystickMinimumValue = 1155,
     OEWiimoteProControllerJoystickMaximumValue = 2955,
-    OEWiimoteProControllerDeadZone = 200,
-    OEWiimoteProControllerJoystickScaledMinimumValue = -900 + OEWiimoteProControllerDeadZone,
-    OEWiimoteProControllerJoystickScaledMaximumValue = -OEWiimoteProControllerJoystickScaledMinimumValue,
+    OEWiimoteProControllerDeadZone = 200,  /* the dead zone is removed from the scaled range! */
+    OEWiimoteProControllerJoystickScaledMinimumValue = -700,
+    OEWiimoteProControllerJoystickScaledMaximumValue = 700,
 
     OEWiimoteProControllerLeftJoystickAxisXCookie   = 0x1000,
     OEWiimoteProControllerLeftJoystickAxisYCookie   = 0x2000,
@@ -819,7 +819,7 @@ enum {
 
         NSInteger ret = value;
         ret -= OEWiimoteProControllerJoystickMinimumValue;
-        ret += OEWiimoteProControllerJoystickScaledMinimumValue;
+        ret += OEWiimoteProControllerJoystickScaledMinimumValue + (-OEWiimoteProControllerDeadZone);
 
         if (-OEWiimoteProControllerDeadZone < ret && ret <= OEWiimoteProControllerDeadZone)
           ret = 0;
