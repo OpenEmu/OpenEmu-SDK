@@ -142,11 +142,11 @@ static const OEHIDEventAxis OEWiimoteClassicControllerLeftTriggerAxisUsage    = 
 static const OEHIDEventAxis OEWiimoteClassicControllerRightTriggerAxisUsage   = OEHIDEventAxisRz;
 
 typedef enum {
-    OEWiimoteProControllerJoystickMinimumValue = 900,
-    OEWiimoteProControllerJoystickMaximumValue = 3400,
-    OEWiimoteProControllerDeadZone = 256,
-    OEWiimoteProControllerJoystickScaledMinimumValue = -1250,
-    OEWiimoteProControllerJoystickScaledMaximumValue = 1250,
+    OEWiimoteProControllerJoystickMinimumValue = 1155,
+    OEWiimoteProControllerJoystickMaximumValue = 2955,
+    OEWiimoteProControllerDeadZone = 200,  /* the dead zone is removed from the scaled range! */
+    OEWiimoteProControllerJoystickScaledMinimumValue = -700,
+    OEWiimoteProControllerJoystickScaledMaximumValue = 700,
 
     OEWiimoteProControllerLeftJoystickAxisXCookie   = 0x1000,
     OEWiimoteProControllerLeftJoystickAxisYCookie   = 0x2000,
@@ -819,9 +819,17 @@ enum {
 
         NSInteger ret = value;
         ret -= OEWiimoteProControllerJoystickMinimumValue;
-        ret += OEWiimoteProControllerJoystickScaledMinimumValue;
+        ret += OEWiimoteProControllerJoystickScaledMinimumValue + (-OEWiimoteProControllerDeadZone);
 
-        if(-OEWiimoteProControllerDeadZone < ret && ret <= OEWiimoteProControllerDeadZone) ret = 0;
+        if (-OEWiimoteProControllerDeadZone < ret && ret <= OEWiimoteProControllerDeadZone)
+          ret = 0;
+      
+        /* since we use a really big center dead zone, we remove it from the
+         * reported data, to make it possible to input small movements. */
+        if (ret < 0)
+          ret += OEWiimoteProControllerDeadZone;
+        else if (ret > 0)
+          ret -= OEWiimoteProControllerDeadZone;
 
         return ret;
     };
