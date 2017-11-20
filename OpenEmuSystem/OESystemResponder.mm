@@ -50,8 +50,13 @@ typedef enum : NSUInteger {
 
 typedef uint64_t OEJoystickStatusKey;
 
+typedef struct {
+    OEHIDEventAxisDirection direction;
+    CGFloat value;
+} OEJoystickState_Axis;
+
 typedef union {
-    OEHIDEventAxisDirection axisEvent;
+    OEJoystickState_Axis axisEvent;
     OEHIDEventHatDirection hatEvent;
 } OEJoystickState;
 
@@ -382,7 +387,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         {
             // Register the axis for state watch.
             OEJoystickStatusKey eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
-            _joystickStates[eventStateKey] = { .axisEvent=OEHIDEventAxisDirectionNull };
+            _joystickStates[eventStateKey] = { .axisEvent={OEHIDEventAxisDirectionNull, 0.0} };
 
             if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]]) {
                 _axisSystemKeyTypes[eventStateKey] = OEAxisSystemKeyTypeDisjoint;
@@ -513,19 +518,20 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 
 - (void)axisMoved:(OEHIDEvent *)anEvent
 {
-    OEJoystickStatusKey      joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
-    OEAxisSystemKeyType      keyType           = _axisSystemKeyTypes[joystickKey];
-    OEHIDEventAxisDirection  previousDirection = _joystickStates[joystickKey].axisEvent;
-    OEHIDEventAxisDirection  currentDirection  = [anEvent direction];
+    OEJoystickStatusKey     joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
+    OEAxisSystemKeyType     keyType           = _axisSystemKeyTypes[joystickKey];
+    OEJoystickState_Axis    prevState         = _joystickStates[joystickKey].axisEvent;
+    OEHIDEventAxisDirection currentDirection  = [anEvent direction];
+    CGFloat                 currentValue      = [anEvent value];
 
-    _joystickStates[joystickKey] = { .axisEvent=currentDirection };
+    _joystickStates[joystickKey] = { .axisEvent={currentDirection, currentValue} };
     
     if(keyType == OEAxisSystemKeyTypeJointAnalog) {
         OESystemKey *key;
         
         if (currentDirection == OEHIDEventAxisDirectionNull) {
-            assert((previousDirection != OEHIDEventAxisDirectionNull) && "-axisMoved: invoked but axis didn't move");
-            key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
+            assert((prevState.direction != OEHIDEventAxisDirectionNull) && "-axisMoved: invoked but axis didn't move");
+            key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:prevState.direction]];
         } else {
             key = [_keyMap systemKeyForEvent:anEvent];
         }
@@ -533,18 +539,19 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         return;
     }
 
-    OESystemKey *prevKey = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
+    OESystemKey *prevKey = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:prevState.direction]];
     OESystemKey *currKey = [_keyMap systemKeyForEvent:anEvent];
     
     /* break previous key, if needed */
     if (prevKey) {
-        assert((previousDirection != OEHIDEventAxisDirectionNull) && "bindings to null directions shouldn't exist");
+        assert((prevState.direction != OEHIDEventAxisDirectionNull) && "bindings to null directions shouldn't exist");
         if (prevKey && [prevKey isAnalogic]) {
-            if (previousDirection != currentDirection) {
+            if (prevState.direction != currentDirection) {
                 _OEBasicSystemResponderChangeAnalogSystemKey(self, prevKey, 0.0);
             }
         } else {
-            if (previousDirection != currentDirection) {
+            if ((prevState.value >= 0.5 && currentValue < 0.5) ||
+                (prevState.value <= -0.5 && currentValue > -0.5)) {
                 _OEBasicSystemResponderReleaseSystemKey(self, prevKey, NO);
             }
         }
@@ -556,7 +563,8 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         if ([currKey isAnalogic]) {
             _OEBasicSystemResponderChangeAnalogSystemKey(self, currKey, [anEvent absoluteValue]);
         } else {
-            if (previousDirection != currentDirection) {
+            if ((prevState.value < 0.5 && currentValue >= 0.5) ||
+                (prevState.value > -0.5 && currentValue <= -0.5)) {
                 _OEBasicSystemResponderPressSystemKey(self, currKey, NO);
             }
         }
