@@ -513,57 +513,53 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 
 - (void)axisMoved:(OEHIDEvent *)anEvent
 {
-    OESystemKey             *key               = nil;
     OEJoystickStatusKey      joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
     OEAxisSystemKeyType      keyType           = _axisSystemKeyTypes[joystickKey];
     OEHIDEventAxisDirection  previousDirection = _joystickStates[joystickKey].axisEvent;
     OEHIDEventAxisDirection  currentDirection  = [anEvent direction];
 
-    if(previousDirection == currentDirection)
-    {
-        key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:currentDirection == OEHIDEventAxisDirectionPositive ? OEHIDEventAxisDirectionNegative : OEHIDEventAxisDirectionPositive]];
-        if([key isAnalogic]) _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
-        return;
-    }
-
     _joystickStates[joystickKey] = { .axisEvent=currentDirection };
-
-    if(keyType == OEAxisSystemKeyTypeJointAnalog)
-    {
-        key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
+    
+    if(keyType == OEAxisSystemKeyTypeJointAnalog) {
+        OESystemKey *key;
+        
+        if (currentDirection == OEHIDEventAxisDirectionNull) {
+            assert((previousDirection != OEHIDEventAxisDirectionNull) && "-axisMoved: invoked but axis didn't move");
+            key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
+        } else {
+            key = [_keyMap systemKeyForEvent:anEvent];
+        }
         _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
         return;
     }
 
-    switch(previousDirection)
-    {
-        case OEHIDEventAxisDirectionNegative :
-            if((key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:OEHIDEventAxisDirectionNegative]]))
-            {
-                if(keyType == OEAxisSystemKeyTypeDisjoint && [key isAnalogic])
-                    _OEBasicSystemResponderChangeAnalogSystemKey(self, key, 0.0);
-                else
-                    _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
+    OESystemKey *prevKey = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:previousDirection]];
+    OESystemKey *currKey = [_keyMap systemKeyForEvent:anEvent];
+    
+    /* break previous key, if needed */
+    if (prevKey) {
+        assert((previousDirection != OEHIDEventAxisDirectionNull) && "bindings to null directions shouldn't exist");
+        if (prevKey && [prevKey isAnalogic]) {
+            if (previousDirection != currentDirection) {
+                _OEBasicSystemResponderChangeAnalogSystemKey(self, prevKey, 0.0);
             }
-            break;
-        case OEHIDEventAxisDirectionPositive :
-            if((key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:OEHIDEventAxisDirectionPositive]]))
-            {
-                if(keyType == OEAxisSystemKeyTypeDisjoint && [key isAnalogic])
-                    _OEBasicSystemResponderChangeAnalogSystemKey(self, key, 0.0);
-                else
-                    _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
+        } else {
+            if (previousDirection != currentDirection) {
+                _OEBasicSystemResponderReleaseSystemKey(self, prevKey, NO);
             }
-        default :
-            break;
+        }
     }
-
-    if(currentDirection != OEHIDEventAxisDirectionNull && (key = [_keyMap systemKeyForEvent:anEvent]))
-    {
-        if(keyType == OEAxisSystemKeyTypeDisjoint && [key isAnalogic])
-            _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
-        else
-            _OEBasicSystemResponderPressSystemKey(self, key, NO);
+    
+    /* make the new key, if needed */
+    if (currKey) {
+        assert((currentDirection != OEHIDEventAxisDirectionNull) && "bindings to null directions shouldn't exist");
+        if ([currKey isAnalogic]) {
+            _OEBasicSystemResponderChangeAnalogSystemKey(self, currKey, [anEvent absoluteValue]);
+        } else {
+            if (previousDirection != currentDirection) {
+                _OEBasicSystemResponderPressSystemKey(self, currKey, NO);
+            }
+        }
     }
 }
 
