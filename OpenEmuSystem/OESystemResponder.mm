@@ -383,6 +383,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
             // Register the axis for state watch.
             OEJoystickStatusKey eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
             _joystickStates[eventStateKey] = { .axisEvent=OEHIDEventAxisDirectionNull };
+            _analogSystemKeyTypes[eventStateKey] = OEAxisSystemKeyTypeDisjoint;
 
             if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
                 break;
