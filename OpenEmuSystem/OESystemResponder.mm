@@ -48,13 +48,20 @@ typedef enum : NSUInteger {
     OEAxisSystemKeyTypeJointAnalog    = 2,
 } OEAxisSystemKeyType;
 
+typedef uint64_t OEJoystickStatusKey;
+
+typedef union {
+    OEHIDEventAxisDirection axisEvent;
+    OEHIDEventHatDirection hatEvent;
+} OEJoystickState;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-designated-initializers"
 
 @implementation OESystemResponder
 {
-    std::unordered_map<void *, NSUInteger> _joystickStates;
-    std::unordered_map<void *, OEAxisSystemKeyType> _analogSystemKeyTypes;
+    std::unordered_map<OEJoystickStatusKey, OEJoystickState> _joystickStates;
+    std::unordered_map<OEJoystickStatusKey, OEAxisSystemKeyType> _analogSystemKeyTypes;
     BOOL _handlesEscapeKey;
 }
 
@@ -350,9 +357,9 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
     
 }
 
-static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
+static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 {
-    NSUInteger ret = [[anEvent deviceHandler] deviceIdentifier];
+    uint64_t ret = (uint64_t)[[anEvent deviceHandler] deviceIdentifier];
 
     switch([anEvent type])
     {
@@ -361,7 +368,7 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         default : NSCAssert(NO, @"Wrong type");
     }
 
-    return (void *)ret;
+    return (OEJoystickStatusKey)ret;
 }
 
 - (void)systemBindingsDidSetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
@@ -374,8 +381,8 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         case OEHIDEventTypeAxis :
         {
             // Register the axis for state watch.
-            void *eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
-            _joystickStates[eventStateKey] = (NSUInteger)OEHIDEventAxisDirectionNull;
+            OEJoystickStatusKey eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
+            _joystickStates[eventStateKey] = { .axisEvent=OEHIDEventAxisDirectionNull };
 
             if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
                 break;
@@ -397,7 +404,7 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
             break;
         case OEHIDEventTypeHatSwitch :
             // Register the hat switch for state watch.
-            _joystickStates[_OEJoystickStateKeyForEvent(theEvent)] = (NSUInteger)OEHIDEventHatDirectionNull;
+            _joystickStates[_OEJoystickStateKeyForEvent(theEvent)] = { .hatEvent=OEHIDEventHatDirectionNull };
 
             if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
                 break;
@@ -443,7 +450,7 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     {
         case OEHIDEventTypeAxis :
         {
-            void *eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
+            OEJoystickStatusKey eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
             _joystickStates.erase(eventStateKey);
 
             if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
@@ -514,9 +521,9 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 - (void)axisMoved:(OEHIDEvent *)anEvent
 {
     OESystemKey             *key               = nil;
-    void                    *joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
+    OEJoystickStatusKey      joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
     OEAxisSystemKeyType      keyType           = _analogSystemKeyTypes[joystickKey];
-    OEHIDEventAxisDirection  previousDirection = (OEHIDEventAxisDirection)_joystickStates[joystickKey];
+    OEHIDEventAxisDirection  previousDirection = _joystickStates[joystickKey].axisEvent;
     OEHIDEventAxisDirection  currentDirection  = [anEvent direction];
 
     if(previousDirection == currentDirection)
@@ -529,7 +536,7 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         return;
     }
 
-    _joystickStates[joystickKey] = (NSUInteger)currentDirection;
+    _joystickStates[joystickKey] = { .axisEvent=currentDirection };
 
     if(keyType == OEAxisSystemKeyTypeJointAnalog)
     {
@@ -602,9 +609,9 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 
 - (void)hatSwitchChanged:(OEHIDEvent *)anEvent;
 {
-    void                   *joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
+    OEJoystickStatusKey     joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
 
-    OEHIDEventHatDirection  previousDirection = (OEHIDEventHatDirection)_joystickStates[joystickKey];
+    OEHIDEventHatDirection  previousDirection = _joystickStates[joystickKey].hatEvent;
 
     OEHIDEventHatDirection  direction = [anEvent hatDirection];
     OEHIDEventHatDirection  diff      = (OEHIDEventHatDirection)(previousDirection ^ direction);
@@ -634,7 +641,7 @@ static void * __nonnull _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     directionDiff(OEHIDEventHatDirectionSouth);
     directionDiff(OEHIDEventHatDirectionWest);
 
-    _joystickStates[joystickKey] = (NSUInteger)direction;
+    _joystickStates[joystickKey] = { .hatEvent=direction };
 }
 
 - (void)handleMouseEvent:(OEEvent *)event
