@@ -44,8 +44,8 @@ enum { NORTH, EAST, SOUTH, WEST, HAT_COUNT };
 
 typedef enum : NSUInteger {
     OEAxisSystemKeyTypeDisjoint       = 0,
-    OEAxisSystemKeyTypeDisjointAnalog = 1,
-    OEAxisSystemKeyTypeJointAnalog    = 2,
+    OEAxisSystemKeyTypeJointAnalog,
+    OEAxisSystemKeyTypeJointDigital,
 } OEAxisSystemKeyType;
 
 typedef uint64_t OEJoystickStatusKey;
@@ -61,7 +61,7 @@ typedef union {
 @implementation OESystemResponder
 {
     std::unordered_map<OEJoystickStatusKey, OEJoystickState> _joystickStates;
-    std::unordered_map<OEJoystickStatusKey, OEAxisSystemKeyType> _analogSystemKeyTypes;
+    std::unordered_map<OEJoystickStatusKey, OEAxisSystemKeyType> _axisSystemKeyTypes;
     BOOL _handlesEscapeKey;
 }
 
@@ -383,24 +383,20 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
             // Register the axis for state watch.
             OEJoystickStatusKey eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
             _joystickStates[eventStateKey] = { .axisEvent=OEHIDEventAxisDirectionNull };
-            _analogSystemKeyTypes[eventStateKey] = OEAxisSystemKeyTypeDisjoint;
 
-            if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
+            if (![bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]]) {
+                _axisSystemKeyTypes[eventStateKey] = OEAxisSystemKeyTypeDisjoint;
                 break;
+            }
 
             OEKeyBindingDescription *keyDesc = [bindingDescription baseKey];
-            if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
-            {
-                [_keyMap setSystemKey:[self emulatorKeyForKey:keyDesc player:playerNumber] forEvent:theEvent];
-                [_keyMap setSystemKey:[self emulatorKeyForKey:[bindingDescription oppositeKey] player:playerNumber] forEvent:[theEvent axisEventWithOppositeDirection]];
+            [_keyMap setSystemKey:[self emulatorKeyForKey:keyDesc player:playerNumber] forEvent:theEvent];
+            [_keyMap setSystemKey:[self emulatorKeyForKey:[bindingDescription oppositeKey] player:playerNumber] forEvent:[theEvent axisEventWithOppositeDirection]];
 
-                if([keyDesc isAnalogic])
-                    _analogSystemKeyTypes[eventStateKey] = OEAxisSystemKeyTypeJointAnalog;
-
-                return;
-            }
-            else if([keyDesc isAnalogic])
-                _analogSystemKeyTypes[eventStateKey] = OEAxisSystemKeyTypeDisjointAnalog;
+            _axisSystemKeyTypes[eventStateKey] = [keyDesc isAnalogic] ?
+                OEAxisSystemKeyTypeJointAnalog :
+                OEAxisSystemKeyTypeJointDigital;
+            return;
         }
             break;
         case OEHIDEventTypeHatSwitch :
@@ -453,18 +449,14 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         {
             OEJoystickStatusKey eventStateKey = _OEJoystickStateKeyForEvent(theEvent);
             _joystickStates.erase(eventStateKey);
+            _axisSystemKeyTypes.erase(eventStateKey);
 
             if([bindingDescription isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
             {
                 [_keyMap removeSystemKeyForEvent:theEvent];
                 [_keyMap removeSystemKeyForEvent:[theEvent axisEventWithOppositeDirection]];
-
-                if([[bindingDescription baseKey] isAnalogic])
-                    _analogSystemKeyTypes.erase(eventStateKey);
                 return;
             }
-            else if(![[bindingDescription oppositeKey] isAnalogic])
-                _analogSystemKeyTypes.erase(eventStateKey);
         }
             break;
         case OEHIDEventTypeHatSwitch :
@@ -523,15 +515,12 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 {
     OESystemKey             *key               = nil;
     OEJoystickStatusKey      joystickKey       = _OEJoystickStateKeyForEvent(anEvent);
-    OEAxisSystemKeyType      keyType           = _analogSystemKeyTypes[joystickKey];
+    OEAxisSystemKeyType      keyType           = _axisSystemKeyTypes[joystickKey];
     OEHIDEventAxisDirection  previousDirection = _joystickStates[joystickKey].axisEvent;
     OEHIDEventAxisDirection  currentDirection  = [anEvent direction];
 
     if(previousDirection == currentDirection)
     {
-        if(keyType == OEAxisSystemKeyTypeDisjoint)
-            return;
-
         key = [_keyMap systemKeyForEvent:anEvent] ? : [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:currentDirection == OEHIDEventAxisDirectionPositive ? OEHIDEventAxisDirectionNegative : OEHIDEventAxisDirectionPositive]];
         if([key isAnalogic]) _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
         return;
@@ -551,7 +540,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         case OEHIDEventAxisDirectionNegative :
             if((key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:OEHIDEventAxisDirectionNegative]]))
             {
-                if(keyType == OEAxisSystemKeyTypeDisjointAnalog && [key isAnalogic])
+                if(keyType == OEAxisSystemKeyTypeDisjoint && [key isAnalogic])
                     _OEBasicSystemResponderChangeAnalogSystemKey(self, key, 0.0);
                 else
                     _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
@@ -560,7 +549,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         case OEHIDEventAxisDirectionPositive :
             if((key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:OEHIDEventAxisDirectionPositive]]))
             {
-                if(keyType == OEAxisSystemKeyTypeDisjointAnalog && [key isAnalogic])
+                if(keyType == OEAxisSystemKeyTypeDisjoint && [key isAnalogic])
                     _OEBasicSystemResponderChangeAnalogSystemKey(self, key, 0.0);
                 else
                     _OEBasicSystemResponderReleaseSystemKey(self, key, NO);
@@ -571,7 +560,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
 
     if(currentDirection != OEHIDEventAxisDirectionNull && (key = [_keyMap systemKeyForEvent:anEvent]))
     {
-        if(keyType == OEAxisSystemKeyTypeDisjointAnalog && [key isAnalogic])
+        if(keyType == OEAxisSystemKeyTypeDisjoint && [key isAnalogic])
             _OEBasicSystemResponderChangeAnalogSystemKey(self, key, [anEvent absoluteValue]);
         else
             _OEBasicSystemResponderPressSystemKey(self, key, NO);
