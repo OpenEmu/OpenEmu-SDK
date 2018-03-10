@@ -72,7 +72,9 @@
 
     NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
     if(overflow > 0) {
+        #ifdef DEBUG
         NSLog(@"OERingBuffer: Tried to write %lu bytes, but only %d bytes free", length, buffer.length - buffer.fillCount);
+        #endif
       
         if (_discardPolicy == OERingBufferDiscardPolicyOldest) {
             pthread_mutex_lock(&fifoLock);
@@ -97,10 +99,12 @@
     
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
 
+    #ifdef DEBUG
     if(len > availableBytes)
     {
         NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available", len, availableBytes);
     }
+    #endif
 
     availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
