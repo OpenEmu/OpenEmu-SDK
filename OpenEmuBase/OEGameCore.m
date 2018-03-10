@@ -93,7 +93,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
 {
     NSAssert1(index < [self audioBufferCount], @"The index %lu is too high", index);
-    if(ringBuffers[index] == nil) {
+    
+    OERingBuffer *result = ringBuffers[index];
+    if(result == nil) {
         /* ring buffer is 0.05 seconds
          * the larger the buffer, the higher the maximum possible audio lag */
         double frameSampleCount = [self audioSampleRateForBuffer:index] * 0.05;
@@ -102,10 +104,13 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         NSAssert(frameSampleCount, @"frameSampleCount is 0");
         NSUInteger len = channelCount * bytesPerSample * frameSampleCount;
         len = MAX([self audioBufferSizeForBuffer:index] * 2, len);
-        ringBuffers[index] = [[OERingBuffer alloc] initWithLength:len];
+        
+        result = [[OERingBuffer alloc] initWithLength:len];
+        [result setDiscardPolicy:OERingBufferDiscardPolicyOldest];
+        ringBuffers[index] = result;
     }
 
-    return ringBuffers[index];
+    return result;
 }
 
 - (NSString *)pluginName
