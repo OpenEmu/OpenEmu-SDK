@@ -401,8 +401,17 @@ OE_EXPORTED_CLASS
 
 // Used when audioBufferCount > 1
 - (NSUInteger)channelCountForBuffer:(NSUInteger)buffer;
-- (NSUInteger)audioBufferSizeForBuffer:(NSUInteger)buffer;
 - (double)audioSampleRateForBuffer:(NSUInteger)buffer;
+
+/*!
+ * @method audioBufferSizeForBuffer:
+ * Returns the number of audio frames that are enquequed by the game core into
+ * the ring buffer every video frame.
+ * @param buffer The index of the buffer.
+ * @note If this method is not overridden by a concrete game core, it
+ * returns a very conservative frame count.
+ */
+- (NSUInteger)audioBufferSizeForBuffer:(NSUInteger)buffer;
 
 #pragma mark - Save States
 
