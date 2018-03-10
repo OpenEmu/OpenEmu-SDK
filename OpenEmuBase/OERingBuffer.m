@@ -26,6 +26,7 @@
 
 #import "OERingBuffer.h"
 #import "TPCircularBuffer.h"
+#include <pthread.h>
 
 @implementation OERingBuffer
 @synthesize bytesWritten;
@@ -40,6 +41,8 @@
     if((self = [super init]))
     {
         TPCircularBufferInit(&buffer, (int)length);
+        pthread_mutex_init(&fifoLock, NULL);
+        _discardPolicy = OERingBufferDiscardPolicyNewest;
     }
     return self;
 }
@@ -47,6 +50,7 @@
 - (void)dealloc
 {
     TPCircularBufferCleanup(&buffer);
+    pthread_mutex_destroy(&fifoLock);
 }
 
 - (NSUInteger)length
@@ -62,19 +66,35 @@
 
 - (NSUInteger)write:(const void *)inBuffer maxLength:(NSUInteger)length
 {
+    NSUInteger res;
+    
     bytesWritten += length;
 
-    if(buffer.fillCount + length > buffer.length)
-    {
+    NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
+    if(overflow > 0) {
         NSLog(@"OERingBuffer: Tried to write %lu bytes, but only %d bytes free", length, buffer.length - buffer.fillCount);
+      
+        if (_discardPolicy == OERingBufferDiscardPolicyOldest) {
+            pthread_mutex_lock(&fifoLock);
+            TPCircularBufferConsume(&buffer, overflow);
+            res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+            pthread_mutex_unlock(&fifoLock);
+        } else {
+            res = 0;
+        }
+    } else {
+        res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
     }
 
-    return TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+    return res;
 }
 
 - (NSUInteger)read:(void *)outBuffer maxLength:(NSUInteger)len
 {
     int availableBytes = 0;
+    if (_discardPolicy == OERingBufferDiscardPolicyOldest)
+        pthread_mutex_lock(&fifoLock);
+    
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
 
     if(len > availableBytes)
@@ -85,6 +105,9 @@
     availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
     TPCircularBufferConsume(&buffer, availableBytes);
+    
+    if (_discardPolicy == OERingBufferDiscardPolicyOldest)
+        pthread_mutex_unlock(&fifoLock);
     return availableBytes;
 }
 
