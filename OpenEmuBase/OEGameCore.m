@@ -402,7 +402,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (OEIntSize)aspectSize
 {
-    return (OEIntSize){ 4, 3 };
+    return (OEIntSize){ 1, 1 };
 }
 
 - (const void *)videoBuffer
