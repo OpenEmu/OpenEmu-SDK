@@ -177,15 +177,23 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
     [self doesNotImplementSelector:_cmd];
 }
 
+#define SEND_ACTION2(sel, param) do { \
+dispatch_block_t blk = ^{ [[self globalEventsHandler] sel param]; }; \
+if([NSThread isMainThread]) blk(); \
+else dispatch_async(dispatch_get_main_queue(), blk); \
+} while(NO)
+
 - (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 {
     // FIXME: We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat
     switch(identifier)
     {
         case OEGlobalButtonIdentifierFastForward :
+            SEND_ACTION2(fastForwardGameplay:, YES);
             [[self client] fastForward:YES];
             return;
         case OEGlobalButtonIdentifierRewind :
+            SEND_ACTION2(rewindGameplay:, YES);
             [[self client] rewind:YES];
             return;
         case OEGlobalButtonIdentifierDisplayMode :
@@ -246,9 +254,11 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
             [[self client] stepFrameForward];
             return;
         case OEGlobalButtonIdentifierFastForward :
+            SEND_ACTION2(fastForwardGameplay:, NO);
             [[self client] fastForward:NO];
             return;
         case OEGlobalButtonIdentifierRewind :
+            SEND_ACTION2(rewindGameplay:, NO);
             [[self client] rewind:NO];
             return;
         case OEGlobalButtonIdentifierDisplayMode :
