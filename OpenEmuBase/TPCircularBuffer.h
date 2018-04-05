@@ -46,7 +46,7 @@
 #include <string.h>
 #include <assert.h>
 
-#if __cplusplus >= 201103L
+#ifdef __cplusplus
     extern "C++" {
         #include <atomic>
     }
@@ -63,7 +63,7 @@ typedef struct {
     int32_t           length;
     int32_t           tail;
     int32_t           head;
-#if __cplusplus >= 201103L
+#ifdef __cplusplus
     volatile std::atomic<int> fillCount;
 #else
     volatile atomic_int fillCount;
