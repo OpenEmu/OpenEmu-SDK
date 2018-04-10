@@ -221,8 +221,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
           Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
           Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
           //Button(@"Slow Motion", @"Name of the global button to run the emulation in slow motion", OEGlobalButtonSlowMotion),
-          //Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
-          //Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
+          Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
+          Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
           Button(@"Display Mode", @"Name of the global button to switch display modes", OEGlobalButtonDisplayMode),
           Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
           ]

@@ -177,6 +177,12 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
     [self doesNotImplementSelector:_cmd];
 }
 
+#define SEND_ACTION(sel) do { \
+dispatch_block_t blk = ^{ [[self globalEventsHandler] sel self]; }; \
+if([NSThread isMainThread]) blk(); \
+else dispatch_async(dispatch_get_main_queue(), blk); \
+} while(NO)
+
 #define SEND_ACTION2(sel, param) do { \
 dispatch_block_t blk = ^{ [[self globalEventsHandler] sel param]; }; \
 if([NSThread isMainThread]) blk(); \
@@ -188,6 +194,14 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
     // FIXME: We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat
     switch(identifier)
     {
+        case OEGlobalButtonIdentifierStepFrameBackward :
+            SEND_ACTION(stepGameplayFrameBackward:);
+            [[self client] stepFrameBackward];
+            return;
+        case OEGlobalButtonIdentifierStepFrameForward :
+            SEND_ACTION(stepGameplayFrameForward:);
+            [[self client] stepFrameForward];
+            return;
         case OEGlobalButtonIdentifierFastForward :
             SEND_ACTION2(fastForwardGameplay:, YES);
             [[self client] fastForward:YES];
@@ -203,12 +217,6 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             break;
     }
 }
-
-#define SEND_ACTION(sel) do { \
-    dispatch_block_t blk = ^{ [[self globalEventsHandler] sel self]; }; \
-    if([NSThread isMainThread]) blk(); \
-    else dispatch_async(dispatch_get_main_queue(), blk); \
-} while(NO)
 
 - (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
 {
@@ -248,10 +256,8 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             SEND_ACTION(toggleEmulationPaused:);
             return;
         case OEGlobalButtonIdentifierStepFrameBackward :
-            [[self client] stepFrameBackward];
             return;
         case OEGlobalButtonIdentifierStepFrameForward :
-            [[self client] stepFrameForward];
             return;
         case OEGlobalButtonIdentifierFastForward :
             SEND_ACTION2(fastForwardGameplay:, NO);
