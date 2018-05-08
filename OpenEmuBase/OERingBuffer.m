@@ -69,23 +69,23 @@
     NSUInteger res;
     
     bytesWritten += length;
-
-    NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
-    if(overflow > 0) {
+    
+    res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+    if (!res) {
         #ifdef DEBUG
         NSLog(@"OERingBuffer: Tried to write %lu bytes, but only %d bytes free", length, buffer.length - buffer.fillCount);
         #endif
-      
-        if (_discardPolicy == OERingBufferDiscardPolicyOldest) {
-            pthread_mutex_lock(&fifoLock);
+    }
+    
+    if (!res && _discardPolicy == OERingBufferDiscardPolicyOldest) {
+        pthread_mutex_lock(&fifoLock);
+        
+        NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
+        if (overflow > 0)
             TPCircularBufferConsume(&buffer, overflow);
-            res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
-            pthread_mutex_unlock(&fifoLock);
-        } else {
-            res = 0;
-        }
-    } else {
         res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+        
+        pthread_mutex_unlock(&fifoLock);
     }
 
     return res;
