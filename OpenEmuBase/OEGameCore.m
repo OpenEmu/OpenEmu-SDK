@@ -107,6 +107,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         
         result = [[OERingBuffer alloc] initWithLength:len];
         [result setDiscardPolicy:OERingBufferDiscardPolicyOldest];
+        [result setAnticipatesUnderflow:YES];
         ringBuffers[index] = result;
     }
 

@@ -99,12 +99,32 @@
     
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
 
-    #ifdef DEBUG
-    if(len > availableBytes)
-    {
-        NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available", len, availableBytes);
+    if (self.anticipatesUnderflow) {
+        if (availableBytes < 2*len) {
+            #ifdef DEBUG
+            if (!suppressRepeatedLog) {
+                NSLog(@"OERingBuffer: available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
+                suppressRepeatedLog = YES;
+            }
+            #endif
+            availableBytes = 0;
+        } else {
+            #ifdef DEBUG
+            suppressRepeatedLog = NO;
+            #endif
+        }
+    } else if (availableBytes < len) {
+        #ifdef DEBUG
+        if (!suppressRepeatedLog) {
+            NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
+            suppressRepeatedLog = YES;
+        }
+        #endif
+    } else {
+        #ifdef DEBUG
+        suppressRepeatedLog = NO;
+        #endif
     }
-    #endif
 
     availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
