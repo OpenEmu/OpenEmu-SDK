@@ -26,6 +26,7 @@
 
 #import "OERingBuffer.h"
 #import "TPCircularBuffer.h"
+#include <pthread.h>
 
 @implementation OERingBuffer
 @synthesize bytesWritten;
@@ -40,6 +41,8 @@
     if((self = [super init]))
     {
         TPCircularBufferInit(&buffer, (int)length);
+        pthread_mutex_init(&fifoLock, NULL);
+        _discardPolicy = OERingBufferDiscardPolicyNewest;
     }
     return self;
 }
@@ -47,6 +50,7 @@
 - (void)dealloc
 {
     TPCircularBufferCleanup(&buffer);
+    pthread_mutex_destroy(&fifoLock);
 }
 
 - (NSUInteger)length
@@ -62,29 +66,72 @@
 
 - (NSUInteger)write:(const void *)inBuffer maxLength:(NSUInteger)length
 {
+    NSUInteger res;
+    
     bytesWritten += length;
-
-    if(buffer.fillCount + length > buffer.length)
-    {
+    
+    res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+    if (!res) {
+        #ifdef DEBUG
         NSLog(@"OERingBuffer: Tried to write %lu bytes, but only %d bytes free", length, buffer.length - buffer.fillCount);
+        #endif
+    }
+    
+    if (!res && _discardPolicy == OERingBufferDiscardPolicyOldest) {
+        pthread_mutex_lock(&fifoLock);
+        
+        NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
+        if (overflow > 0)
+            TPCircularBufferConsume(&buffer, overflow);
+        res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+        
+        pthread_mutex_unlock(&fifoLock);
     }
 
-    return TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
+    return res;
 }
 
 - (NSUInteger)read:(void *)outBuffer maxLength:(NSUInteger)len
 {
     int availableBytes = 0;
+    if (_discardPolicy == OERingBufferDiscardPolicyOldest)
+        pthread_mutex_lock(&fifoLock);
+    
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
 
-    if(len > availableBytes)
-    {
-        NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available", len, availableBytes);
+    if (self.anticipatesUnderflow) {
+        if (availableBytes < 2*len) {
+            #ifdef DEBUG
+            if (!suppressRepeatedLog) {
+                NSLog(@"OERingBuffer: available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
+                suppressRepeatedLog = YES;
+            }
+            #endif
+            availableBytes = 0;
+        } else {
+            #ifdef DEBUG
+            suppressRepeatedLog = NO;
+            #endif
+        }
+    } else if (availableBytes < len) {
+        #ifdef DEBUG
+        if (!suppressRepeatedLog) {
+            NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
+            suppressRepeatedLog = YES;
+        }
+        #endif
+    } else {
+        #ifdef DEBUG
+        suppressRepeatedLog = NO;
+        #endif
     }
 
     availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
     TPCircularBufferConsume(&buffer, availableBytes);
+    
+    if (_discardPolicy == OERingBufferDiscardPolicyOldest)
+        pthread_mutex_unlock(&fifoLock);
     return availableBytes;
 }
 

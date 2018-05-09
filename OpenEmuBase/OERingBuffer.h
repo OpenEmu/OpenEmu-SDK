@@ -27,10 +27,18 @@
 #import <Foundation/Foundation.h>
 #import <OpenEmuBase/TPCircularBuffer.h>
 
+typedef NS_ENUM(NSUInteger, OERingBufferDiscardPolicy) {
+    OERingBufferDiscardPolicyNewest,
+    OERingBufferDiscardPolicyOldest
+};
+
 @interface OERingBuffer : NSObject
 {
-@public
     TPCircularBuffer buffer;
+    pthread_mutex_t fifoLock;
+    #ifdef DEBUG
+    BOOL suppressRepeatedLog;
+    #endif
 }
 
 - (id)initWithLength:(NSUInteger)length;
@@ -40,6 +48,11 @@
 @property(readonly) NSUInteger freeBytes;
 @property(readonly) NSUInteger bytesWritten;
 @property(readonly) NSUInteger usedBytes __attribute__((deprecated("use -freeBytes")));
+@property           OERingBufferDiscardPolicy discardPolicy;
+
+/** If set to yes, any reads when there is less than double the amount of bytes
+ *  requested already in the buffer will be refused. */
+@property           BOOL anticipatesUnderflow;
 
 - (NSUInteger)read:(void *)buffer maxLength:(NSUInteger)len;
 - (NSUInteger)write:(const void *)buffer maxLength:(NSUInteger)length;
