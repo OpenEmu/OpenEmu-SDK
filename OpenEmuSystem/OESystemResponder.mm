@@ -68,6 +68,7 @@ typedef union {
     std::unordered_map<OEJoystickStatusKey, OEJoystickState> _joystickStates;
     std::unordered_map<OEJoystickStatusKey, OEAxisSystemKeyType> _axisSystemKeyTypes;
     BOOL _handlesEscapeKey;
+    double _analogToDigitalThreshold;
 }
 
 - (instancetype)init
@@ -81,6 +82,14 @@ typedef union {
     {
         _controller = controller;
         _keyMap = [[OEBindingMap alloc] initWithSystemController:controller];
+        
+        NSUserDefaults *ud = [[NSUserDefaults alloc] initWithSuiteName:@"org.openemu.OpenEmu"];
+        if ([ud boolForKey:@"OESystemResponderNoADCThreshold"] == YES) {
+            NSLog(@"OESystemResponder ADC threshold disabled for controller %@", controller);
+            _analogToDigitalThreshold = 0.01;
+        } else {
+            _analogToDigitalThreshold = 0.5;
+        }
     }
 
     return self;
@@ -550,8 +559,8 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
                 _OEBasicSystemResponderChangeAnalogSystemKey(self, prevKey, 0.0);
             }
         } else {
-            if ((prevState.value >= 0.5 && currentValue < 0.5) ||
-                (prevState.value <= -0.5 && currentValue > -0.5)) {
+            if (ABS(prevState.value) >= _analogToDigitalThreshold &&
+                ABS(currentValue) < _analogToDigitalThreshold) {
                 _OEBasicSystemResponderReleaseSystemKey(self, prevKey, NO);
             }
         }
@@ -563,8 +572,8 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         if ([currKey isAnalogic]) {
             _OEBasicSystemResponderChangeAnalogSystemKey(self, currKey, [anEvent absoluteValue]);
         } else {
-            if ((prevState.value < 0.5 && currentValue >= 0.5) ||
-                (prevState.value > -0.5 && currentValue <= -0.5)) {
+            if (ABS(prevState.value) < _analogToDigitalThreshold &&
+                ABS(currentValue) >= _analogToDigitalThreshold) {
                 _OEBasicSystemResponderPressSystemKey(self, currKey, NO);
             }
         }
