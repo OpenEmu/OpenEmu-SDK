@@ -80,6 +80,15 @@
     if (!res && _discardPolicy == OERingBufferDiscardPolicyOldest) {
         pthread_mutex_lock(&fifoLock);
         
+        if (length > buffer.length) {
+            NSUInteger discard = length - buffer.length;
+            #ifdef DEBUG
+            NSLog(@"OERingBuffer: discarding %lu bytes because buffer is too small", discard);
+            #endif
+            length = buffer.length;
+            inBuffer += discard;
+        }
+        
         NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
         if (overflow > 0)
             TPCircularBufferConsume(&buffer, overflow);
