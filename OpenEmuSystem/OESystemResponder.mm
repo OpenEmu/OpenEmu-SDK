@@ -71,6 +71,14 @@ typedef union {
     double _analogToDigitalThreshold;
 }
 
++ (void)load
+{
+    NSUserDefaults *ud = [NSUserDefaults oe_applicationUserDefaults];
+    [ud registerDefaults:@{
+        @"OESystemResponderADCThreshold": @0.5
+    }];
+}
+
 - (instancetype)init
 {
     return nil;
@@ -83,10 +91,10 @@ typedef union {
         _controller = controller;
         _keyMap = [[OEBindingMap alloc] initWithSystemController:controller];
         
-        NSUserDefaults *ud = [[NSUserDefaults alloc] initWithSuiteName:@"org.openemu.OpenEmu"];
-        if ([ud boolForKey:@"OESystemResponderNoADCThreshold"] == YES) {
-            NSLog(@"OESystemResponder ADC threshold disabled for controller %@", controller);
-            _analogToDigitalThreshold = 0.01;
+        NSUserDefaults *ud = [NSUserDefaults oe_applicationUserDefaults];
+        NSNumber *val = [ud objectForKey:@"OESystemResponderADCThreshold"];
+        if (val && [val isKindOfClass:[NSNumber class]]) {
+            _analogToDigitalThreshold = val.doubleValue;
         } else {
             _analogToDigitalThreshold = 0.5;
         }

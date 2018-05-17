@@ -38,3 +38,4 @@
 #import <OpenEmuBase/OESystemResponderClient.h>
 #import <OpenEmuBase/OETimingUtils.h>
 #import <OpenEmuBase/TPCircularBuffer.h>
+#import <OpenEmuBase/NSUserDefaults+OpenEmuSDK.h>
