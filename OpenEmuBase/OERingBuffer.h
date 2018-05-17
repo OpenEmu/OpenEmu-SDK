@@ -26,13 +26,14 @@
 
 #import <Foundation/Foundation.h>
 #import <OpenEmuBase/TPCircularBuffer.h>
+#import <OpenEmuBase/OEAudioBuffer.h>
 
 typedef NS_ENUM(NSUInteger, OERingBufferDiscardPolicy) {
     OERingBufferDiscardPolicyNewest,
     OERingBufferDiscardPolicyOldest
 };
 
-@interface OERingBuffer : NSObject
+@interface OERingBuffer : NSObject <OEAudioBuffer>
 {
     TPCircularBuffer buffer;
     pthread_mutex_t fifoLock;

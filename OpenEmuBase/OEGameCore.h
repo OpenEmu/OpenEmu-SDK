@@ -148,6 +148,7 @@ typedef enum : NSUInteger {
 @end
 
 @class OEHIDEvent, OERingBuffer;
+@protocol OEAudioBuffer;
 
 #pragma mark -
 
@@ -384,7 +385,16 @@ OE_EXPORTED_CLASS
 
 // TODO: Should this return void? What does it do?
 - (void)getAudioBuffer:(void *)buffer frameCount:(NSUInteger)frameCount bufferIndex:(NSUInteger)index;
-- (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index;
+
+/**
+ * Returns the OEAudioBuffer associated to the specified audio track.
+ * @discussion A concrete game core can override this method to customize
+ *      its audio buffering system. OpenEmu never calls the -write:maxLength: method
+ *      of a buffer returned by this method.
+ * @param index The audio track index.
+ * @returns The audio buffer from which to read audio samples.
+ */
+- (id<OEAudioBuffer>)audioBufferAtIndex:(NSUInteger)index;
 
 /*!
  * @property audioBufferCount
@@ -511,5 +521,7 @@ OE_EXPORTED_CLASS
 
 - (BOOL)rendersToOpenGL OE_DEPRECATED("use -gameCoreRendering");
 @property(readonly) const void *videoBuffer OE_DEPRECATED("use -getVideoBufferWithHint:");
+
+- (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index OE_DEPRECATED("Use -audioBufferAtIndex: instead");
 
 @end

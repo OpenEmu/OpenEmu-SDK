@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0109BBA5209F25EB002419C1 /* OEDiffQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */; };
 		0109BBA7209F25EB002419C1 /* OpenEmuBase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A261710A4BA00ED580A /* OpenEmuBase.framework */; };
+		011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 011829A620ACA8AA0030B347 /* OEAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */; };
 		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -125,6 +126,7 @@
 		0109BBA2209F25EB002419C1 /* OpenEmuBaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenEmuBaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OEDiffQueueTests.m; sourceTree = "<group>"; };
 		0109BBA6209F25EB002419C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		011829A620ACA8AA0030B347 /* OEAudioBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEAudioBuffer.h; sourceTree = "<group>"; };
 		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
 		27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OEDiffQueue.mm; sourceTree = "<group>"; };
 		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 				C6772A651710BD6200ED580A /* OEAbstractAdditions.m */,
 				C6772A661710BD6200ED580A /* OEGameCoreController.h */,
 				C6772A671710BD6200ED580A /* OEGameCoreController.m */,
+				011829A620ACA8AA0030B347 /* OEAudioBuffer.h */,
 				C6772A681710BD6200ED580A /* OERingBuffer.h */,
 				C6772A691710BD6200ED580A /* OERingBuffer.m */,
 				C6772A6A1710BD6200ED580A /* TPCircularBuffer.c */,
@@ -498,6 +501,7 @@
 				C6772A741710BD6200ED580A /* OEGameCoreController.h in Headers */,
 				C6772A761710BD6200ED580A /* OERingBuffer.h in Headers */,
 				8363A434193CA52400F18425 /* OEGeometry.h in Headers */,
+				011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */,
 				C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */,
 				27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */,
 				C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */,

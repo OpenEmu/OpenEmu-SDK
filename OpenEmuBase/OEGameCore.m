@@ -29,6 +29,7 @@
 #import "OEGameCore.h"
 #import "OEGameCoreController.h"
 #import "OEAbstractAdditions.h"
+#import "OEAudioBuffer.h"
 #import "OERingBuffer.h"
 #import "OETimingUtils.h"
 
@@ -88,30 +89,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         ringBuffers[i] = nil;
 
     free(ringBuffers);
-}
-
-- (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
-{
-    NSAssert1(index < [self audioBufferCount], @"The index %lu is too high", index);
-    
-    OERingBuffer *result = ringBuffers[index];
-    if(result == nil) {
-        /* ring buffer is 0.05 seconds
-         * the larger the buffer, the higher the maximum possible audio lag */
-        double frameSampleCount = [self audioSampleRateForBuffer:index] * 0.05;
-        NSUInteger channelCount = [self channelCountForBuffer:index];
-        NSUInteger bytesPerSample = [self audioBitDepth] / 8;
-        NSAssert(frameSampleCount, @"frameSampleCount is 0");
-        NSUInteger len = channelCount * bytesPerSample * frameSampleCount;
-        len = MAX([self audioBufferSizeForBuffer:index] * 2, len);
-        
-        result = [[OERingBuffer alloc] initWithLength:len];
-        [result setDiscardPolicy:OERingBufferDiscardPolicyOldest];
-        [result setAnticipatesUnderflow:YES];
-        ringBuffers[index] = result;
-    }
-
-    return result;
 }
 
 - (NSString *)pluginName
@@ -625,6 +602,38 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - Audio
 
+- (id<OEAudioBuffer>)audioBufferAtIndex:(NSUInteger)index
+{
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    return [self ringBufferAtIndex:index];
+    #pragma clang diagnostic pop
+}
+
+- (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
+{
+    NSAssert1(index < [self audioBufferCount], @"The index %lu is too high", index);
+    
+    OERingBuffer *result = ringBuffers[index];
+    if(result == nil) {
+        /* ring buffer is 0.05 seconds
+         * the larger the buffer, the higher the maximum possible audio lag */
+        double frameSampleCount = [self audioSampleRateForBuffer:index] * 0.05;
+        NSUInteger channelCount = [self channelCountForBuffer:index];
+        NSUInteger bytesPerSample = [self audioBitDepth] / 8;
+        NSAssert(frameSampleCount, @"frameSampleCount is 0");
+        NSUInteger len = channelCount * bytesPerSample * frameSampleCount;
+        len = MAX([self audioBufferSizeForBuffer:index] * 2, len);
+        
+        result = [[OERingBuffer alloc] initWithLength:len];
+        [result setDiscardPolicy:OERingBufferDiscardPolicyOldest];
+        [result setAnticipatesUnderflow:YES];
+        ringBuffers[index] = result;
+    }
+
+    return result;
+}
+
 - (NSUInteger)audioBufferCount
 {
     return 1;
@@ -663,12 +672,11 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (NSUInteger)audioBufferSizeForBuffer:(NSUInteger)buffer
 {
-    // 4 frames is a complete guess
     double frameSampleCount = [self audioSampleRateForBuffer:buffer] / [self frameInterval];
     NSUInteger channelCount = [self channelCountForBuffer:buffer];
     NSUInteger bytesPerSample = [self audioBitDepth] / 8;
     NSAssert(frameSampleCount, @"frameSampleCount is 0");
-    return channelCount*bytesPerSample * frameSampleCount;
+    return channelCount * bytesPerSample * frameSampleCount;
 }
 
 - (double)audioSampleRateForBuffer:(NSUInteger)buffer
