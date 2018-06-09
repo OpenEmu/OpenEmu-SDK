@@ -32,6 +32,7 @@
 #import "OEDeviceDescription.h"
 #import "OEMultiHIDDeviceHandler.h"
 #import "OEPS3HIDDeviceHandler.h"
+#import "OEPS4HIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OEWiimoteHIDDeviceHandler.h"
 #import "OEControllerDescription_Internal.h"
@@ -54,6 +55,11 @@ static BOOL OE_isWiimoteControllerName(NSString *name)
 static BOOL OE_isPS3ControllerName(NSString *name)
 {
     return [name hasPrefix:@"PLAYSTATION(R)3 Controller"];
+}
+
+static BOOL OE_isPS4ControllerName(NSString *name)
+{
+    return [name hasPrefix:@"Wireless Controller"];
 }
 
 static BOOL OE_isXboxControllerName(NSString *name)
@@ -114,6 +120,8 @@ static BOOL OE_isXboxControllerName(NSString *name)
         return [OEWiimoteHIDDeviceHandler class];
     else if(OE_isPS3ControllerName(deviceName))
         return [OEPS3HIDDeviceHandler class];
+    else if(OE_isPS4ControllerName(deviceName))
+        return [OEPS4HIDDeviceHandler class];
     else if(OE_isXboxControllerName(deviceName))
         return [OEXBox360HIDDeviceHander class];
 
