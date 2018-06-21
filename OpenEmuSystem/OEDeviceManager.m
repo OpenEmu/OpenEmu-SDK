@@ -34,6 +34,7 @@
 #import "OEPS3HIDDeviceHandler.h"
 #import "OEPS4HIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
+#import "OETouchbarHIDDeviceHandler.h"
 #import "OEHIDEvent.h"
 
 #import <objc/runtime.h>
@@ -388,14 +389,17 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     }
 }
 
-- (void)OE_addDeviceHandlerForDeviceRef:(IOHIDDeviceRef)device
+- (void)OE_addDeviceHandlerForDeviceRef:(IOHIDDeviceRef)device couldBeTheTouchbar:(BOOL)istouchbar
 {
     NSAssert(device != NULL, @"Passing NULL device.");
 
     OEHIDDeviceHandler *handler = nil;
-    if(IOHIDDeviceConformsTo(device, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard))
-        handler = [[OEHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:nil];
-    else
+    if(IOHIDDeviceConformsTo(device, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard)) {
+        if (!istouchbar)
+            handler = [[OEHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:nil];
+        else
+            handler = [[OETouchbarHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:nil];
+    } else
         handler = [[OEHIDDeviceHandler deviceParser] deviceHandlerForIOHIDDevice:device];
 
     if([handler connect])
@@ -645,27 +649,40 @@ static void OEHandle_DeviceMatchingCallback(void *inContext, IOReturn inResult, 
     //NSLog(@"Found device: %s( context: %p, result: %#x, sender: %p, device: %p ).\n", __PRETTY_FUNCTION__, inContext, inResult, inSender, inIOHIDDeviceRef);
 
     if([(__bridge OEDeviceManager *)inContext OE_hasDeviceHandlerForDeviceRef:inIOHIDDeviceRef]) {
-        NSLog(@"Device is already being handled");
+        NSLog(@"Device %@ is already being handled", inIOHIDDeviceRef);
         return;
     }
-
-    if(IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDLocationIDKey)) == NULL) {
-        NSLog(@"Device does not have a location ID");
-        if (IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDProductKey)) == NULL) {
-            NSLog(@"Device does not have a product name.");
-            return;
+    
+    CFTypeRef locid = IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDLocationIDKey));
+    CFTypeRef prodkey = IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDProductKey));
+    CFTypeRef vid = IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDVendorIDKey));
+    CFTypeRef pid = IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDProductIDKey));
+    BOOL touchbar = NO;
+    
+    if(locid == NULL) {
+        NSLog(@"Device %p does not have a location ID", inIOHIDDeviceRef);
+        if (prodkey == NULL) {
+            NSLog(@"Device %p does not have a product name.", inIOHIDDeviceRef);
+            if ([@(OETouchbarHIDDeviceVID) isEqual:(__bridge id)(vid)] &&
+                [@(OETouchbarHIDDevicePID) isEqual:(__bridge id)(pid)]) {
+                touchbar = YES;
+                prodkey = @"Touchbar (probably)";
+            } else {
+                NSLog(@"Device does not look like a touchbar; discarding %@", inIOHIDDeviceRef);
+                return;
+            }
         }
     }
 
     if(IOHIDDeviceOpen(inIOHIDDeviceRef, kIOHIDOptionsTypeNone) != kIOReturnSuccess) {
-        NSLog(@"%s: failed to open device at %p", __PRETTY_FUNCTION__, inIOHIDDeviceRef);
+        NSLog(@"%s: failed to open device at %p", __FUNCTION__, inIOHIDDeviceRef);
         return;
     }
 
-    NSLog(@"%@", IOHIDDeviceGetProperty(inIOHIDDeviceRef, CFSTR(kIOHIDProductKey)));
+    NSLog(@"Found Device %p: %@", inIOHIDDeviceRef, prodkey);
 
 	//add a OEHIDDeviceHandler for our HID device
-    [(__bridge OEDeviceManager *)inContext OE_addDeviceHandlerForDeviceRef:inIOHIDDeviceRef];
+    [(__bridge OEDeviceManager *)inContext OE_addDeviceHandlerForDeviceRef:inIOHIDDeviceRef couldBeTheTouchbar:touchbar];
 }
 
 NS_ASSUME_NONNULL_END

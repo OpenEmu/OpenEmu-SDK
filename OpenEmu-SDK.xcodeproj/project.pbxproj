@@ -10,6 +10,8 @@
 		0109BBA5209F25EB002419C1 /* OEDiffQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */; };
 		0109BBA7209F25EB002419C1 /* OpenEmuBase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A261710A4BA00ED580A /* OpenEmuBase.framework */; };
 		011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 011829A620ACA8AA0030B347 /* OEAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0166211220D8522700D0368A /* OETouchbarHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */; };
+		0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */; };
 		27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */; };
 		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -129,6 +131,8 @@
 		0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OEDiffQueueTests.m; sourceTree = "<group>"; };
 		0109BBA6209F25EB002419C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		011829A620ACA8AA0030B347 /* OEAudioBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEAudioBuffer.h; sourceTree = "<group>"; };
+		0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OETouchbarHIDDeviceHandler.h; sourceTree = "<group>"; };
+		0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OETouchbarHIDDeviceHandler.m; sourceTree = "<group>"; };
 		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
 		27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OEDiffQueue.mm; sourceTree = "<group>"; };
 		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
@@ -469,6 +473,8 @@
 				878B34C520C4AD0000A174B0 /* OEPS4HIDDeviceHandler.m */,
 				C6772BB41710E28900ED580A /* OEXBox360HIDDeviceHander.h */,
 				C6772BB51710E28900ED580A /* OEXBox360HIDDeviceHander.m */,
+				0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */,
+				0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */,
 			);
 			name = "HID Device Handlers";
 			sourceTree = "<group>";
@@ -551,6 +557,7 @@
 				C6772BC01710E28900ED580A /* OEHIDDeviceParser.h in Headers */,
 				C6772BC61710E28900ED580A /* OEHIDUsageToVK.h in Headers */,
 				C6772BBC1710E28900ED580A /* OEMultiHIDDeviceHandler.h in Headers */,
+				0166211220D8522700D0368A /* OETouchbarHIDDeviceHandler.h in Headers */,
 				C6772BC71710E28900ED580A /* OEPS3HIDDeviceHandler.h in Headers */,
 				878B34C620C4AD0100A174B0 /* OEPS4HIDDeviceHandler.h in Headers */,
 				C6605B881D7260E3009C7E91 /* OECDSheet.h in Headers */,
@@ -729,6 +736,7 @@
 				878B34C720C4AD0100A174B0 /* OEPS4HIDDeviceHandler.m in Sources */,
 				C6772BCA1710E28900ED580A /* OEXBox360HIDDeviceHander.m in Sources */,
 				C6772BD41710E29C00ED580A /* OEControllerDescription.m in Sources */,
+				0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */,
 				94FDE6AF1AC35BA60003D247 /* OECloneCD.m in Sources */,
 				C6605B851D725B0D009C7E91 /* OEM3UFile.m in Sources */,
 				C6772BD61710E29C00ED580A /* OEControlDescription.m in Sources */,
