@@ -12,6 +12,8 @@
 		011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 011829A620ACA8AA0030B347 /* OEAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0166211220D8522700D0368A /* OETouchbarHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */; };
 		0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */; };
+		01F306FB20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */; };
 		27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */; };
 		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -48,7 +50,7 @@
 		C6772B791710E21900ED580A /* OESystemController.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6C1710E21800ED580A /* OESystemController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B7A1710E21900ED580A /* OESystemController.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6D1710E21900ED580A /* OESystemController.m */; };
 		C6772B7B1710E21900ED580A /* OESystemResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6E1710E21900ED580A /* OESystemResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C6772B7C1710E21900ED580A /* OESystemResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6F1710E21900ED580A /* OESystemResponder.m */; };
+		C6772B7C1710E21900ED580A /* OESystemResponder.mm in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6F1710E21900ED580A /* OESystemResponder.mm */; };
 		C6772B811710E21900ED580A /* OEBindingMap.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B741710E21900ED580A /* OEBindingMap.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B821710E21900ED580A /* OEBindingMap.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B751710E21900ED580A /* OEBindingMap.m */; };
 		C6772B831710E21900ED580A /* OEEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B761710E21900ED580A /* OEEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -133,6 +135,8 @@
 		011829A620ACA8AA0030B347 /* OEAudioBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEAudioBuffer.h; sourceTree = "<group>"; };
 		0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OETouchbarHIDDeviceHandler.h; sourceTree = "<group>"; };
 		0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OETouchbarHIDDeviceHandler.m; sourceTree = "<group>"; };
+		01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+OpenEmuSDK.h"; sourceTree = "<group>"; };
+		01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+OpenEmuSDK.m"; sourceTree = "<group>"; };
 		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
 		27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OEDiffQueue.mm; sourceTree = "<group>"; };
 		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
@@ -177,7 +181,7 @@
 		C6772B6C1710E21800ED580A /* OESystemController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemController.h; sourceTree = "<group>"; };
 		C6772B6D1710E21900ED580A /* OESystemController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESystemController.m; sourceTree = "<group>"; };
 		C6772B6E1710E21900ED580A /* OESystemResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemResponder.h; sourceTree = "<group>"; };
-		C6772B6F1710E21900ED580A /* OESystemResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESystemResponder.m; sourceTree = "<group>"; };
+		C6772B6F1710E21900ED580A /* OESystemResponder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OESystemResponder.mm; sourceTree = "<group>"; };
 		C6772B741710E21900ED580A /* OEBindingMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingMap.h; sourceTree = "<group>"; };
 		C6772B751710E21900ED580A /* OEBindingMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBindingMap.m; sourceTree = "<group>"; };
 		C6772B761710E21900ED580A /* OEEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEEvent.h; sourceTree = "<group>"; };
@@ -350,6 +354,8 @@
 				27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */,
 				8363A433193CA52400F18425 /* OEGeometry.h */,
 				C694EEC11C2A065400DFD15C /* OEPropertyList.h */,
+				01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */,
+				01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */,
 				C6772A301710A4BA00ED580A /* Supporting Files */,
 			);
 			path = OpenEmuBase;
@@ -371,7 +377,7 @@
 				C6772B6C1710E21800ED580A /* OESystemController.h */,
 				C6772B6D1710E21900ED580A /* OESystemController.m */,
 				C6772B6E1710E21900ED580A /* OESystemResponder.h */,
-				C6772B6F1710E21900ED580A /* OESystemResponder.m */,
+				C6772B6F1710E21900ED580A /* OESystemResponder.mm */,
 				C6772BDC1710E31F00ED580A /* Utilities */,
 				C6772BDA1710E2D200ED580A /* Events */,
 				C6772B891710E23900ED580A /* Bindings Controller */,
@@ -511,6 +517,7 @@
 				C6772A721710BD6200ED580A /* OEAbstractAdditions.h in Headers */,
 				C6772A701710BD6200ED580A /* OEGameCore.h in Headers */,
 				C6772A741710BD6200ED580A /* OEGameCoreController.h in Headers */,
+				01F306FB20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h in Headers */,
 				C6772A761710BD6200ED580A /* OERingBuffer.h in Headers */,
 				8363A434193CA52400F18425 /* OEGeometry.h in Headers */,
 				011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */,
@@ -702,6 +709,7 @@
 				C6772A751710BD6200ED580A /* OEGameCoreController.m in Sources */,
 				C6772A771710BD6200ED580A /* OERingBuffer.m in Sources */,
 				C6772A781710BD6200ED580A /* TPCircularBuffer.c in Sources */,
+				01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */,
 				C6772A7B1710BD6200ED580A /* OETimingUtils.m in Sources */,
 				C6772A831710C6D100ED580A /* NSString+UUID.m in Sources */,
 			);
@@ -712,7 +720,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C6772B7A1710E21900ED580A /* OESystemController.m in Sources */,
-				C6772B7C1710E21900ED580A /* OESystemResponder.m in Sources */,
+				C6772B7C1710E21900ED580A /* OESystemResponder.mm in Sources */,
 				C6772B821710E21900ED580A /* OEBindingMap.m in Sources */,
 				C6772B841710E21900ED580A /* OEEvent.m in Sources */,
 				C6A726841C059BF000E35961 /* OEBindingDescription.m in Sources */,
