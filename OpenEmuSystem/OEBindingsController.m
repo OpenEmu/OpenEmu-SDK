@@ -34,6 +34,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const OEBindingsRepairedNotification = @"OEBindingsRepairedNotification";
+
 @interface OEBindingsController ()
 {
     NSMutableDictionary<NSString *, OESystemBindings *> *systems;
@@ -178,11 +180,17 @@ static NSString *configurationsFolderPath;
     OEDeviceHandler *handler = [[notif userInfo] objectForKey:OEDeviceManagerDeviceHandlerUserInfoKey];
     if([handler isKeyboardDevice]) return;
     
+    __block BOOL allOk = YES;
+    
     [systems enumerateKeysAndObjectsUsingBlock:
      ^(NSString *key, OESystemBindings *obj, BOOL *stop)
      {
-         [obj OE_didAddDeviceHandler:handler];
+         allOk = [obj OE_didAddDeviceHandler:handler] && allOk;
      }];
+    
+    if (!allOk) {
+        [self OE_sendCorruptedBindingsRepairedNotification];
+    }
 }
 
 - (void)OE_HIDManagerDidRemoveDeviceNotification:(NSNotification *)notif;
@@ -195,6 +203,14 @@ static NSString *configurationsFolderPath;
      {
          [obj OE_didRemoveDeviceHandler:handler];
      }];
+}
+
+- (void)OE_sendCorruptedBindingsRepairedNotification
+{
+    dispatch_async(dispatch_get_main_queue(), ^(){
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+        [nc postNotificationName:OEBindingsRepairedNotification object:nil];
+    });
 }
 
 - (void)OE_setupBindingsController;
@@ -256,9 +272,12 @@ static NSString *configurationsFolderPath;
         
         [systemRepresentations removeObjectForKey:identifier];
         
-        for(OEDeviceHandler *handler in [[OEDeviceManager sharedDeviceManager] deviceHandlers])
-            if(![handler isKeyboardDevice])
-                [bindingsController OE_didAddDeviceHandler:handler];
+        for(OEDeviceHandler *handler in [[OEDeviceManager sharedDeviceManager] deviceHandlers]) {
+            BOOL ok = [bindingsController OE_didAddDeviceHandler:handler];
+            if (!ok) {
+                [self OE_sendCorruptedBindingsRepairedNotification];
+            }
+        }
         
         [systems setObject:bindingsController forKey:identifier];
         
