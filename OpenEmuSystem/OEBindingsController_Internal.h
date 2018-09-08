@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, __kindof id<OEPropertyList>> *)OE_dictionaryRepresentation;
 
-- (void)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler;
+- (BOOL)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler;
 - (void)OE_didRemoveDeviceHandler:(OEDeviceHandler *)aHandler;
 
 - (id)OE_playerBindings:(OEPlayerBindings *)sender didAssignEvent:(id)value toKeyWithName:(NSString *)aKey;

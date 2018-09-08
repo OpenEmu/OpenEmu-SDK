@@ -186,41 +186,64 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     NSDictionary *representation = [_systemController defaultDeviceControls][[controllerDescription identifier]];
     if(representation == nil) return;
-
-    _defaultDeviceBindings[controllerDescription] = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO];
+    
+    OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO];
+    if (!dpb) {
+        NSLog(@"Failed to parse default bindings for %@!", controllerDescription);
+        return;
+    }
+    
+    _defaultDeviceBindings[controllerDescription] = dpb;
 }
 
-- (void)OE_parseManufacturerControlValuesForDeviceDescription:(OEDeviceDescription *)deviceDescription
+/* Returns YES if all the bindings were successfully parsed; NO if some bindings were reset because of a
+ * parsing error. */
+- (BOOL)OE_parseManufacturerControlValuesForDeviceDescription:(OEDeviceDescription *)deviceDescription
 {
-    if(_parsedManufacturerBindings[deviceDescription] != nil) return;
+    if(_parsedManufacturerBindings[deviceDescription] != nil) return YES;
 
     OEControllerDescription *controllerDescription = [deviceDescription controllerDescription];
     NSString *genericDeviceIdentifier = [deviceDescription genericDeviceIdentifier];
     NSArray<NSDictionary *> *genericDeviceBindingsToParse = _unparsedManufactuerBindings[genericDeviceIdentifier];
     [_unparsedManufactuerBindings removeObjectForKey:genericDeviceIdentifier];
 
-    if(genericDeviceBindingsToParse == nil && _parsedManufacturerBindings[controllerDescription] != nil) return;
+    if(genericDeviceBindingsToParse == nil && _parsedManufacturerBindings[controllerDescription] != nil) return YES;
+    
+    BOOL noErrors = YES;
 
     NSMutableArray<OEDevicePlayerBindings *> *parsedBindings = _parsedManufacturerBindings[controllerDescription] ? : [NSMutableArray array];
 
-    for(NSDictionary<NSString *, id> *representation in genericDeviceBindingsToParse)
-        [parsedBindings addObject:[self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:YES]];
+    for(NSDictionary<NSString *, id> *representation in genericDeviceBindingsToParse) {
+        OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:YES];
+        if (dpb)
+            [parsedBindings addObject:dpb];
+        else
+            noErrors = NO;
+    }
 
     if(![controllerDescription isGeneric])
     {
         [self OE_parseDefaultControlValuesForControllerDescription:controllerDescription];
 
-        for(NSDictionary<NSString *, id> *representation in _unparsedManufactuerBindings[[controllerDescription identifier]])
-            [parsedBindings addObject:[self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO]];
+        for(NSDictionary<NSString *, id> *representation in _unparsedManufactuerBindings[[controllerDescription identifier]]) {
+            OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO];
+            if (dpb)
+                [parsedBindings addObject:dpb];
+            else
+                noErrors = NO;
+        }
         [_unparsedManufactuerBindings removeObjectForKey:[controllerDescription identifier]];
         _parsedManufacturerBindings[controllerDescription] = parsedBindings;
     }
 
     _parsedManufacturerBindings[deviceDescription] = parsedBindings;
+    return noErrors;
 }
 
 - (OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary<NSString *, id> *)representation withControllerDescription:(OEControllerDescription *)controllerDescription useValueIdentifier:(BOOL)useValueIdentifier
 {
+    __block BOOL corrupted = NO;
+    
     NSMutableDictionary<OEBindingDescription *, OEControlValueDescription *> *rawBindings = [NSMutableDictionary dictionaryWithCapacity:[_systemController.allKeyBindingsDescriptions count]];
     [_systemController.allKeyBindingsDescriptions enumerateKeysAndObjectsUsingBlock:^(NSString *keyName, OEKeyBindingDescription *keyDesc, BOOL *stop) {
         id controlIdentifier = representation[keyName];
@@ -232,7 +255,12 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         OEControlValueDescription *controlValue = [controllerDescription controlValueDescriptionForRepresentation:controlIdentifier];
         OEHIDEvent *event = [controlValue event];
 
-        NSAssert(controlValue != nil, @"Unknown control value for identifier: '%@' associated with key name: '%@'", controlIdentifier, keyName);
+        if (controlValue == nil) {
+            NSLog(@"Unknown control value for identifier: '%@' associated with key name: '%@'", controlIdentifier, keyName);
+            corrupted = YES;
+            *stop = YES;
+            return;
+        }
 
         if([event type] == OEHIDEventTypeHatSwitch && [keyDesc hatSwitchGroup] != nil)
         {
@@ -252,6 +280,9 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         
         rawBindings[[self OE_keyIdentifierForKeyDescription:keyDesc event:event]] = controlValue;
     }];
+    
+    if (corrupted)
+        return nil;
 
     OEDevicePlayerBindings *controller = [[OEDevicePlayerBindings alloc] OE_initWithSystemBindings:self playerNumber:0 deviceHandler:nil];
     [controller OE_setBindingEvents:rawBindings];
@@ -913,12 +944,16 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 #pragma mark -
 #pragma mark Device Handlers Management
 
-- (void)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler;
+- (BOOL)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler
 {
+    BOOL corrupted;
+    
     // Ignore extra keyboards for now
-    if([aHandler isKeyboardDevice]) return;
+    if([aHandler isKeyboardDevice])
+        return YES;
 
-    [self OE_notifyObserversForAddedDeviceBindings:[self OE_deviceBindingsForDeviceHandler:aHandler]];
+    [self OE_notifyObserversForAddedDeviceBindings:[self OE_deviceBindingsForDeviceHandler:aHandler corruptBindingsDetected:&corrupted]];
+    return !corrupted;
 }
 
 - (void)OE_didRemoveDeviceHandler:(OEDeviceHandler *)aHandler;
@@ -930,7 +965,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
     if(controller == nil)
     {
-        NSLog(@"WARNING: Trying to remove a device that was not registered with %@", self);
+        NSLog(@"WARNING: Trying to remove device %@ that was not registered with %@", aHandler, self);
         return;
     }
 
@@ -975,7 +1010,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
      }];
 }
 
-- (OEDevicePlayerBindings *)OE_deviceBindingsForDeviceHandler:(OEDeviceHandler *)aHandler;
+- (OEDevicePlayerBindings *)OE_deviceBindingsForDeviceHandler:(OEDeviceHandler *)aHandler corruptBindingsDetected:(BOOL *)outCorrupted
 {
     OEDevicePlayerBindings *controller = [_deviceHandlersToBindings objectForKey:aHandler];
 
@@ -989,17 +1024,24 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     // Allocate a new array to countain OEDevicePlayerBindings objects for the given device type
     if(manuBindings == nil)
     {
-        [self OE_parseManufacturerControlValuesForDeviceDescription:deviceDescription];
+        BOOL ok = [self OE_parseManufacturerControlValuesForDeviceDescription:deviceDescription];
         manuBindings = _parsedManufacturerBindings[deviceDescription];
+        
+        if (outCorrupted) *outCorrupted = !ok;
+        if (!ok) {
+            /* request saving the bindings file to remove the corrupt bindings */
+            [self.bindingsController OE_setRequiresSynchronization];
+        }
     }
 
-    for(OEDevicePlayerBindings *ctrl in manuBindings)
+    for(OEDevicePlayerBindings *ctrl in manuBindings) {
         if([ctrl deviceHandler] == nil)
         {
             controller = ctrl;
             [controller OE_setDeviceHandler:aHandler];
             break;
         }
+    }
 
     // No available slots in the known configurations, look for defaults
     if(controller == nil)
