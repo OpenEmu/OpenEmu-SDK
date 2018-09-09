@@ -419,7 +419,7 @@ static CGEventSourceRef _keyboardEventSource;
         }
     }
 
-    return nil;
+    return [NSString stringWithFormat:NSLocalizedString(@"Keycode 0x%lX", @"Fallback for unknown keys"), hidCode];
 }
 
 - (NSString *)displayDescription
