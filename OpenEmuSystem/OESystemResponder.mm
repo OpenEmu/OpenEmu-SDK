@@ -564,7 +564,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     
     /* break previous key, if needed */
     if (prevKey) {
-        assert((prevState.direction != OEHIDEventAxisDirectionNull) && "bindings to null directions shouldn't exist");
+        NSAssert(prevState.direction != OEHIDEventAxisDirectionNull, @"bindings to null directions shouldn't exist");
         if (prevKey && [prevKey isAnalogic]) {
             if (prevState.direction != currentDirection) {
                 _OEBasicSystemResponderChangeAnalogSystemKey(self, prevKey, 0.0);
@@ -579,7 +579,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     
     /* make the new key, if needed */
     if (currKey) {
-        assert((currentDirection != OEHIDEventAxisDirectionNull) && "bindings to null directions shouldn't exist");
+        NSAssert(currentDirection != OEHIDEventAxisDirectionNull, @"bindings to null directions shouldn't exist");
         if ([currKey isAnalogic]) {
             _OEBasicSystemResponderChangeAnalogSystemKey(self, currKey, [anEvent absoluteValue]);
         } else {
