@@ -741,4 +741,10 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
 }
 
+#pragma mark - File Insertion
+
+- (void)insertFileAtURL:(NSURL *)url
+{
+}
+
 @end

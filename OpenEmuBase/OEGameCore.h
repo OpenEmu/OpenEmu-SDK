@@ -453,6 +453,10 @@ OE_EXPORTED_CLASS
 @property(readonly) NSUInteger discCount;
 - (void)setDisc:(NSUInteger)discNumber;
 
+#pragma mark - File Insertion
+
+- (void)insertFileAtURL:(NSURL *)file;
+
 @end
 
 #pragma mark - Internal
