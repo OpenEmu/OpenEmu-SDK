@@ -547,7 +547,10 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         OESystemKey *key;
         
         if (currentDirection == OEHIDEventAxisDirectionNull) {
-            assert((prevState.direction != OEHIDEventAxisDirectionNull) && "-axisMoved: invoked but axis didn't move");
+            if (prevState.direction == OEHIDEventAxisDirectionNull) {
+                NSLog(@"-axisMoved: invoked but axis didn't move");
+                return;
+            }
             key = [_keyMap systemKeyForEvent:[anEvent axisEventWithDirection:prevState.direction]];
         } else {
             key = [_keyMap systemKeyForEvent:anEvent];
