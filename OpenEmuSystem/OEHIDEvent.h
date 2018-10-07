@@ -85,6 +85,12 @@ enum {
     OEUndefinedCookie = 0ULL,
 };
 
+extern const NSEventModifierFlags OENSEventModifierFlagFunctionKey;
+
+enum {
+    OEHIDUsage_KeyboardFunctionKey = 0xE8,
+};
+
 extern OEHIDEventHatDirection OEHIDEventHatDirectionFromNSString(NSString *string);
 extern NSString *NSStringFromOEHIDHatDirection(OEHIDEventHatDirection dir);
 extern NSString *NSLocalizedStringFromOEHIDHatDirection(OEHIDEventHatDirection dir);

@@ -34,6 +34,10 @@
 #import "OEWiimoteHIDDeviceHandler.h"
 #import "OEHIDEvent_Internal.h"
 
+const NSEventModifierFlags OENSEventModifierFlagFunctionKey = 1 << 24;
+
+static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef elem, uint64_t page, uint64_t usage);
+
 static BOOL _OEHIDElementIsTrigger(IOHIDElementRef elem)
 {
     return [(__bridge NSNumber *)IOHIDElementGetProperty(elem, CFSTR(kOEHIDElementIsTriggerKey)) boolValue];
@@ -216,11 +220,18 @@ NSString *NSStringFromIOHIDElement(IOHIDElementRef elem)
 
 OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
 {
-    switch(IOHIDElementGetUsagePage(elem))
+    const uint64_t page = IOHIDElementGetUsagePage(elem);
+    const uint64_t usage = IOHIDElementGetUsage(elem);
+
+    return _OEHIDEventTypeFromIOHIDElementPageUsage(elem, page, usage);
+}
+
+static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef elem, uint64_t page, uint64_t usage)
+{
+    switch(page)
     {
         case kHIDPage_GenericDesktop :
         {
-            const uint32_t usage = IOHIDElementGetUsage(elem);
             switch(usage)
             {
                 case kHIDUsage_GD_X  :
@@ -254,6 +265,7 @@ OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
         case kHIDPage_Button :
             return OEHIDEventTypeButton;
         case kHIDPage_KeyboardOrKeypad :
+        case 0xFF :
             return OEHIDEventTypeKeyboard;
     }
     
@@ -318,6 +330,7 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
         struct {
             NSUInteger              keycode;
             OEHIDEventState         state;
+            BOOL                    isFunctionKeyPressed;
         } key;
     } _data;
 }
@@ -657,10 +670,11 @@ static CGEventSourceRef _keyboardEventSource;
 
 - (BOOL)OE_setupEventWithElement:(IOHIDElementRef)anElement;
 {
+    const uint64_t page = IOHIDElementGetUsagePage(anElement);
     const uint64_t usage = IOHIDElementGetUsage(anElement);
 
     _cookie = (uint32_t)IOHIDElementGetCookie(anElement);
-    _type = OEHIDEventTypeFromIOHIDElement(anElement);
+    _type = _OEHIDEventTypeFromIOHIDElementPageUsage(anElement, page, usage);
 
     if([self OE_elementRepresentsMouseEvent:anElement]) {
         return NO;
@@ -679,14 +693,16 @@ static CGEventSourceRef _keyboardEventSource;
             _data.button.buttonNumber = usage;
             return YES;
         case OEHIDEventTypeKeyboard :
-            if(!((((usage >= 0x04) && (usage <= 0xA4)) ||
-                  ((usage >= 0xE0) && (usage <= 0xE7)))))
-                return NO;
-
             _cookie = OEUndefinedCookie;
             _deviceHandler = nil;
-            _data.key.keycode = usage;
-            return YES;
+
+            if (page == 0xFF && usage == 0x03) {
+                _data.key.keycode = OEHIDUsage_KeyboardFunctionKey;
+                return YES;
+            } else if (((usage >= 0x04 && usage <= 0xA4) || (usage >= 0xE0 && usage <= 0xE8))) {
+                _data.key.keycode = usage;
+                return YES;
+            }
     }
 
     return NO;
@@ -786,6 +802,7 @@ static CGEventSourceRef _keyboardEventSource;
             break;
         case OEHIDEventTypeKeyboard :
             _data.key.state = !!value;
+            _data.key.isFunctionKeyPressed = aDeviceHandler.isFunctionKeyPressed;
             _keyboardEvent = CGEventCreateKeyboardEvent(_keyboardEventSource, [_hidKeyboardUsagesToVirtualKeyCodes[@(_data.key.keycode)] unsignedShortValue], _data.key.state);
             break;
     }
@@ -950,7 +967,11 @@ static CGEventSourceRef _keyboardEventSource;
 
 - (NSEventModifierFlags)modifierFlags
 {
-    return [[self keyboardEvent] modifierFlags];
+    NSEventModifierFlags flags = [[self keyboardEvent] modifierFlags];
+    if (_data.key.isFunctionKeyPressed)
+        flags |= OENSEventModifierFlagFunctionKey;
+
+    return flags;
 }
 
 - (NSUInteger)cookie
@@ -1215,6 +1236,7 @@ static NSString *OEHIDEventStateKey              = @"OEHIDEventState";
 static NSString *OEHIDEventHatSwitchTypeKey      = @"OEHIDEventHatSwitchType";
 static NSString *OEHIDEventHatSwitchDirectionKey = @"OEHIDEventHatSwitchDirection";
 static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
+static NSString *OEHIDEventIsFunctionPressedKey  = @"OEHIDEventIsFunctionPressedKey";
 
 + (instancetype)eventWithDictionaryRepresentation:(NSDictionary<NSString *, __kindof id<OEPropertyList>> *)dictionaryRepresentation
 {
@@ -1243,6 +1265,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
             ret->_cookie = OEUndefinedCookie;
             ret->_data.key.keycode = [dictionaryRepresentation[OEHIDEventKeycodeKey] unsignedIntegerValue];
             ret->_data.key.state = [dictionaryRepresentation[OEHIDEventStateKey] integerValue];
+            ret->_data.key.isFunctionKeyPressed = [dictionaryRepresentation[OEHIDEventIsFunctionPressedKey] boolValue];
             break;
     }
 
@@ -1273,6 +1296,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
         case OEHIDEventTypeKeyboard :
             representation[OEHIDEventKeycodeKey] = @(self.keycode);
             representation[OEHIDEventStateKey] = @(self.state);
+            representation[OEHIDEventIsFunctionPressedKey] = @(_data.key.isFunctionKeyPressed);
             break;
     }
 
@@ -1306,6 +1330,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
                 _cookie                       = OEUndefinedCookie;
                 _data.key.keycode             = [decoder decodeIntegerForKey:OEHIDEventKeycodeKey];
                 _data.key.state               = [decoder decodeIntegerForKey:OEHIDEventStateKey];
+                _data.key.isFunctionKeyPressed = [decoder decodeBoolForKey:OEHIDEventIsFunctionPressedKey];
                 break;
         }
     }
@@ -1337,6 +1362,7 @@ static NSString *OEHIDEventKeycodeKey            = @"OEHIDEventKeycode";
         case OEHIDEventTypeKeyboard :
             [encoder encodeInteger:[self keycode]       forKey:OEHIDEventKeycodeKey];
             [encoder encodeInteger:[self state]         forKey:OEHIDEventStateKey];
+            [encoder encodeBool:_data.key.isFunctionKeyPressed forKey:OEHIDEventIsFunctionPressedKey];
             break;
     }
 }

@@ -53,6 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
     FFEFFECT *_effect;
     FFCUSTOMFORCE *_customforce;
     FFEffectObjectReference _effectRef;
+
+    BOOL _isFunctionKeyPressed;
 }
 
 + (id<OEHIDDeviceParser>)deviceParser;
@@ -154,6 +156,11 @@ NS_ASSUME_NONNULL_BEGIN
     return IOHIDDeviceConformsTo(_device, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard);
 }
 
+- (BOOL)isFunctionKeyPressed
+{
+    return _isFunctionKeyPressed;
+}
+
 - (void)dispatchEvent:(OEHIDEvent *)event
 {
     if(event == nil)
@@ -179,7 +186,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchEventWithHIDValue:(IOHIDValueRef)aValue
 {
-    [self dispatchEvent:[self eventWithHIDValue:aValue]];
+    OEHIDEvent *event = [self eventWithHIDValue:aValue];
+    if (event.type == OEHIDEventTypeKeyboard && event.keycode == OEHIDUsage_KeyboardFunctionKey) {
+        _isFunctionKeyPressed = (event.state == OEHIDEventStateOn);
+    }
+
+    [self dispatchEvent:event];
+}
+
+- (void)dispatchFunctionKeyEventWithHIDValue:(IOHIDValueRef)aValue
+{
+    _isFunctionKeyPressed = !!IOHIDValueGetIntegerValue(aValue);
+    [self dispatchEventWithHIDValue:aValue];
 }
 
 - (io_service_t)serviceRef
@@ -311,8 +329,8 @@ NS_ASSUME_NONNULL_BEGIN
         @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Game) },
         @{ @kIOHIDElementUsagePageKey: @(kHIDPage_Button) },
         @{ @kIOHIDElementUsagePageKey: @(kHIDPage_KeyboardOrKeypad) },
+        @{ @kIOHIDElementUsagePageKey: @0xFF, @kIOHIDElementUsageKey: @3, }
     ]);
-
     IOHIDDeviceRegisterInputValueCallback(_device, OEHandle_InputValueCallback, (__bridge void *)self);
 
     // Attach to the runloop

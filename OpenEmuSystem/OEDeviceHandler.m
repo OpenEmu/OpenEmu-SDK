@@ -111,6 +111,11 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     return NO;
 }
 
+- (BOOL)isFunctionKeyPressed
+{
+    return NO;
+}
+
 - (BOOL)isPlaceholder
 {
     return NO;

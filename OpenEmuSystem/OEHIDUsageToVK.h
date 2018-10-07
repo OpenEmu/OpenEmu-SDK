@@ -151,6 +151,7 @@ static const _OEHIDVirtualKeyCodeNameTriplet _OEHIDVirtualKeyCodesTable[] = {
     { kHIDUsage_KeypadNumLock              , kVK_ANSI_KeypadClear   , @"Num Lock"  },
     { kHIDUsage_KeyboardPageUp             , kVK_PageUp             , @"Page Up"   },
     { kHIDUsage_KeyboardPageDown           , kVK_PageDown           , @"Page Down" },
+    { OEHIDUsage_KeyboardFunctionKey       , kVK_Function           , @"Fn"        },
     { kHIDUsage_KeyboardNonUSPound         , 0xFFFF                 , @"#"         },
     { kHIDUsage_KeyboardNonUSBackslash     , 0xFFFF                 , @"|"         },
 };

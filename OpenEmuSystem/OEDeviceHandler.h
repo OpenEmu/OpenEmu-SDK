@@ -74,7 +74,8 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 - (BOOL)connect;
 - (void)disconnect;
 
-- (BOOL)isKeyboardDevice;
+@property(readonly) BOOL isKeyboardDevice;
+@property(readonly) BOOL isFunctionKeyPressed;
 
 - (BOOL)isPlaceholder;
 
