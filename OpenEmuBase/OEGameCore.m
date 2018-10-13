@@ -743,8 +743,9 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 #pragma mark - File Insertion
 
-- (void)insertFileAtURL:(NSURL *)url
+- (void)insertFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block
 {
+    block(NO, [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreCouldNotLoadROMError userInfo:nil]);
 }
 
 @end
