@@ -571,7 +571,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
             }
         } else {
             if (ABS(prevState.value) >= _analogToDigitalThreshold &&
-                ABS(currentValue) < _analogToDigitalThreshold) {
+                (ABS(currentValue) < _analogToDigitalThreshold || currentDirection != prevState.direction)) {
                 _OEBasicSystemResponderReleaseSystemKey(self, prevKey, NO);
             }
         }
@@ -583,7 +583,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
         if ([currKey isAnalogic]) {
             _OEBasicSystemResponderChangeAnalogSystemKey(self, currKey, [anEvent absoluteValue]);
         } else {
-            if (ABS(prevState.value) < _analogToDigitalThreshold &&
+            if ((ABS(prevState.value) < _analogToDigitalThreshold || currentDirection != prevState.direction) &&
                 ABS(currentValue) >= _analogToDigitalThreshold) {
                 _OEBasicSystemResponderPressSystemKey(self, currKey, NO);
             }
