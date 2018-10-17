@@ -1411,6 +1411,9 @@ static NSString *OEHIDEventIsFunctionPressedKey  = @"OEHIDEventIsFunctionPressed
     OEHIDEvent *event = [self copy];
 
     event->_data.axis.direction = aDirection;
+ 
+    if(aDirection == OEHIDEventAxisDirectionNull)
+        event->_data.axis.value = 0;
 
     return event;
 }
