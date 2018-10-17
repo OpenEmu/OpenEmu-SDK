@@ -1426,7 +1426,7 @@ static NSString *OEHIDEventIsFunctionPressedKey  = @"OEHIDEventIsFunctionPressed
     OEHIDEvent *event = [self copy];
 
     event->_data.hatSwitch.hatDirection = aDirection;
- 
+
     return event;
 }
 
