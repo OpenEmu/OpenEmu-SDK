@@ -40,5 +40,9 @@
     return @4059184895;
 }
 
+- (BOOL)isFunctionKeyPressed
+{
+    return YES;
+}
 
 @end
