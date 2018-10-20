@@ -748,4 +748,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     block(NO, [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreCouldNotLoadROMError userInfo:nil]);
 }
 
+#pragma mark - Display Mode
+
+- (NSArray <NSDictionary <NSString *, id> *> *)displayModes
+{
+    return nil;
+}
+
+- (void)changeDisplayWithMode:(NSString *)displayMode
+{
+}
+
 @end

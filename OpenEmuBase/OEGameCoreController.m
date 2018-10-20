@@ -42,6 +42,9 @@ NSString *const OEGameCoreSupportsRewindingKey = @"OEGameCoreSupportsRewinding";
 NSString *const OEGameCoreRewindIntervalKey = @"OEGameCoreRewindInterval";
 NSString *const OEGameCoreRewindBufferSecondsKey = @"OEGameCoreRewindBufferSeconds";
 NSString *const OEGameCoreSupportsFileInsertionKey = @"OEGameCoreSupportsFileInsertion";
+NSString *const OEGameCoreSupportsDisplayModeChangeKey = @"OEGameCoreSupportsDisplayModeChange";
+NSString *const OEGameCoreDisplayModesNameKey = @"OEGameCoreDisplayModesNameKey";
+NSString *const OEGameCoreDisplayModesStateKey = @"OEGameCoreDisplayModesStateKey";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
@@ -146,6 +149,13 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [[system valueForKey:OEGameCoreSupportsFileInsertionKey] boolValue];
+}
+
+- (BOOL)supportsDisplayModeChangeForSystemIdentifier:(NSString *)systemIdentifier
+{
+    id options = [self coreOptions];
+    id system = [options valueForKey:systemIdentifier];
+    return [[system valueForKey:OEGameCoreSupportsDisplayModeChangeKey] boolValue];
 }
 
 - (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier

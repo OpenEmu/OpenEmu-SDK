@@ -174,6 +174,7 @@ OE_EXPORTED_CLASS
 
 @property(nonatomic, copy)     NSString             *systemIdentifier;
 @property(nonatomic, copy)     NSString             *systemRegion;
+@property(nonatomic, copy)     NSString             *systemDisplayMode;
 @property(nonatomic, copy)     NSString             *ROMCRC32;
 @property(nonatomic, copy)     NSString             *ROMMD5;
 @property(nonatomic, copy)     NSString             *ROMHeader;
@@ -457,6 +458,11 @@ OE_EXPORTED_CLASS
 
 - (void)insertFileAtURL:(NSURL *)file completionHandler:(void(^)(BOOL success, NSError *error))block;
 
+#pragma mark - Display Mode - Optional
+
+@property(readonly) NSArray <NSDictionary <NSString *, id> *> *displayModes;
+- (void)changeDisplayWithMode:(NSString *)displayMode;
+
 @end
 
 #pragma mark - Internal
@@ -527,5 +533,7 @@ OE_EXPORTED_CLASS
 @property(readonly) const void *videoBuffer OE_DEPRECATED("use -getVideoBufferWithHint:");
 
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index OE_DEPRECATED("Use -audioBufferAtIndex: instead");
+
+- (void)changeDisplayMode OE_DEPRECATED("use -changeDisplayWithMode:, -displayModes with keys OEGameCoreDisplayModesNameKey and OEGameCoreDisplayModesStateKey, and self.systemDisplayMode");
 
 @end

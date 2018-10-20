@@ -36,6 +36,9 @@ extern NSString *const OEGameCoreHasGlitchesKey;
 extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
 extern NSString *const OEGameCoreSupportsMultipleDiscsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
+extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
+extern NSString *const OEGameCoreDisplayModesNameKey;
+extern NSString *const OEGameCoreDisplayModesStateKey;
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 
@@ -64,6 +67,7 @@ extern NSString *const OEGameCoreSupportsFileInsertionKey;
 - (BOOL)supportsMultipleDiscsForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)supportsRewindingForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)supportsFileInsertionForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)supportsDisplayModeChangeForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindBufferSecondsForSystemIdentifier:(NSString *)systemIdentifier;
 
