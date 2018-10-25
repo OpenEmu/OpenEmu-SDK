@@ -39,6 +39,11 @@ extern NSString *const OEGameCoreSupportsFileInsertionKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 extern NSString *const OEGameCoreDisplayModesNameKey;
 extern NSString *const OEGameCoreDisplayModesStateKey;
+extern NSString *const OEGameCoreDisplayModesSeparatorItemKey;
+extern NSString *const OEGameCoreDisplayModesLabelKey;
+extern NSString *const OEGameCoreDisplayModesIndentationLevelKey;
+extern NSString *const OEGameCoreDisplayModesGroupNameKey;
+extern NSString *const OEGameCoreDisplayModesGroupItemsKey;
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 

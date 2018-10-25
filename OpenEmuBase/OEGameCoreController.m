@@ -45,6 +45,11 @@ NSString *const OEGameCoreSupportsFileInsertionKey = @"OEGameCoreSupportsFileIns
 NSString *const OEGameCoreSupportsDisplayModeChangeKey = @"OEGameCoreSupportsDisplayModeChange";
 NSString *const OEGameCoreDisplayModesNameKey = @"OEGameCoreDisplayModesNameKey";
 NSString *const OEGameCoreDisplayModesStateKey = @"OEGameCoreDisplayModesStateKey";
+NSString *const OEGameCoreDisplayModesSeparatorItemKey = @"OEGameCoreDisplayModesSeparatorItemKey";
+NSString *const OEGameCoreDisplayModesLabelKey = @"OEGameCoreDisplayModesLabelKey";
+NSString *const OEGameCoreDisplayModesIndentationLevelKey = @"OEGameCoreDisplayModesIndentationLevelKey";
+NSString *const OEGameCoreDisplayModesGroupNameKey = @"OEGameCoreDisplayModesGroupNameKey";
+NSString *const OEGameCoreDisplayModesGroupItemsKey = @"OEGameCoreDisplayModesGroupItemsKey";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
