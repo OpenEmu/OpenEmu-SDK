@@ -160,25 +160,25 @@ OE_EXPORTED_CLASS
 @property(weak)     id<OERenderDelegate>   renderDelegate;
 @property(weak)     id<OEAudioDelegate>    audioDelegate;
 
-@property(nonatomic, weak)     OEGameCoreController *owner;
-@property(nonatomic, readonly) NSString             *pluginName;
+@property(nonatomic, weak)     OEGameCoreController          *owner;
+@property(nonatomic, readonly) NSString                      *pluginName;
 
-@property(nonatomic, readonly) NSString             *biosDirectoryPath;
-@property(nonatomic, readonly) NSString             *supportDirectoryPath;
-@property(nonatomic, readonly) NSString             *batterySavesDirectoryPath;
+@property(nonatomic, readonly) NSString                      *biosDirectoryPath;
+@property(nonatomic, readonly) NSString                      *supportDirectoryPath;
+@property(nonatomic, readonly) NSString                      *batterySavesDirectoryPath;
 
-@property(nonatomic, readonly) BOOL                  supportsRewinding;
-@property(nonatomic, readonly) NSUInteger            rewindInterval;
-@property(nonatomic, readonly) NSUInteger            rewindBufferSeconds;
-@property(nonatomic, readonly) OEDiffQueue          *rewindQueue;
+@property(nonatomic, readonly) BOOL                           supportsRewinding;
+@property(nonatomic, readonly) NSUInteger                     rewindInterval;
+@property(nonatomic, readonly) NSUInteger                     rewindBufferSeconds;
+@property(nonatomic, readonly) OEDiffQueue                   *rewindQueue;
 
-@property(nonatomic, copy)     NSString             *systemIdentifier;
-@property(nonatomic, copy)     NSString             *systemRegion;
-@property(nonatomic, copy)     NSDictionary         *displayModeInfo;
-@property(nonatomic, copy)     NSString             *ROMCRC32;
-@property(nonatomic, copy)     NSString             *ROMMD5;
-@property(nonatomic, copy)     NSString             *ROMHeader;
-@property(nonatomic, copy)     NSString             *ROMSerial;
+@property(nonatomic, copy)     NSString                      *systemIdentifier;
+@property(nonatomic, copy)     NSString                      *systemRegion;
+@property(nonatomic, copy)     NSDictionary <NSString *, id> *displayModeInfo;
+@property(nonatomic, copy)     NSString                      *ROMCRC32;
+@property(nonatomic, copy)     NSString                      *ROMMD5;
+@property(nonatomic, copy)     NSString                      *ROMHeader;
+@property(nonatomic, copy)     NSString                      *ROMSerial;
 
 #pragma mark - Starting
 
