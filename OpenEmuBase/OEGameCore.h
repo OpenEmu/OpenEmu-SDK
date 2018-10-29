@@ -174,7 +174,7 @@ OE_EXPORTED_CLASS
 
 @property(nonatomic, copy)     NSString             *systemIdentifier;
 @property(nonatomic, copy)     NSString             *systemRegion;
-@property(nonatomic, copy)     NSString             *systemDisplayMode;
+@property(nonatomic, copy)     NSDictionary         *displayModeInfo;
 @property(nonatomic, copy)     NSString             *ROMCRC32;
 @property(nonatomic, copy)     NSString             *ROMMD5;
 @property(nonatomic, copy)     NSString             *ROMHeader;
@@ -534,6 +534,6 @@ OE_EXPORTED_CLASS
 
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index OE_DEPRECATED("Use -audioBufferAtIndex: instead");
 
-- (void)changeDisplayMode OE_DEPRECATED("use -changeDisplayWithMode:, -displayModes with keys OEGameCoreDisplayModesNameKey and OEGameCoreDisplayModesStateKey, and self.systemDisplayMode");
+- (void)changeDisplayMode OE_DEPRECATED("use -changeDisplayWithMode:, -displayModes with OEGameCoreDisplayMode* constants, and self.displayModeInfo");
 
 @end
