@@ -88,6 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)rewindGameplay:(BOOL)enable;
 - (void)stepGameplayFrameForward:(id)sender;
 - (void)stepGameplayFrameBackward:(id)sender;
+- (void)nextDisplayMode:(id)sender;
+- (void)lastDisplayMode:(id)sender;
 @end
 
 NS_ASSUME_NONNULL_END

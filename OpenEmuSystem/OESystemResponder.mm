@@ -233,8 +233,11 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             SEND_ACTION2(rewindGameplay:, YES);
             [[self client] rewind:YES];
             return;
-        case OEGlobalButtonIdentifierDisplayMode :
-            [[self client] changeDisplayMode];
+        case OEGlobalButtonIdentifierNextDisplayMode :
+            SEND_ACTION(nextDisplayMode:);
+            return;
+        case OEGlobalButtonIdentifierLastDisplayMode :
+            SEND_ACTION(lastDisplayMode:);
             return;
         default :
             break;
@@ -290,7 +293,9 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             SEND_ACTION2(rewindGameplay:, NO);
             [[self client] rewind:NO];
             return;
-        case OEGlobalButtonIdentifierDisplayMode :
+        case OEGlobalButtonIdentifierNextDisplayMode :
+            return;
+        case OEGlobalButtonIdentifierLastDisplayMode :
             return;
         case OEGlobalButtonIdentifierScreenshot :
             SEND_ACTION(takeScreenshot:);
@@ -339,7 +344,8 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierPause :
         case OEGlobalButtonIdentifierStepFrameBackward :
         case OEGlobalButtonIdentifierStepFrameForward :
-        case OEGlobalButtonIdentifierDisplayMode :
+        case OEGlobalButtonIdentifierNextDisplayMode :
+        case OEGlobalButtonIdentifierLastDisplayMode :
         case OEGlobalButtonIdentifierScreenshot :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;

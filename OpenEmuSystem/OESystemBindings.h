@@ -56,7 +56,8 @@ extern NSString *const OEGlobalButtonFastForward;
 extern NSString *const OEGlobalButtonSlowMotion;
 extern NSString *const OEGlobalButtonStepFrameBackward;
 extern NSString *const OEGlobalButtonStepFrameForward;
-extern NSString *const OEGlobalButtonDisplayMode;
+extern NSString *const OEGlobalButtonNextDisplayMode;
+extern NSString *const OEGlobalButtonLastDisplayMode;
 extern NSString *const OEGlobalButtonScreenshot;
 
 /// Manages the bindings for a specific system, useful for system responders

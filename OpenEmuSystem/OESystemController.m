@@ -223,7 +223,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
           //Button(@"Slow Motion", @"Name of the global button to run the emulation in slow motion", OEGlobalButtonSlowMotion),
           Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
           Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
-          Button(@"Display Mode", @"Name of the global button to switch display modes", OEGlobalButtonDisplayMode),
+          Button(@"Next Display Mode", @"Name of the global button to switch to the next display mode", OEGlobalButtonNextDisplayMode),
+          Button(@"Last Display Mode", @"Name of the global button to switch to the previous display mode", OEGlobalButtonLastDisplayMode),
           Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
           ]
         : // Limited selection of global buttons
@@ -235,7 +236,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
           Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
           Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
           Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
-          Button(@"Display Mode", @"Name of the global button to switch display modes", OEGlobalButtonDisplayMode),
+          Button(@"Next Display Mode", @"Name of the global button to switch to the next display mode", OEGlobalButtonNextDisplayMode),
+          Button(@"Last Display Mode", @"Name of the global button to switch to the previous display mode", OEGlobalButtonLastDisplayMode),
           Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
           ]];
     });

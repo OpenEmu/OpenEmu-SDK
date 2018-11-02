@@ -58,7 +58,8 @@ NSString *const OEGlobalButtonFastForward       = @"OEGlobalButtonFastForward";
 NSString *const OEGlobalButtonSlowMotion        = @"OEGlobalButtonSlowMotion";
 NSString *const OEGlobalButtonStepFrameBackward = @"OEGlobalButtonStepFrameBackward";
 NSString *const OEGlobalButtonStepFrameForward  = @"OEGlobalButtonStepFrameForward";
-NSString *const OEGlobalButtonDisplayMode       = @"OEGlobalButtonDisplayMode";
+NSString *const OEGlobalButtonNextDisplayMode   = @"OEGlobalButtonNextDisplayMode";
+NSString *const OEGlobalButtonLastDisplayMode   = @"OEGlobalButtonLastDisplayMode";
 NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 @interface OEHIDEvent ()

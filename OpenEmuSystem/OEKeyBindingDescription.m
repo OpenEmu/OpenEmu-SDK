@@ -70,8 +70,10 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierStepFrameBackward";
         case OEGlobalButtonIdentifierStepFrameForward :
             return @"OEGlobalButtonIdentifierStepFrameForward";
-        case OEGlobalButtonIdentifierDisplayMode :
-            return @"OEGlobalButtonIdentifierDisplayMode";
+        case OEGlobalButtonIdentifierNextDisplayMode :
+            return @"OEGlobalButtonIdentifierNextDisplayMode";
+        case OEGlobalButtonIdentifierLastDisplayMode :
+            return @"OEGlobalButtonIdentifierLastDisplayMode";
         case OEGlobalButtonIdentifierScreenshot :
             return @"OEGlobalButtonIdentifierScreenshot";
         case OEGlobalButtonIdentifierCount :
@@ -119,8 +121,10 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
             return OEGlobalButtonStepFrameBackward;
         case OEGlobalButtonIdentifierStepFrameForward :
             return OEGlobalButtonStepFrameForward;
-        case OEGlobalButtonIdentifierDisplayMode :
-            return OEGlobalButtonDisplayMode;
+        case OEGlobalButtonIdentifierNextDisplayMode :
+            return OEGlobalButtonNextDisplayMode;
+        case OEGlobalButtonIdentifierLastDisplayMode :
+            return OEGlobalButtonLastDisplayMode;
         case OEGlobalButtonIdentifierScreenshot :
             return OEGlobalButtonScreenshot;
         default :

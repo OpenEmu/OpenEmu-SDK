@@ -53,7 +53,8 @@ typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
     OEGlobalButtonIdentifierSlowMotion,
     OEGlobalButtonIdentifierStepFrameBackward,
     OEGlobalButtonIdentifierStepFrameForward,
-    OEGlobalButtonIdentifierDisplayMode,
+    OEGlobalButtonIdentifierNextDisplayMode,
+    OEGlobalButtonIdentifierLastDisplayMode,
     OEGlobalButtonIdentifierScreenshot,
 
     OEGlobalButtonIdentifierCount,
