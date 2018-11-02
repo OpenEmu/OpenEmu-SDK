@@ -43,15 +43,6 @@ NSString *const OEGameCoreRewindIntervalKey = @"OEGameCoreRewindInterval";
 NSString *const OEGameCoreRewindBufferSecondsKey = @"OEGameCoreRewindBufferSeconds";
 NSString *const OEGameCoreSupportsFileInsertionKey = @"OEGameCoreSupportsFileInsertion";
 NSString *const OEGameCoreSupportsDisplayModeChangeKey = @"OEGameCoreSupportsDisplayModeChange";
-NSString *const OEGameCoreDisplayModeNameKey = @"OEGameCoreDisplayModeNameKey";
-NSString *const OEGameCoreDisplayModePrefKeyNameKey = @"OEGameCoreDisplayModePrefKeyNameKey";
-NSString *const OEGameCoreDisplayModeStateKey = @"OEGameCoreDisplayModeStateKey";
-NSString *const OEGameCoreDisplayModeSeparatorItemKey = @"OEGameCoreDisplayModeSeparatorItemKey";
-NSString *const OEGameCoreDisplayModeLabelKey = @"OEGameCoreDisplayModeLabelKey";
-NSString *const OEGameCoreDisplayModeIndentationLevelKey = @"OEGameCoreDisplayModeIndentationLevelKey";
-NSString *const OEGameCoreDisplayModeAllowsToggleKey = @"OEGameCoreDisplayModeAllowsToggleKey";
-NSString *const OEGameCoreDisplayModeGroupNameKey = @"OEGameCoreDisplayModeGroupNameKey";
-NSString *const OEGameCoreDisplayModeGroupItemsKey = @"OEGameCoreDisplayModeGroupItemsKey";
 
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 

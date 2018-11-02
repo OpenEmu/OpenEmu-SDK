@@ -37,15 +37,16 @@ extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
 extern NSString *const OEGameCoreSupportsMultipleDiscsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
-extern NSString *const OEGameCoreDisplayModeNameKey;
-extern NSString *const OEGameCoreDisplayModePrefKeyNameKey;
-extern NSString *const OEGameCoreDisplayModeStateKey;
-extern NSString *const OEGameCoreDisplayModeSeparatorItemKey;
-extern NSString *const OEGameCoreDisplayModeLabelKey;
-extern NSString *const OEGameCoreDisplayModeIndentationLevelKey;
-extern NSString *const OEGameCoreDisplayModeAllowsToggleKey;
-extern NSString *const OEGameCoreDisplayModeGroupNameKey;
-extern NSString *const OEGameCoreDisplayModeGroupItemsKey;
+
+#define OEGameCoreDisplayModeNameKey @"OEGameCoreDisplayModeNameKey"
+#define OEGameCoreDisplayModePrefKeyNameKey @"OEGameCoreDisplayModePrefKeyNameKey"
+#define OEGameCoreDisplayModeStateKey @"OEGameCoreDisplayModeStateKey"
+#define OEGameCoreDisplayModeSeparatorItemKey @"OEGameCoreDisplayModeSeparatorItemKey"
+#define OEGameCoreDisplayModeLabelKey @"OEGameCoreDisplayModeLabelKey"
+#define OEGameCoreDisplayModeIndentationLevelKey @"OEGameCoreDisplayModeIndentationLevelKey"
+#define OEGameCoreDisplayModeAllowsToggleKey @"OEGameCoreDisplayModeAllowsToggleKey"
+#define OEGameCoreDisplayModeGroupNameKey @"OEGameCoreDisplayModeGroupNameKey"
+#define OEGameCoreDisplayModeGroupItemsKey @"OEGameCoreDisplayModeGroupItemsKey"
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 
