@@ -61,25 +61,25 @@
 
 extern NSString *const OEGameCoreErrorDomain;
 
-typedef enum : NSInteger {
+typedef NS_ERROR_ENUM(OEGameCoreErrorDomain, OEGameCoreErrorCodes) {
     OEGameCoreCouldNotStartCoreError = -1,
     OEGameCoreCouldNotLoadROMError   = -2,
     OEGameCoreCouldNotLoadStateError = -3,
     OEGameCoreStateHasWrongSizeError = -4,
     OEGameCoreCouldNotSaveStateError = -5,
     OEGameCoreDoesNotSupportSaveStatesError = -6,
-} _OEGameCoreErrorCodes;
+};
 
 /*!
  * @enum OEGameCoreRendering
  * @abstract Which renderer will be set up for the game core.
  */
-typedef enum : NSUInteger {
+typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
     OEGameCoreRendering2DVideo,         //!< The game bitmap will be put directly into an IOSurface.
     OEGameCoreRenderingOpenGL2Video,    //!< The core will be provided a CGL OpenGL 2.1 (Compatibility) context.
     OEGameCoreRenderingOpenGL3Video,    //!< The core will be provided a CGL OpenGL 3.2+ Core/OpenGLES3 context.
     OEGameCoreRenderingMetal1Video      //!< Not yet implemented.
-} OEGameCoreRendering;
+};
 
 @protocol OERenderDelegate
 @required
