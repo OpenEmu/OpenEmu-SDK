@@ -40,11 +40,13 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
 #define OEGameCoreDisplayModeNameKey @"OEGameCoreDisplayModeNameKey"
 #define OEGameCoreDisplayModePrefKeyNameKey @"OEGameCoreDisplayModePrefKeyNameKey"
+#define OEGameCoreDisplayModePrefValueNameKey @"OEGameCoreDisplayModePrefValueNameKey"
 #define OEGameCoreDisplayModeStateKey @"OEGameCoreDisplayModeStateKey"
 #define OEGameCoreDisplayModeSeparatorItemKey @"OEGameCoreDisplayModeSeparatorItemKey"
 #define OEGameCoreDisplayModeLabelKey @"OEGameCoreDisplayModeLabelKey"
 #define OEGameCoreDisplayModeIndentationLevelKey @"OEGameCoreDisplayModeIndentationLevelKey"
 #define OEGameCoreDisplayModeAllowsToggleKey @"OEGameCoreDisplayModeAllowsToggleKey"
+#define OEGameCoreDisplayModeDisallowPrefSaveKey @"OEGameCoreDisplayModeDisallowPrefSaveKey"
 #define OEGameCoreDisplayModeGroupNameKey @"OEGameCoreDisplayModeGroupNameKey"
 #define OEGameCoreDisplayModeGroupItemsKey @"OEGameCoreDisplayModeGroupItemsKey"
 
