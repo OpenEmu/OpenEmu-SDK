@@ -24,6 +24,7 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
 
     [self registerClass:NSClassFromString(@"OECUESheet") forFileExtension:@"cue"];
     [self registerClass:NSClassFromString(@"OECloneCD") forFileExtension:@"ccd"];
+    [self registerClass:NSClassFromString(@"OEDreamcastGDI") forFileExtension:@"gdi"];
     [self registerClass:NSClassFromString(@"OEM3UFile") forFileExtension:@"m3u"];
 }
 

@@ -1,7 +1,6 @@
 /*
- Copyright (c) 2013, OpenEmu Team
- 
- 
+ Copyright (c) 2018, OpenEmu Team
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
      * Redistributions of source code must retain the above copyright
@@ -12,7 +11,7 @@
      * Neither the name of the OpenEmu Team nor the
        names of its contributors may be used to endorse or promote products
        derived from this software without specific prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY OpenEmu Team ''AS IS'' AND ANY
  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,31 +24,18 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <ForceFeedback/ForceFeedback.h>
-#import <IOKit/hid/IOHIDLib.h>
-#import <IOKit/hid/IOHIDUsageTables.h>
-
-#import <OpenEmuSystem/NSResponder+OEHIDAdditions.h>
-#import <OpenEmuSystem/OEBindingMap.h>
-#import <OpenEmuSystem/OEBindingsController.h>
+#import <Foundation/Foundation.h>
 #import <OpenEmuSystem/OECDSheet.h>
-#import <OpenEmuSystem/OECUESheet.h>
-#import <OpenEmuSystem/OECloneCD.h>
-#import <OpenEmuSystem/OEControlDescription.h>
-#import <OpenEmuSystem/OEControllerDescription.h>
-#import <OpenEmuSystem/OEDeviceDescription.h>
-#import <OpenEmuSystem/OEDeviceHandler.h>
-#import <OpenEmuSystem/OEDeviceManager.h>
-#import <OpenEmuSystem/OEDreamcastGDI.h>
-#import <OpenEmuSystem/OEEvent.h>
-#import <OpenEmuSystem/OEFile.h>
-#import <OpenEmuSystem/OEHIDEvent.h>
-#import <OpenEmuSystem/OEKeyBindingDescription.h>
-#import <OpenEmuSystem/OEKeyBindingGroupDescription.h>
-#import <OpenEmuSystem/OELocalizationHelper.h>
-#import <OpenEmuSystem/OEPlayerBindings.h>
-#import <OpenEmuSystem/OESystemBindings.h>
-#import <OpenEmuSystem/OESystemController.h>
-#import <OpenEmuSystem/OESystemResponder.h>
+
+extern NSString *const OEDreamcastGDIErrorDomain;
+
+NS_ENUM(NSInteger) {
+    OEDreamcastGDINoFileNameFoundError = -1,
+    OEDreamcastGDIInvalidFileCountError = -2,
+    };
+
+/**
+ Class to handle .gdi (Dreamcast Gigabyte Disc Image) files and manage track file references inside.
+ */
+@interface OEDreamcastGDI : OECDSheet
+@end

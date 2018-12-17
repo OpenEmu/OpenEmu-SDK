@@ -309,7 +309,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (BOOL)supportsDiscs
 {
-    for(NSString *discExtension in @[ @"cue", @"ccd", @"m3u" ]) {
+    for(NSString *discExtension in @[ @"cue", @"ccd", @"gdi", @"m3u" ]) {
         if ([[self fileTypes] containsObject:discExtension])
             return YES;
     }
