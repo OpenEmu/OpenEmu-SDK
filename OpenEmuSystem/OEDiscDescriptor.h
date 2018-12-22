@@ -25,14 +25,37 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OpenEmuSystem/OEDiscDescriptor.h>
+#import <OpenEmuSystem/OEFile.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- Class to handle .ccd files and manage img/sub files.
- */
-@interface OECloneCD : OEDiscDescriptor
+extern NSString *const OEDiscDescriptorErrorDomain;
+
+NS_ENUM(NSInteger) {
+    OEDiscDescriptorUnreadableFileError = -1,
+    OEDiscDescriptorMissingFilesError = -2,
+};
+
+@interface OEDiscDescriptor : OEFile
+
+/// URLs of the files directly referenced by the receiver.
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *referencedFileURLs;
+
+/// URLs of the files referenced by the receiver including subfiles where applicable.
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *allReferencedFileURLs;
+
+/// URLs of the all the binary files referenced by the receiver.
+@property (nonatomic, copy, readonly) NSArray<NSURL *> *referencedBinaryFileURLs;
+
+/// URL of the main data track file.
+@property (nonatomic, copy, readonly) NSURL *dataTrackFileURL;
+
+/// Move all the referenced files to the destinationURL directory.
+- (BOOL)moveReferencedFilesToDirectoryAtURL:(NSURL *)destinationURL error:(NSError **)error;
+
+/// Copy all the referenced files to the destinationURL directory.
+- (BOOL)copyReferencedFilesToDirectoryAtURL:(NSURL *)destinationURL error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

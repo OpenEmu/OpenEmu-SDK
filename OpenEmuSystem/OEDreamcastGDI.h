@@ -25,7 +25,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OpenEmuSystem/OECDSheet.h>
+#import <OpenEmuSystem/OEDiscDescriptor.h>
 
 extern NSString *const OEDreamcastGDIErrorDomain;
 
@@ -37,5 +37,5 @@ NS_ENUM(NSInteger) {
 /**
  Class to handle .gdi (Dreamcast Gigabyte Disc Image) files and manage track file references inside.
  */
-@interface OEDreamcastGDI : OECDSheet
+@interface OEDreamcastGDI : OEDiscDescriptor
 @end

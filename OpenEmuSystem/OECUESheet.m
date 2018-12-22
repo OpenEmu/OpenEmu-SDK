@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012, OpenEmu Team
+ Copyright (c) 2018, OpenEmu Team
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,7 @@
 
 #import "OECUESheet.h"
 
-#import "OECDSheet_Internal.h"
+#import "OEDiscDescriptor_Internal.h"
 
 NSString *const OECUESheetErrorDomain = @"org.openemu.OECUESheet.ErrorDomain";
 

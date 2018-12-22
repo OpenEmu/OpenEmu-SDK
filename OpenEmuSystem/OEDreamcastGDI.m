@@ -26,7 +26,7 @@
 
 #import "OEDreamcastGDI.h"
 
-#import "OECDSheet_Internal.h"
+#import "OEDiscDescriptor_Internal.h"
 
 NSString *const OEDreamcastGDIErrorDomain = @"org.openemu.OEDreamcastGDI.ErrorDomain";
 

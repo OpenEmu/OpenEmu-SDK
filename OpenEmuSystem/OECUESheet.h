@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012, OpenEmu Team
+ Copyright (c) 2018, OpenEmu Team
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OpenEmuSystem/OECDSheet.h>
+#import <OpenEmuSystem/OEDiscDescriptor.h>
 
 // Options to handle 'broken' cue files:
 #define OECUESheetImproveReadingByUsingBinExtension 0 // If a referenced file does not have an extension we automatically append .bin and see if that works better
@@ -43,5 +43,5 @@ NS_ENUM(NSInteger) {
  Class to handle .cue files and manage track files references in cue sheets.
  Only does some very basic parsing.
  */
-@interface OECUESheet : OECDSheet
+@interface OECUESheet : OEDiscDescriptor
 @end

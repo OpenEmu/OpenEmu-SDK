@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016, OpenEmu Team
+ Copyright (c) 2018, OpenEmu Team
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -24,13 +24,13 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "OECDSheet.h"
+#import "OEDiscDescriptor.h"
 
-#import "OECDSheet_Internal.h"
+#import "OEDiscDescriptor_Internal.h"
 
-NSString *const OECDSheetErrorDomain = @"org.openemu.OECDSheet.ErrorDomain";
+NSString *const OEDiscDescriptorErrorDomain = @"org.openemu.OEDiscDescriptor.ErrorDomain";
 
-@implementation OECDSheet
+@implementation OEDiscDescriptor
 
 @synthesize dataTrackFileURL = _dataTrackFileURL;
 
@@ -132,9 +132,9 @@ NSString *const OECDSheetErrorDomain = @"org.openemu.OECDSheet.ErrorDomain";
     if (error == nil)
         return nil;
 
-    *error = [NSError errorWithDomain:OECDSheetErrorDomain code:OECDSheetUnreadableSheetError userInfo:@{
-        NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read", @"Reading sheet file error description"),
-        NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"File %@ does not seem to be a plain text file.", @"Reading sheet file error failure reason."), self.fileURL.lastPathComponent],
+    *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorUnreadableFileError userInfo:@{
+        NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read", @"Reading descriptor file error description"),
+        NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"File %@ does not seem to be a plain text file.", @"Reading descriptor file error failure reason."), self.fileURL.lastPathComponent],
         NSUnderlyingErrorKey: *error,
     }];
 
@@ -150,7 +150,7 @@ NSString *const OECDSheetErrorDomain = @"org.openemu.OECDSheet.ErrorDomain";
         if (error == nil)
             return NO;
 
-        *error = [NSError errorWithDomain:OECDSheetErrorDomain code:OECDSheetUnreadableSheetError userInfo:@{
+        *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorMissingFilesError userInfo:@{
             NSLocalizedDescriptionKey: NSLocalizedString(@"Missing referenced file", @"Missing referenced file error description"),
             NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"Could not read file at path %@. Make sure the file is at the indicated location and can be read.", @"Missing referenced file error failure reason"), url.path],
             NSUnderlyingErrorKey: *error,

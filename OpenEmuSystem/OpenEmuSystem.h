@@ -34,7 +34,7 @@
 #import <OpenEmuSystem/NSResponder+OEHIDAdditions.h>
 #import <OpenEmuSystem/OEBindingMap.h>
 #import <OpenEmuSystem/OEBindingsController.h>
-#import <OpenEmuSystem/OECDSheet.h>
+#import <OpenEmuSystem/OEDiscDescriptor.h>
 #import <OpenEmuSystem/OECUESheet.h>
 #import <OpenEmuSystem/OECloneCD.h>
 #import <OpenEmuSystem/OEControlDescription.h>
