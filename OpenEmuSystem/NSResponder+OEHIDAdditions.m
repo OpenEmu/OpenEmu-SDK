@@ -65,8 +65,8 @@
 #define FORWARD_MESSAGE(name, type) \
 - (void)name:(type)arg \
 { \
-    if(_nextResponder != nil) \
-        [_nextResponder name:arg]; \
+    if(self.nextResponder != nil) \
+        [self.nextResponder name:arg]; \
 }
 
 FORWARD_MESSAGE(axisMoved, OEHIDEvent *)
