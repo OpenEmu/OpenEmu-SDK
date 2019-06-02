@@ -380,16 +380,13 @@ enum {
     uint8_t command[22] = {
         OEWiimoteCommandWrite,
         // Destination address
-        (address >> 24) & 0xFF,
+        ((address >> 24) & 0xFF) | _rumbleActivated,
         (address >> 16) & 0xFF,
         (address >>  8) & 0xFF,
         (address >>  0) & 0xFF,
         // Data length
         length
     };
-
-    // Vibration flag
-    if(_rumbleActivated) command[1] |= 0x01;
 
     memcpy(command + 6, data, length);
 
@@ -398,18 +395,16 @@ enum {
 
 - (void)OE_readDataOfLength:(NSUInteger)length atAddress:(uint32_t)address;
 {
-    uint8_t command[7] = {
+    const uint8_t command[7] = {
         // Ask for a memory read
         OEWiimoteCommandRead,
-        (address >> 24) & 0xFF,
+        ((address >> 24) & 0xFF) | _rumbleActivated,
         (address >> 16) & 0xFF,
         (address >>  8) & 0xFF,
         (address >>  0) & 0xFF,
         (length  >>  8) & 0xFF,
         (length  >>  0) & 0xFF,
     };
-
-    if(_rumbleActivated) command[1] |= 0x01;
 
     [self OE_sendCommandWithData:command length:7];
 }
