@@ -146,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
             sum += (unsigned long)(unsigned char)(*cs);
             cs++;
         }
-        num = [NSNumber numberWithLong:sum];
+        num = @(sum);
     }
     return num;
 }
