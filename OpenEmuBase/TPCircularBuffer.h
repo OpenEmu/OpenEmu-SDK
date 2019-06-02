@@ -64,9 +64,9 @@ typedef struct {
     int32_t           tail;
     int32_t           head;
 #ifdef __cplusplus
-    volatile std::atomic<int> fillCount;
+    std::atomic<int> fillCount;
 #else
-    volatile atomic_int fillCount;
+    atomic_int fillCount;
 #endif
     bool              atomic;
 } TPCircularBuffer;
