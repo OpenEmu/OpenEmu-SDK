@@ -478,6 +478,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
     return NO;
 }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 
 - (OEGameCoreRendering)gameCoreRendering {
     if ([self respondsToSelector:@selector(rendersToOpenGL)]) {
@@ -491,6 +493,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 {
     return [self videoBuffer];
 }
+
+#pragma clang diagnostic pop
 
 - (BOOL)tryToResizeVideoTo:(OEIntSize)size
 {
@@ -639,10 +643,15 @@ static NSTimeInterval defaultTimeInterval = 60.0;
     return 1;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+
 - (void)getAudioBuffer:(void *)buffer frameCount:(NSUInteger)frameCount bufferIndex:(NSUInteger)index
 {
     [[self ringBufferAtIndex:index] read:buffer maxLength:frameCount * [self channelCountForBuffer:index] * sizeof(UInt16)];
 }
+
+#pragma clang diagnostic pop
 
 - (NSUInteger)channelCount
 {
