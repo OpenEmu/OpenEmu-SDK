@@ -59,8 +59,9 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     NSTimeInterval          lastRate;
 }
 
+@synthesize nextFrameTime;
+
 static Class GameCoreClass = Nil;
-static NSTimeInterval defaultTimeInterval = 60.0;
 
 + (void)initialize
 {
@@ -83,8 +84,6 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)dealloc
 {
-    DLog(@"%s", __FUNCTION__);
-
     for(NSUInteger i = 0, count = [self audioBufferCount]; i < count; i++)
         ringBuffers[i] = nil;
 
@@ -215,16 +214,13 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (void)runGameLoop:(id)anArgument
 {
-    NSTimeInterval realTime, emulatedTime = OEMonotonicTime();
-
 #if 0
     __block NSTimeInterval gameTime = 0;
     __block int wasZero=1;
 #endif
 
-    DLog(@"main thread: %s", BOOL_STR([NSThread isMainThread]));
-
     OESetThreadRealtime(1. / (_rate * [self frameInterval]), .007, .03); // guessed from bsnes
+    nextFrameTime = OEMonotonicTime();
 
     while(!shouldStop)
     {
@@ -243,8 +239,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         }
 #endif
 
-        // Frame skipping actually isn't possible with LLE...
-        self.shouldSkipFrame = NO;
+        [_renderDelegate willExecute];
 
         BOOL executing = _rate > 0 || singleFrameStep || isPausedExecution;
 
@@ -257,9 +252,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             NSData *state = [[self rewindQueue] pop];
             if(state)
             {
-                [_renderDelegate willExecute];
-                [self executeFrame];
-                [_renderDelegate didExecute];
+                [self executeFrame]; // Core callout
 
                 [self deserializeState:state withError:nil];
             }
@@ -267,8 +260,8 @@ static NSTimeInterval defaultTimeInterval = 60.0;
         else if(executing)
         {
             singleFrameStep = NO;
-            //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
 
+            //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
             if([self supportsRewinding] && rewindCounter == 0)
             {
                 NSData *state = [self serializeStateWithError:nil];
@@ -280,30 +273,32 @@ static NSTimeInterval defaultTimeInterval = 60.0;
             }
             else
             {
-                --rewindCounter;
+                rewindCounter--;
             }
 
-            [_renderDelegate willExecute];
-            [self executeFrame];
-            [_renderDelegate didExecute];
-            //});
+            [self executeFrame]; // Core callout
+            //};
         }
 
         NSTimeInterval frameInterval = self.frameInterval;
         NSTimeInterval adjustedRate = _rate ?: 1;
-        NSTimeInterval advance = 1.0 / (adjustedRate * frameInterval);
+        NSTimeInterval advance = adjustedRate / frameInterval;
+        nextFrameTime += advance;
 
-        emulatedTime += advance;
-        realTime = OEMonotonicTime();
+        [_renderDelegate didExecute];
 
-        // if we are running more than a second behind, synchronize
-        if(realTime - emulatedTime > 1.0)
+        // Sleep till next time.
+        NSTimeInterval realTime = OEMonotonicTime();
+
+        // If we are running more than a second behind, synchronize
+        NSTimeInterval timeOver = realTime - nextFrameTime;
+        if(timeOver >= 1.0)
         {
-            NSLog(@"Synchronizing because we are %g seconds behind", realTime - emulatedTime);
-            emulatedTime = realTime;
+            DLog(@"Synchronizing because we are %g seconds behind", timeOver);
+            nextFrameTime = realTime;
         }
 
-        OEWaitUntil(emulatedTime);
+        OEWaitUntil(nextFrameTime);
 
         // Service the event loop, which may now contain HID events, exactly once.
         // TODO: If paused, this burns CPU waiting to unpause, because it still runs at 1x rate.
@@ -506,7 +501,7 @@ static NSTimeInterval defaultTimeInterval = 60.0;
 
 - (NSTimeInterval)frameInterval
 {
-    return defaultTimeInterval;
+    return 60.0;
 }
 
 - (void)fastForward:(BOOL)flag

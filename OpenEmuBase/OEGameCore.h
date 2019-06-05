@@ -468,7 +468,7 @@ OE_EXPORTED_CLASS
 #pragma mark - Internal
 
 // There should be no need to override these methods.
-@interface OEGameCore (Internal)
+@interface OEGameCore ()
 /*!
  * @method runGameLoop:
  * @discussion
@@ -513,8 +513,11 @@ OE_EXPORTED_CLASS
  * The FPS limiter will stop, causing your rendering thread to pause.
  * You should probably not override this.
  */
-@property(getter=isEmulationPaused) BOOL pauseEmulation;
+@property(nonatomic, getter=isEmulationPaused) BOOL pauseEmulation;
 - (void)setPauseEmulation:(BOOL)pauseEmulation NS_REQUIRES_SUPER;
+
+/// When didExecute is called, will be the next wakeup time.
+@property (nonatomic, readonly) NSTimeInterval nextFrameTime;
 
 @end
 
