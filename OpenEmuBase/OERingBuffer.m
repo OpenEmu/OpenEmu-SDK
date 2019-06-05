@@ -26,10 +26,17 @@
 
 #import "OERingBuffer.h"
 #import "TPCircularBuffer.h"
-#include <pthread.h>
+#import <os/lock.h>
 
 @implementation OERingBuffer
-@synthesize bytesWritten;
+{
+    TPCircularBuffer buffer;
+    os_unfair_lock fifoLock;
+    atomic_uint bytesWritten;
+#ifdef DEBUG
+    BOOL suppressRepeatedLog;
+#endif
+}
 
 - (id)init
 {
@@ -41,7 +48,7 @@
     if((self = [super init]))
     {
         TPCircularBufferInit(&buffer, (int)length);
-        pthread_mutex_init(&fifoLock, NULL);
+        fifoLock = OS_UNFAIR_LOCK_INIT;
         _discardPolicy = OERingBufferDiscardPolicyNewest;
     }
     return self;
@@ -50,7 +57,6 @@
 - (void)dealloc
 {
     TPCircularBufferCleanup(&buffer);
-    pthread_mutex_destroy(&fifoLock);
 }
 
 - (NSUInteger)length
@@ -67,8 +73,8 @@
 - (NSUInteger)write:(const void *)inBuffer maxLength:(NSUInteger)length
 {
     NSUInteger res;
-    
-    bytesWritten += length;
+
+    atomic_fetch_add(&bytesWritten, length);
     
     res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
     if (!res) {
@@ -78,8 +84,8 @@
     }
     
     if (!res && _discardPolicy == OERingBufferDiscardPolicyOldest) {
-        pthread_mutex_lock(&fifoLock);
-        
+        os_unfair_lock_lock(&fifoLock);
+
         if (length > buffer.length) {
             NSUInteger discard = length - buffer.length;
             #ifdef DEBUG
@@ -94,7 +100,7 @@
             TPCircularBufferConsume(&buffer, overflow);
         res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
         
-        pthread_mutex_unlock(&fifoLock);
+        os_unfair_lock_unlock(&fifoLock);
     }
 
     return res;
@@ -102,13 +108,14 @@
 
 - (NSUInteger)read:(void *)outBuffer maxLength:(NSUInteger)len
 {
-    int availableBytes = 0;
-    if (_discardPolicy == OERingBufferDiscardPolicyOldest)
-        pthread_mutex_lock(&fifoLock);
+    uint32_t availableBytes = 0;
+    OERingBufferDiscardPolicy discardPolicy = _discardPolicy;
+    if (discardPolicy == OERingBufferDiscardPolicyOldest)
+        os_unfair_lock_lock(&fifoLock);
     
     void *head = TPCircularBufferTail(&buffer, &availableBytes);
 
-    if (self.anticipatesUnderflow) {
+    if (_anticipatesUnderflow) {
         if (availableBytes < 2*len) {
             #ifdef DEBUG
             if (!suppressRepeatedLog) {
@@ -139,14 +146,19 @@
     memcpy(outBuffer, head, availableBytes);
     TPCircularBufferConsume(&buffer, availableBytes);
     
-    if (_discardPolicy == OERingBufferDiscardPolicyOldest)
-        pthread_mutex_unlock(&fifoLock);
+    if (discardPolicy == OERingBufferDiscardPolicyOldest)
+        os_unfair_lock_unlock(&fifoLock);
     return availableBytes;
 }
 
 - (NSUInteger)availableBytes
 {
     return buffer.fillCount;
+}
+
+- (NSUInteger)bytesWritten
+{
+    return atomic_load(&bytesWritten);
 }
 
 - (NSUInteger)freeBytes

@@ -34,13 +34,6 @@ typedef NS_ENUM(NSUInteger, OERingBufferDiscardPolicy) {
 };
 
 @interface OERingBuffer : NSObject <OEAudioBuffer>
-{
-    TPCircularBuffer buffer;
-    pthread_mutex_t fifoLock;
-    #ifdef DEBUG
-    BOOL suppressRepeatedLog;
-    #endif
-}
 
 - (id)initWithLength:(NSUInteger)length;
 
