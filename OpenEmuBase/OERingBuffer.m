@@ -106,49 +106,61 @@
     return res;
 }
 
-- (NSUInteger)read:(void *)outBuffer maxLength:(NSUInteger)len
+static NSUInteger readBuffer(OERingBuffer *buf, void *outBuffer, NSUInteger len)
 {
     uint32_t availableBytes = 0;
-    OERingBufferDiscardPolicy discardPolicy = _discardPolicy;
+    OERingBufferDiscardPolicy discardPolicy = buf->_discardPolicy;
     if (discardPolicy == OERingBufferDiscardPolicyOldest)
-        os_unfair_lock_lock(&fifoLock);
+        os_unfair_lock_lock(&buf->fifoLock);
     
-    void *head = TPCircularBufferTail(&buffer, &availableBytes);
+    void *head = TPCircularBufferTail(&buf->buffer, &availableBytes);
 
-    if (_anticipatesUnderflow) {
+    if (buf->_anticipatesUnderflow) {
         if (availableBytes < 2*len) {
             #ifdef DEBUG
-            if (!suppressRepeatedLog) {
+            if (!buf->suppressRepeatedLog) {
                 NSLog(@"OERingBuffer: available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
-                suppressRepeatedLog = YES;
+                buf->suppressRepeatedLog = YES;
             }
             #endif
             availableBytes = 0;
         } else {
             #ifdef DEBUG
-            suppressRepeatedLog = NO;
+            buf->suppressRepeatedLog = NO;
             #endif
         }
     } else if (availableBytes < len) {
         #ifdef DEBUG
-        if (!suppressRepeatedLog) {
+        if (!buf->suppressRepeatedLog) {
             NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
-            suppressRepeatedLog = YES;
+            buf->suppressRepeatedLog = YES;
         }
         #endif
     } else {
         #ifdef DEBUG
-        suppressRepeatedLog = NO;
+        buf->suppressRepeatedLog = NO;
         #endif
     }
 
     availableBytes = MIN(availableBytes, (int)len);
     memcpy(outBuffer, head, availableBytes);
-    TPCircularBufferConsume(&buffer, availableBytes);
+    TPCircularBufferConsume(&buf->buffer, availableBytes);
     
     if (discardPolicy == OERingBufferDiscardPolicyOldest)
-        os_unfair_lock_unlock(&fifoLock);
+        os_unfair_lock_unlock(&buf->fifoLock);
     return availableBytes;
+}
+
+- (NSUInteger)readBuffer:(void *)outBuffer maxLength:(NSUInteger)len
+{
+    return readBuffer(self, outBuffer, len);
+}
+
+- (OEAudioBufferReadBlock)readBlock
+{
+    return ^(void *buffer, NSUInteger len){
+        return readBuffer(self, buffer, len);
+    };
 }
 
 - (NSUInteger)availableBytes

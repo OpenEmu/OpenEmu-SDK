@@ -622,7 +622,8 @@ static Class GameCoreClass = Nil;
         NSUInteger bytesPerSample = [self audioBitDepth] / 8;
         NSAssert(frameSampleCount, @"frameSampleCount is 0");
         NSUInteger len = channelCount * bytesPerSample * frameSampleCount;
-        len = MAX([self audioBufferSizeForBuffer:index] * 2, len);
+        NSUInteger coreRequestedLen = [self audioBufferSizeForBuffer:index] * 2;
+        len = MAX(coreRequestedLen, len);
         
         result = [[OERingBuffer alloc] initWithLength:len];
         [result setDiscardPolicy:OERingBufferDiscardPolicyOldest];
