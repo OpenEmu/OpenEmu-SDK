@@ -24,6 +24,15 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ Reads the specified amount of bytes into the destination buffer.
+ 
+ @param buffer Pointer to where to store the data after reading.
+ @param bytesRequested Amount of bytes to be read.
+ 
+ @returns The number of bytes read.
+ */
+typedef NSUInteger (^OEAudioBufferReadBlock)(void * buffer, NSUInteger bytesRequested);
 
 @protocol OEAudioBuffer <NSObject>
 
@@ -47,6 +56,13 @@
  * The maximum amount of bytes that can be read at once.
  */
 @property(readonly) NSUInteger length;
+
+@optional
+
+/**
+ Returns a block which can be used to read data from the buffer.
+ */
+- (OEAudioBufferReadBlock)readBlock;
 
 @end
 

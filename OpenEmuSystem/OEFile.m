@@ -37,10 +37,10 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
     return [[OEFile alloc] initWithFileURL:fileURL error:error];
 }
 
-+ (void)registerClass:(Class)class forFileExtension:(NSString *)fileExtension
++ (void)registerClass:(Class)cls forFileExtension:(NSString *)fileExtension
 {
-    NSAssert([class isSubclassOfClass:[OEFile class]], @"Subclass of OEFile required.");
-    extensionToSubclassDictionary[fileExtension] = class;
+    NSAssert([cls isSubclassOfClass:[OEFile class]], @"Subclass of OEFile required.");
+    extensionToSubclassDictionary[fileExtension] = cls;
 }
 
 - (nullable instancetype)initWithFileURL:(NSURL *)fileURL error:(NSError **)error

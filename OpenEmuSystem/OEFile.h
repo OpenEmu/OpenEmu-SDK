@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OEFile : NSObject
 
-+ (void)registerClass:(Class)class forFileExtension:(NSString *)fileExtension;
++ (void)registerClass:(Class)cls forFileExtension:(NSString *)fileExtension;
 + (nullable __kindof OEFile *)fileWithURL:(NSURL *)fileURL error:(NSError **)error;
 
 - (instancetype)init NS_UNAVAILABLE;
