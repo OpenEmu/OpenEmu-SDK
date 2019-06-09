@@ -56,6 +56,7 @@ typedef NSUInteger (^OEAudioBufferReadBlock)(void * buffer, NSUInteger bytesRequ
  * The maximum amount of bytes that can be read at once.
  */
 @property(readonly) NSUInteger length;
+@property(readonly) NSUInteger bytesWritten;
 
 @optional
 

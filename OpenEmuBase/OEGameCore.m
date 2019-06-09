@@ -57,6 +57,8 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     BOOL                    isPausedExecution;
 
     NSTimeInterval          lastRate;
+    NSUInteger              lastBytesWritten;
+    NSUInteger              audioBytesPerSecond;
 
     NSUInteger frameCounter;
 }
@@ -244,6 +246,7 @@ static Class GameCoreClass = Nil;
         [_renderDelegate willExecute];
 
         BOOL executing = _rate > 0 || singleFrameStep || isPausedExecution;
+        NSTimeInterval adjustedRate = _rate ?: 1;
 
         if(executing && isRewinding)
         {
@@ -282,10 +285,20 @@ static Class GameCoreClass = Nil;
             //};
         }
 
-        NSTimeInterval frameInterval = self.frameInterval;
-        NSTimeInterval adjustedRate = _rate ?: 1;
-        NSTimeInterval advance = adjustedRate / frameInterval;
-        nextFrameTime += advance;
+        NSUInteger bytesWritten = [ringBuffers[0] bytesWritten];
+        NSUInteger audioBytesAdvanced = bytesWritten - lastBytesWritten;
+        lastBytesWritten = bytesWritten;
+
+        // Advance time by the number of audio samples produced, or else use -frameInterval.
+        // Audio samples should be more precise since it's an integer value.
+        if (audioBytesAdvanced > 0) {
+            NSTimeInterval advance = (adjustedRate * audioBytesAdvanced) / audioBytesPerSecond;
+            nextFrameTime += advance;
+        } else {
+            NSTimeInterval frameInterval = self.frameInterval;
+            nextFrameTime += adjustedRate / frameInterval;
+        }
+
         frameCounter++;
 
         [_renderDelegate didExecute];
@@ -349,6 +362,7 @@ static Class GameCoreClass = Nil;
 
     [_renderDelegate resumeFPSLimiting];
     self.rate = 1;
+    audioBytesPerSecond = [self audioSampleRateForBuffer:0] * [self channelCount] * ([self audioBitDepth]/8);
 }
 
 #pragma mark - ABSTRACT METHODS
