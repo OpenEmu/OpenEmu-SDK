@@ -27,11 +27,13 @@
 #import "OERingBuffer.h"
 #import "TPCircularBuffer.h"
 #import <os/lock.h>
+#import <os/log.h>
 
 @implementation OERingBuffer
 {
     TPCircularBuffer buffer;
     os_unfair_lock fifoLock;
+    atomic_uint bytesRead;
     atomic_uint bytesWritten;
 #ifdef DEBUG
     BOOL suppressRepeatedLog;
@@ -79,7 +81,8 @@
     res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
     if (!res) {
         #ifdef DEBUG
-        NSLog(@"OERingBuffer: Tried to write %lu bytes, but only %d bytes free", length, buffer.length - buffer.fillCount);
+        NSUInteger freeBytes = self.freeBytes;
+        os_log_error(OS_LOG_DEFAULT, "OERingBuffer: Tried to write %lu bytes, but only %lu bytes free (%lu used)", length, freeBytes, self.availableBytes);
         #endif
     }
     
@@ -89,7 +92,7 @@
         if (length > buffer.length) {
             NSUInteger discard = length - buffer.length;
             #ifdef DEBUG
-            NSLog(@"OERingBuffer: discarding %lu bytes because buffer is too small", discard);
+            os_log_error(OS_LOG_DEFAULT, "OERingBuffer: discarding %lu bytes because buffer is too small (%lu bytes used)", discard, self.availableBytes);
             #endif
             length = buffer.length;
             inBuffer += discard;
@@ -119,7 +122,7 @@ static NSUInteger readBuffer(OERingBuffer *buf, void *outBuffer, NSUInteger len)
         if (availableBytes < 2*len) {
             #ifdef DEBUG
             if (!buf->suppressRepeatedLog) {
-                NSLog(@"OERingBuffer: available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
+                os_log_error(OS_LOG_DEFAULT, "OERingBuffer: available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
                 buf->suppressRepeatedLog = YES;
             }
             #endif
@@ -132,7 +135,7 @@ static NSUInteger readBuffer(OERingBuffer *buf, void *outBuffer, NSUInteger len)
     } else if (availableBytes < len) {
         #ifdef DEBUG
         if (!buf->suppressRepeatedLog) {
-            NSLog(@"OERingBuffer: Tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
+            os_log_error(OS_LOG_DEFAULT, "OERingBuffer: Tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
             buf->suppressRepeatedLog = YES;
         }
         #endif
@@ -148,10 +151,12 @@ static NSUInteger readBuffer(OERingBuffer *buf, void *outBuffer, NSUInteger len)
     
     if (discardPolicy == OERingBufferDiscardPolicyOldest)
         os_unfair_lock_unlock(&buf->fifoLock);
+
+    atomic_fetch_add(&buf->bytesRead, availableBytes);
     return availableBytes;
 }
 
-- (NSUInteger)readBuffer:(void *)outBuffer maxLength:(NSUInteger)len
+- (NSUInteger)read:(void *)outBuffer maxLength:(NSUInteger)len
 {
     return readBuffer(self, outBuffer, len);
 }

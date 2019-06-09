@@ -57,6 +57,8 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     BOOL                    isPausedExecution;
 
     NSTimeInterval          lastRate;
+
+    NSUInteger frameCounter;
 }
 
 @synthesize nextFrameTime;
@@ -284,6 +286,7 @@ static Class GameCoreClass = Nil;
         NSTimeInterval adjustedRate = _rate ?: 1;
         NSTimeInterval advance = adjustedRate / frameInterval;
         nextFrameTime += advance;
+        frameCounter++;
 
         [_renderDelegate didExecute];
 
@@ -617,7 +620,7 @@ static Class GameCoreClass = Nil;
     if(result == nil) {
         /* ring buffer is 0.05 seconds
          * the larger the buffer, the higher the maximum possible audio lag */
-        double frameSampleCount = [self audioSampleRateForBuffer:index] * 0.05;
+        double frameSampleCount = [self audioSampleRateForBuffer:index] * 0.1;
         NSUInteger channelCount = [self channelCountForBuffer:index];
         NSUInteger bytesPerSample = [self audioBitDepth] / 8;
         NSAssert(frameSampleCount, @"frameSampleCount is 0");
