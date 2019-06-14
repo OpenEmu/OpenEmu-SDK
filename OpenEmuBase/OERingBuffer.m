@@ -28,6 +28,7 @@
 #import "TPCircularBuffer.h"
 #import <os/lock.h>
 #import <os/log.h>
+#import "OELogging.h"
 
 @implementation OERingBuffer
 {
@@ -82,7 +83,7 @@
     if (!res) {
         #ifdef DEBUG
         NSUInteger freeBytes = self.freeBytes;
-        os_log_error(OS_LOG_DEFAULT, "OERingBuffer: Tried to write %lu bytes, but only %lu bytes free (%lu used)", length, freeBytes, self.availableBytes);
+        os_log_error(OE_LOG_AUDIO_WRITE, "Tried to write %lu bytes, but only %lu bytes free (%lu used)", length, freeBytes, self.availableBytes);
         #endif
     }
     
@@ -92,7 +93,7 @@
         if (length > buffer.length) {
             NSUInteger discard = length - buffer.length;
             #ifdef DEBUG
-            os_log_error(OS_LOG_DEFAULT, "OERingBuffer: discarding %lu bytes because buffer is too small (%lu bytes used)", discard, self.availableBytes);
+            os_log_error(OE_LOG_AUDIO_WRITE, "discarding %lu bytes because buffer is too small (%lu bytes used)", discard, self.availableBytes);
             #endif
             length = buffer.length;
             inBuffer += discard;
@@ -122,7 +123,7 @@ static NSUInteger readBuffer(OERingBuffer *buf, void *outBuffer, NSUInteger len)
         if (availableBytes < 2*len) {
             #ifdef DEBUG
             if (!buf->suppressRepeatedLog) {
-                os_log_error(OS_LOG_DEFAULT, "OERingBuffer: available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
+                os_log_info(OE_LOG_AUDIO_READ, "available bytes %d <= requested %lu bytes * 2; not returning any byte", availableBytes, len);
                 buf->suppressRepeatedLog = YES;
             }
             #endif
@@ -135,7 +136,7 @@ static NSUInteger readBuffer(OERingBuffer *buf, void *outBuffer, NSUInteger len)
     } else if (availableBytes < len) {
         #ifdef DEBUG
         if (!buf->suppressRepeatedLog) {
-            os_log_error(OS_LOG_DEFAULT, "OERingBuffer: Tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
+            os_log_error(OE_LOG_AUDIO_READ, "tried to consume %lu bytes, but only %d available; will not be logged again until next underflow", len, availableBytes);
             buf->suppressRepeatedLog = YES;
         }
         #endif
