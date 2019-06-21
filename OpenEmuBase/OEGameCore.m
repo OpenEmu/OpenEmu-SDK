@@ -207,10 +207,7 @@ static Class GameCoreClass = Nil;
 
 - (void)runStartUpFrameWithCompletionHandler:(void(^)(void))handler
 {
-    [_renderDelegate willExecute];
-    [self executeFrame];
-    [_renderDelegate didExecute];
-
+    [self OE_executeFrame];
     handler();
 }
 
@@ -241,8 +238,6 @@ static Class GameCoreClass = Nil;
         }
 #endif
 
-        [_renderDelegate willExecute];
-
         BOOL executing = _rate > 0 || singleFrameStep || isPausedExecution;
 
         if(executing && isRewinding)
@@ -254,7 +249,7 @@ static Class GameCoreClass = Nil;
             NSData *state = [[self rewindQueue] pop];
             if(state)
             {
-                [self executeFrame]; // Core callout
+                [self OE_executeFrame]; // Core callout
 
                 [self deserializeState:state withError:nil];
             }
@@ -278,17 +273,15 @@ static Class GameCoreClass = Nil;
                 rewindCounter--;
             }
 
-            [self executeFrame]; // Core callout
+            [self OE_executeFrame]; // Core callout
             //};
         }
 
         NSTimeInterval frameInterval = self.frameInterval;
         NSTimeInterval adjustedRate = _rate ?: 1;
-        NSTimeInterval advance = adjustedRate / frameInterval;
+        NSTimeInterval advance = 1.0 / (frameInterval * adjustedRate);
         nextFrameTime += advance;
         frameCounter++;
-
-        [_renderDelegate didExecute];
 
         // Sleep till next time.
         NSTimeInterval realTime = OEMonotonicTime();
@@ -356,6 +349,13 @@ static Class GameCoreClass = Nil;
 - (void)resetEmulation
 {
     [self doesNotImplementSelector:_cmd];
+}
+
+- (void)OE_executeFrame
+{
+    [_renderDelegate willExecute];
+    [self executeFrame];
+    [_renderDelegate didExecute];
 }
 
 - (void)executeFrame
