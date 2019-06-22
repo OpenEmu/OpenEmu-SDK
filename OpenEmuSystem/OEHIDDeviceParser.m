@@ -469,10 +469,10 @@ typedef enum {
     for(id e in hatSwitchElements) {
         IOHIDElementRef elem = ELEM(e);
 
-        NSDictionary *attr = @{
-                               @kOEHIDElementHatSwitchTypeKey : @([self OE_hatSwitchTypeForElement:elem]),
-                               @kOEHIDElementDeviceIdentifierKey : deviceIdentifier
-                               };
+        NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
+                              @([self OE_hatSwitchTypeForElement:elem]), @kOEHIDElementHatSwitchTypeKey,
+                              deviceIdentifier, @kOEHIDElementDeviceIdentifierKey,
+                              nil];
 
         [attributes setAttributes:attr forElementCookie:IOHIDElementGetCookie(elem)];
         [attributes applyAttributesToElement:elem];
@@ -505,10 +505,10 @@ typedef enum {
         for(id e in posAxisElements) {
             IOHIDElementRef elem = ELEM(e);
 
-            NSDictionary *attr = @{
-                                   @kOEHIDElementIsTriggerKey : @YES,
-                                   @kOEHIDElementDeviceIdentifierKey : deviceIdentifier
-                                   };
+            NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  @YES, @kOEHIDElementIsTriggerKey,
+                                  deviceIdentifier, @kOEHIDElementDeviceIdentifierKey,
+                                  nil];
 
             [attributes setAttributes:attr forElementCookie:IOHIDElementGetCookie(elem)];
             [attributes applyAttributesToElement:elem];
