@@ -661,10 +661,9 @@
 			};
 			buildConfigurationList = C67729E11710A24400ED580A /* Build configuration list for PBXProject "OpenEmu-SDK" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 			);
 			mainGroup = C67729DD1710A24400ED580A;
