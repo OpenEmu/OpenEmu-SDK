@@ -449,7 +449,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
                 [bindingDescription enumerateKeysFromBaseKeyUsingBlock:
                  ^(OEKeyBindingDescription *key, BOOL *stop)
                  {
-                     [_keyMap setSystemKey:[self emulatorKeyForKey:key player:playerNumber]
+                    [self->_keyMap setSystemKey:[self emulatorKeyForKey:key player:playerNumber]
                                   forEvent:[theEvent hatSwitchEventWithDirection:dirs[currentDir % HAT_COUNT]]];
 
                      currentDir++;
@@ -641,7 +641,7 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     {
         if(!(diff & dir)) return;
 
-        OESystemKey *key = [_keyMap systemKeyForEvent:[anEvent hatSwitchEventWithDirection:dir]];
+        OESystemKey *key = [self->_keyMap systemKeyForEvent:[anEvent hatSwitchEventWithDirection:dir]];
         if(key == nil) return;
         
         if([key isAnalogic])

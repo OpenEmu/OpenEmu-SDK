@@ -94,14 +94,14 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 - (void)setSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
 {
     dispatch_barrier_async(_queue, ^{
-        [_keyMap setObject:aKey forKey:anEvent];
+        [self->_keyMap setObject:aKey forKey:anEvent];
     });
 }
 
 - (void)removeSystemKeyForEvent:(OEHIDEvent *)anEvent
 {
     dispatch_barrier_async(_queue, ^{
-        [_keyMap removeObjectForKey:anEvent];
+        [self->_keyMap removeObjectForKey:anEvent];
     });
 }
 

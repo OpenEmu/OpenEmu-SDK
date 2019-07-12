@@ -409,8 +409,8 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 - (void)OE_addDeviceHandler:(__kindof OEDeviceHandler *)handler
 {
     dispatch_barrier_async(_uniqueIdentifiersToDeviceHandlersQueue, ^{
-        OEDeviceHandlerPlaceholder *placeholder = _uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier];
-        _uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier] = handler;
+        OEDeviceHandlerPlaceholder *placeholder = self->_uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier];
+        self->_uniqueIdentifiersToDeviceHandlers[handler.uniqueIdentifier] = handler;
 
         if (![placeholder isKindOfClass:[OEDeviceHandlerPlaceholder class]])
             return;
@@ -463,7 +463,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 - (void)OE_removeDeviceHandler:(__kindof OEDeviceHandler *)handler
 {
     dispatch_barrier_async(_uniqueIdentifiersToDeviceHandlersQueue, ^{
-        [_uniqueIdentifiersToDeviceHandlers removeObjectForKey:handler.uniqueIdentifier];
+        [self->_uniqueIdentifiersToDeviceHandlers removeObjectForKey:handler.uniqueIdentifier];
     });
 
     if([handler isKindOfClass:[OEMultiHIDDeviceHandler class]]) {

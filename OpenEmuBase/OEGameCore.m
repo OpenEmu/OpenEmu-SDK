@@ -316,12 +316,12 @@ static Class GameCoreClass = Nil;
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler;
 {
     [self performBlock:^{
-        _stopEmulationHandler = [completionHandler copy];
+        self->_stopEmulationHandler = [completionHandler copy];
 
         if (self.hasAlternateRenderingThread)
-            [_renderDelegate willRenderFrameOnAlternateThread];
+            [self->_renderDelegate willRenderFrameOnAlternateThread];
         else
-            [_renderDelegate willExecute];
+            [self->_renderDelegate willExecute];
 
         [self stopEmulation];
     }];

@@ -133,18 +133,18 @@ struct OEPatch
         uint32_t nextDelta = currentLongs[datai];
         if (nextLongs[datai] != nextDelta) {
             delta.items[deltai].delta = nextDelta;
-            delta.items[deltai].offset = datai * sizeof(uint32_t);
+            delta.items[deltai].offset = static_cast<uint32_t>(datai * sizeof(uint32_t));
             deltai++;
         }
     }
-    delta.itemCount = deltai;
+    delta.itemCount = static_cast<uint32_t>(deltai);
     
     if (deltai >= maxItems)
         goto fail;
     
     if (datai * sizeof(uint32_t) < currentLength) {
-        delta.overflowLength = currentLength - datai * sizeof(uint32_t);
-        delta.overflowOffset = datai * sizeof(uint32_t);
+        delta.overflowLength = static_cast<uint32_t>(currentLength - datai * sizeof(uint32_t));
+        delta.overflowOffset = static_cast<uint32_t>(datai * sizeof(uint32_t));
         if ((maxItems - deltai) * sizeof(OEDiffData) <= delta.overflowLength)
             goto fail;
         

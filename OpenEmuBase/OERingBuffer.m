@@ -101,7 +101,7 @@
         
         NSInteger overflow = MAX(0, (buffer.fillCount + length) - buffer.length);
         if (overflow > 0)
-            TPCircularBufferConsume(&buffer, overflow);
+            TPCircularBufferConsume(&buffer, (uint32_t)overflow);
         res = TPCircularBufferProduceBytes(&buffer, inBuffer, (int)length);
         
         os_unfair_lock_unlock(&fifoLock);
