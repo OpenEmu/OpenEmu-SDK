@@ -25,4 +25,8 @@
 #import <os/log.h>
 
 extern os_log_t OE_LOG_AUDIO_READ, OE_LOG_AUDIO_WRITE;
+extern os_log_t OE_LOG_CORE_RUN;
+/*! used to track performance of rewind serialization and deserialization
+ */
+extern os_log_t OE_LOG_CORE_REWIND;
 

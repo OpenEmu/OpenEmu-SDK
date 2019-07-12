@@ -56,6 +56,7 @@
  */
 #define OE_EXPORTED_CLASS     __attribute__((visibility("default")))
 #define OE_DEPRECATED(reason) __attribute__((deprecated(reason)))
+#define OE_DEPRECATED_WITH_REPLACEMENT(reason, replacement) __attribute__((deprecated(reason, replacement)))
 
 #pragma mark -
 
@@ -535,7 +536,7 @@ OE_EXPORTED_CLASS
 - (BOOL)rendersToOpenGL OE_DEPRECATED("use -gameCoreRendering");
 @property(readonly) const void *videoBuffer OE_DEPRECATED("use -getVideoBufferWithHint:");
 
-- (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index OE_DEPRECATED("Use -audioBufferAtIndex: instead");
+- (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index OE_DEPRECATED_WITH_REPLACEMENT("", "-audioBufferAtIndex:");
 
 - (void)changeDisplayMode OE_DEPRECATED("use -changeDisplayWithMode:, -displayModes with OEGameCoreDisplayMode* constants, and self.displayModeInfo");
 

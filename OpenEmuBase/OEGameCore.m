@@ -32,6 +32,8 @@
 #import "OEAudioBuffer.h"
 #import "OERingBuffer.h"
 #import "OETimingUtils.h"
+#import "OELogging.h"
+#import <os/signpost.h>
 
 #ifndef BOOL_STR
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
@@ -246,25 +248,33 @@ static Class GameCoreClass = Nil;
                 singleFrameStep = isRewinding = NO;
             }
 
+            os_signpost_interval_begin(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "pop");
             NSData *state = [[self rewindQueue] pop];
+            os_signpost_interval_end(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "pop");
             if(state)
             {
                 [self OE_executeFrame]; // Core callout
 
+                os_signpost_interval_begin(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "deserializeState");
                 [self deserializeState:state withError:nil];
+                os_signpost_interval_end(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "deserializeState");
             }
+            
         }
         else if(executing)
         {
             singleFrameStep = NO;
 
-            //OEPerfMonitorObserve(@"executeFrame", gameInterval, ^{
             if([self supportsRewinding] && rewindCounter == 0)
             {
+                os_signpost_interval_begin(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "serializeState");
                 NSData *state = [self serializeStateWithError:nil];
+                os_signpost_interval_end(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "serializeState");
                 if(state)
                 {
+                    os_signpost_interval_begin(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "push");
                     [[self rewindQueue] push:state];
+                    os_signpost_interval_end(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "push");
                 }
                 rewindCounter = [self rewindInterval];
             }
@@ -274,7 +284,6 @@ static Class GameCoreClass = Nil;
             }
 
             [self OE_executeFrame]; // Core callout
-            //};
         }
 
         NSTimeInterval frameInterval = self.frameInterval;
@@ -353,9 +362,15 @@ static Class GameCoreClass = Nil;
 
 - (void)OE_executeFrame
 {
+    os_signpost_interval_begin(OE_LOG_CORE_RUN, OS_SIGNPOST_ID_EXCLUSIVE, "OE_executeFrame");
     [_renderDelegate willExecute];
+    
+    os_signpost_interval_begin(OE_LOG_CORE_RUN, OS_SIGNPOST_ID_EXCLUSIVE, "executeFrame");
     [self executeFrame];
+    os_signpost_interval_end(OE_LOG_CORE_RUN, OS_SIGNPOST_ID_EXCLUSIVE, "executeFrame");
+    
     [_renderDelegate didExecute];
+    os_signpost_interval_end(OE_LOG_CORE_RUN, OS_SIGNPOST_ID_EXCLUSIVE, "OE_executeFrame");
 }
 
 - (void)executeFrame
