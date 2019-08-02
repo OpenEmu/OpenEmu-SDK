@@ -27,6 +27,6 @@
 
 @interface NSUserDefaults (OpenEmuSDK)
 
-+ (instancetype)oe_applicationUserDefaults;
++ (nonnull instancetype)oe_applicationUserDefaults;
 
 @end
