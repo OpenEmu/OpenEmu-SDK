@@ -956,13 +956,13 @@ static CGEventSourceRef _keyboardEventSource;
 - (NSString *)characters
 {
     NSEvent *event = [self keyboardEvent];
-    return ([event type] == NSKeyDown || [event type] == NSKeyUp) ? [event characters] : @"";
+    return ([event type] == NSEventTypeKeyDown || [event type] == NSEventTypeKeyUp) ? [event characters] : @"";
 }
 
 - (NSString *)charactersIgnoringModifiers
 {
     NSEvent *event = [self keyboardEvent];
-    return ([event type] == NSKeyDown || [event type] == NSKeyUp) ? [event charactersIgnoringModifiers] : @"";
+    return ([event type] == NSEventTypeKeyDown || [event type] == NSEventTypeKeyUp) ? [event charactersIgnoringModifiers] : @"";
 }
 
 - (NSEventModifierFlags)modifierFlags
@@ -983,7 +983,7 @@ static CGEventSourceRef _keyboardEventSource;
 {
     NSString *subs = @"UNKNOWN TYPE";
 
-#define STATE_STR(state) (state == NSOnState ? "On" : "Off")
+#define STATE_STR(state) (state == NSControlStateValueOn ? "On" : "Off")
 #define DIT_STR(dir) (dir == OEHIDEventAxisDirectionNegative ? "Neg" : (dir == OEHIDEventAxisDirectionPositive ? "Pos" : "Nul"))
 
     switch(_type)

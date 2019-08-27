@@ -148,7 +148,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
      {
          OEHIDEvent *theEvent = [OEHIDEvent keyEventWithTimestamp:0
                                                           keyCode:[obj unsignedIntValue]
-                                                            state:NSOnState
+                                                            state:NSControlStateValueOn
                                                            cookie:OEUndefinedCookie];
 
          [bindings assignEvent:theEvent toKeyWithName:key];

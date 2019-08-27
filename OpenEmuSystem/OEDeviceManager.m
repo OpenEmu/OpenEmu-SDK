@@ -319,7 +319,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (void)OE_addKeyboardEventMonitor;
 {
-    _keyEventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask | NSKeyUpMask handler:^ NSEvent * (NSEvent *anEvent) {
+    _keyEventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown | NSEventMaskKeyUp handler:^ NSEvent * (NSEvent *anEvent) {
         /* Events with a process ID of 0 comes from the system, that is from the physical keyboard.
          * These events are already managed by their own device handler.
          * The events managed through this monitor are events coming from different applications.
@@ -327,14 +327,14 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         if(CGEventGetIntegerValueField([anEvent CGEvent], kCGEventSourceUnixProcessID) == 0)
             return anEvent;
 
-        OEHIDEvent *event = [OEHIDEvent keyEventWithTimestamp:[anEvent timestamp] keyCode:[OEHIDEvent keyCodeForVirtualKey:[anEvent keyCode]] state:[anEvent type] == NSKeyDown cookie:OEUndefinedCookie];
+        OEHIDEvent *event = [OEHIDEvent keyEventWithTimestamp:[anEvent timestamp] keyCode:[OEHIDEvent keyCodeForVirtualKey:[anEvent keyCode]] state:[anEvent type] == NSEventTypeKeyDown cookie:OEUndefinedCookie];
         [[OEDeviceManager sharedDeviceManager] deviceHandler:nil didReceiveEvent:event];
 
         return anEvent;
     }];
 
     _modifierMaskMonitor =
-    [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^ NSEvent * (NSEvent *anEvent) {
+    [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged handler:^ NSEvent * (NSEvent *anEvent) {
         /* Events with a process ID of 0 comes from the system, that is from the physical keyboard.
          * These events are already managed by their own device handler.
          * The events managed through this monitor are events coming from different applications.
@@ -346,7 +346,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         NSUInteger keyMask = 0;
 
         switch(keyCode) {
-            case kHIDUsage_KeyboardCapsLock : keyMask = NSAlphaShiftKeyMask; break;
+            case kHIDUsage_KeyboardCapsLock : keyMask = NSEventModifierFlagCapsLock; break;
 
             case kHIDUsage_KeyboardLeftControl : keyMask = 0x0001; break;
             case kHIDUsage_KeyboardLeftShift : keyMask = 0x0002; break;

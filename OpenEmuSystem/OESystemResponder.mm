@@ -671,21 +671,21 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     [_client performBlock:^{
         switch([event type])
         {
-            case NSLeftMouseDown :
-            case NSLeftMouseDragged :
+            case NSEventTypeLeftMouseDown :
+            case NSEventTypeLeftMouseDragged :
                 [self mouseDownAtPoint:point];
                 break;
-            case NSLeftMouseUp :
+            case NSEventTypeLeftMouseUp :
                 [self mouseUpAtPoint];
                 break;
-            case NSRightMouseDown :
-            case NSRightMouseDragged :
+            case NSEventTypeRightMouseDown :
+            case NSEventTypeRightMouseDragged :
                 [self rightMouseDownAtPoint:point];
                 break;
-            case NSRightMouseUp :
+            case NSEventTypeRightMouseUp :
                 [self rightMouseUpAtPoint];
                 break;
-            case NSMouseMoved :
+            case NSEventTypeMouseMoved :
                 [self mouseMovedAtPoint:point];
                 break;
             default :
