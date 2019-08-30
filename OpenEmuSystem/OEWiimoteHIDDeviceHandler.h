@@ -64,6 +64,8 @@ extern NSString *const OEWiimoteDeviceHandlerDidDisconnectNotification;
 @property(nonatomic, getter=isExpansionPortEnabled)            BOOL expansionPortEnabled;
 @property(nonatomic, getter=isExpansionPortAttached, readonly) BOOL expansionPortAttached;
 
++ (BOOL)canHandleDeviceWithName:(NSString *)name;
+
 @end
 
 NS_ASSUME_NONNULL_END

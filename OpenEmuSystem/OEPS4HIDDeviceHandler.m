@@ -35,6 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation OEPS4HIDDeviceHandler {
 }
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)device
+{
+    NSString *deviceName = (__bridge id)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    return [deviceName hasPrefix:@"PLAYSTATION(R)3 Controller"];
+}
+
 - (BOOL)connect
 {
     // Unfortunately, HID stops responding after sending an output report.

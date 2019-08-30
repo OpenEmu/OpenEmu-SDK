@@ -308,6 +308,17 @@ static void OE_wiimoteIOHIDReportCallback(void            *context,
     return parser;
 }
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)device
+{
+    NSString *deviceName = (__bridge id)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    return [self canHandleDeviceWithName:deviceName];
+}
+
++ (BOOL)canHandleDeviceWithName:(NSString *)name
+{
+    return [name hasPrefix:@"Nintendo RVL-CNT-01"];
+}
+
 - (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription
 {
     if((self = [super initWithIOHIDDevice:aDevice deviceDescription:deviceDescription]))

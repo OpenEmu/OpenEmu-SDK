@@ -60,26 +60,6 @@ NSString *const OEDeviceManagerDeviceHandlerUserInfoKey           = @"OEDeviceMa
 
 static void OEHandle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
 
-static BOOL OE_isWiimoteControllerName(NSString *name)
-{
-    return [name hasPrefix:@"Nintendo RVL-CNT-01"];
-}
-
-static BOOL OE_isPS3ControllerName(NSString *name)
-{
-    return [name hasPrefix:@"PLAYSTATION(R)3 Controller"];
-}
-
-static BOOL OE_isPS4ControllerName(NSString *name)
-{
-    return [name hasPrefix:@"Wireless Controller"];
-}
-
-static BOOL OE_isXboxControllerName(NSString *name)
-{
-    return [name isEqualToString:@"Controller"];
-}
-
 static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePairSyncStyleKey;
 
 @interface IOBluetoothDevicePair (SyncStyle)
@@ -564,7 +544,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         // Check to make sure BT device name has Wiimote prefix. Note that there are multiple
         // possible device names ("Nintendo RVL-CNT-01" and "Nintendo RVL-CNT-01-TR" at the
         // time of writing), so we don't do an exact string match.
-        if(!OE_isWiimoteControllerName([obj name]))
+        if(![OEWiimoteHIDDeviceHandler canHandleDeviceWithName:[obj name]])
             return;
 
         [obj openConnection];

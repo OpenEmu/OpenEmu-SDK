@@ -68,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
     return parser;
 }
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)device
+{
+    return YES;
+}
+
 - (instancetype)initWithDeviceDescription:(nullable OEDeviceDescription *)deviceDescription
 {
     return nil;

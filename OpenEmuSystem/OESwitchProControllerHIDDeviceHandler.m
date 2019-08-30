@@ -177,6 +177,22 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)aDevice
+{
+    NSString *deviceName = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDProductKey));
+    
+    if ([deviceName isEqualToString:@"Pro Controller"]) {
+        NSNumber *vid = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDVendorIDKey));
+        NSNumber *pid = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDProductIDKey));
+        if ([vid integerValue] == 0x57E && [pid integerValue] == 0x2009) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
+
 - (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription
 {
     self = [super initWithIOHIDDevice:aDevice deviceDescription:deviceDescription];

@@ -18,6 +18,12 @@ NS_ASSUME_NONNULL_BEGIN
     uint8_t _reportBuffer[128];
 }
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)device
+{
+    NSString *deviceName = (__bridge id)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    return [deviceName hasPrefix:@"Wireless Controller"];
+}
+
 - (BOOL)connect
 {
     

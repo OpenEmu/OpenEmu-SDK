@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<OEHIDDeviceParser>)deviceParser;
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)device;
+
 - (instancetype)initWithDeviceDescription:(nullable OEDeviceDescription *)deviceDescription NS_UNAVAILABLE;
 - (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription NS_DESIGNATED_INITIALIZER;
 

@@ -48,26 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)OE_eventWithElement:(IOHIDElementRef)element value:(NSInteger)value;
 @end
 
-static BOOL OE_isWiimoteControllerName(NSString *name)
-{
-    return [name hasPrefix:@"Nintendo RVL-CNT-01"];
-}
-
-static BOOL OE_isPS3ControllerName(NSString *name)
-{
-    return [name hasPrefix:@"PLAYSTATION(R)3 Controller"];
-}
-
-static BOOL OE_isPS4ControllerName(NSString *name)
-{
-    return [name hasPrefix:@"Wireless Controller"];
-}
-
-static BOOL OE_isXboxControllerName(NSString *name)
-{
-    return [name isEqualToString:@"Controller"];
-}
-
 @interface _OEHIDDeviceAttributes : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -115,24 +95,16 @@ static BOOL OE_isXboxControllerName(NSString *name)
 
 - (Class)OE_deviceHandlerClassForIOHIDDevice:(IOHIDDeviceRef)aDevice
 {
-    NSString *deviceName = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDProductKey));
-
-    if(OE_isWiimoteControllerName(deviceName))
+    if([OEWiimoteHIDDeviceHandler canHandleDevice:aDevice])
         return [OEWiimoteHIDDeviceHandler class];
-    else if(OE_isPS3ControllerName(deviceName))
+    else if([OEPS3HIDDeviceHandler canHandleDevice:aDevice])
         return [OEPS3HIDDeviceHandler class];
-    else if(OE_isPS4ControllerName(deviceName))
+    else if([OEPS4HIDDeviceHandler canHandleDevice:aDevice])
         return [OEPS4HIDDeviceHandler class];
-    else if(OE_isXboxControllerName(deviceName))
+    else if([OEXBox360HIDDeviceHander canHandleDevice:aDevice])
         return [OEXBox360HIDDeviceHander class];
-    
-    if ([deviceName isEqualToString:@"Pro Controller"]) {
-        NSNumber *vid = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDVendorIDKey));
-        NSNumber *pid = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDProductIDKey));
-        if ([vid integerValue] == 0x57E && [pid integerValue] == 0x2009) {
-            return [OESwitchProControllerHIDDeviceHandler class];
-        }
-    }
+    else if ([OESwitchProControllerHIDDeviceHandler canHandleDevice:aDevice])
+        return [OESwitchProControllerHIDDeviceHandler class];
 
     return [OEHIDDeviceHandler class];
 }

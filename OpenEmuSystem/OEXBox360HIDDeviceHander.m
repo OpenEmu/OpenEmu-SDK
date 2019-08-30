@@ -16,6 +16,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation OEXBox360HIDDeviceHander
 
++ (BOOL)canHandleDevice:(IOHIDDeviceRef)device
+{
+    NSString *deviceName = (__bridge id)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    return [deviceName isEqualToString:@"Controller"];
+}
+
 - (void)setDeviceNumber:(NSUInteger)deviceNumber
 {
     // see: http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/UsbInfo#toc3
