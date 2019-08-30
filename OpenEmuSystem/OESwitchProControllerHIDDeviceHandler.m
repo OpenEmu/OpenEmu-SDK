@@ -152,6 +152,10 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     maxdelta = OEHACUnpackPair(packed_maxdelta);
     zero = OEHACUnpackPair(packed_zero);
     mindelta = OEHACUnpackPair(packed_mindelta);
+    
+    /* The calibration data is specified in the reference system used by
+     * Nintendo's proprietary button status reports. Nintendo's reference
+     * system flips the Y axis with respect to the HID specification. */
     res.x.max = (zero.x + maxdelta.x) << 4;
     res.x.zero = zero.x << 4;
     res.x.min = (zero.x - mindelta.x) << 4;
@@ -228,7 +232,41 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-#pragma mark - Event Parsing
+#pragma mark - Calibration
+
+
+- (void)_requestCalibrationData
+{
+    dispatch_async(_auxCommQueue, ^{
+        NSData *fact = [self _requestSPIFlashReadAtAddress:OEHACFactoryStickCalibrationDataAddress length:sizeof(OEHACFactoryStickCalibrationData)];
+        if (!fact) {
+            NSLog(@"cannot read stick calibration data from SPI flash!");
+            return;
+        }
+        const OEHACFactoryStickCalibrationData *calibData = fact.bytes;
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            self->_leftStickCalibration = OEHACConvertCalibration(calibData->left_maxDelta, calibData->left_zero, calibData->left_minDelta);
+            self->_rightStickCalibration = OEHACConvertCalibration(calibData->right_maxDelta, calibData->right_zero, calibData->right_minDelta);
+            
+            NSLog(@"Loaded calibration successfully for Switch Pro Controller %@", self);
+            NSLog(@"Left stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
+                (int)self->_leftStickCalibration.x.max,
+                (int)self->_leftStickCalibration.y.max,
+                (int)self->_leftStickCalibration.x.zero,
+                (int)self->_leftStickCalibration.y.zero,
+                (int)self->_leftStickCalibration.x.min,
+                (int)self->_leftStickCalibration.y.min);
+            NSLog(@"Right stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
+                (int)self->_rightStickCalibration.x.max,
+                (int)self->_rightStickCalibration.y.max,
+                (int)self->_rightStickCalibration.x.zero,
+                (int)self->_rightStickCalibration.y.zero,
+                (int)self->_rightStickCalibration.x.min,
+                (int)self->_rightStickCalibration.y.min);
+        });
+    });
+}
 
 
 - (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie
@@ -266,54 +304,13 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-#pragma mark - Send Custom HID Reports
+#pragma mark - Controller-Specific functionality
 
 
 - (void)_setPlayerLights:(uint8_t)mask
 {
     dispatch_async(_auxCommQueue, ^{
         [self _sendSubcommand:OEHACSubcmdSetPlayerLights withData:&mask length:1];
-    });
-}
-
-
-- (void)_requestCalibrationData
-{
-    dispatch_async(_auxCommQueue, ^{
-        NSData *tmp = [self _requestSPIFlashReadAtAddress:0x6086 length:(0x6098-0x6086)];
-        NSLog(@"param = %@", tmp);
-        
-        NSData *fact = [self _requestSPIFlashReadAtAddress:OEHACFactoryStickCalibrationDataAddress length:sizeof(OEHACFactoryStickCalibrationData)];
-        if (!fact) {
-            NSLog(@"cannot read stick calibration data from SPI flash!");
-            return;
-        }
-        
-        /* The calibration data is specified in the reference system used by
-         * Nintendo's proprietary button status reports. Nintendo's reference
-         * system flips the Y axis with respect to the HID specification. */
-        const OEHACFactoryStickCalibrationData *calibData = fact.bytes;
-        
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            self->_leftStickCalibration = OEHACConvertCalibration(calibData->left_maxDelta, calibData->left_zero, calibData->left_minDelta);
-            self->_rightStickCalibration = OEHACConvertCalibration(calibData->right_maxDelta, calibData->right_zero, calibData->right_minDelta);
-            
-            NSLog(@"Loaded calibration successfully for Switch Pro Controller %@", self);
-            NSLog(@"Left stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
-                (int)self->_leftStickCalibration.x.max,
-                (int)self->_leftStickCalibration.y.max,
-                (int)self->_leftStickCalibration.x.zero,
-                (int)self->_leftStickCalibration.y.zero,
-                (int)self->_leftStickCalibration.x.min,
-                (int)self->_leftStickCalibration.y.min);
-            NSLog(@"Right stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
-                (int)self->_rightStickCalibration.x.max,
-                (int)self->_rightStickCalibration.y.max,
-                (int)self->_rightStickCalibration.x.zero,
-                (int)self->_rightStickCalibration.y.zero,
-                (int)self->_rightStickCalibration.x.min,
-                (int)self->_rightStickCalibration.y.min);
-        });
     });
 }
 
@@ -326,6 +323,10 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
+#pragma mark - Custom HID Reports Send/Receive Primitives
+
+
+/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_requestSPIFlashReadAtAddress:(uint32_t)in_base length:(uint8_t)in_len
 {
     NSAssert(in_len <= 29, @"cannot read more than 29 bytes from SPI Flash at a time");
@@ -355,6 +356,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
+/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_sendSubcommand:(uint8_t)cmdid withData:(const void *)data length:(NSUInteger)length
 {
     uint8_t buffer[0x40] = { 0 };
@@ -404,9 +406,6 @@ fail:
     
     return ack;
 }
-
-
-#pragma mark - Receive Custom HID Reports
 
 
 - (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
