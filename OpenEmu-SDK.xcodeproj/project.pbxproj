@@ -12,6 +12,8 @@
 		011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 011829A620ACA8AA0030B347 /* OEAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0166211220D8522700D0368A /* OETouchbarHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */; };
 		0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */; };
+		01A9FD2523187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */; };
+		01A9FD2623187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 01A9FD2423187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m */; };
 		01F306FB20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */; };
 		05FF41B822B08C5F00BB7283 /* OELogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 05FF41B622B08C5F00BB7283 /* OELogging.m */; };
@@ -139,6 +141,8 @@
 		011829A620ACA8AA0030B347 /* OEAudioBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEAudioBuffer.h; sourceTree = "<group>"; };
 		0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OETouchbarHIDDeviceHandler.h; sourceTree = "<group>"; };
 		0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OETouchbarHIDDeviceHandler.m; sourceTree = "<group>"; };
+		01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OESwitchProControllerHIDDeviceHandler.h; sourceTree = "<group>"; };
+		01A9FD2423187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OESwitchProControllerHIDDeviceHandler.m; sourceTree = "<group>"; };
 		01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+OpenEmuSDK.h"; sourceTree = "<group>"; };
 		01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+OpenEmuSDK.m"; sourceTree = "<group>"; };
 		05FF41B622B08C5F00BB7283 /* OELogging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OELogging.m; sourceTree = "<group>"; };
@@ -475,14 +479,16 @@
 		C6772BDB1710E2E900ED580A /* HID Device Handlers */ = {
 			isa = PBXGroup;
 			children = (
+				C6772BAB1710E28900ED580A /* OEHIDDeviceParser.h */,
+				C6772BAC1710E28900ED580A /* OEHIDDeviceParser.m */,
 				C6772BA51710E28900ED580A /* OEHIDDeviceHandler.h */,
 				C6772BA61710E28900ED580A /* OEHIDDeviceHandler.m */,
 				C6772BA71710E28900ED580A /* OEMultiHIDDeviceHandler.h */,
 				C6772BA81710E28900ED580A /* OEMultiHIDDeviceHandler.m */,
 				C6772BA91710E28900ED580A /* OEWiimoteHIDDeviceHandler.h */,
 				C6772BAA1710E28900ED580A /* OEWiimoteHIDDeviceHandler.m */,
-				C6772BAB1710E28900ED580A /* OEHIDDeviceParser.h */,
-				C6772BAC1710E28900ED580A /* OEHIDDeviceParser.m */,
+				01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */,
+				01A9FD2423187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m */,
 				C6772BB21710E28900ED580A /* OEPS3HIDDeviceHandler.h */,
 				C6772BB31710E28900ED580A /* OEPS3HIDDeviceHandler.m */,
 				878B34C420C4AD0000A174B0 /* OEPS4HIDDeviceHandler.h */,
@@ -571,6 +577,7 @@
 				C6772B791710E21900ED580A /* OESystemController.h in Headers */,
 				C6F16C4C1D73582C008E0C57 /* OEFile.h in Headers */,
 				C6772B7B1710E21900ED580A /* OESystemResponder.h in Headers */,
+				01A9FD2523187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h in Headers */,
 				C6605B841D725B0D009C7E91 /* OEM3UFile.h in Headers */,
 				C6772B971710E25300ED580A /* OEBindingsController_Internal.h in Headers */,
 				C6772BD31710E29C00ED580A /* OEControllerDescription_Internal.h in Headers */,
@@ -742,6 +749,7 @@
 				C6772B881710E22C00ED580A /* OECUESheet.m in Sources */,
 				C6605B891D7260E3009C7E91 /* OEDiscDescriptor.m in Sources */,
 				878203EB21C4A09900C1C2C9 /* OEDreamcastGDI.m in Sources */,
+				01A9FD2623187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m in Sources */,
 				C6772B961710E25300ED580A /* OEBindingsController.m in Sources */,
 				C6772B991710E25300ED580A /* OEKeyBindingGroupDescription.m in Sources */,
 				C6F16C4D1D73582C008E0C57 /* OEFile.m in Sources */,
@@ -925,7 +933,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				ENABLE_TESTABILITY = NO;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -944,6 +951,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -962,7 +970,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				ENABLE_TESTABILITY = NO;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -981,6 +988,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;

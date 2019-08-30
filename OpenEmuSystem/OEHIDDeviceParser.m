@@ -35,6 +35,7 @@
 #import "OEPS4HIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OEWiimoteHIDDeviceHandler.h"
+#import "OESwitchProControllerHIDDeviceHandler.h"
 #import "OEControllerDescription_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -124,6 +125,14 @@ static BOOL OE_isXboxControllerName(NSString *name)
         return [OEPS4HIDDeviceHandler class];
     else if(OE_isXboxControllerName(deviceName))
         return [OEXBox360HIDDeviceHander class];
+    
+    if ([deviceName isEqualToString:@"Pro Controller"]) {
+        NSNumber *vid = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDVendorIDKey));
+        NSNumber *pid = (__bridge id)IOHIDDeviceGetProperty(aDevice, CFSTR(kIOHIDProductIDKey));
+        if ([vid integerValue] == 0x57E && [pid integerValue] == 0x2009) {
+            return [OESwitchProControllerHIDDeviceHandler class];
+        }
+    }
 
     return [OEHIDDeviceHandler class];
 }
