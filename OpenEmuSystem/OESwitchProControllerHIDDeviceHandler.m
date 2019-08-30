@@ -32,8 +32,26 @@
 
 #define MAX_INPUT_REPORT_SIZE (256)
 
+//#define LOG_INPUT_REPORTS
 
-enum {
+
+typedef NS_ENUM(uint8_t, OEHACInputReportID) {
+    OEHACInputReportIDSubcommandReply = 0x21,
+    OEHACInputReportIDNFCIRFirmwareUpdateReply = 0x23,
+    OEHACInputReportIDFullReport = 0x30,
+    OEHACInputReportIDNFCIRReport = 0x31,
+    OEHACInputReportIDSimpleHIDReport = 0x3F
+};
+
+typedef NS_ENUM(uint8_t, OEHACOuputReportID) {
+    OEHACOutputReportIDRumbleAndSubcommand = 0x01,
+    OEHACOutputReportIDNFCIRFirmwareUpdatePacket = 0x03,
+    OEHACOutputReportIDRumble = 0x10,
+    OEHACOutputReportIDNFCIR = 0x11,
+};
+
+
+typedef NS_ENUM(uint8_t, OEHACSubcommandID) {
     OEHACSubcmdNoop = 0,
     OEHACSubcmdManualPairing,
     OEHACSubcmdRequestDeviceInfo,
@@ -55,8 +73,25 @@ enum {
 };
 
 
+typedef NS_ENUM(uint8_t, OEHACPowerState) {
+    OEHACPowerStateSleep = 0,
+    OEHACPowerStateResetAndReconnect = 1,
+    OEHACPowerStateResetToPairMode = 2,
+    OEHACPowerStateResetToHOMEMode = 4
+};
+
+
 typedef struct __attribute__((packed)) {
-    uint8_t reportID;
+    OEHACOuputReportID reportID;
+    uint8_t seqNumber;
+    uint8_t rumbleData[8];
+    OEHACSubcommandID subcmdID;
+    uint8_t subcmdParam[0x35];
+} OEHACRumbleAndSubcommandOutputReport;
+
+
+typedef struct __attribute__((packed)) {
+    OEHACInputReportID reportID;
     uint8_t seqNumber;
     uint8_t chargingStatus;
     uint8_t buttons[3];
@@ -68,7 +103,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
     OEHACStandardHIDInputReport parent;
     uint8_t ackStatus;
-    uint8_t repliedSubcmdId;
+    OEHACSubcommandID repliedSubcmdId;
     uint8_t reply[34];
 } OEHACAcknowledgmentHIDInputReport;
 
@@ -228,7 +263,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (void)disconnect
 {
-    [self _setPlayerLights:0x00];
+    [self _setPowerState:OEHACPowerStateSleep];
 }
 
 
@@ -323,6 +358,12 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
+- (void)_setPowerState:(OEHACPowerState)powerState
+{
+    [self _sendOneWaySubcommand:OEHACSubcmdSetPowerState withData:&powerState length:1];
+}
+
+
 #pragma mark - Custom HID Reports Send/Receive Primitives
 
 
@@ -357,23 +398,25 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 
 /* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
-- (NSData *)_sendSubcommand:(uint8_t)cmdid withData:(const void *)data length:(NSUInteger)length
+- (NSData *)_sendSubcommand:(OEHACSubcommandID)cmdid withData:(const void *)data length:(NSUInteger)length
 {
-    uint8_t buffer[0x40] = { 0 };
-    buffer[0] = 0x1;
-    buffer[1] = _packetCounter;
+    OEHACRumbleAndSubcommandOutputReport report = {0};
+    NSAssert(length < sizeof(report.subcmdParam), @"too much data for a single report");
+    
+    report.reportID = OEHACOutputReportIDRumbleAndSubcommand;
+    report.seqNumber = _packetCounter;
     _packetCounter = (_packetCounter + 1) & 0xF;
-    buffer[10] = cmdid;
+    report.subcmdID = cmdid;
     if (data)
-        memcpy(buffer + 11, data, length);
+        memcpy(report.subcmdParam, data, length);
     
     NSData *ack;
 
     [_responseAvailable lock];
     
     _currentResponse = nil;
-    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, 0x1, buffer, 0x40);
-    if  (ret != kIOReturnSuccess) {
+    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
+    if (ret != kIOReturnSuccess) {
         NSLog(@"Could not send command, error: %x", ret);
         goto fail;
     }
@@ -408,19 +451,42 @@ fail:
 }
 
 
-- (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
+- (BOOL)_sendOneWaySubcommand:(OEHACSubcommandID)cmdid withData:(const void *)data length:(NSUInteger)length
 {
-    if (data[0] != 0x21) {
-        #ifdef DEBUG
-        if (data[0] != 0x3F) {
-            NSLog(@"non-ack report %@", [NSData dataWithBytes:data length:length]);
-        }
+    OEHACRumbleAndSubcommandOutputReport report = {0};
+    NSAssert(length < sizeof(report.subcmdParam), @"too much data for a single report");
+    
+    report.reportID = OEHACOutputReportIDRumbleAndSubcommand;
+    report.seqNumber = _packetCounter;
+    _packetCounter = (_packetCounter + 1) & 0xF;
+    report.subcmdID = cmdid;
+    if (data)
+        memcpy(report.subcmdParam, data, length);
+    
+    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
+    if (ret != kIOReturnSuccess) {
+        NSLog(@"Could not send command, error: %x", ret);
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+- (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
+{   
+    if (data[0] != OEHACInputReportIDSubcommandReply) {
+        #ifdef LOG_INPUT_REPORTS
+        NSLog(@"non-ack report %@", [NSData dataWithBytes:data length:length]);
         #endif
         return;
     }
     
     [_responseAvailable lock];
     _currentResponse = [NSData dataWithBytes:data length:length];
+    #ifdef LOG_INPUT_REPORTS
+    NSLog(@"ack report %@", _currentResponse);
+    #endif
     [_responseAvailable signal];
     [_responseAvailable unlock];
 }
