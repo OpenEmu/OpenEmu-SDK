@@ -30,9 +30,9 @@
 #import <IOKit/hid/IOHIDUsageTables.h>
 #import <ForceFeedback/ForceFeedback.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#import "OEHIDEvent.h"
 
-@class OEHIDEvent;
+NS_ASSUME_NONNULL_BEGIN
 
 #define kOEHIDElementIsTriggerKey        "OEHIDElementIsTrigger"
 #define kOEHIDElementHatSwitchTypeKey    "OEHIDElementHatSwitchType"
@@ -84,6 +84,8 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 - (CGFloat)deadZoneForControlCookie:(NSUInteger)controlCookie;
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 - (void)setDeadZone:(CGFloat)deadZone forControlDescription:(OEControlDescription *)controlDesc;
+
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie;
 
 @end
 

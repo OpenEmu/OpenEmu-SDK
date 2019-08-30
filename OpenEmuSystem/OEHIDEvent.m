@@ -742,9 +742,13 @@ static CGEventSourceRef _keyboardEventSource;
         case OEHIDEventTypeAxis :
         {
             CGFloat deadZone = [aDeviceHandler deadZoneForControlCookie:_cookie];
-            CGFloat scaledValue = _OEScaledValueForAxis(IOHIDElementGetLogicalMin(elem),
-                                                        value,
-                                                        IOHIDElementGetLogicalMax(elem));
+            CGFloat scaledValue = [aDeviceHandler scaledValue:value forAxis:_data.axis.axis controlCookie:_cookie];
+            if (scaledValue < -1.001 || scaledValue > 1.001) {
+                /* device handler does not handle scaling */
+                scaledValue = _OEScaledValueForAxis(IOHIDElementGetLogicalMin(elem),
+                                                    value,
+                                                    IOHIDElementGetLogicalMax(elem));
+            }
 
             if(-deadZone <= scaledValue && scaledValue <= deadZone)
                 scaledValue = 0.0;

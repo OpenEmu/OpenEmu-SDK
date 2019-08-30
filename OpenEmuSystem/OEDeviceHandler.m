@@ -190,6 +190,12 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     _deadZones[@([[controlDesc genericEvent] cookie])] = @(deadZone);
 }
 
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie
+{
+    FIXME("move all scaling logic here from OEHIDEvent in a *clean* way");
+    return -100;
+}
+
 @end
 
 @implementation OEDeviceHandlerPlaceholder {
