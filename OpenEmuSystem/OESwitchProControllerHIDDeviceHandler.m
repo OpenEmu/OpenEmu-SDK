@@ -257,13 +257,18 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     
     [self _setPlayerLights:0x0F];
     [self _requestCalibrationData];
+    
+    if ([[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"]) {
+        /* we don't want to disconnect the controller every time the helper app terminates,
+         * just when OpenEmu closes */
+        NSNotificationCenter * __weak nc = [NSNotificationCenter defaultCenter];
+        id __block token = [nc addObserverForName:NSApplicationWillTerminateNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+            [self _setPowerState:OEHACPowerStateSleep];
+            [nc removeObserver:token];
+        }];
+    }
+    
     return YES;
-}
-
-
-- (void)disconnect
-{
-    [self _setPowerState:OEHACPowerStateSleep];
 }
 
 
@@ -332,7 +337,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
         res /= (CGFloat)(selectedCalibration->max - selectedCalibration->zero);
     }
     
-    /* the factory calibration is a bit conservative at the edges; compensate for that */
+    /* the factory calibration is a bit generous at the edges; compensate for that */
     res /= 0.90;
     
     return MAX(-1, MIN(res, 1));
