@@ -277,10 +277,8 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     
     uint8_t _reportBuffer[MAX_INPUT_REPORT_SIZE];
     uint8_t _packetCounter;
-    dispatch_queue_t _auxCommQueue;
     
     NSData *_currentResponse;
-    NSCondition *_responseAvailable;
     
     OEHACProControllerStickCalibration _leftStickCalibration;
     OEHACProControllerStickCalibration _rightStickCalibration;
@@ -333,8 +331,6 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (BOOL)connect
 {
-    _auxCommQueue = dispatch_queue_create("OEHACProControllerHIDDeviceHandler Bidirectional Communication", NULL);
-    _responseAvailable = [[NSCondition alloc] init];
     IOHIDDeviceRegisterInputReportCallback([self device], _reportBuffer, MAX_INPUT_REPORT_SIZE, OEHACProControllerHIDReportCallback, (__bridge void *)self);
     
     NSString *transport = IOHIDDeviceGetProperty([self device], CFSTR(kIOHIDTransportKey));
@@ -366,35 +362,31 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (void)_requestCalibrationData
 {
-    dispatch_async(_auxCommQueue, ^{
-        NSData *fact = [self _requestSPIFlashReadAtAddress:OEHACFactoryStickCalibrationDataAddress length:sizeof(OEHACFactoryStickCalibrationData)];
-        if (!fact) {
-            NSLog(@"[dev %p] cannot read stick calibration data from SPI flash!", self);
-            return;
-        }
-        const OEHACFactoryStickCalibrationData *calibData = fact.bytes;
-        
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            self->_leftStickCalibration = OEHACConvertCalibration(calibData->left_maxDelta, calibData->left_zero, calibData->left_minDelta);
-            self->_rightStickCalibration = OEHACConvertCalibration(calibData->right_maxDelta, calibData->right_zero, calibData->right_minDelta);
-            
-            NSLog(@"Loaded calibration successfully for Switch Pro Controller %@", self);
-            NSLog(@"Left stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
-                (int)self->_leftStickCalibration.x.max,
-                (int)self->_leftStickCalibration.y.max,
-                (int)self->_leftStickCalibration.x.zero,
-                (int)self->_leftStickCalibration.y.zero,
-                (int)self->_leftStickCalibration.x.min,
-                (int)self->_leftStickCalibration.y.min);
-            NSLog(@"Right stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
-                (int)self->_rightStickCalibration.x.max,
-                (int)self->_rightStickCalibration.y.max,
-                (int)self->_rightStickCalibration.x.zero,
-                (int)self->_rightStickCalibration.y.zero,
-                (int)self->_rightStickCalibration.x.min,
-                (int)self->_rightStickCalibration.y.min);
-        });
-    });
+    NSData *fact = [self _requestSPIFlashReadAtAddress:OEHACFactoryStickCalibrationDataAddress length:sizeof(OEHACFactoryStickCalibrationData)];
+    if (!fact) {
+        NSLog(@"[dev %p] cannot read stick calibration data from SPI flash!", self);
+        return;
+    }
+    const OEHACFactoryStickCalibrationData *calibData = fact.bytes;
+    
+    self->_leftStickCalibration = OEHACConvertCalibration(calibData->left_maxDelta, calibData->left_zero, calibData->left_minDelta);
+    self->_rightStickCalibration = OEHACConvertCalibration(calibData->right_maxDelta, calibData->right_zero, calibData->right_minDelta);
+    
+    NSLog(@"Loaded calibration successfully for Switch Pro Controller %@", self);
+    NSLog(@"Left stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
+        (int)self->_leftStickCalibration.x.max,
+        (int)self->_leftStickCalibration.y.max,
+        (int)self->_leftStickCalibration.x.zero,
+        (int)self->_leftStickCalibration.y.zero,
+        (int)self->_leftStickCalibration.x.min,
+        (int)self->_leftStickCalibration.y.min);
+    NSLog(@"Right stick (x, y): [+] %d, %d; [0] %d %d; [-] %d %d",
+        (int)self->_rightStickCalibration.x.max,
+        (int)self->_rightStickCalibration.y.max,
+        (int)self->_rightStickCalibration.x.zero,
+        (int)self->_rightStickCalibration.y.zero,
+        (int)self->_rightStickCalibration.x.min,
+        (int)self->_rightStickCalibration.y.min);
 }
 
 
@@ -543,17 +535,13 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (void)_setPlayerLights:(uint8_t)mask
 {
-    dispatch_async(_auxCommQueue, ^{
-        [self _sendSubcommand:OEHACSubcmdSetPlayerLights withData:&mask length:1];
-    });
+    [self _sendSubcommand:OEHACSubcmdSetPlayerLights withData:&mask length:1];
 }
 
 
 - (void)_setReportMode:(OEHACInputReportID)mode
 {
-    dispatch_async(_auxCommQueue, ^{
-        [self _sendSubcommand:OEHACSubcmdSetInputReportMode withData:&mode length:1];
-    });
+    [self _sendSubcommand:OEHACSubcmdSetInputReportMode withData:&mode length:1];
 }
 
 
@@ -565,12 +553,10 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (void)_enableUSBmode
 {
-    dispatch_async(_auxCommQueue, ^{
-        [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
-        [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHighDataRate];
-        [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
-        [self _sendOneWayUSBSubcommand:OEHACUSBSubcommandIDDisableUSBHIDTimeout];
-    });
+    [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
+    [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHighDataRate];
+    [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
+    [self _sendOneWayUSBSubcommand:OEHACUSBSubcommandIDDisableUSBHIDTimeout];
 }
 
 
@@ -611,14 +597,12 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_sendSubcommand:(OEHACSubcommandID)cmdid withData:(const void *)data length:(NSUInteger)length
 {
     return [self _sendSubcommand:cmdid withData:data length:length validationHandler:nil];
 }
 
 
-/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_sendSubcommand:(OEHACSubcommandID)cmdid withData:(const void *)data length:(NSUInteger)length validationHandler:(BOOL (^ __nullable)(NSData *))validator
 {
     OEHACRumbleAndSubcommandOutputReport report = {0};
@@ -632,8 +616,8 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
         memcpy(report.subcmdParam, data, length);
     
     NSData *ack;
-
-    [_responseAvailable lock];
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS];
+    NSRunLoop *mainLoop = [NSRunLoop currentRunLoop];
     
     _currentResponse = nil;
     #ifdef LOG_COMMUNICATION
@@ -647,10 +631,9 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     
     int attempts = 0;
     while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
-        BOOL notTimeout = YES;
-        while (_currentResponse == nil && notTimeout)
-            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS]];
-        if (!notTimeout) {
+        while (_currentResponse == nil && [deadline isGreaterThan:[NSDate date]])
+            [mainLoop runMode:NSDefaultRunLoopMode beforeDate:deadline];
+        if (_currentResponse == nil) {
             NSLog(@"[dev %p] Did not receive ACK from controller after %f s (subcommand %02X)", self,  MAX_RESPONSE_WAIT_SECONDS, cmdid);
             goto fail;
         }
@@ -678,8 +661,6 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     ack = _currentResponse;
     
 fail:
-    [_responseAvailable unlock];
-    
     return ack;
 }
 
@@ -709,7 +690,6 @@ fail:
 }
 
 
-/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_sendUSBSubcommand:(OEHACUSBSubcommandID)cmdid
 {
     OEHACUSBSubcommandOutputReport report = {0};
@@ -718,8 +698,8 @@ fail:
     report.subcommand = cmdid;
     
     NSData *ack;
-
-    [_responseAvailable lock];
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS];
+    NSRunLoop *mainLoop = [NSRunLoop currentRunLoop];
     
     _currentResponse = nil;
     #ifdef LOG_COMMUNICATION
@@ -733,10 +713,9 @@ fail:
     
     int attempts = 0;
     while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
-        BOOL notTimeout = YES;
-        while (_currentResponse == nil && notTimeout)
-            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS]];
-        if (!notTimeout) {
+        while (_currentResponse == nil && [deadline isGreaterThan:[NSDate date]])
+            [mainLoop runMode:NSDefaultRunLoopMode beforeDate:deadline];
+        if (_currentResponse == nil) {
             NSLog(@"[dev %p] Did not receive ACK from controller after %f s (USB subcommand %02X)", self, MAX_RESPONSE_WAIT_SECONDS, cmdid);
             goto fail;
         }
@@ -760,8 +739,6 @@ fail:
     ack = _currentResponse;
     
 fail:
-    [_responseAvailable unlock];
-    
     return ack;
 }
 
@@ -789,13 +766,10 @@ fail:
 - (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
 {
     if (data[0] == OEHACInputReportIDSubcommandReply || data[0] == OEHACInputReportIDUSBSubcommandReply) {
-        [_responseAvailable lock];
         _currentResponse = [NSData dataWithBytes:data length:length];
         #ifdef LOG_COMMUNICATION
         NSLog(@"[dev %p] ack report %@", self, _currentResponse);
         #endif
-        [_responseAvailable signal];
-        [_responseAvailable unlock];
         
     } else if (data[0] == OEHACInputReportIDFullReport && length >= sizeof(OEHACStandardHIDInputReport)) {
         #ifdef LOG_COMMUNICATION
