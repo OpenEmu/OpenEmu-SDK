@@ -650,8 +650,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
         if (response->repliedSubcmdId != cmdid) {
             NSLog(@"[dev %p] Wrong ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", self, cmdid, response->repliedSubcmdId, attempts);
             _currentResponse = nil;
-        }
-        if (validator && !validator(_currentResponse)) {
+        } else if (validator && !validator(_currentResponse)) {
             NSLog(@"[dev %p] Validation failed [attempt = %d]", self, attempts);
             _currentResponse = nil;
         }
