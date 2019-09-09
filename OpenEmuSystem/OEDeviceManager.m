@@ -25,7 +25,7 @@
  */
 
 #import "OEDeviceManager.h"
-
+#import "OEDeviceManager_Internal.h"
 #import "OEDeviceHandler.h"
 #import "OEControllerDescription.h"
 #import "OEHIDDeviceHandler.h"

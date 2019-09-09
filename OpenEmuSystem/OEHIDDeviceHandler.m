@@ -30,16 +30,13 @@
 #import "OEControlDescription.h"
 #import "OEHIDEvent.h"
 #import "OEDeviceManager.h"
+#import "OEDeviceManager_Internal.h"
 #import "OEHIDDeviceParser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OEHIDEvent ()
 + (instancetype)OE_eventWithElement:(IOHIDElementRef)element value:(NSInteger)value;
-@end
-
-@interface OEDeviceManager ()
-- (void)OE_removeDeviceHandler:(OEDeviceHandler *)handler;
 @end
 
 #pragma clang diagnostic push
