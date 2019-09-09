@@ -27,12 +27,14 @@
  * which can be found at https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering
  */
 
+#import "OEDeviceDescription.h"
+#import "OEControllerDescription_Internal.h"
 #import "OESwitchProControllerHIDDeviceHandler.h"
 
 
 #define MAX_INPUT_REPORT_SIZE (256)
 
-//#define LOG_INPUT_REPORTS
+//#define LOG_COMMUNICATION
 
 
 typedef NS_ENUM(uint8_t, OEHACInputReportID) {
@@ -40,7 +42,8 @@ typedef NS_ENUM(uint8_t, OEHACInputReportID) {
     OEHACInputReportIDNFCIRFirmwareUpdateReply = 0x23,
     OEHACInputReportIDFullReport = 0x30,
     OEHACInputReportIDNFCIRReport = 0x31,
-    OEHACInputReportIDSimpleHIDReport = 0x3F
+    OEHACInputReportIDSimpleHIDReport = 0x3F,
+    OEHACInputReportIDUSBSubcommandReply = 0x81
 };
 
 typedef NS_ENUM(uint8_t, OEHACOuputReportID) {
@@ -48,7 +51,29 @@ typedef NS_ENUM(uint8_t, OEHACOuputReportID) {
     OEHACOutputReportIDNFCIRFirmwareUpdatePacket = 0x03,
     OEHACOutputReportIDRumble = 0x10,
     OEHACOutputReportIDNFCIR = 0x11,
+    OEHACOutputReportIDUSBSubcommand = 0x80
 };
+
+
+typedef NS_ENUM(uint8_t, OEHACUSBSubcommandID) {
+    OEHACUSBSubcommandIDGetStatus = 0x01,
+    OEHACUSBSubcommandIDRequestHandshake,
+    OEHACUSBSubcommandIDRequestHighDataRate,
+    OEHACUSBSubcommandIDDisableUSBHIDTimeout,
+    OEHACUSBSubcommandIDEnableUSBHIDTimeout,
+    OEHACUSBSubcommandIDReset,
+};
+
+typedef struct __attribute__((packed)) {
+    OEHACOuputReportID reportID;
+    OEHACUSBSubcommandID subcommand;
+} OEHACUSBSubcommandOutputReport;
+
+typedef struct __attribute__((packed)) {
+    OEHACOuputReportID reportID;
+    OEHACUSBSubcommandID subcommand;
+    uint8_t data[0];
+} OEHACUSBAcknowledgmentOutputReport;
 
 
 typedef NS_ENUM(uint8_t, OEHACSubcommandID) {
@@ -81,6 +106,14 @@ typedef NS_ENUM(uint8_t, OEHACPowerState) {
 };
 
 
+typedef uint8_t OEHAC12BitPackedPair[3];
+
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+} OEHAC16BitUnsignedPair;
+
+
 typedef struct __attribute__((packed)) {
     OEHACOuputReportID reportID;
     uint8_t seqNumber;
@@ -90,15 +123,50 @@ typedef struct __attribute__((packed)) {
 } OEHACRumbleAndSubcommandOutputReport;
 
 
+typedef NS_OPTIONS(uint8_t, OEHACButtonState0) {
+    OEHACButtonState0Y  = 0b00000001,
+    OEHACButtonState0X  = 0b00000010,
+    OEHACButtonState0B  = 0b00000100,
+    OEHACButtonState0A  = 0b00001000,
+    OEHACButtonState0SR = 0b00010000,
+    OEHACButtonState0SL = 0b00100000,
+    OEHACButtonState0R  = 0b01000000,
+    OEHACButtonState0ZR = 0b10000000
+};
+
+typedef NS_OPTIONS(uint8_t, OEHACButtonState1) {
+    OEHACButtonState1Minus      = 0b00000001,
+    OEHACButtonState1Plus       = 0b00000010,
+    OEHACButtonState1RStick     = 0b00000100,
+    OEHACButtonState1LStick     = 0b00001000,
+    OEHACButtonState1Home       = 0b00010000,
+    OEHACButtonState1Capture    = 0b00100000,
+    OEHACButtonState1ChargeGrip = 0b10000000
+};
+
+typedef NS_OPTIONS(uint8_t, OEHACButtonState2) {
+    OEHACButtonState2Down  = 0b00000001,
+    OEHACButtonState2Up    = 0b00000010,
+    OEHACButtonState2Right = 0b00000100,
+    OEHACButtonState2Left  = 0b00001000,
+    OEHACButtonState2SR    = 0b00010000,
+    OEHACButtonState2SL    = 0b00100000,
+    OEHACButtonState2L     = 0b01000000,
+    OEHACButtonState2ZL    = 0b10000000
+};
+
 typedef struct __attribute__((packed)) {
     OEHACInputReportID reportID;
     uint8_t seqNumber;
     uint8_t chargingStatus;
-    uint8_t buttons[3];
-    uint8_t leftStick[3];
-    uint8_t rightStick[3];
+    OEHACButtonState0 buttons0;
+    OEHACButtonState1 buttons1;
+    OEHACButtonState2 buttons2;
+    OEHAC12BitPackedPair leftStick;
+    OEHAC12BitPackedPair rightStick;
     uint8_t rumbleStatus;
 } OEHACStandardHIDInputReport;
+
 
 typedef struct __attribute__((packed)) {
     OEHACStandardHIDInputReport parent;
@@ -106,14 +174,6 @@ typedef struct __attribute__((packed)) {
     OEHACSubcommandID repliedSubcmdId;
     uint8_t reply[34];
 } OEHACAcknowledgmentHIDInputReport;
-
-
-typedef uint8_t OEHAC12BitPackedPair[3];
-
-typedef struct {
-    uint16_t x;
-    uint16_t y;
-} OEHAC16BitUnsignedPair;
 
 
 typedef struct __attribute__((packed)) {
@@ -202,8 +262,17 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
+@interface OESwitchProControllerHIDDeviceParser ()
+
++ (NSUInteger)_cookieFromUsage:(NSUInteger)usage;
+
+@end
+
+
 @implementation OESwitchProControllerHIDDeviceHandler
 {
+    BOOL _isUSB;
+    
     uint8_t _reportBuffer[MAX_INPUT_REPORT_SIZE];
     uint8_t _packetCounter;
     dispatch_queue_t _auxCommQueue;
@@ -232,6 +301,17 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
++ (OEHIDDeviceParser *)deviceParser
+{
+    static OEHIDDeviceParser *parser;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        parser = [[OESwitchProControllerHIDDeviceParser alloc] init];
+    });
+    return parser;
+}
+
+
 - (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription
 {
     self = [super initWithIOHIDDevice:aDevice deviceDescription:deviceDescription];
@@ -255,6 +335,14 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     _responseAvailable = [[NSCondition alloc] init];
     IOHIDDeviceRegisterInputReportCallback([self device], _reportBuffer, MAX_INPUT_REPORT_SIZE, OEHACProControllerHIDReportCallback, (__bridge void *)self);
     
+    NSString *transport = IOHIDDeviceGetProperty([self device], CFSTR(kIOHIDTransportKey));
+    if ([transport isEqualToString:@kIOHIDTransportUSBValue]) {
+        _isUSB = YES;
+        [self _enableUSBmode];
+    } else {
+        [self _setReportMode:0x30];
+    }
+    
     [self _setPlayerLights:0x0F];
     [self _requestCalibrationData];
     return YES;
@@ -263,8 +351,8 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (void)disconnect
 {
-    /* we don't want to disconnect the controller every time the helper app terminates,
-     * just when OpenEmu closes */
+    /* we don't want to disconnect the controller every time the helper
+     * app terminates, just when OpenEmu closes */
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"])
         return;
     [self _setPowerState:OEHACPowerStateSleep];
@@ -343,6 +431,111 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
+#pragma mark - Event Dispatching
+
+
+- (void)dispatchEventWithHIDValue:(IOHIDValueRef)aValue
+{
+    /* Ignore the standard HID reports; over BlueTooth they would be usable,
+     * but they're not via USB. Instead we parse Nintendo's proprietary input reports
+     * manually instead. */
+    return;
+}
+
+
+- (void)_dispatchEventsWithStandardInputReport:(OEHACStandardHIDInputReport *)report
+{
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSInteger cookie;
+    
+    /* Buttons */
+    const uint8_t button0Map[] = {
+        OEHACButtonState0Y,  3,
+        OEHACButtonState0X,  4,
+        OEHACButtonState0B,  1,
+        OEHACButtonState0A,  2,
+        OEHACButtonState0R,  6,
+        OEHACButtonState0ZR, 8,
+        0};
+    const uint8_t button1Map[] = {
+        OEHACButtonState1Minus,    9,
+        OEHACButtonState1Plus,    10,
+        OEHACButtonState1RStick,  12,
+        OEHACButtonState1LStick,  11,
+        OEHACButtonState1Home,    13,
+        OEHACButtonState1Capture, 14,
+        0};
+    const uint8_t button2Map[] = {
+        OEHACButtonState2L,  5,
+        OEHACButtonState2ZL, 7,
+        0};
+    [self _dispatchButtonEventsWithButtonMask:report->buttons0 buttonMap:button0Map timestamp:now];
+    [self _dispatchButtonEventsWithButtonMask:report->buttons1 buttonMap:button1Map timestamp:now];
+    [self _dispatchButtonEventsWithButtonMask:report->buttons2 buttonMap:button2Map timestamp:now];
+    
+    /* D-Pad */
+    const OEHIDEventHatDirection buttonToHat[] = {
+        /* ..ud                     ..uD                             ..Ud                             ..UD                                */
+        OEHIDEventHatDirectionNull, OEHIDEventHatDirectionSouth,     OEHIDEventHatDirectionNorth,     OEHIDEventHatDirectionNull, /* lr.. */
+        OEHIDEventHatDirectionEast, OEHIDEventHatDirectionSouthEast, OEHIDEventHatDirectionNorthEast, OEHIDEventHatDirectionNull, /* lR.. */
+        OEHIDEventHatDirectionWest, OEHIDEventHatDirectionSouthWest, OEHIDEventHatDirectionNorthWest, OEHIDEventHatDirectionNull, /* Lr.. */
+        OEHIDEventHatDirectionNull, OEHIDEventHatDirectionNull,      OEHIDEventHatDirectionNull,      OEHIDEventHatDirectionNull};/* LR.. */
+    uint8_t direction = report->buttons2 & (OEHACButtonState2Up | OEHACButtonState2Down | OEHACButtonState2Left | OEHACButtonState2Right);
+    NSAssert(direction < 0x10, @"Don't touch my enums! We are making assumptions here");
+    OEHIDEventHatDirection hat = buttonToHat[direction];
+    cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:0x39];
+    OEHIDEvent *hatevt = [OEHIDEvent hatSwitchEventWithDeviceHandler:self timestamp:now type:OEHIDEventHatSwitchType8Ways direction:hat cookie:cookie];
+    [self dispatchEvent:hatevt];
+    
+    /* Left stick */
+    OEHAC16BitUnsignedPair leftStick = OEHACUnpackPair(report->leftStick);
+    [self _dispatchEventsOfXAxis:OEHIDEventAxisX YAxis:OEHIDEventAxisY withData:leftStick timestamp:now];
+    
+    /* Right stick */
+    OEHAC16BitUnsignedPair rightStick = OEHACUnpackPair(report->rightStick);
+    [self _dispatchEventsOfXAxis:OEHIDEventAxisRx YAxis:OEHIDEventAxisRy withData:rightStick timestamp:now];
+}
+
+
+- (void)_dispatchButtonEventsWithButtonMask:(uint8_t)mask buttonMap:(const uint8_t[])map timestamp:(NSTimeInterval)ts
+{
+    int i=0;
+    while (map[i] != 0) {
+        uint8_t thisButtonMask = map[i++];
+        uint8_t thisButtonNumber = map[i++];
+        NSInteger cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:thisButtonNumber];
+        OEHIDEventState state = (mask & thisButtonMask) ? OEHIDEventStateOn : OEHIDEventStateOff;
+        OEHIDEvent *evt = [OEHIDEvent buttonEventWithDeviceHandler:self timestamp:ts buttonNumber:thisButtonNumber state:state cookie:cookie];
+        [self dispatchEvent:evt];
+    }
+}
+
+
+- (void)_dispatchEventsOfXAxis:(OEHIDEventAxis)xaxis YAxis:(OEHIDEventAxis)yaxis withData:(OEHAC16BitUnsignedPair)stickData timestamp:(NSTimeInterval)now
+{
+    stickData.x <<= 4;
+    stickData.y = ~(stickData.y << 4);
+    
+    NSInteger cookie;
+    CGFloat value;
+    OEHIDEvent *event;
+    
+    cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:xaxis];
+    value = [self scaledValue:stickData.x forAxis:xaxis controlCookie:cookie];
+    if (fabs(value) < [self deadZoneForControlCookie:cookie])
+        value = 0;
+    event = [OEHIDEvent axisEventWithDeviceHandler:self timestamp:now axis:xaxis value:value cookie:cookie];
+    [self dispatchEvent:event];
+    
+    cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:yaxis];
+    value = [self scaledValue:stickData.y forAxis:yaxis controlCookie:cookie];
+    if (fabs(value) < [self deadZoneForControlCookie:cookie])
+        value = 0;
+    event = [OEHIDEvent axisEventWithDeviceHandler:self timestamp:now axis:yaxis value:value cookie:cookie];
+    [self dispatchEvent:event];
+}
+
+
 #pragma mark - Controller-Specific functionality
 
 
@@ -365,6 +558,19 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 - (void)_setPowerState:(OEHACPowerState)powerState
 {
     [self _sendOneWaySubcommand:OEHACSubcmdSetPowerState withData:&powerState length:1];
+}
+
+
+- (void)_enableUSBmode
+{
+    dispatch_async(_auxCommQueue, ^{
+        NSData *tmp = [self _sendUSBSubcommand:OEHACUSBSubcommandIDGetStatus];
+        NSLog(@"usb status = %@", tmp);
+        [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
+        [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHighDataRate];
+        [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
+        [self _sendOneWayUSBSubcommand:OEHACUSBSubcommandIDDisableUSBHIDTimeout];
+    });
 }
 
 
@@ -419,32 +625,40 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     [_responseAvailable lock];
     
     _currentResponse = nil;
+    #ifdef LOG_COMMUNICATION
+    NSLog(@"[dev %p] sent output report %@", self, [NSData dataWithBytes:(uint8_t *)&report length:sizeof(OEHACRumbleAndSubcommandOutputReport)]);
+    #endif
     IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
     if (ret != kIOReturnSuccess) {
         NSLog(@"Could not send command, error: %x", ret);
         goto fail;
     }
     
-    BOOL notTimeout = YES;
-    while (_currentResponse == nil && notTimeout)
-        notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-    if (!notTimeout) {
-        NSLog(@"Did not receive ACK from controller after 10 s (subcommand %02X)", cmdid);
-        goto fail;
-    }
-    
-    if ([_currentResponse length] < sizeof(OEHACAcknowledgmentHIDInputReport)) {
-        NSLog(@"Invalid ACK from controller (subcommand %02X)", cmdid);
-        goto fail;
-    }
-    const OEHACAcknowledgmentHIDInputReport *response = [_currentResponse bytes];
-    if (!(response->ackStatus & 0x80)) {
-        NSLog(@"NACK from controller (subcommand %02X)", cmdid);
-        goto fail;
-    }
-    if (response->repliedSubcmdId != cmdid) {
-        NSLog(@"Wrong ACK from controller (subcommand %02X expected, %02X received)", cmdid, response->repliedSubcmdId);
-        goto fail;
+    int attempts = 0;
+    while (_currentResponse == nil && attempts < 5) {
+        BOOL notTimeout = YES;
+        while (_currentResponse == nil && notTimeout)
+            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+        if (!notTimeout) {
+            NSLog(@"Did not receive ACK from controller after 10 s (subcommand %02X)", cmdid);
+            goto fail;
+        }
+        
+        if ([_currentResponse length] < sizeof(OEHACAcknowledgmentHIDInputReport)) {
+            NSLog(@"Invalid ACK from controller (subcommand %02X)", cmdid);
+            goto fail;
+        }
+        const OEHACAcknowledgmentHIDInputReport *response = [_currentResponse bytes];
+        if (!(response->ackStatus & 0x80)) {
+            NSLog(@"NACK from controller (subcommand %02X)", cmdid);
+            goto fail;
+        }
+        if (response->repliedSubcmdId != cmdid) {
+            NSLog(@"Wrong ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", cmdid, response->repliedSubcmdId, attempts);
+            _currentResponse = nil;
+        }
+        
+        attempts++;
     }
     ack = _currentResponse;
     
@@ -467,6 +681,9 @@ fail:
     if (data)
         memcpy(report.subcmdParam, data, length);
     
+    #ifdef LOG_COMMUNICATION
+    NSLog(@"[dev %p] sent output report %@", self, [NSData dataWithBytes:(uint8_t *)&report length:sizeof(OEHACRumbleAndSubcommandOutputReport)]);
+    #endif
     IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
     if (ret != kIOReturnSuccess) {
         NSLog(@"Could not send command, error: %x", ret);
@@ -477,22 +694,105 @@ fail:
 }
 
 
-- (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
-{   
-    if (data[0] != OEHACInputReportIDSubcommandReply) {
-        #ifdef LOG_INPUT_REPORTS
-        NSLog(@"non-ack report %@", [NSData dataWithBytes:data length:length]);
-        #endif
-        return;
+/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
+- (NSData *)_sendUSBSubcommand:(OEHACUSBSubcommandID)cmdid
+{
+    OEHACUSBSubcommandOutputReport report = {0};
+    
+    report.reportID = OEHACOutputReportIDUSBSubcommand;
+    report.subcommand = cmdid;
+    
+    NSData *ack;
+
+    [_responseAvailable lock];
+    
+    _currentResponse = nil;
+    #ifdef LOG_COMMUNICATION
+    NSLog(@"[dev %p] sent output report %@", self, [NSData dataWithBytes:(uint8_t *)&report length:sizeof(OEHACUSBSubcommandOutputReport)]);
+    #endif
+    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACUSBSubcommandOutputReport));
+    if (ret != kIOReturnSuccess) {
+        NSLog(@"Could not send command, error: %x", ret);
+        goto fail;
     }
     
-    [_responseAvailable lock];
-    _currentResponse = [NSData dataWithBytes:data length:length];
-    #ifdef LOG_INPUT_REPORTS
-    NSLog(@"ack report %@", _currentResponse);
-    #endif
-    [_responseAvailable signal];
+    int attempts = 0;
+    while (_currentResponse == nil && attempts < 5) {
+        BOOL notTimeout = YES;
+        while (_currentResponse == nil && notTimeout)
+            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+        if (!notTimeout) {
+            NSLog(@"Did not receive ACK from controller after 10 s (USB subcommand %02X)", cmdid);
+            goto fail;
+        }
+        
+        if ([_currentResponse length] < sizeof(OEHACUSBAcknowledgmentOutputReport)) {
+            NSLog(@"Invalid ACK from controller (USB subcommand %02X)", cmdid);
+            goto fail;
+        }
+        const OEHACUSBAcknowledgmentOutputReport *response = [_currentResponse bytes];
+        if (response->reportID != OEHACInputReportIDUSBSubcommandReply) {
+            NSLog(@"Invalid ACK from controller (USB subcommand %02X)", cmdid);
+            goto fail;
+        }
+        if (response->subcommand != cmdid) {
+            NSLog(@"Wrong USB ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", cmdid, response->subcommand, attempts);
+            _currentResponse = nil;
+        }
+        
+        attempts++;
+    }
+    ack = _currentResponse;
+    
+fail:
     [_responseAvailable unlock];
+    
+    return ack;
+}
+
+
+- (BOOL)_sendOneWayUSBSubcommand:(OEHACUSBSubcommandID)cmdid
+{
+    OEHACUSBSubcommandOutputReport report = {0};
+    
+    report.reportID = OEHACOutputReportIDUSBSubcommand;
+    report.subcommand = cmdid;
+    
+    #ifdef LOG_COMMUNICATION
+    NSLog(@"[dev %p] sent output report %@", self, [NSData dataWithBytes:(uint8_t *)&report length:sizeof(OEHACUSBSubcommandOutputReport)]);
+    #endif
+    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACUSBSubcommandOutputReport));
+    if (ret != kIOReturnSuccess) {
+        NSLog(@"Could not send command, error: %x", ret);
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+- (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
+{
+    if (data[0] == OEHACInputReportIDSubcommandReply || data[0] == OEHACInputReportIDUSBSubcommandReply) {
+        [_responseAvailable lock];
+        _currentResponse = [NSData dataWithBytes:data length:length];
+        #ifdef LOG_COMMUNICATION
+        NSLog(@"[dev %p] ack report %@", self, _currentResponse);
+        #endif
+        [_responseAvailable signal];
+        [_responseAvailable unlock];
+        
+    } else if (data[0] == OEHACInputReportIDFullReport && length >= sizeof(OEHACStandardHIDInputReport)) {
+        #ifdef LOG_COMMUNICATION
+        NSLog(@"[dev %p] input report %@", self, [NSData dataWithBytes:data length:length]);
+        #endif
+        [self _dispatchEventsWithStandardInputReport:(OEHACStandardHIDInputReport *)(data)];
+        
+    } else {
+        #ifdef LOG_COMMUNICATION
+        NSLog(@"[dev %p] non-ack report %@", self, [NSData dataWithBytes:data length:length]);
+        #endif
+    }
 }
 
 
@@ -510,4 +810,75 @@ static void OEHACProControllerHIDReportCallback(
 {
     [(__bridge OESwitchProControllerHIDDeviceHandler *)context _didReceiveInputReportWithID:reportID data:report length:reportLength];
 }
+
+
+#pragma mark - Device Parser (mainly for USB support)
+
+
+@implementation OESwitchProControllerHIDDeviceParser
+
+
++ (NSUInteger)_cookieFromUsage:(NSUInteger)usage
+{
+    NSUInteger cookie;
+    /* reproduce the same cookies seen over bluetooth
+     * probably unnecessary */
+    if (usage == 0x30 || usage == 0x31)
+        cookie = usage - 0x30 + 0x4B3;
+    else if (usage == 0x33 || usage == 0x34)
+        cookie = usage - 0x33 + 0x4B5;
+    else if (usage == 0x39)
+        cookie = 0x4B2;
+    else
+        cookie = usage + 1;
+    return cookie;
+}
+
+
+- (OEDeviceHandler *)deviceHandlerForIOHIDDevice:(IOHIDDeviceRef)device
+{
+    /* When connected via USB, the exposed HID elements are completely different.
+     * To work around that, we build a custom device description which is compatible
+     * with the HID elements that are exposed via bluetooth. */
+    
+    NSNumber *vid = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
+    NSNumber *pid = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
+    NSString *pkey = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    OEDeviceDescription *deviceDesc = [OEDeviceDescription
+        deviceDescriptionForVendorID:[vid integerValue] productID:[pid integerValue]
+        product:pkey cookie:0];
+    
+    OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
+    if ([[controllerDesc controls] count] == 0) {
+        NSDictionary *representations = [OEControllerDescription OE_dequeueRepresentationForDeviceDescription:deviceDesc];
+        [representations enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary *representation, BOOL *stop) {
+            OEHIDEventType type = OEHIDEventTypeFromNSString(representation[@"Type"]);
+            NSUInteger usage = OEUsageFromUsageStringWithType(representation[@"Usage"], type);
+            NSUInteger cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:usage];
+
+            OEHIDEvent *event;
+            switch (type) {
+                case OEHIDEventTypeAxis:
+                    event = [OEHIDEvent axisEventWithDeviceHandler:nil timestamp:0 axis:usage direction:OEHIDEventAxisDirectionNull cookie:cookie];
+                    break;
+                case OEHIDEventTypeButton:
+                    event = [OEHIDEvent buttonEventWithDeviceHandler:nil timestamp:0 buttonNumber:usage state:OEHIDEventStateOn cookie:cookie];
+                    break;
+                case OEHIDEventTypeHatSwitch:
+                    event = [OEHIDEvent hatSwitchEventWithDeviceHandler:nil timestamp:0 type:OEHIDEventHatSwitchType8Ways direction:OEHIDEventHatDirectionNull cookie:cookie];
+                    break;
+                default:
+                    NSLog(@"unexpected item in controller database for Switch Pro Controller");
+                    return;
+            }
+
+            [controllerDesc addControlWithIdentifier:identifier name:representation[@"Name"] event:event valueRepresentations:representation[@"Values"]];
+        }];
+    }
+
+    return [[OESwitchProControllerHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:deviceDesc];
+}
+
+
+@end
 

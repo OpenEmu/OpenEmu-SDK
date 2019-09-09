@@ -22,12 +22,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#import "OEHIDDeviceParser.h"
 #import "OEHIDDeviceHandler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 @interface OESwitchProControllerHIDDeviceHandler : OEHIDDeviceHandler
 
 @end
+
+
+@interface OESwitchProControllerHIDDeviceParser : OEHIDDeviceParser
+
+@end
+
 
 NS_ASSUME_NONNULL_END
