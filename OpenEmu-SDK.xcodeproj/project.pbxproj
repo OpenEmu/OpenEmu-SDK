@@ -10,6 +10,8 @@
 		0109BBA5209F25EB002419C1 /* OEDiffQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */; };
 		0109BBA7209F25EB002419C1 /* OpenEmuBase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A261710A4BA00ED580A /* OpenEmuBase.framework */; };
 		011829A720ACA8AA0030B347 /* OEAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 011829A620ACA8AA0030B347 /* OEAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		011FAED42325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 011FAED22325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		011FAED52325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 011FAED32325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m */; };
 		0166211220D8522700D0368A /* OETouchbarHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */; };
 		0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */; };
 		01A9FD2523187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */; };
@@ -139,6 +141,8 @@
 		0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OEDiffQueueTests.m; sourceTree = "<group>"; };
 		0109BBA6209F25EB002419C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		011829A620ACA8AA0030B347 /* OEAudioBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEAudioBuffer.h; sourceTree = "<group>"; };
+		011FAED22325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+OpenEmuSDK.h"; sourceTree = "<group>"; };
+		011FAED32325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+OpenEmuSDK.m"; sourceTree = "<group>"; };
 		0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OETouchbarHIDDeviceHandler.h; sourceTree = "<group>"; };
 		0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OETouchbarHIDDeviceHandler.m; sourceTree = "<group>"; };
 		01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OESwitchProControllerHIDDeviceHandler.h; sourceTree = "<group>"; };
@@ -370,6 +374,8 @@
 				C694EEC11C2A065400DFD15C /* OEPropertyList.h */,
 				01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */,
 				01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */,
+				011FAED22325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h */,
+				011FAED32325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m */,
 				C6772A301710A4BA00ED580A /* Supporting Files */,
 			);
 			path = OpenEmuBase;
@@ -542,6 +548,7 @@
 				C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */,
 				27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */,
 				C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */,
+				011FAED42325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h in Headers */,
 				C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */,
 				C6772A7A1710BD6200ED580A /* OETimingUtils.h in Headers */,
 				05FF41B922B08C5F00BB7283 /* OELogging.h in Headers */,
@@ -728,6 +735,7 @@
 				C6772A731710BD6200ED580A /* OEAbstractAdditions.m in Sources */,
 				27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */,
 				C6772A751710BD6200ED580A /* OEGameCoreController.m in Sources */,
+				011FAED52325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m in Sources */,
 				C6772A771710BD6200ED580A /* OERingBuffer.m in Sources */,
 				C6772A781710BD6200ED580A /* TPCircularBuffer.c in Sources */,
 				01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */,

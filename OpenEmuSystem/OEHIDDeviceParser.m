@@ -26,6 +26,7 @@
 
 #import "OEHIDDeviceParser.h"
 
+#import "NSDictionary+OpenEmuSDK.h"
 #import "OEControllerDescription.h"
 #import "OEControlDescription.h"
 #import "OEControlDescription.h"
@@ -445,15 +446,19 @@ typedef enum {
                 break;
         }
     }];
+    
+    NSDictionary *baseAttrib;
+    if (deviceIdentifier)
+        baseAttrib = @{@kOEHIDElementDeviceIdentifierKey : deviceIdentifier};
+    else
+        baseAttrib = @{};
 
     // Setup HatSwitch element attributes and create a control in the controller description.
     for(id e in hatSwitchElements) {
         IOHIDElementRef elem = ELEM(e);
 
-        NSDictionary *attr = @{
-                               @kOEHIDElementHatSwitchTypeKey : @([self OE_hatSwitchTypeForElement:elem]),
-                               @kOEHIDElementDeviceIdentifierKey : deviceIdentifier
-                               };
+        NSDictionary *attr = [baseAttrib OE_dictionaryByAddingEntriesFromDictionary:@{
+            @kOEHIDElementHatSwitchTypeKey : @([self OE_hatSwitchTypeForElement:elem])}];
 
         [attributes setAttributes:attr forElementCookie:IOHIDElementGetCookie(elem)];
         [attributes applyAttributesToElement:elem];
@@ -470,9 +475,9 @@ typedef enum {
             OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
             if(genericEvent == nil)
                 continue;
-
+            
             if(deviceIdentifier != nil) {
-                [attributes setAttributes:@{ @kOEHIDElementDeviceIdentifierKey : deviceIdentifier } forElementCookie:IOHIDElementGetCookie(elem)];
+                [attributes setAttributes:baseAttrib forElementCookie:IOHIDElementGetCookie(elem)];
                 [attributes applyAttributesToElement:elem];
             }
 
@@ -480,16 +485,14 @@ typedef enum {
         }
     };
 
-    // We assume that axis events that have only positive values when
-    // other axis are grouped or have positive and negative values.
+    // When there is at least one grouped or symmetric axis, we assume
+    // that all positive-only axes are in fact triggers.
     if(([posNegAxisElements count] + [groupedAxisElements count]) != 0 && [posAxisElements count] != 0) {
         for(id e in posAxisElements) {
             IOHIDElementRef elem = ELEM(e);
 
-            NSDictionary *attr = @{
-                                   @kOEHIDElementIsTriggerKey : @YES,
-                                   @kOEHIDElementDeviceIdentifierKey : deviceIdentifier
-                                   };
+            NSDictionary *attr = [baseAttrib OE_dictionaryByAddingEntriesFromDictionary:@{
+                @kOEHIDElementIsTriggerKey : @YES}];
 
             [attributes setAttributes:attr forElementCookie:IOHIDElementGetCookie(elem)];
             [attributes applyAttributesToElement:elem];
