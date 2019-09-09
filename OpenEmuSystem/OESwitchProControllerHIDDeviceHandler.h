@@ -30,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OESwitchProControllerHIDDeviceHandler : OEHIDDeviceHandler
 
+@property (nonatomic, readonly) BOOL isUSB;
+@property (nonatomic, readonly) NSData *internalSerialNumber;
+
 @end
 
 

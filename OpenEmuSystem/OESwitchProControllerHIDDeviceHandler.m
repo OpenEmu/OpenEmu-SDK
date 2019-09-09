@@ -28,8 +28,12 @@
  */
 
 #import "OEDeviceDescription.h"
+#import "OEDeviceManager_Internal.h"
 #import "OEControllerDescription_Internal.h"
 #import "OESwitchProControllerHIDDeviceHandler.h"
+
+
+#pragma mark - Device Handler Parameters
 
 
 #define MAX_INPUT_REPORT_SIZE (256)
@@ -37,6 +41,9 @@
 #define MAX_RESPONSE_WAIT_SECONDS (10.0)
 
 //#define LOG_COMMUNICATION
+
+
+#pragma mark - Input / Output Report Structures
 
 
 typedef NS_ENUM(uint8_t, OEHACInputReportID) {
@@ -179,6 +186,14 @@ typedef struct __attribute__((packed)) {
 
 
 typedef struct __attribute__((packed)) {
+    uint8_t fwVersion[2];
+    uint8_t deviceType;
+    uint8_t unk0;
+    uint8_t btMacAddress[6];
+} OEHACDeviceStatusSubcommandReply;
+
+
+typedef struct __attribute__((packed)) {
     OEHAC12BitPackedPair maxDelta;
     OEHAC12BitPackedPair center;
     OEHAC12BitPackedPair minDelta;
@@ -264,17 +279,24 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
+#pragma mark -
+
+
 @interface OESwitchProControllerHIDDeviceParser ()
 
++ (OESwitchProControllerHIDDeviceParser *)sharedInstance;
 + (NSUInteger)_cookieFromUsage:(NSUInteger)usage;
+
+- (BOOL)registerDeviceHandler:(OESwitchProControllerHIDDeviceHandler *)dh;
 
 @end
 
 
+#pragma mark - Device Handler
+
+
 @implementation OESwitchProControllerHIDDeviceHandler
 {
-    BOOL _isUSB;
-    
     uint8_t _reportBuffer[MAX_INPUT_REPORT_SIZE];
     uint8_t _packetCounter;
     
@@ -303,12 +325,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 + (OEHIDDeviceParser *)deviceParser
 {
-    static OEHIDDeviceParser *parser;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        parser = [[OESwitchProControllerHIDDeviceParser alloc] init];
-    });
-    return parser;
+    return [OESwitchProControllerHIDDeviceParser sharedInstance];
 }
 
 
@@ -340,8 +357,20 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     } else {
         [self _setReportMode:OEHACInputReportIDFullReport];
     }
-    [self _setPlayerLights:0x0F];
     
+    NSData *info = [self _sendSubcommand:OEHACSubcmdRequestDeviceInfo withData:NULL length:0];
+    if (info && info.length >= sizeof(OEHACAcknowledgmentHIDInputReport)) {
+        const OEHACAcknowledgmentHIDInputReport *ack = info.bytes;
+        const OEHACDeviceStatusSubcommandReply *status = (const OEHACDeviceStatusSubcommandReply *)&(ack->reply);
+        NSLog(@"[dev %p] Firmware Version: %02x.%02x", self, status->fwVersion[0], status->fwVersion[1]);
+        _internalSerialNumber = [NSData dataWithBytes:status->btMacAddress length:6];
+    }
+    
+    BOOL notDuplicated = [[OESwitchProControllerHIDDeviceParser sharedInstance] registerDeviceHandler:self];
+    if (!notDuplicated)
+        return NO;
+    
+    [self _setPlayerLights:0x0F];
     [self _requestCalibrationData];
     return YES;
 }
@@ -804,6 +833,28 @@ static void OEHACProControllerHIDReportCallback(
 
 
 @implementation OESwitchProControllerHIDDeviceParser
+{
+    NSMapTable <NSData *, OESwitchProControllerHIDDeviceHandler *> *_serialToHandler;
+}
+
+
+- (instancetype)init
+{
+    self = [super init];
+    _serialToHandler = [NSMapTable strongToWeakObjectsMapTable];
+    return self;
+}
+
+
++ (OESwitchProControllerHIDDeviceParser *)sharedInstance
+{
+    static OESwitchProControllerHIDDeviceParser *parser;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        parser = [[OESwitchProControllerHIDDeviceParser alloc] init];
+    });
+    return parser;
+}
 
 
 + (NSUInteger)_cookieFromUsage:(NSUInteger)usage
@@ -865,6 +916,45 @@ static void OEHACProControllerHIDReportCallback(
     }
 
     return [[OESwitchProControllerHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:deviceDesc];
+}
+
+
+- (BOOL)registerDeviceHandler:(OESwitchProControllerHIDDeviceHandler *)dh
+{
+    /* When connecting a Switch Pro Controller via USB, if that same controller
+     * was already connected via BlueTooth, it can happen that for a brief instant
+     * OpenEmu thinks that the controller is connected both via USB and BT
+     * at the same time.
+     *
+     * Thus, we keep a registry of all the device handlers of each Switch Controller
+     * so that we can check if we have to manually disconnect a device because
+     * we are changing connection to USB. */
+    
+    NSData *serial = dh.internalSerialNumber;
+    OESwitchProControllerHIDDeviceHandler *existing = [_serialToHandler objectForKey:serial];
+    OEDeviceManager *devm = [OEDeviceManager sharedDeviceManager];
+    
+    if (![devm.deviceHandlers containsObject:existing]) {
+        /* Device is not connected in any other way */
+        [_serialToHandler setObject:dh forKey:serial];
+        return YES;
+    }
+    
+    if (dh.isUSB && !existing.isUSB) {
+        /* Remove existing BT device handler */
+        [[OEDeviceManager sharedDeviceManager] OE_removeDeviceHandler:existing];
+        [_serialToHandler setObject:dh forKey:serial];
+        return YES;
+    }
+    
+    if (existing.isUSB)
+        /* Don't connect via BT if we're already connected via USB */
+        return NO;
+    
+    /* Should be unreachable; connection method of old and new handlers
+     * is the same. Keep the most recent handler. */
+    [_serialToHandler setObject:dh forKey:serial];
+    return YES;
 }
 
 
