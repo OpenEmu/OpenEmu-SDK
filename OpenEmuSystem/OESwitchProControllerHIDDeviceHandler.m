@@ -33,6 +33,8 @@
 
 
 #define MAX_INPUT_REPORT_SIZE (256)
+#define MAX_RESPONSE_ATTEMPTS (10)
+#define MAX_RESPONSE_WAIT_SECONDS (10.0)
 
 //#define LOG_COMMUNICATION
 
@@ -340,10 +342,10 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
         _isUSB = YES;
         [self _enableUSBmode];
     } else {
-        [self _setReportMode:0x30];
+        [self _setReportMode:OEHACInputReportIDFullReport];
     }
-    
     [self _setPlayerLights:0x0F];
+    
     [self _requestCalibrationData];
     return YES;
 }
@@ -367,7 +369,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     dispatch_async(_auxCommQueue, ^{
         NSData *fact = [self _requestSPIFlashReadAtAddress:OEHACFactoryStickCalibrationDataAddress length:sizeof(OEHACFactoryStickCalibrationData)];
         if (!fact) {
-            NSLog(@"cannot read stick calibration data from SPI flash!");
+            NSLog(@"[dev %p] cannot read stick calibration data from SPI flash!", self);
             return;
         }
         const OEHACFactoryStickCalibrationData *calibData = fact.bytes;
@@ -547,7 +549,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-- (void)_setReportMode:(uint8_t)mode
+- (void)_setReportMode:(OEHACInputReportID)mode
 {
     dispatch_async(_auxCommQueue, ^{
         [self _sendSubcommand:OEHACSubcmdSetInputReportMode withData:&mode length:1];
@@ -564,8 +566,6 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 - (void)_enableUSBmode
 {
     dispatch_async(_auxCommQueue, ^{
-        NSData *tmp = [self _sendUSBSubcommand:OEHACUSBSubcommandIDGetStatus];
-        NSLog(@"usb status = %@", tmp);
         [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
         [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHighDataRate];
         [self _sendUSBSubcommand:OEHACUSBSubcommandIDRequestHandshake];
@@ -587,28 +587,39 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
         uint8_t len;
     } spiReadSubcmdData = {in_base, in_len};
     
-    NSData *data = [self _sendSubcommand:OEHACSubcmdRequestSPIFlashRead withData:&spiReadSubcmdData length:sizeof(spiReadSubcmdData)];
-    if (!data)
-        return nil;
-    
-    const OEHACAcknowledgmentHIDInputReport *ack = data.bytes;
-    const struct __attribute__((packed)) {
-        uint32_t base;
-        uint8_t len;
-        uint8_t data[29];
-    } *reply = (void *)ack->reply;
+    __block NSData *result;
+    [self _sendSubcommand:OEHACSubcmdRequestSPIFlashRead withData:&spiReadSubcmdData length:sizeof(spiReadSubcmdData) validationHandler:^BOOL(NSData *data) {
+        const OEHACAcknowledgmentHIDInputReport *ack = data.bytes;
+        const struct __attribute__((packed)) {
+            uint32_t base;
+            uint8_t len;
+            uint8_t data[29];
+        } *reply = (void *)ack->reply;
 
-    if (reply->base != in_base || reply->len != in_len) {
-        NSLog(@"Wrong ACK from controller (SPI Flash read wrong offset/length)");
-        return nil;
-    }
+        if (reply->base != in_base || reply->len != in_len) {
+            NSLog(@"[dev %p] Wrong ACK from controller (SPI Flash read wrong offset/length)", self);
+            return NO;
+        }
+        
+        result = [NSData dataWithBytes:reply->data length:in_len];
+        return YES;
+    }];
     
-    return [NSData dataWithBytes:reply->data length:in_len];
+    if (!result)
+        return nil;
+    return result;
 }
 
 
 /* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_sendSubcommand:(OEHACSubcommandID)cmdid withData:(const void *)data length:(NSUInteger)length
+{
+    return [self _sendSubcommand:cmdid withData:data length:length validationHandler:nil];
+}
+
+
+/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
+- (NSData *)_sendSubcommand:(OEHACSubcommandID)cmdid withData:(const void *)data length:(NSUInteger)length validationHandler:(BOOL (^ __nullable)(NSData *))validator
 {
     OEHACRumbleAndSubcommandOutputReport report = {0};
     NSAssert(length < sizeof(report.subcmdParam), @"too much data for a single report");
@@ -630,31 +641,35 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     #endif
     IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
     if (ret != kIOReturnSuccess) {
-        NSLog(@"Could not send command, error: %x", ret);
+        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
         goto fail;
     }
     
     int attempts = 0;
-    while (_currentResponse == nil && attempts < 5) {
+    while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
         BOOL notTimeout = YES;
         while (_currentResponse == nil && notTimeout)
-            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS]];
         if (!notTimeout) {
-            NSLog(@"Did not receive ACK from controller after 10 s (subcommand %02X)", cmdid);
+            NSLog(@"[dev %p] Did not receive ACK from controller after %f s (subcommand %02X)", self,  MAX_RESPONSE_WAIT_SECONDS, cmdid);
             goto fail;
         }
         
         if ([_currentResponse length] < sizeof(OEHACAcknowledgmentHIDInputReport)) {
-            NSLog(@"Invalid ACK from controller (subcommand %02X)", cmdid);
+            NSLog(@"[dev %p] Invalid ACK from controller (subcommand %02X)", self, cmdid);
             goto fail;
         }
         const OEHACAcknowledgmentHIDInputReport *response = [_currentResponse bytes];
         if (!(response->ackStatus & 0x80)) {
-            NSLog(@"NACK from controller (subcommand %02X)", cmdid);
+            NSLog(@"[dev %p] NACK from controller (subcommand %02X)", self, cmdid);
             goto fail;
         }
         if (response->repliedSubcmdId != cmdid) {
-            NSLog(@"Wrong ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", cmdid, response->repliedSubcmdId, attempts);
+            NSLog(@"[dev %p] Wrong ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", self, cmdid, response->repliedSubcmdId, attempts);
+            _currentResponse = nil;
+        }
+        if (validator && !validator(_currentResponse)) {
+            NSLog(@"[dev %p] Validation failed [attempt = %d]", self, attempts);
             _currentResponse = nil;
         }
         
@@ -686,7 +701,7 @@ fail:
     #endif
     IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
     if (ret != kIOReturnSuccess) {
-        NSLog(@"Could not send command, error: %x", ret);
+        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
         return NO;
     }
     
@@ -712,31 +727,31 @@ fail:
     #endif
     IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACUSBSubcommandOutputReport));
     if (ret != kIOReturnSuccess) {
-        NSLog(@"Could not send command, error: %x", ret);
+        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
         goto fail;
     }
     
     int attempts = 0;
-    while (_currentResponse == nil && attempts < 5) {
+    while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
         BOOL notTimeout = YES;
         while (_currentResponse == nil && notTimeout)
-            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+            notTimeout = [_responseAvailable waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS]];
         if (!notTimeout) {
-            NSLog(@"Did not receive ACK from controller after 10 s (USB subcommand %02X)", cmdid);
+            NSLog(@"[dev %p] Did not receive ACK from controller after %f s (USB subcommand %02X)", self, MAX_RESPONSE_WAIT_SECONDS, cmdid);
             goto fail;
         }
         
         if ([_currentResponse length] < sizeof(OEHACUSBAcknowledgmentOutputReport)) {
-            NSLog(@"Invalid ACK from controller (USB subcommand %02X)", cmdid);
+            NSLog(@"[dev %p] Invalid ACK from controller (USB subcommand %02X)", self, cmdid);
             goto fail;
         }
         const OEHACUSBAcknowledgmentOutputReport *response = [_currentResponse bytes];
         if (response->reportID != OEHACInputReportIDUSBSubcommandReply) {
-            NSLog(@"Invalid ACK from controller (USB subcommand %02X)", cmdid);
+            NSLog(@"[dev %p] Invalid ACK from controller (USB subcommand %02X)", self, cmdid);
             goto fail;
         }
         if (response->subcommand != cmdid) {
-            NSLog(@"Wrong USB ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", cmdid, response->subcommand, attempts);
+            NSLog(@"[dev %p] Wrong USB ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", self, cmdid, response->subcommand, attempts);
             _currentResponse = nil;
         }
         
@@ -763,7 +778,7 @@ fail:
     #endif
     IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACUSBSubcommandOutputReport));
     if (ret != kIOReturnSuccess) {
-        NSLog(@"Could not send command, error: %x", ret);
+        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
         return NO;
     }
     
