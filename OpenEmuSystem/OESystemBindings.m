@@ -947,7 +947,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 
 - (BOOL)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler
 {
-    BOOL corrupted;
+    BOOL corrupted = NO;
     
     // Ignore extra keyboards for now
     if([aHandler isKeyboardDevice])
