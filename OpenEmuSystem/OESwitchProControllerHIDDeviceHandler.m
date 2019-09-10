@@ -25,6 +25,9 @@
 /*
  * Most of this code has been written based on the reverse-engineered documentation
  * which can be found at https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering
+ *
+ * As an additional reference, another implementation of a driver for this controller
+ * can be found at https://github.com/Davidobot/BetterJoyForCemu
  */
 
 #import "OEDeviceDescription.h"
@@ -39,6 +42,7 @@
 #define MAX_INPUT_REPORT_SIZE (256)
 #define MAX_RESPONSE_ATTEMPTS (10)
 #define MAX_RESPONSE_WAIT_SECONDS (10.0)
+#define PING_INTERVAL_SECONDS (60.0)
 
 //#define LOG_COMMUNICATION
 
@@ -297,6 +301,8 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 @implementation OESwitchProControllerHIDDeviceHandler
 {
+    NSTimer *_pingTimer;
+    
     uint8_t _reportBuffer[MAX_INPUT_REPORT_SIZE];
     uint8_t _packetCounter;
     
@@ -367,17 +373,29 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     }
     
     BOOL notDuplicated = [[OESwitchProControllerHIDDeviceParser sharedInstance] registerDeviceHandler:self];
-    if (!notDuplicated)
+    if (notDuplicated == NO)
         return NO;
     
     [self _setPlayerLights:0x0F];
     [self _requestCalibrationData];
+    
+    /* In BetterJoyForCemu there is a comment that says the controller wants to be
+     * periodically pinged to keep its connection alive. Even though I've never seen
+     * a spontaneous disconnection, it's better to be safe than sorry */
+    _pingTimer = [NSTimer timerWithTimeInterval:PING_INTERVAL_SECONDS repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self _sendOneWaySubcommand:OEHACSubcmdNoop withData:NULL length:0];
+    }];
+    [_pingTimer setTolerance:PING_INTERVAL_SECONDS * 0.1];
+    [[NSRunLoop mainRunLoop] addTimer:_pingTimer forMode:NSDefaultRunLoopMode];
+    
     return YES;
 }
 
 
 - (void)disconnect
 {
+    [_pingTimer invalidate];
+    
     /* we don't want to disconnect the controller every time the helper
      * app terminates, just when OpenEmu closes */
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"])
@@ -592,7 +610,6 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 #pragma mark - Custom HID Reports Send/Receive Primitives
 
 
-/* Only invoke while in _auxCommQueue, otherwise we'll deadlock! */
 - (NSData *)_requestSPIFlashReadAtAddress:(uint32_t)in_base length:(uint8_t)in_len
 {
     NSAssert(in_len <= 29, @"cannot read more than 29 bytes from SPI Flash at a time");
