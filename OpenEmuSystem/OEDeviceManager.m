@@ -208,13 +208,13 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     __block OEDeviceHandler *handler;
 
     dispatch_sync(_uniqueIdentifiersToDeviceHandlersQueue, ^{
-        handler = _uniqueIdentifiersToDeviceHandlers[uniqueIdentifier];
+        handler = self->_uniqueIdentifiersToDeviceHandlers[uniqueIdentifier];
 
         if (handler)
             return;
 
         handler = [[OEDeviceHandlerPlaceholder alloc] initWithUniqueIdentifier:uniqueIdentifier];
-        _uniqueIdentifiersToDeviceHandlers[uniqueIdentifier] = handler;
+        self->_uniqueIdentifiersToDeviceHandlers[uniqueIdentifier] = handler;
     });
 
     return handler;

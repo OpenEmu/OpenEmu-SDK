@@ -31,6 +31,7 @@
 #endif
 
 #import <OpenEmuBase/NSString+UUID.h>
+#import <OpenEmuBase/NSDictionary+OpenEmuSDK.h>
 #import <OpenEmuBase/OEAbstractAdditions.h>
 #import <OpenEmuBase/OEGameCore.h>
 #import <OpenEmuBase/OEGameCoreController.h>

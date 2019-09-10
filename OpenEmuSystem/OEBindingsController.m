@@ -140,13 +140,13 @@ static NSString *configurationsFolderPath;
         if((self = [super init]))
         {
             dispatch_sync(bindingsControllerQueue, ^{
-                configurationName     = [aName copy];
+                self->configurationName     = [aName copy];
 
                 NSData *data = [NSData dataWithContentsOfFile:[[self class] filePathForConfigurationWithName:aName]];
-                systemRepresentations = data ? [[NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:nil] mutableCopy] : nil;
+                self->systemRepresentations = data ? [[NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:nil] mutableCopy] : nil;
                 [self OE_setupBindingsController];
                 [self OE_setupNotificationObservation];
-                [bindingsControllers setObject:self forKey:configurationName];
+                [bindingsControllers setObject:self forKey:self->configurationName];
             });
             ret = self;
         }

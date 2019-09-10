@@ -166,7 +166,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         NSMutableDictionary *decodedBindings = [NSMutableDictionary dictionaryWithCapacity:[encoded count]];
 
         [encoded enumerateKeysAndObjectsUsingBlock:^(NSString *keyName, id value, BOOL *stop) {
-            OEKeyBindingDescription *desc = _systemController.allKeyBindingsDescriptions[keyName];
+            OEKeyBindingDescription *desc = self->_systemController.allKeyBindingsDescriptions[keyName];
 
             if(desc)
                 decodedBindings[desc] = [OEHIDEvent eventWithDictionaryRepresentation:value];
@@ -175,9 +175,9 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         OEKeyboardPlayerBindings *controller = [[OEKeyboardPlayerBindings alloc] OE_initWithSystemBindings:self playerNumber:idx + 1];
 
         [controller OE_setBindingEvents:decodedBindings];
-        [controller OE_setBindingDescriptions:[self OE_stringValuesForBindings:decodedBindings possibleKeys:_systemController.keyBindingsDescriptions]];
+        [controller OE_setBindingDescriptions:[self OE_stringValuesForBindings:decodedBindings possibleKeys:self->_systemController.keyBindingsDescriptions]];
 
-        _keyboardPlayerBindings[@([controller playerNumber])] = controller;
+        self->_keyboardPlayerBindings[@([controller playerNumber])] = controller;
     }];
 }
 
@@ -251,7 +251,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
         if(controlIdentifier == nil)
             return;
 
-        NSAssert(![controlIdentifier isKindOfClass:[NSNumber class]], @"Default for key %@ in System %@ was not converted to the new system.", keyName, [_systemController systemName]);
+        NSAssert(![controlIdentifier isKindOfClass:[NSNumber class]], @"Default for key %@ in System %@ was not converted to the new system.", keyName, [self->_systemController systemName]);
 
         OEControlValueDescription *controlValue = [controllerDescription controlValueDescriptionForRepresentation:controlIdentifier];
         OEHIDEvent *event = [controlValue event];
@@ -992,7 +992,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     [[aHandler bindingEvents] enumerateKeysAndObjectsUsingBlock:
      ^(id key, OEControlValueDescription *obj, BOOL *stop)
      {
-         for(id<OESystemBindingsObserver> observer in _bindingsObservers)
+         for(id<OESystemBindingsObserver> observer in self->_bindingsObservers)
              [observer systemBindings:self didSetEvent:[[obj event] OE_eventWithDeviceHandler:deviceHandler] forBinding:key playerNumber:playerNumber];
      }];
 }
@@ -1006,7 +1006,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
     [[aHandler bindingEvents] enumerateKeysAndObjectsUsingBlock:
      ^(id key, OEControlValueDescription *obj, BOOL *stop)
      {
-         for(id<OESystemBindingsObserver> observer in _bindingsObservers)
+         for(id<OESystemBindingsObserver> observer in self->_bindingsObservers)
              [observer systemBindings:self didUnsetEvent:[[obj event] OE_eventWithDeviceHandler:deviceHandler] forBinding:key playerNumber:playerNumber];
      }];
 }
@@ -1117,7 +1117,7 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
      {
          NSUInteger player = playerNumber;
          // playerNumber for system-wide keys should always be 0
-         if(_systemController.systemKeyBindingsDescriptions != nil &&
+         if(self->_systemController.systemKeyBindingsDescriptions != nil &&
             [key isKindOfClass:[OEKeyBindingDescription class]] &&
             [key isSystemWide])
              player = 0;

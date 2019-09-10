@@ -90,7 +90,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
     [_controlValues enumerateObjectsUsingBlock:
      ^(OEControlValueDescription *obj, NSUInteger idx, BOOL *stop)
      {
-         [_controllerDescription OE_controlDescription:self didAddControlValue:obj];
+         [self->_controllerDescription OE_controlDescription:self didAddControlValue:obj];
      }];
 }
 
@@ -107,7 +107,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
             [representations enumerateKeysAndObjectsUsingBlock:
              ^(NSString *identifier, NSDictionary *rep, BOOL *stop)
              {
-                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[_genericEvent axisEventWithDirection:[rep[@"Direction"] integerValue]]]];
+                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[self->_genericEvent axisEventWithDirection:[rep[@"Direction"] integerValue]]]];
              }];
         }
             break;
@@ -117,7 +117,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
             [representations enumerateKeysAndObjectsUsingBlock:
              ^(NSString *identifier, NSDictionary *rep, BOOL *stop)
              {
-                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[_genericEvent hatSwitchEventWithDirection:OEHIDEventHatDirectionFromNSString(rep[@"Direction"])]]];
+                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[self->_genericEvent hatSwitchEventWithDirection:OEHIDEventHatDirectionFromNSString(rep[@"Direction"])]]];
              }];
         }
             break;

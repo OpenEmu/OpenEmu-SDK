@@ -85,7 +85,7 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 {
     __block OESystemKey *ret = nil;
     dispatch_sync(_queue, ^{
-        ret = [_keyMap objectForKey:anEvent];
+        ret = [self->_keyMap objectForKey:anEvent];
     });
 
     return ret;
@@ -109,7 +109,7 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 {
     __block NSString *keyMapDescription = [_keyMap description];
     dispatch_sync(_queue, ^{
-        keyMapDescription = [_keyMap description];
+        keyMapDescription = [self->_keyMap description];
     });
 
     return [NSString stringWithFormat:@"<%@ %p events: %@>", [self class], self, keyMapDescription];
