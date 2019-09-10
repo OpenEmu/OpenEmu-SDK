@@ -906,7 +906,9 @@ NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
             break;
         case OEHIDEventTypeHatSwitch :
         {
-            NSMutableSet<OEKeyBindingGroupDescription *> *visitedAxisGroups = [NSMutableSet setWithArray:@[axisGroup, hatGroup]];
+            NSMutableSet<OEKeyBindingGroupDescription *> *visitedAxisGroups = [NSMutableSet set];
+            if (axisGroup) [visitedAxisGroups addObject:axisGroup];
+            if (hatGroup) [visitedAxisGroups addObject:hatGroup];
             for(OEKeyBindingDescription *keyDesc in [hatGroup keys])
             {
                 OEControlValueDescription *valueDesc = [rawBindings objectForKey:keyDesc];
