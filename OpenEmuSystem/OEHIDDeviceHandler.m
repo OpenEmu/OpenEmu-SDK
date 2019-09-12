@@ -99,6 +99,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (_device == NULL)
         return;
 
+    /* IOHIDDeviceUnscheduleFromRunLoop does not actually stop all callbacks immediately,
+     * while IOHIDDeviceClose does. */
+    IOHIDDeviceClose(_device, 0);
     CFRelease(_device);
 
     if(_ffDevice != NULL)
