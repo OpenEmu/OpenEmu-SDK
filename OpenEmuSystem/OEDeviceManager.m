@@ -138,31 +138,38 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         _unhandledEventListeners = [NSHashTable weakObjectsHashTable];
         _deviceHandlersToEventListeners = [NSMutableDictionary dictionary];
 
-		IOHIDManagerRegisterDeviceMatchingCallback(_hidManager, OEHandle_DeviceMatchingCallback, (__bridge void *)self);
-
-		IOHIDManagerScheduleWithRunLoop(_hidManager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
-
-        [self OE_addKeyboardEventMonitor];
-
-        NSArray *matchingTypes = @[ @{
-                @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
-                @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Joystick)
-            },
-            @{
-                @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
-                @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_GamePad)
-            },
-            @{
-                @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
-                @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Keyboard)
-            } ];
-
-        IOHIDManagerSetDeviceMatchingMultiple(_hidManager, (__bridge CFArrayRef)matchingTypes);
-
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_wiimoteDeviceDidDisconnect:) name:OEWiimoteDeviceHandlerDidDisconnectNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self OE_setUpCallbacks];
+        });
     }
 	return self;
+}
+
+- (void)OE_setUpCallbacks
+{
+    IOHIDManagerRegisterDeviceMatchingCallback(_hidManager, OEHandle_DeviceMatchingCallback, (__bridge void *)self);
+
+    IOHIDManagerScheduleWithRunLoop(_hidManager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
+
+    [self OE_addKeyboardEventMonitor];
+
+    NSArray *matchingTypes = @[ @{
+            @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
+            @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Joystick)
+        },
+        @{
+            @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
+            @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_GamePad)
+        },
+        @{
+            @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
+            @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Keyboard)
+        } ];
+
+    IOHIDManagerSetDeviceMatchingMultiple(_hidManager, (__bridge CFArrayRef)matchingTypes);
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_wiimoteDeviceDidDisconnect:) name:OEWiimoteDeviceHandlerDidDisconnectNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
 }
 
 - (void)OE_applicationWillTerminate:(NSNotification *)notification;
