@@ -291,7 +291,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 + (OESwitchProControllerHIDDeviceParser *)sharedInstance;
 + (NSUInteger)_cookieFromUsage:(NSUInteger)usage;
 
-- (BOOL)registerDeviceHandler:(OESwitchProControllerHIDDeviceHandler *)dh;
+- (void)registerDeviceHandler:(OESwitchProControllerHIDDeviceHandler *)dh;
 
 @end
 
@@ -372,9 +372,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
         _internalSerialNumber = [NSData dataWithBytes:status->btMacAddress length:6];
     }
     
-    BOOL notDuplicated = [[OESwitchProControllerHIDDeviceParser sharedInstance] registerDeviceHandler:self];
-    if (notDuplicated == NO)
-        return NO;
+    [[OESwitchProControllerHIDDeviceParser sharedInstance] registerDeviceHandler:self];
     
     [self _setPlayerLights:0x0F];
     [self _requestCalibrationData];
@@ -936,7 +934,7 @@ static void OEHACProControllerHIDReportCallback(
 }
 
 
-- (BOOL)registerDeviceHandler:(OESwitchProControllerHIDDeviceHandler *)dh
+- (void)registerDeviceHandler:(OESwitchProControllerHIDDeviceHandler *)dh
 {
     /* When connecting a Switch Pro Controller via USB, if that same controller
      * was already connected via BlueTooth, it can happen that for a brief instant
@@ -954,24 +952,12 @@ static void OEHACProControllerHIDReportCallback(
     if (![devm.deviceHandlers containsObject:existing]) {
         /* Device is not connected in any other way */
         [_serialToHandler setObject:dh forKey:serial];
-        return YES;
+        return;
     }
     
-    if (dh.isUSB && !existing.isUSB) {
-        /* Remove existing BT device handler */
-        [[OEDeviceManager sharedDeviceManager] OE_removeDeviceHandler:existing];
-        [_serialToHandler setObject:dh forKey:serial];
-        return YES;
-    }
-    
-    if (existing.isUSB)
-        /* Don't connect via BT if we're already connected via USB */
-        return NO;
-    
-    /* Should be unreachable; connection method of old and new handlers
-     * is the same. Keep the most recent handler. */
+    NSLog(@"Switch Pro Controller %@ is connected both via bluetooth and USB; removing least recent connection", serial);
+    [[OEDeviceManager sharedDeviceManager] OE_removeDeviceHandler:existing];
     [_serialToHandler setObject:dh forKey:serial];
-    return YES;
 }
 
 
