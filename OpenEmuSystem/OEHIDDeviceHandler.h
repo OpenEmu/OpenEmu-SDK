@@ -54,6 +54,22 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enableForceFeedback;
 - (void)disableForceFeedback;
 
+/** The CFRunLoop where the HID report callbacks are called.
+ *  @discussion The default RunLoop is the main RunLoop.
+ *  @note If a custom device handler needs events to be dispatched to a
+ *     different runloop, it shall override: (1) this property (2) the
+ *     -setUpCallbacks method (3) the -dispatchEvent: method or,
+ *     alternatively, the -dispatchEventWithHIDValue: and the
+ *     -dispatchFunctionKeyEventWithHIDValue: methods (for keyboards). */
+@property(readonly) CFRunLoopRef eventRunLoop;
+
+/** Registers the callbacks used for receiving HID reports from the device.
+ *  @note If you override eventRunLoop, override this method to create
+ *     the thread which will receive the events to ensure that the
+ *     newly created CFRunLoop doesn't terminate immediately due to a
+ *     lack of registered event sources. */
+- (void)setUpCallbacks;
+
 @end
 
 @protocol OEHIDDeviceParser <NSObject>

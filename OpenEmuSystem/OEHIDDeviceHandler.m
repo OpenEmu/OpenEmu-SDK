@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
             [self OE_setUpInitialEvents];
         }
 
-        [self OE_setUpCallbacks];
+        [self setUpCallbacks];
     }
 
     return self;
@@ -106,6 +106,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     if(_ffDevice != NULL)
         FFReleaseDevice(_ffDevice);
+}
+
+- (CFRunLoopRef)eventRunLoop
+{
+    return CFRunLoopGetMain();
 }
 
 - (NSString *)uniqueIdentifier
@@ -318,7 +323,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)OE_setUpCallbacks;
+- (void)setUpCallbacks;
 {
     // Register for removal
     IOHIDDeviceRegisterRemovalCallback(_device, OEHandle_DeviceRemovalCallback, (__bridge void *)self);
@@ -339,16 +344,18 @@ NS_ASSUME_NONNULL_BEGIN
     IOHIDDeviceRegisterInputValueCallback(_device, OEHandle_InputValueCallback, (__bridge void *)self);
 
     // Attach to the runloop
-    IOHIDDeviceScheduleWithRunLoop(_device, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
+    IOHIDDeviceScheduleWithRunLoop(_device, self.eventRunLoop, kCFRunLoopDefaultMode);
 }
 
 - (void)OE_removeDeviceHandlerForDevice:(IOHIDDeviceRef)aDevice
 {
     NSAssert(aDevice == _device, @"Device remove callback called on the wrong object.");
 
-	IOHIDDeviceUnscheduleFromRunLoop(_device, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
+	IOHIDDeviceUnscheduleFromRunLoop(_device, self.eventRunLoop, kCFRunLoopDefaultMode);
 
-    [[OEDeviceManager sharedDeviceManager] OE_removeDeviceHandler:self];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[OEDeviceManager sharedDeviceManager] OE_removeDeviceHandler:self];
+    });
 }
 
 static void OEHandle_InputValueCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDValueRef inIOHIDValueRef)
