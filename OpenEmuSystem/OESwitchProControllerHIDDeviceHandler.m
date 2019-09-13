@@ -301,16 +301,21 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 @implementation OESwitchProControllerHIDDeviceHandler
 {
+    NSThread *_thread;
     NSTimer *_pingTimer;
     
     uint8_t _reportBuffer[MAX_INPUT_REPORT_SIZE];
     uint8_t _packetCounter;
     
+    NSCondition *_responseAvailable;
     NSData *_currentResponse;
     
     OEHACProControllerStickCalibration _leftStickCalibration;
     OEHACProControllerStickCalibration _rightStickCalibration;
 }
+
+
+@synthesize eventRunLoop = _eventRunLoop;
 
 
 + (BOOL)canHandleDevice:(IOHIDDeviceRef)aDevice
@@ -348,20 +353,37 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
             .y = {.min = 8192, .zero = 32768, .max = 57344},
         };
     
+    _responseAvailable = [[NSCondition alloc] init];
+    
     return self;
+}
+
+
+- (void)setUpCallbacks
+{
+    dispatch_semaphore_t done = dispatch_semaphore_create(0);
+    _thread = [[NSThread alloc] initWithBlock:^{
+        self->_eventRunLoop = CFRunLoopGetCurrent();
+        
+        IOHIDDeviceRegisterInputReportCallback(self.device, self->_reportBuffer, MAX_INPUT_REPORT_SIZE, OEHACProControllerHIDReportCallback, (__bridge void *)self);
+        [super setUpCallbacks];
+        
+        dispatch_semaphore_signal(done);
+        CFRunLoopRun();
+    }];
+    [_thread setQualityOfService:NSQualityOfServiceUserInteractive];
+    [_thread setName:@"org.openemu.OpenEmuSystem.switchProControllerThread"];
+    [_thread start];
+    dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);
 }
 
 
 - (BOOL)connect
 {
-    IOHIDDeviceRegisterInputReportCallback([self device], _reportBuffer, MAX_INPUT_REPORT_SIZE, OEHACProControllerHIDReportCallback, (__bridge void *)self);
-    
     NSString *transport = IOHIDDeviceGetProperty([self device], CFSTR(kIOHIDTransportKey));
     if ([transport isEqualToString:@kIOHIDTransportUSBValue]) {
         _isUSB = YES;
         [self _enableUSBmode];
-    } else {
-        [self _setReportMode:OEHACInputReportIDFullReport];
     }
     
     NSData *info = [self _sendSubcommand:OEHACSubcmdRequestDeviceInfo withData:NULL length:0];
@@ -374,6 +396,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     
     [[OESwitchProControllerHIDDeviceParser sharedInstance] registerDeviceHandler:self];
     
+    [self _setReportMode:OEHACInputReportIDFullReport];
     [self _setPlayerLights:0x0F];
     [self _requestCalibrationData];
     
@@ -392,6 +415,8 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 
 - (void)disconnect
 {
+    [super disconnect];
+    
     [_pingTimer invalidate];
     
     /* we don't want to disconnect the controller every time the helper
@@ -399,6 +424,8 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"])
         return;
     [self _setPowerState:OEHACPowerStateSleep];
+    
+    CFRunLoopStop(_eventRunLoop);
 }
 
 
@@ -659,52 +686,26 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     if (data)
         memcpy(report.subcmdParam, data, length);
     
-    NSData *ack;
-    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS];
-    NSRunLoop *mainLoop = [NSRunLoop currentRunLoop];
-    
-    _currentResponse = nil;
-    #ifdef LOG_COMMUNICATION
-    NSLog(@"[dev %p] sent output report %@", self, [NSData dataWithBytes:(uint8_t *)&report length:sizeof(OEHACRumbleAndSubcommandOutputReport)]);
-    #endif
-    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACRumbleAndSubcommandOutputReport));
-    if (ret != kIOReturnSuccess) {
-        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
-        goto fail;
-    }
-    
-    int attempts = 0;
-    while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
-        while (_currentResponse == nil && [deadline isGreaterThan:[NSDate date]])
-            [mainLoop runMode:NSDefaultRunLoopMode beforeDate:deadline];
-        if (_currentResponse == nil) {
-            NSLog(@"[dev %p] Did not receive ACK from controller after %f s (subcommand %02X)", self,  MAX_RESPONSE_WAIT_SECONDS, cmdid);
-            goto fail;
-        }
-        
-        if ([_currentResponse length] < sizeof(OEHACAcknowledgmentHIDInputReport)) {
+    NSData *reportData = [NSData dataWithBytes:&report length:sizeof(OEHACRumbleAndSubcommandOutputReport)];
+    return [self _attemptSendingOutputReport:reportData responseHandler:^BOOL(NSData *respData, int attempts) {
+        if ([respData length] < sizeof(OEHACAcknowledgmentHIDInputReport)) {
             NSLog(@"[dev %p] Invalid ACK from controller (subcommand %02X)", self, cmdid);
-            goto fail;
+            return NO;
         }
-        const OEHACAcknowledgmentHIDInputReport *response = [_currentResponse bytes];
+        const OEHACAcknowledgmentHIDInputReport *response = [respData bytes];
         if (!(response->ackStatus & 0x80)) {
             NSLog(@"[dev %p] NACK from controller (subcommand %02X)", self, cmdid);
-            goto fail;
+            return NO;
         }
         if (response->repliedSubcmdId != cmdid) {
             NSLog(@"[dev %p] Wrong ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", self, cmdid, response->repliedSubcmdId, attempts);
-            _currentResponse = nil;
-        } else if (validator && !validator(_currentResponse)) {
+            return NO;
+        } else if (validator && !validator(respData)) {
             NSLog(@"[dev %p] Validation failed [attempt = %d]", self, attempts);
-            _currentResponse = nil;
+            return NO;
         }
-        
-        attempts++;
-    }
-    ack = _currentResponse;
-    
-fail:
-    return ack;
+        return YES;
+    }];
 }
 
 
@@ -736,53 +737,27 @@ fail:
 - (NSData *)_sendUSBSubcommand:(OEHACUSBSubcommandID)cmdid
 {
     OEHACUSBSubcommandOutputReport report = {0};
-    
     report.reportID = OEHACOutputReportIDUSBSubcommand;
     report.subcommand = cmdid;
     
-    NSData *ack;
-    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS];
-    NSRunLoop *mainLoop = [NSRunLoop currentRunLoop];
+    NSData *reportData = [NSData dataWithBytes:(void*)&report length:sizeof(OEHACUSBSubcommandOutputReport)];
     
-    _currentResponse = nil;
-    #ifdef LOG_COMMUNICATION
-    NSLog(@"[dev %p] sent output report %@", self, [NSData dataWithBytes:(uint8_t *)&report length:sizeof(OEHACUSBSubcommandOutputReport)]);
-    #endif
-    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, report.reportID, (uint8_t *)&report, sizeof(OEHACUSBSubcommandOutputReport));
-    if (ret != kIOReturnSuccess) {
-        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
-        goto fail;
-    }
-    
-    int attempts = 0;
-    while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
-        while (_currentResponse == nil && [deadline isGreaterThan:[NSDate date]])
-            [mainLoop runMode:NSDefaultRunLoopMode beforeDate:deadline];
-        if (_currentResponse == nil) {
-            NSLog(@"[dev %p] Did not receive ACK from controller after %f s (USB subcommand %02X)", self, MAX_RESPONSE_WAIT_SECONDS, cmdid);
-            goto fail;
-        }
-        
-        if ([_currentResponse length] < sizeof(OEHACUSBAcknowledgmentOutputReport)) {
+    return [self _attemptSendingOutputReport:reportData responseHandler:^BOOL(NSData *respData, int attempts) {
+        if ([respData length] < sizeof(OEHACUSBAcknowledgmentOutputReport)) {
             NSLog(@"[dev %p] Invalid ACK from controller (USB subcommand %02X)", self, cmdid);
-            goto fail;
+            return NO;
         }
-        const OEHACUSBAcknowledgmentOutputReport *response = [_currentResponse bytes];
+        const OEHACUSBAcknowledgmentOutputReport *response = respData.bytes;
         if (response->reportID != OEHACInputReportIDUSBSubcommandReply) {
             NSLog(@"[dev %p] Invalid ACK from controller (USB subcommand %02X)", self, cmdid);
-            goto fail;
+            return NO;
         }
         if (response->subcommand != cmdid) {
             NSLog(@"[dev %p] Wrong USB ACK from controller (subcommand %02X expected, %02X received) [attempt = %d]", self, cmdid, response->subcommand, attempts);
-            _currentResponse = nil;
+           return NO;
         }
-        
-        attempts++;
-    }
-    ack = _currentResponse;
-    
-fail:
-    return ack;
+        return YES;
+    }];
 }
 
 
@@ -806,19 +781,74 @@ fail:
 }
 
 
+- (NSData *)_attemptSendingOutputReport:(NSData *)report responseHandler:(BOOL (^)(NSData *respData, int attempts))respHandler
+{
+    NSAssert(report.length > 1, @"HID reports must be at least one byte long!");
+    
+    NSData *ack;
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MAX_RESPONSE_WAIT_SECONDS];
+    uint8_t reportID = ((uint8_t *)report.bytes)[0];
+    
+    [_responseAvailable lock];
+    
+    _currentResponse = nil;
+    #ifdef LOG_COMMUNICATION
+    NSLog(@"[dev %p] sent output report %@", self, report);
+    #endif
+    IOReturn ret = IOHIDDeviceSetReport([self device], kIOHIDReportTypeOutput, reportID, report.bytes, report.length);
+    if (ret != kIOReturnSuccess) {
+        NSLog(@"[dev %p] Could not send command, error: %x", self, ret);
+        goto fail;
+    }
+    
+    int attempts = 0;
+    while (_currentResponse == nil && attempts < MAX_RESPONSE_ATTEMPTS) {
+        BOOL notTimeout = YES;
+        while (_currentResponse == nil && notTimeout)
+            notTimeout = [_responseAvailable waitUntilDate:deadline];
+        if (!notTimeout && _currentResponse == nil) {
+            NSLog(@"[dev %p] Did not receive ACK from controller after %f s", self,  MAX_RESPONSE_WAIT_SECONDS);
+            goto fail;
+        }
+        
+        BOOL accepted = respHandler(_currentResponse, attempts);
+        if (!accepted) {
+            _currentResponse = nil;
+            attempts++;
+        }
+    }
+    ack = _currentResponse;
+    
+fail:
+    [_responseAvailable unlock];
+    
+    return ack;
+}
+
+
 - (void)_didReceiveInputReportWithID:(uint8_t)rid data:(uint8_t *)data length:(NSUInteger)length
 {
     if (data[0] == OEHACInputReportIDSubcommandReply || data[0] == OEHACInputReportIDUSBSubcommandReply) {
+        [_responseAvailable lock];
         _currentResponse = [NSData dataWithBytes:data length:length];
         #ifdef LOG_COMMUNICATION
         NSLog(@"[dev %p] ack report %@", self, _currentResponse);
         #endif
+        [_responseAvailable signal];
+        [_responseAvailable unlock];
         
     } else if (data[0] == OEHACInputReportIDFullReport && length >= sizeof(OEHACStandardHIDInputReport)) {
         #ifdef LOG_COMMUNICATION
         NSLog(@"[dev %p] input report %@", self, [NSData dataWithBytes:data length:length]);
         #endif
-        [self _dispatchEventsWithStandardInputReport:(OEHACStandardHIDInputReport *)(data)];
+        /* Latency of an event dispatch as measured on a MacBook Pro (13-inch, 2018,
+         * Four Thunderbolt 3 Ports), via timestamp comparison with both the LOG_COMMUNICATION
+         * define enalbed and the HID Event Log option enabled:
+         * ~500 microseconds (0.030 frames at 60 FPS) */
+        __block OEHACStandardHIDInputReport report = *((OEHACStandardHIDInputReport *)(data));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self _dispatchEventsWithStandardInputReport:&report];
+        });
         
     } else {
         #ifdef LOG_COMMUNICATION
