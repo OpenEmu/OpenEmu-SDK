@@ -37,6 +37,8 @@ extern "C" {
 #import <objc/runtime.h>
 }
 #include <unordered_map>
+#include <vector>
+#include <set>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,6 +62,19 @@ typedef union {
     OEHIDEventHatDirection hatEvent;
 } OEJoystickState;
 
+typedef struct {
+    /** YES while rapid fire toggle is pressed. */
+    BOOL setupMode = NO;
+    
+    /** YES if the current state of the rapid-fire-controlled keys is pressed,
+     *  NO otherwise. All rapid fire keys share the same pressed/released state. */
+    BOOL state = NO;
+    
+    /** Buttons with rapid fire enabled.
+     *  Outside of rapid fire toggle mode, any press/release is ignored. */
+    NSMutableSet <OESystemKey *> *rapidFireButtons = [NSMutableSet set];
+} OEPlayerRapidFireState;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-designated-initializers"
 
@@ -67,6 +82,10 @@ typedef union {
 {
     std::unordered_map<OEJoystickStatusKey, OEJoystickState> _joystickStates;
     std::unordered_map<OEJoystickStatusKey, OEAxisSystemKeyType> _axisSystemKeyTypes;
+    
+    std::set<NSInteger> _rapidFireKeyBlacklist;
+    std::vector<OEPlayerRapidFireState> _rapidFireState;
+    
     BOOL _handlesEscapeKey;
     double _analogToDigitalThreshold;
 }
@@ -90,6 +109,16 @@ typedef union {
     {
         _controller = controller;
         _keyMap = [[OEBindingMap alloc] initWithSystemController:controller];
+        
+        /* Create the list of buttons that should not be affected by the rapid fire
+         * toggle. Basically, we remove all directional buttons, by exploiting binding
+         * groups to enumerate them. */
+        [controller.keyBindingGroupDescriptions enumerateKeysAndObjectsUsingBlock:^(NSString *name, OEKeyBindingGroupDescription *group, BOOL *stop) {
+            for (OEKeyBindingDescription *key in group.keys) {
+                if (!key.isAnalogic)
+                    _rapidFireKeyBlacklist.insert(key.index);
+            }
+        }];
         
         NSUserDefaults *ud = [NSUserDefaults oe_applicationUserDefaults];
         NSNumber *val = [ud objectForKey:@"OESystemResponderADCThreshold"];
@@ -136,6 +165,110 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     return (OEJoystickStatusKey)ret;
 }
 
+#pragma mark - Rapid Fire
+
+static inline BOOL _OESystemResponderHandleRapidFirePressForKey(OESystemResponder *self, OESystemKey *key)
+{
+    NSUInteger keyId = key.key;
+    if (self->_rapidFireKeyBlacklist.count(keyId))
+        return NO;
+        
+    NSUInteger player = key.player;
+    if (self->_rapidFireState.size() <= player)
+        return NO;
+    
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    if (rfstate.setupMode) {
+        if ([rfstate.rapidFireButtons containsObject:key]) {
+            [rfstate.rapidFireButtons removeObject:key];
+            if (rfstate.state)
+                [self releaseEmulatorKey:key];
+        } else {
+            [rfstate.rapidFireButtons addObject:key];
+            if (rfstate.state)
+                [self pressEmulatorKey:key];
+        }
+        return YES;
+    }
+    
+    if ([rfstate.rapidFireButtons containsObject:key])
+        return YES;
+    return NO;
+}
+
+static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemResponder *self, OESystemKey *key)
+{
+    NSUInteger keyId = key.key;
+    if (self->_rapidFireKeyBlacklist.count(keyId))
+        return NO;
+        
+    NSUInteger player = key.player;
+    if (self->_rapidFireState.size() <= player)
+        return NO;
+        
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    if ([rfstate.rapidFireButtons containsObject:key])
+        return YES;
+    return NO;
+}
+
+- (void)_pressRapidFireToggleForPlayer:(NSInteger)player
+{
+    if (self->_rapidFireState.size() <= player)
+        self->_rapidFireState.resize(player+1);
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    
+    rfstate.setupMode = YES;
+    
+    [self.client setFrameCallback:^{
+        NSInteger player = 0;
+        for (OEPlayerRapidFireState& rfstate: self->_rapidFireState) {
+            rfstate.state ^= YES;
+            
+            BOOL active = NO;
+            if (rfstate.state) {
+                for (OESystemKey *key in rfstate.rapidFireButtons) {
+                    [self pressEmulatorKey:key];
+                    active = YES;
+                }
+            } else {
+                for (OESystemKey *key in rfstate.rapidFireButtons) {
+                    [self releaseEmulatorKey:key];
+                    active = YES;
+                }
+            }
+            
+            /* reset the state if no buttons are affected */
+            if (!active)
+                rfstate.state = NO;
+            
+            player++;
+        }
+    }];
+}
+
+- (void)_releaseRapidFireToggleForPlayer:(NSInteger)player
+{
+    if (self->_rapidFireState.size() <= player)
+        self->_rapidFireState.resize(player+1);
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    
+    rfstate.setupMode = NO;
+}
+
+- (void)_clearRapidFireForPlayer:(NSInteger)player
+{
+    if (self->_rapidFireState.size() <= player)
+        return;
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    
+    if (rfstate.state) {
+        for (OESystemKey *key in rfstate.rapidFireButtons)
+            [self releaseEmulatorKey:key];
+    }
+    [rfstate.rapidFireButtons removeAllObjects];
+}
+
 #pragma mark - Event Funneling Functions
 
 static inline void _OEBasicSystemResponderPressSystemKey(OESystemResponder *self, OESystemKey *key, BOOL isAnalogic)
@@ -149,14 +282,16 @@ static inline void _OEBasicSystemResponderPressSystemKey(OESystemResponder *self
             if(isAnalogic)
                 [self changeAnalogGlobalButtonIdentifier:ident value:1.0];
             else
-                [self pressGlobalButtonWithIdentifier:ident];
+                [self pressGlobalButtonWithIdentifier:ident player:key.player];
         }
         else
         {
             if(isAnalogic)
                 [self changeAnalogEmulatorKey:key value:1.0];
-            else
-                [self pressEmulatorKey:key];
+            else {
+                if (!_OESystemResponderHandleRapidFirePressForKey(self, key))
+                    [self pressEmulatorKey:key];
+            }
         }
     }];
 }
@@ -172,14 +307,16 @@ static inline void _OEBasicSystemResponderReleaseSystemKey(OESystemResponder *se
             if(isAnalogic)
                 [self changeAnalogGlobalButtonIdentifier:ident value:0.0];
             else
-                [self releaseGlobalButtonWithIdentifier:ident];
+                [self releaseGlobalButtonWithIdentifier:ident player:key.player];
         }
         else
         {
             if(isAnalogic)
                 [self changeAnalogEmulatorKey:key value:0.0];
-            else
-                [self releaseEmulatorKey:key];
+            else {
+                if (!_OESystemResponderHandleRapidFireReleaseForKey(self, key))
+                    [self releaseEmulatorKey:key];
+            }
         }
     }];
 }
@@ -227,7 +364,7 @@ if([NSThread isMainThread]) blk(); \
 else dispatch_async(dispatch_get_main_queue(), blk); \
 } while(NO)
 
-- (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+- (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier player:(NSInteger)player
 {
     // FIXME: We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat
     switch(identifier)
@@ -254,12 +391,18 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierLastDisplayMode :
             SEND_ACTION(lastDisplayMode:);
             return;
+        case OEGlobalButtonIdentifierRapidFireToggle:
+            [self _pressRapidFireToggleForPlayer:player];
+            return;
+        case OEGlobalButtonIdentifierRapidFireClear:
+            [self _clearRapidFireForPlayer:player];
+            return;
         default :
             break;
     }
 }
 
-- (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier;
+- (void)releaseGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier player:(NSInteger)player
 {
     switch(identifier)
     {
@@ -315,6 +458,11 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierScreenshot :
             SEND_ACTION(takeScreenshot:);
             return;
+        case OEGlobalButtonIdentifierRapidFireToggle:
+            [self _releaseRapidFireToggleForPlayer:player];
+            return;
+        case OEGlobalButtonIdentifierRapidFireClear:
+            return;
 
         case OEGlobalButtonIdentifierSlowMotion :
             NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
@@ -362,6 +510,8 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierNextDisplayMode :
         case OEGlobalButtonIdentifierLastDisplayMode :
         case OEGlobalButtonIdentifierScreenshot :
+        case OEGlobalButtonIdentifierRapidFireToggle :
+        case OEGlobalButtonIdentifierRapidFireClear :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
 

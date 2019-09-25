@@ -54,6 +54,10 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierVolumeDown";
         case OEGlobalButtonIdentifierVolumeUp :
             return @"OEGlobalButtonIdentifierVolumeUp";
+        case OEGlobalButtonIdentifierRapidFireToggle :
+            return @"OEGlobalButtonIdentifierRapidFireToggle";
+        case OEGlobalButtonIdentifierRapidFireClear :
+            return @"OEGlobalButtonIdentifierRapidFireClear";
         case OEGlobalButtonIdentifierStop :
             return @"OEGlobalButtonIdentifierStop";
         case OEGlobalButtonIdentifierReset :
@@ -105,6 +109,10 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
             return OEGlobalButtonVolumeDown;
         case OEGlobalButtonIdentifierVolumeUp :
             return OEGlobalButtonVolumeUp;
+        case OEGlobalButtonIdentifierRapidFireToggle :
+            return OEGlobalButtonRapidFireToggle;
+        case OEGlobalButtonIdentifierRapidFireClear :
+            return OEGlobalButtonRapidFireClear;
         case OEGlobalButtonIdentifierStop:
             return OEGlobalButtonStop;
         case OEGlobalButtonIdentifierReset :

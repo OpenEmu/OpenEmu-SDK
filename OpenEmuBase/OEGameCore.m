@@ -47,6 +47,7 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     CFRunLoopRef _gameCoreRunLoop;
 
     void (^_stopEmulationHandler)(void);
+    void (^_frameCallback)(void);
 
     OERingBuffer __strong **ringBuffers;
 
@@ -139,6 +140,11 @@ static Class GameCoreClass = Nil;
 }
 
 #pragma mark - Execution
+
+- (void)setFrameCallback:(void (^)(void))block
+{
+    _frameCallback = block;
+}
 
 - (void)performBlock:(void(^)(void))block
 {
@@ -304,6 +310,9 @@ static Class GameCoreClass = Nil;
         }
 
         OEWaitUntil(nextFrameTime);
+        
+        if (_frameCallback)
+            _frameCallback();
 
         // Service the event loop, which may now contain HID events, exactly once.
         // TODO: If paused, this burns CPU waiting to unpause, because it still runs at 1x rate.

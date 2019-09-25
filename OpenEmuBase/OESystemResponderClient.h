@@ -30,6 +30,8 @@
 
 - (void)performBlock:(void(^)(void))block;
 
+- (void)setFrameCallback:(void(^)(void))block;
+
 - (void)fastForward:(BOOL)flag;
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
 - (void)rewind:(BOOL)flag;
