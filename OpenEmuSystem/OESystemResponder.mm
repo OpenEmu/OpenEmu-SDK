@@ -122,6 +122,22 @@ typedef union {
     }
 }
 
+static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
+{
+    uint64_t ret = (uint64_t)[[anEvent deviceHandler] deviceIdentifier];
+
+    switch([anEvent type])
+    {
+        case OEHIDEventTypeAxis      : ret |= [anEvent axis] << 32; break;
+        case OEHIDEventTypeHatSwitch : ret |=         0x39lu << 32; break;
+        default : NSCAssert(NO, @"Wrong type");
+    }
+
+    return (OEJoystickStatusKey)ret;
+}
+
+#pragma mark - Event Funneling Functions
+
 static inline void _OEBasicSystemResponderPressSystemKey(OESystemResponder *self, OESystemKey *key, BOOL isAnalogic)
 {
     if(key == nil) return;
@@ -180,10 +196,7 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
     }];
 }
 
-- (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
-{
-    return [OESystemKey systemKeyWithKey:[aKey index] player:thePlayer isAnalogic:[aKey isAnalogic]];
-}
+#pragma mark - Emulator Button Dispatching
 
 - (void)pressEmulatorKey:(OESystemKey *)aKey
 {
@@ -199,6 +212,8 @@ static inline void _OEBasicSystemResponderChangeAnalogSystemKey(OESystemResponde
 {
     [self doesNotImplementSelector:_cmd];
 }
+
+#pragma mark - Global Button Dispatching
 
 #define SEND_ACTION(sel) do { \
 dispatch_block_t blk = ^{ [[self globalEventsHandler] sel self]; }; \
@@ -360,43 +375,11 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
     NSAssert(NO, @"Unknown identifier: %lx", identifier);
 }
 
-- (void)mouseDownAtPoint:(OEIntPoint)aPoint
+#pragma mark - Bindings Change Handling
+
+- (OESystemKey *)emulatorKeyForKey:(OEKeyBindingDescription *)aKey player:(NSUInteger)thePlayer;
 {
-
-}
-
-- (void)mouseUpAtPoint
-{
-
-}
-
-- (void)rightMouseDownAtPoint:(OEIntPoint)aPoint
-{
-    
-}
-
-- (void)rightMouseUpAtPoint
-{
-    
-}
-
-- (void)mouseMovedAtPoint:(OEIntPoint)aPoint;
-{
-    
-}
-
-static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
-{
-    uint64_t ret = (uint64_t)[[anEvent deviceHandler] deviceIdentifier];
-
-    switch([anEvent type])
-    {
-        case OEHIDEventTypeAxis      : ret |= [anEvent axis] << 32; break;
-        case OEHIDEventTypeHatSwitch : ret |=         0x39lu << 32; break;
-        default : NSCAssert(NO, @"Wrong type");
-    }
-
-    return (OEJoystickStatusKey)ret;
+    return [OESystemKey systemKeyWithKey:[aKey index] player:thePlayer isAnalogic:[aKey isAnalogic]];
 }
 
 - (void)systemBindingsDidSetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
@@ -507,6 +490,33 @@ static OEJoystickStatusKey _OEJoystickStateKeyForEvent(OEHIDEvent *anEvent)
     }
 
     [_keyMap removeSystemKeyForEvent:theEvent];
+}
+
+#pragma mark - Event Responder Method
+
+- (void)mouseDownAtPoint:(OEIntPoint)aPoint
+{
+
+}
+
+- (void)mouseUpAtPoint
+{
+
+}
+
+- (void)rightMouseDownAtPoint:(OEIntPoint)aPoint
+{
+    
+}
+
+- (void)rightMouseUpAtPoint
+{
+    
+}
+
+- (void)mouseMovedAtPoint:(OEIntPoint)aPoint;
+{
+    
 }
 
 - (void)HIDKeyDown:(OEHIDEvent *)anEvent
