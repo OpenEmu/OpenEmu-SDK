@@ -30,7 +30,7 @@
 
 - (void)performBlock:(void(^)(void))block;
 
-- (void)setFrameCallback:(void(^)(void))block;
+- (void)setFrameCallback:(void(^)(NSTimeInterval frameInterval))block;
 
 - (void)fastForward:(BOOL)flag;
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;

@@ -36,6 +36,7 @@ extern "C" {
 #import <OpenEmuBase/OpenEmuBase.h>
 #import <objc/runtime.h>
 }
+#include <cmath>
 #include <unordered_map>
 #include <vector>
 #include <set>
@@ -62,6 +63,7 @@ typedef union {
     OEHIDEventHatDirection hatEvent;
 } OEJoystickState;
 
+
 typedef struct {
     /** YES while rapid fire toggle is pressed. */
     BOOL setupMode = NO;
@@ -70,10 +72,25 @@ typedef struct {
      *  NO otherwise. All rapid fire keys share the same pressed/released state. */
     BOOL state = NO;
     
+    /** The current position in the rapid fire cycle. Goes from 0.0 (start of
+     *  cycle) to 1.0 (end of cycle), then restarts back at 0.0. */
+    NSTimeInterval timebase = 0.0;
+    
     /** Buttons with rapid fire enabled.
      *  Outside of rapid fire toggle mode, any press/release is ignored. */
     NSMutableSet <OESystemKey *> *rapidFireButtons = [NSMutableSet set];
 } OEPlayerRapidFireState;
+
+/** Interval of a full rapid fire cycle, consisting of (1) a button press and
+ *  (2) a button release. */
+#define OE_RAPID_FIRE_INTERVAL   (1.0 / 10.0)
+/** Fraction of cycle between the initial button press and the button release
+ *  for buttons with rapid fire active.
+ *  For example, if OE_RAPID_FIRE_INTERVAL=0.1, 0.25 means that for 0.025 seconds
+ *  the button will be pressed, and for the remaining 0.075 seconds the button
+ *  will be released. */
+#define OE_RAPID_FIRE_DUTY_CYCLE (0.25)
+
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wobjc-designated-initializers"
@@ -220,27 +237,43 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
     
     rfstate.setupMode = YES;
     
-    [self.client setFrameCallback:^{
+    [self.client setFrameCallback:^(NSTimeInterval frameInterval){
         NSInteger player = 0;
         for (OEPlayerRapidFireState& rfstate: self->_rapidFireState) {
-            rfstate.state ^= YES;
-            
+            BOOL newState = rfstate.timebase < OE_RAPID_FIRE_DUTY_CYCLE;
             BOOL active = NO;
-            if (rfstate.state) {
-                for (OESystemKey *key in rfstate.rapidFireButtons) {
-                    [self pressEmulatorKey:key];
-                    active = YES;
+            if (newState != rfstate.state) {
+                rfstate.state = newState;
+                if (rfstate.state) {
+                    for (OESystemKey *key in rfstate.rapidFireButtons) {
+                        [self pressEmulatorKey:key];
+                        active = YES;
+                    }
+                } else {
+                    for (OESystemKey *key in rfstate.rapidFireButtons) {
+                        [self releaseEmulatorKey:key];
+                        active = YES;
+                    }
                 }
+            } else
+                active = YES;
+            
+            if (!active) {
+                /* reset the state if no buttons are affected */
+                rfstate.state = NO;
+                rfstate.timebase = 0.0;
             } else {
-                for (OESystemKey *key in rfstate.rapidFireButtons) {
-                    [self releaseEmulatorKey:key];
-                    active = YES;
+                /* If the frame rate is too low, fall back to 50% duty cycle
+                 * with period = 1 / frame rate */
+                rfstate.timebase += std::min(OE_RAPID_FIRE_DUTY_CYCLE, frameInterval / OE_RAPID_FIRE_INTERVAL);
+                if (rfstate.timebase >= 1.0 - DBL_EPSILON) {
+                    /* We intentionally discard the remainder of the previous
+                     * cycle to keep a constant periodicity, at the expense of
+                     * some imprecision in the actual rate wrt the value of
+                     * OE_RAPID_FIRE_INTERVAL */
+                    rfstate.timebase = 0.0;
                 }
             }
-            
-            /* reset the state if no buttons are affected */
-            if (!active)
-                rfstate.state = NO;
             
             player++;
         }
