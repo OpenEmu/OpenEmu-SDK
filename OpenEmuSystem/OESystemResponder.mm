@@ -76,8 +76,7 @@ typedef struct {
      *  cycle) to 1.0 (end of cycle), then restarts back at 0.0. */
     NSTimeInterval timebase = 0.0;
     
-    /** Buttons with rapid fire enabled.
-     *  Outside of rapid fire toggle mode, any press/release is ignored. */
+    /** Buttons with rapid fire enabled. */
     NSMutableSet <OESystemKey *> *rapidFireButtons = [NSMutableSet set];
 } OEPlayerRapidFireState;
 
@@ -196,15 +195,9 @@ static inline BOOL _OESystemResponderHandleRapidFirePressForKey(OESystemResponde
     
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     if (rfstate.setupMode) {
-        if ([rfstate.rapidFireButtons containsObject:key]) {
-            [rfstate.rapidFireButtons removeObject:key];
-            if (rfstate.state)
-                [self releaseEmulatorKey:key];
-        } else {
-            [rfstate.rapidFireButtons addObject:key];
-            if (rfstate.state)
-                [self pressEmulatorKey:key];
-        }
+        [rfstate.rapidFireButtons addObject:key];
+        if (rfstate.state)
+            [self pressEmulatorKey:key];
         return YES;
     }
     
@@ -224,8 +217,12 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         return NO;
         
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
-    if ([rfstate.rapidFireButtons containsObject:key])
+    if ([rfstate.rapidFireButtons containsObject:key]) {
+        [rfstate.rapidFireButtons removeObject:key];
+        if (rfstate.state)
+            [self releaseEmulatorKey:key];
         return YES;
+    }
     return NO;
 }
 
@@ -295,9 +292,9 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         return;
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
-    if (rfstate.state) {
+    if (!rfstate.state) {
         for (OESystemKey *key in rfstate.rapidFireButtons)
-            [self releaseEmulatorKey:key];
+            [self pressEmulatorKey:key];
     }
     [rfstate.rapidFireButtons removeAllObjects];
 }
