@@ -78,6 +78,9 @@ typedef struct {
     
     /** Buttons with rapid fire enabled. */
     NSMutableSet <OESystemKey *> *rapidFireButtons = [NSMutableSet set];
+    
+    /** Buttons with rapid fire enabled that are currently pressed. */
+    NSMutableSet <OESystemKey *> *currentRapidFireButtons = [NSMutableSet set];
 } OEPlayerRapidFireState;
 
 /** Interval of a full rapid fire cycle, consisting of (1) a button press and
@@ -196,13 +199,16 @@ static inline BOOL _OESystemResponderHandleRapidFirePressForKey(OESystemResponde
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     if (rfstate.setupMode) {
         [rfstate.rapidFireButtons addObject:key];
+        [rfstate.currentRapidFireButtons addObject:key];
         if (rfstate.state)
             [self pressEmulatorKey:key];
         return YES;
     }
     
-    if ([rfstate.rapidFireButtons containsObject:key])
+    if ([rfstate.rapidFireButtons containsObject:key]) {
+        [rfstate.currentRapidFireButtons addObject:key];
         return YES;
+    }
     return NO;
 }
 
@@ -218,7 +224,7 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     if ([rfstate.rapidFireButtons containsObject:key]) {
-        [rfstate.rapidFireButtons removeObject:key];
+        [rfstate.currentRapidFireButtons removeObject:key];
         if (rfstate.state)
             [self releaseEmulatorKey:key];
         return YES;
@@ -242,12 +248,12 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
             if (newState != rfstate.state) {
                 rfstate.state = newState;
                 if (rfstate.state) {
-                    for (OESystemKey *key in rfstate.rapidFireButtons) {
+                    for (OESystemKey *key in rfstate.currentRapidFireButtons) {
                         [self pressEmulatorKey:key];
                         active = YES;
                     }
                 } else {
-                    for (OESystemKey *key in rfstate.rapidFireButtons) {
+                    for (OESystemKey *key in rfstate.currentRapidFireButtons) {
                         [self releaseEmulatorKey:key];
                         active = YES;
                     }
@@ -293,10 +299,11 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
     if (!rfstate.state) {
-        for (OESystemKey *key in rfstate.rapidFireButtons)
+        for (OESystemKey *key in rfstate.currentRapidFireButtons)
             [self pressEmulatorKey:key];
     }
     [rfstate.rapidFireButtons removeAllObjects];
+    [rfstate.currentRapidFireButtons removeAllObjects];
 }
 
 #pragma mark - Event Funneling Functions
