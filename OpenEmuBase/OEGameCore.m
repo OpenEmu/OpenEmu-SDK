@@ -292,9 +292,9 @@ static Class GameCoreClass = Nil;
             [self OE_executeFrame]; // Core callout
         }
 
-        NSTimeInterval frameInterval = self.frameInterval;
+        NSTimeInterval frameRate = self.frameInterval; // the frameInterval property is incorrectly named
         NSTimeInterval adjustedRate = _rate ?: 1;
-        NSTimeInterval advance = 1.0 / (frameInterval * adjustedRate);
+        NSTimeInterval advance = 1.0 / (frameRate * adjustedRate);
         nextFrameTime += advance;
         frameCounter++;
 

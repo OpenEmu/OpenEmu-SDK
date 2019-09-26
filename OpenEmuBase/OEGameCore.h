@@ -213,8 +213,12 @@ OE_EXPORTED_CLASS
 
 /*!
  * @property frameInterval
- * @abstract The ideal time between -executeFrame calls when rate=1.0.
+ * @abstract The ideal *frequency* (in Hz) of -executeFrame calls when rate=1.0.
  * This property is only read at the start and cannot be changed.
+ * @discussion Even though the property name and type indicate that
+ * a *period* in seconds should be returned (i.e. 1/60.0 ~= 0.01667 for 60 FPS execution),
+ * this method shall return a frequency in Hz instead (the inverse of that period).
+ * This naming mistake must be mantained for backwards compatibility.
  */
 @property (nonatomic, readonly) NSTimeInterval frameInterval;
 
