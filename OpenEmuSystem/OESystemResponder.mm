@@ -64,20 +64,25 @@ typedef union {
 } OEJoystickState;
 
 
+typedef enum : NSInteger {
+    OEPlayerRapidFireSetupModeNone = 0,
+    OEPlayerRapidFireSetupModeToggle,
+    OEPlayerRapidFireSetupModeClear
+} OEPlayerRapidFireSetupMode;
+
 typedef struct {
     /** YES if the current state of the button is pressed,
      *  NO otherwise. */
     BOOL state = NO;
-    
     /** The current position in the rapid fire cycle. Goes from 0.0 (start of
      *  cycle) to 1.0 (end of cycle), then restarts back at 0.0. */
     NSTimeInterval timebase = 0.0;
 } OEPlayerButtonRapidFireState;
 
 typedef struct {
-    /** YES while rapid fire toggle is pressed. */
-    BOOL setupMode = NO;
-    
+    /** OEPlayerRapidFireSetupModeToggle while rapid fire toggle is pressed,
+     *  OEPlayerRapidFireSetupModeClear while rapid fire clear is pressed. */
+    OEPlayerRapidFireSetupMode setupMode = OEPlayerRapidFireSetupModeNone;
     /** Buttons currently pressed by this player, outside of rapid fire */
     NSMutableSet <OESystemKey *> *pressedButtons = [NSMutableSet set];
     /** Buttons with rapid fire enabled. */
@@ -201,15 +206,21 @@ static inline BOOL _OESystemResponderHandleRapidFirePressForKey(OESystemResponde
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     [rfstate.pressedButtons addObject:key];
     
-    if (rfstate.setupMode) {
-        [rfstate.rapidFireButtons addObject:key];
-        return YES;
+    switch (rfstate.setupMode) {
+        case OEPlayerRapidFireSetupModeToggle:
+            [rfstate.rapidFireButtons addObject:key];
+            return YES;
+            
+        case OEPlayerRapidFireSetupModeClear:
+            [rfstate.rapidFireButtons removeObject:key];
+            if (!rfstate.currentButtonStates[keyId].state)
+                [self pressEmulatorKey:key];
+            rfstate.currentButtonStates.erase(keyId);
+            return YES;
+            
+        case OEPlayerRapidFireSetupModeNone:
+            return [rfstate.rapidFireButtons containsObject:key];
     }
-    
-    if ([rfstate.rapidFireButtons containsObject:key]) {
-        return YES;
-    }
-    return NO;
 }
 
 static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemResponder *self, OESystemKey *key)
@@ -225,13 +236,54 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     [rfstate.pressedButtons removeObject:key];
     
-    if ([rfstate.rapidFireButtons containsObject:key]) {
-        if (rfstate.currentButtonStates[keyId].state)
-            [self releaseEmulatorKey:key];
-        rfstate.currentButtonStates.erase(keyId);
-        return YES;
+    switch (rfstate.setupMode) {
+        case OEPlayerRapidFireSetupModeToggle:
+        case OEPlayerRapidFireSetupModeNone:
+            if ([rfstate.rapidFireButtons containsObject:key]) {
+                if (rfstate.currentButtonStates[keyId].state)
+                    [self releaseEmulatorKey:key];
+                rfstate.currentButtonStates.erase(keyId);
+                return YES;
+            }
+            return NO;
+            
+        case OEPlayerRapidFireSetupModeClear:
+            return NO;
     }
-    return NO;
+}
+
+static inline void _OESystemResponderRapidFireFrameCallback(OESystemResponder *self, NSTimeInterval frameInterval)
+{
+    NSInteger player = 0;
+    for (OEPlayerRapidFireState& rfstate: self->_rapidFireState) {
+        for (OESystemKey *key in rfstate.pressedButtons) {
+            if (![rfstate.rapidFireButtons containsObject:key])
+                continue;
+                
+            OEPlayerButtonRapidFireState& bstate = rfstate.currentButtonStates[key.key];
+            BOOL newState = bstate.timebase < OE_RAPID_FIRE_DUTY_CYCLE;
+            if (newState != bstate.state) {
+                bstate.state = newState;
+                if (newState) {
+                    [self pressEmulatorKey:key];
+                } else {
+                    [self releaseEmulatorKey:key];
+                }
+            }
+            
+            /* If the frame rate is too low, fall back to 50% duty cycle
+             * with period = 1 / frame rate */
+            bstate.timebase += std::min(OE_RAPID_FIRE_DUTY_CYCLE, frameInterval / OE_RAPID_FIRE_INTERVAL);
+            if (bstate.timebase >= 1.0 - DBL_EPSILON) {
+                /* We intentionally discard the remainder of the previous
+                 * cycle to keep a constant periodicity, at the expense of
+                 * some imprecision in the actual rate wrt the value of
+                 * OE_RAPID_FIRE_INTERVAL */
+                bstate.timebase = 0.0;
+            }
+        }
+        player++;
+    }
 }
 
 - (void)_pressRapidFireToggleForPlayer:(NSInteger)player
@@ -240,7 +292,10 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         self->_rapidFireState.resize(player+1);
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
-    rfstate.setupMode = YES;
+    if (rfstate.setupMode != OEPlayerRapidFireSetupModeNone)
+        return;
+    
+    rfstate.setupMode = OEPlayerRapidFireSetupModeToggle;
     for (OESystemKey *key in rfstate.pressedButtons) {
         if (![rfstate.rapidFireButtons containsObject:key]) {
             [rfstate.rapidFireButtons addObject:key];
@@ -248,36 +303,8 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         }
     }
     
-    [self.client setFrameCallback:^(NSTimeInterval frameInterval){
-        NSInteger player = 0;
-        for (OEPlayerRapidFireState& rfstate: self->_rapidFireState) {
-            for (OESystemKey *key in rfstate.pressedButtons) {
-                if (![rfstate.rapidFireButtons containsObject:key])
-                    continue;
-                OEPlayerButtonRapidFireState& bstate = rfstate.currentButtonStates[key.key];
-                BOOL newState = bstate.timebase < OE_RAPID_FIRE_DUTY_CYCLE;
-                if (newState != bstate.state) {
-                    bstate.state = newState;
-                    if (newState) {
-                        [self pressEmulatorKey:key];
-                    } else {
-                        [self releaseEmulatorKey:key];
-                    }
-                }
-                
-                /* If the frame rate is too low, fall back to 50% duty cycle
-                 * with period = 1 / frame rate */
-                bstate.timebase += std::min(OE_RAPID_FIRE_DUTY_CYCLE, frameInterval / OE_RAPID_FIRE_INTERVAL);
-                if (bstate.timebase >= 1.0 - DBL_EPSILON) {
-                    /* We intentionally discard the remainder of the previous
-                     * cycle to keep a constant periodicity, at the expense of
-                     * some imprecision in the actual rate wrt the value of
-                     * OE_RAPID_FIRE_INTERVAL */
-                    bstate.timebase = 0.0;
-                }
-            }
-            player++;
-        }
+    [self.client setFrameCallback:^(NSTimeInterval frameInterval) {
+        _OESystemResponderRapidFireFrameCallback(self, frameInterval);
     }];
 }
 
@@ -287,12 +314,44 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         self->_rapidFireState.resize(player+1);
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
-    rfstate.setupMode = NO;
+    if (rfstate.setupMode != OEPlayerRapidFireSetupModeToggle)
+        return;
+    
+    rfstate.setupMode = OEPlayerRapidFireSetupModeNone;
 }
 
+- (void)_pressRapidFireClearForPlayer:(NSInteger)player
+{
+    if (self->_rapidFireState.size() <= player)
+        return;
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    
+    if (rfstate.setupMode != OEPlayerRapidFireSetupModeNone)
+        return;
+    rfstate.setupMode = OEPlayerRapidFireSetupModeClear;
+        
+    for (OESystemKey *key in rfstate.rapidFireButtons) {
+        if ([rfstate.pressedButtons containsObject:key]) {
+            if (!rfstate.currentButtonStates[key.key].state)
+                [self pressEmulatorKey:key];
+            rfstate.currentButtonStates.erase(key.key);
+        }
+    }
+    [rfstate.rapidFireButtons minusSet:rfstate.pressedButtons];
+}
 
+- (void)_releaseRapidFireClearForPlayer:(NSInteger)player
+{
+    if (self->_rapidFireState.size() <= player)
+        return;
+    OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    
+    if (rfstate.setupMode != OEPlayerRapidFireSetupModeClear)
+        return;
+    rfstate.setupMode = OEPlayerRapidFireSetupModeNone;
+}
 
-- (void)_clearRapidFireForPlayer:(NSInteger)player
+- (void)_resetRapidFireForPlayer:(NSInteger)player
 {
     if (self->_rapidFireState.size() <= player)
         return;
@@ -433,7 +492,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             [self _pressRapidFireToggleForPlayer:player];
             return;
         case OEGlobalButtonIdentifierRapidFireClear:
-            [self _clearRapidFireForPlayer:player];
+            [self _pressRapidFireClearForPlayer:player];
             return;
         default :
             break;
@@ -500,6 +559,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             [self _releaseRapidFireToggleForPlayer:player];
             return;
         case OEGlobalButtonIdentifierRapidFireClear:
+            [self _releaseRapidFireClearForPlayer:player];
             return;
 
         case OEGlobalButtonIdentifierSlowMotion :
