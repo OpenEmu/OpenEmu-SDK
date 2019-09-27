@@ -78,12 +78,11 @@ typedef struct {
     /** YES while rapid fire toggle is pressed. */
     BOOL setupMode = NO;
     
+    /** Buttons currently pressed by this player, outside of rapid fire */
+    NSMutableSet <OESystemKey *> *pressedButtons = [NSMutableSet set];
     /** Buttons with rapid fire enabled. */
     NSMutableSet <OESystemKey *> *rapidFireButtons = [NSMutableSet set];
-    
-    /** Buttons with rapid fire enabled that are currently pressed. */
-    NSMutableSet <OESystemKey *> *currentRapidFireButtons = [NSMutableSet set];
-    
+    /** Rapid fire states for all currently pressed buttons with rapid fire enabled. */
     std::unordered_map<NSInteger, OEPlayerButtonRapidFireState> currentButtonStates;
 } OEPlayerRapidFireState;
 
@@ -198,17 +197,16 @@ static inline BOOL _OESystemResponderHandleRapidFirePressForKey(OESystemResponde
         
     NSUInteger player = key.player;
     if (self->_rapidFireState.size() <= player)
-        return NO;
-    
+        self->_rapidFireState.resize(player+1);
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    [rfstate.pressedButtons addObject:key];
+    
     if (rfstate.setupMode) {
         [rfstate.rapidFireButtons addObject:key];
-        [rfstate.currentRapidFireButtons addObject:key];
         return YES;
     }
     
     if ([rfstate.rapidFireButtons containsObject:key]) {
-        [rfstate.currentRapidFireButtons addObject:key];
         return YES;
     }
     return NO;
@@ -225,8 +223,9 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
         return NO;
         
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
+    [rfstate.pressedButtons removeObject:key];
+    
     if ([rfstate.rapidFireButtons containsObject:key]) {
-        [rfstate.currentRapidFireButtons removeObject:key];
         if (rfstate.currentButtonStates[keyId].state)
             [self releaseEmulatorKey:key];
         rfstate.currentButtonStates.erase(keyId);
@@ -242,11 +241,19 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
     rfstate.setupMode = YES;
+    for (OESystemKey *key in rfstate.pressedButtons) {
+        if (![rfstate.rapidFireButtons containsObject:key]) {
+            [rfstate.rapidFireButtons addObject:key];
+            rfstate.currentButtonStates[key.key].state = YES;
+        }
+    }
     
     [self.client setFrameCallback:^(NSTimeInterval frameInterval){
         NSInteger player = 0;
         for (OEPlayerRapidFireState& rfstate: self->_rapidFireState) {
-            for (OESystemKey *key in rfstate.currentRapidFireButtons) {
+            for (OESystemKey *key in rfstate.pressedButtons) {
+                if (![rfstate.rapidFireButtons containsObject:key])
+                    continue;
                 OEPlayerButtonRapidFireState& bstate = rfstate.currentButtonStates[key.key];
                 BOOL newState = bstate.timebase < OE_RAPID_FIRE_DUTY_CYCLE;
                 if (newState != bstate.state) {
@@ -283,18 +290,20 @@ static inline BOOL _OESystemResponderHandleRapidFireReleaseForKey(OESystemRespon
     rfstate.setupMode = NO;
 }
 
+
+
 - (void)_clearRapidFireForPlayer:(NSInteger)player
 {
     if (self->_rapidFireState.size() <= player)
         return;
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
-    for (OESystemKey *key in rfstate.currentRapidFireButtons) {
-        if (!rfstate.currentButtonStates[key.key].state)
-            [self pressEmulatorKey:key];
+    for (OESystemKey *key in rfstate.pressedButtons) {
+        if ([rfstate.rapidFireButtons containsObject:key])
+            if (!rfstate.currentButtonStates[key.key].state)
+                [self pressEmulatorKey:key];
     }
     [rfstate.rapidFireButtons removeAllObjects];
-    [rfstate.currentRapidFireButtons removeAllObjects];
     rfstate.currentButtonStates.clear();
 }
 
