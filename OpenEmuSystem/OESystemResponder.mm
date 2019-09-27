@@ -357,6 +357,9 @@ static inline void _OESystemResponderRapidFireFrameCallback(OESystemResponder *s
         return;
     OEPlayerRapidFireState& rfstate = self->_rapidFireState[player];
     
+    if (rfstate.setupMode != OEPlayerRapidFireSetupModeNone)
+        return;
+    
     for (OESystemKey *key in rfstate.pressedButtons) {
         if ([rfstate.rapidFireButtons containsObject:key])
             if (!rfstate.currentButtonStates[key.key].state)
@@ -494,6 +497,9 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierRapidFireClear:
             [self _pressRapidFireClearForPlayer:player];
             return;
+        case OEGlobalButtonIdentifierRapidFireReset:
+            [self _resetRapidFireForPlayer:player];
+            return;
         default :
             break;
     }
@@ -561,6 +567,8 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierRapidFireClear:
             [self _releaseRapidFireClearForPlayer:player];
             return;
+        case OEGlobalButtonIdentifierRapidFireReset:
+            return;
 
         case OEGlobalButtonIdentifierSlowMotion :
             NSAssert(NO, @"%@ only supports analog changes", NSStringFromOEGlobalButtonIdentifier(identifier));
@@ -610,6 +618,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierScreenshot :
         case OEGlobalButtonIdentifierRapidFireToggle :
         case OEGlobalButtonIdentifierRapidFireClear :
+        case OEGlobalButtonIdentifierRapidFireReset :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
 

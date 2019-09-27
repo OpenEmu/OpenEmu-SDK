@@ -207,8 +207,9 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     dispatch_once(&onceToken, ^{
         globalKeys = @[[[NSUserDefaults standardUserDefaults] boolForKey:OEPrefControlsShowAllGlobalKeys] ?
         // All available 'global' buttons
-        @[Button(@"Turbo Toggle", @"Name of the global button to toggle rapid fire (turbo) mode", OEGlobalButtonRapidFireToggle),
-          Button(@"Turbo Clear", @"Name of the global button to clear rapid fire (turbo) mode", OEGlobalButtonRapidFireClear),
+        @[Button(@"Rapid Fire Toggle", @"Name of the global button to toggle rapid fire (turbo) mode", OEGlobalButtonRapidFireToggle),
+          Button(@"Rapid Fire Clear", @"Name of the global button to clear rapid fire (turbo) mode", OEGlobalButtonRapidFireClear),
+          Button(@"Rapid Fire Reset", @"Name of the global button to reset rapid fire (turbo) mode", OEGlobalButtonRapidFireReset),
           Button(@"Save", @"Name of the global button to save a state", OEGlobalButtonSaveState),
           Button(@"Load", @"Name of the global button to load a state", OEGlobalButtonLoadState),
           Button(@"Quick Save Button", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
@@ -230,8 +231,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
           Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
           ]
         : // Limited selection of global buttons
-        @[Button(@"Turbo Toggle", @"Name of the global button to toggle rapid fire (turbo) mode", OEGlobalButtonRapidFireToggle),
-          Button(@"Turbo Clear", @"Name of the global button to clear rapid fire (turbo) mode", OEGlobalButtonRapidFireClear),
+        @[Button(@"Rapid Fire Toggle", @"Name of the global button to toggle rapid fire (turbo) mode", OEGlobalButtonRapidFireToggle),
+          Button(@"Rapid Fire Clear", @"Name of the global button to clear rapid fire (turbo) mode", OEGlobalButtonRapidFireClear),
           Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
           Button(@"Quick Load", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
           Button(@"Mute", @"Name of the global button to toggle sound mute", OEGlobalButtonMute),

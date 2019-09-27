@@ -61,6 +61,7 @@ extern NSString *const OEGlobalButtonLastDisplayMode;
 extern NSString *const OEGlobalButtonScreenshot;
 extern NSString *const OEGlobalButtonRapidFireToggle;
 extern NSString *const OEGlobalButtonRapidFireClear;
+extern NSString *const OEGlobalButtonRapidFireReset;
 
 /// Manages the bindings for a specific system, useful for system responders
 /// Instances of this class are allocated by OEGameBindingsController

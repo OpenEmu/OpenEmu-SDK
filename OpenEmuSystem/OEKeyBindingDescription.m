@@ -58,6 +58,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierRapidFireToggle";
         case OEGlobalButtonIdentifierRapidFireClear :
             return @"OEGlobalButtonIdentifierRapidFireClear";
+        case OEGlobalButtonIdentifierRapidFireReset :
+            return @"OEGlobalButtonIdentifierRapidFireReset";
         case OEGlobalButtonIdentifierStop :
             return @"OEGlobalButtonIdentifierStop";
         case OEGlobalButtonIdentifierReset :
@@ -113,6 +115,8 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
             return OEGlobalButtonRapidFireToggle;
         case OEGlobalButtonIdentifierRapidFireClear :
             return OEGlobalButtonRapidFireClear;
+        case OEGlobalButtonIdentifierRapidFireReset :
+            return OEGlobalButtonRapidFireReset;
         case OEGlobalButtonIdentifierStop:
             return OEGlobalButtonStop;
         case OEGlobalButtonIdentifierReset :

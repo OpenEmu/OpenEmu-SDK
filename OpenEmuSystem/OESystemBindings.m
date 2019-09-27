@@ -63,6 +63,7 @@ NSString *const OEGlobalButtonLastDisplayMode   = @"OEGlobalButtonLastDisplayMod
 NSString *const OEGlobalButtonScreenshot        = @"OEGlobalButtonScreenshot";
 NSString *const OEGlobalButtonRapidFireToggle   = @"OEGlobalButtonRapidFireToggle";
 NSString *const OEGlobalButtonRapidFireClear    = @"OEGlobalButtonRapidFireClear";
+NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset";
 
 @interface OEHIDEvent ()
 - (OEHIDEvent *)OE_eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler;
