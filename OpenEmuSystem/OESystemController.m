@@ -196,13 +196,13 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     return (fileName == nil ? nil : [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:fileName] options:NSPropertyListImmutable format:NULL error:NULL]);
 }
 
-- (NSArray<NSDictionary<NSString *, NSString *> *> *)OE_globalButtonsControlList
+- (NSArray<NSArray<NSDictionary<NSString *, NSString *> *> *> *)OE_globalButtonsControlList
 {
 #define Button(_LABEL_, _DESCRIPTION_, _NAME_) @{                          \
       OEControlListKeyLabelKey : NSLocalizedString(_LABEL_, _DESCRIPTION_),\
       OEControlListKeyNameKey : _NAME_,                                    \
       }
-    static NSArray<NSDictionary<NSString *, NSString *> *> *globalKeys;
+    static NSArray<NSArray<NSDictionary<NSString *, NSString *> *> *> *globalKeys;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         globalKeys = @[[[NSUserDefaults standardUserDefaults] boolForKey:OEPrefControlsShowAllGlobalKeys] ?

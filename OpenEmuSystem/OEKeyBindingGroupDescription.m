@@ -209,10 +209,13 @@ static NSString *const OEOrientedKeyGroupBindingDescriptionBaseKeyKey = @"OEOrie
 
 @implementation OEOrientedKeyGroupBindingDescription
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (id)init
 {
     return nil;
 }
+#pragma clang diagnostic pop
 
 - (id)OE_initWithParentKeyGroup:(OEKeyBindingGroupDescription *)parent baseKey:(OEKeyBindingDescription *)base;
 {

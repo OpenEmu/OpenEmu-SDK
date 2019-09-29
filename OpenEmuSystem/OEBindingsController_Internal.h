@@ -68,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)OE_setBindingDescription:(nullable NSString *)value forKey:(NSString *)aKey;
 
 // Keys:   OEKeyBindingsDescription or OEOrientedKeyGroupBindingDescription - All keys for saved bindings
-// Values: OEHIDEvent - Associated event
-@property(readwrite, copy, setter=OE_setBindingEvents:) NSDictionary<id, OEHIDEvent *> *bindingEvents;
+// Values: OEHIDEvent or OEControlValueDescription - Associated event
+@property(readwrite, copy, setter=OE_setBindingEvents:) NSDictionary<__kindof OEBindingDescription *, id> *bindingEvents;
 
 - (id)OE_bindingEventForKey:(id)aKey;
 - (void)OE_setBindingEvent:(nullable id)value forKey:(id)aKey;

@@ -122,7 +122,7 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 @property(readonly) NSDictionary<NSString *, OEKeyBindingDescription *> *keyBindingsDescriptions;
 @property(readonly) NSDictionary<NSString *, OEKeyBindingGroupDescription *> *keyBindingGroupDescriptions;
 
-@property(readonly, copy) NSArray<NSString *> *controlPageList;
+@property(readonly, copy) NSArray *controlPageList;
 @property(readonly, copy) NSDictionary<NSString *, NSValue *> *controllerKeyPositions;
 @property(readonly, copy) NSString *controllerImageName;
 @property(readonly, copy) NSString *controllerImageMaskName;

@@ -636,6 +636,8 @@ static Class GameCoreClass = Nil;
     #pragma clang diagnostic pop
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index
 {
     NSAssert1(index < [self audioBufferCount], @"The index %lu is too high", index);
@@ -660,6 +662,7 @@ static Class GameCoreClass = Nil;
 
     return result;
 }
+#pragma clang diagnostic pop
 
 - (NSUInteger)audioBufferCount
 {
