@@ -70,6 +70,10 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierRewind";
         case OEGlobalButtonIdentifierFastForward :
             return @"OEGlobalButtonIdentifierFastForward";
+        case OEGlobalButtonIdentifierIncreaseGameSpeed :
+            return @"OEGlobalButtonIdentifierIncreaseGameSpeed";
+        case OEGlobalButtonIdentifierDecreaseGameSpeed :
+            return @"OEGlobalButtonIdentifierDecreaseGameSpeed";
         case OEGlobalButtonIdentifierSlowMotion :
             return @"OEGlobalButtonIdentifierSlowMotion";
         case OEGlobalButtonIdentifierStepFrameBackward :
@@ -127,6 +131,10 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
             return OEGlobalButtonRewind;
         case OEGlobalButtonIdentifierFastForward :
             return OEGlobalButtonFastForward;
+        case OEGlobalButtonIdentifierIncreaseGameSpeed :
+            return OEGlobalButtonIncreaseGameSpeed;
+        case OEGlobalButtonIdentifierDecreaseGameSpeed :
+            return OEGlobalButtonDecreaseGameSpeed;
         case OEGlobalButtonIdentifierSlowMotion :
             return OEGlobalButtonSlowMotion;
         case OEGlobalButtonIdentifierStepFrameBackward :

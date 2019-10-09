@@ -573,6 +573,32 @@ static Class GameCoreClass = Nil;
     return self.rate == 0;
 }
 
+- (void)increaseGameSpeed
+{
+    float nextSpeed = self.rate + 0.25;
+
+    if (nextSpeed >= 5) nextSpeed = 5.0;
+
+    if (self.isEmulationPaused) {
+        lastRate = nextSpeed;
+    } else {
+        self.rate = nextSpeed;
+    }
+}
+
+- (void)decreaseGameSpeed
+{
+    float nextSpeed = self.rate - 0.25;
+
+    if (nextSpeed <= 0) nextSpeed = 0.25;
+
+    if (self.isEmulationPaused) {
+        lastRate = nextSpeed;
+    } else {
+        self.rate = nextSpeed;
+    }
+}
+
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
 {
     // FIXME: Need implementation.
