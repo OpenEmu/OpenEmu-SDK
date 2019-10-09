@@ -145,6 +145,18 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 	return self;
 }
 
+- (BOOL)accessGranted
+{
+    IOHIDAccessType accessType = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent);
+    return accessType == kIOHIDAccessTypeGranted ? YES : NO;
+}
+
+- (BOOL)requestAccess
+{
+    // Ask for approval
+    return IOHIDRequestAccess(kIOHIDRequestTypeListenEvent);
+}
+
 - (void)OE_setUpCallbacks
 {
     IOHIDManagerRegisterDeviceMatchingCallback(_hidManager, OEHandle_DeviceMatchingCallback, (__bridge void *)self);

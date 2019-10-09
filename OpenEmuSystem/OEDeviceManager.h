@@ -48,10 +48,13 @@ extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 @property(readonly) NSArray<OEDeviceHandler *> *deviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *controllerDeviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *keyboardDeviceHandlers;
+@property(readonly) BOOL                        accessGranted API_AVAILABLE(macosx(10.15));
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;
 - (BOOL)isBluetoothEnabled;
+
+- (BOOL)requestAccess API_AVAILABLE(macosx(10.15));
 
 // If the device has not yet been retrieved, this method will return an OEDeviceHandlerPlaceholder that must be resolved manually.
 - (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier;
