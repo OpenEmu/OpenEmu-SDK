@@ -31,6 +31,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, OEDeviceAccessType)
+{
+    /*! User has granted permission to monitor keyboard device */
+    OEDeviceAccessTypeGranted,
+    
+    /*! User has denied permission to monitor keyboard device */
+    OEDeviceAccessTypeDenied,
+    
+    /*! User has not been asked permission to monitor keyboard device */
+    OEDeviceAccessTypeUnknown,
+};
+
 @class OEHIDEvent;
 @class OEDeviceHandler;
 
@@ -48,7 +60,7 @@ extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 @property(readonly) NSArray<OEDeviceHandler *> *deviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *controllerDeviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *keyboardDeviceHandlers;
-@property(readonly) BOOL                        accessGranted API_AVAILABLE(macosx(10.15));
+@property(readonly) OEDeviceAccessType          accessType API_AVAILABLE(macosx(10.15));
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;

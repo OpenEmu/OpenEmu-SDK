@@ -145,10 +145,21 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 	return self;
 }
 
-- (BOOL)accessGranted
+- (OEDeviceAccessType)accessType
 {
     IOHIDAccessType accessType = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent);
-    return accessType == kIOHIDAccessTypeGranted ? YES : NO;
+    switch (accessType)
+    {
+        case kIOHIDAccessTypeGranted:
+            return OEDeviceAccessTypeGranted;
+        
+        case kIOHIDAccessTypeDenied:
+            return OEDeviceAccessTypeDenied;
+        
+        case kIOHIDAccessTypeUnknown:
+        default:
+            return OEDeviceAccessTypeUnknown;
+    }
 }
 
 - (BOOL)requestAccess
@@ -166,17 +177,27 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     [self OE_addKeyboardEventMonitor];
 
     NSArray *matchingTypes = @[ @{
-            @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
-            @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Joystick)
-        },
-        @{
-            @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
-            @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_GamePad)
-        },
-        @{
+        @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
+        @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Joystick)
+    },
+    @{
+        @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
+        @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_GamePad)
+    }];
+    
+    BOOL addKeyboard = YES;
+    if (@available(macOS 10.15, *))
+    {
+        addKeyboard = self.accessType == OEDeviceAccessTypeGranted;
+    }
+    
+    if (addKeyboard)
+    {
+        matchingTypes = [matchingTypes arrayByAddingObject:@{
             @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
             @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_Keyboard)
-        } ];
+        }];
+    }
 
     IOHIDManagerSetDeviceMatchingMultiple(_hidManager, (__bridge CFArrayRef)matchingTypes);
 
