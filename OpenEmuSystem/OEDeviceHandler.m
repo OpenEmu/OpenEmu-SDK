@@ -49,6 +49,8 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 {
     OEDeviceDescription *_deviceDescription;
     NSMutableDictionary *_deadZones;
+    NSMutableDictionary *_autoCalMins;
+    NSMutableDictionary *_autoCalMaxs;
 }
 
 @property(readwrite) NSUInteger deviceNumber;
@@ -71,6 +73,8 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
         FIXME("Save default dead zones in user defaults based on device description.");
         _defaultDeadZone = 0.125;
         _deadZones = [[NSMutableDictionary alloc] init];
+        _autoCalMins = [[NSMutableDictionary alloc] init];
+        _autoCalMaxs = [[NSMutableDictionary alloc] init];
     }
 
     return self;
@@ -177,6 +181,20 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     return deadZone != nil ? [deadZone doubleValue] : _defaultDeadZone;
 }
 
+- (CGFloat)autoCalMinForControlCookie:(NSUInteger)controlCookie;
+{
+    NSNumber *autoCalMin = _autoCalMins[@(controlCookie)];
+
+    return autoCalMin != nil ? [autoCalMin doubleValue] : 100000;
+}
+
+- (CGFloat)autoCalMaxForControlCookie:(NSUInteger)controlCookie;
+{
+    NSNumber *autoCalMax = _autoCalMaxs[@(controlCookie)];
+
+    return autoCalMax != nil ? [autoCalMax doubleValue] : -100000;
+}
+
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 {
     return [self deadZoneForControlCookie:[[controlDesc genericEvent] cookie]];
@@ -193,7 +211,37 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 - (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie
 {
     FIXME("move all scaling logic here from OEHIDEvent in a *clean* way");
-    return -100;
+    NSInteger min = [self autoCalMinForControlCookie:cookie];
+    NSInteger max = [self autoCalMaxForControlCookie:cookie];
+    BOOL log = NO;
+    if (rawValue < min)
+    {
+        _autoCalMins[@(cookie)] = @(rawValue);
+        log = YES;
+    }
+    if (rawValue > max)
+    {
+        _autoCalMaxs[@(cookie)] = @(rawValue);
+        log = YES;
+    }
+    if (log)
+        NSLog(@"AutoCal: cookie=%lu rawValue=%f min=%ld max=%ld", cookie, rawValue, min, max);
+    if (min == max)
+        return -100;  // first sample
+
+    NSInteger middleValue = (max + min) / 2 + 1;
+
+    if(min >= 0)
+    {
+        min        -= middleValue;
+        rawValue   -= middleValue;
+        max        -= middleValue;
+    }
+
+    if(rawValue < 0)      return -rawValue / (CGFloat)min;
+    else if(rawValue > 0) return  rawValue / (CGFloat)max;
+
+    return 0.0;
 }
 
 @end
