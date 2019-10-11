@@ -40,15 +40,13 @@ NS_ASSUME_NONNULL_BEGIN
 #define NO __objc_no
 #endif
 
-#define LEARN_COUNT 8
-
 NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDeviceHandlerDidReceiveLowBatteryWarningNotification";
 NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification = @"OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification";
 
 static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUniqueIdentifier";
 
 typedef struct {
-    int min, max, deccount, inccount;
+    int min, max;
 } OEAutoCalibration;
 
 @interface OEDeviceHandler ()
@@ -193,8 +191,6 @@ typedef struct {
         OEAutoCalibration newCal;
         newCal.min = 100000;
         newCal.max = -100000;
-        newCal.inccount = 0;
-        newCal.deccount = 0;
         cal = [NSValue valueWithBytes:&newCal objCType:@encode(OEAutoCalibration)];
         [_calibrations setObject:cal forKey:@(controlCookie)];
         return newCal;
@@ -220,7 +216,7 @@ typedef struct {
     _deadZones[@([[controlDesc genericEvent] cookie])] = @(deadZone);
 }
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle
 {
     FIXME("move all scaling logic here from OEHIDEvent in a *clean* way");
     OEAutoCalibration cal = [self calibrationForControlCookie:cookie];
@@ -228,34 +224,29 @@ typedef struct {
     if (rawValue < cal.min)
     {
         cal.min = rawValue;
-        cal.deccount++;
         changed = YES;
     }
     if (rawValue > cal.max)
     {
         cal.max = rawValue;
-        cal.inccount++;
         changed = YES;
     }
     if (changed)
     {
-        NSLog(@"AutoCal: cookie=%lu rawValue=%f min=%d count=%d max=%d count=%d",
-            cookie, rawValue, cal.min, cal.deccount, cal.max, cal.inccount);
+        NSLog(@"AutoCal: cookie=%lu rawValue=%f min=%d max=%d",
+            cookie, rawValue, cal.min, cal.max);
         NSValue *val = [NSValue valueWithBytes:&cal objCType:@encode(OEAutoCalibration)];
         [_calibrations setObject:val forKey:@(cookie)];
     }
 
-    NSInteger middleValue = (cal.max + cal.min) / 2 + 1;
-
     if(cal.min >= 0)
     {
-        cal.min    -= middleValue;
-        rawValue   -= middleValue;
-        cal.max    -= middleValue;
+        cal.min    -= middle;
+        rawValue   -= middle;
+        cal.max    -= middle;
     }
 
-    if ((rawValue < 0 && cal.deccount < LEARN_COUNT)
-        || (rawValue > 0 && cal.inccount < LEARN_COUNT))
+    if (cal.min == cal.max)
         return -100;  // not enough samples
 
     if(rawValue < 0)      return -rawValue / (CGFloat)cal.min;
