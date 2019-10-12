@@ -363,7 +363,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 {
     dispatch_semaphore_t done = dispatch_semaphore_create(0);
     _thread = [[NSThread alloc] initWithBlock:^{
-        self->_eventRunLoop = CFRunLoopGetCurrent();
+        self->_eventRunLoop = (CFRunLoopRef)CFRetain(CFRunLoopGetCurrent());
         
         IOHIDDeviceRegisterInputReportCallback(self.device, self->_reportBuffer, MAX_INPUT_REPORT_SIZE, OEHACProControllerHIDReportCallback, (__bridge void *)self);
         [super setUpCallbacks];
@@ -421,11 +421,12 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     
     /* we don't want to disconnect the controller every time the helper
      * app terminates, just when OpenEmu closes */
-    if (![[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"])
-        return;
-    [self _setPowerState:OEHACPowerStateSleep];
+    if ([[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"]) {
+        [self _setPowerState:OEHACPowerStateSleep];
+    }
     
     CFRunLoopStop(_eventRunLoop);
+    CFRelease(_eventRunLoop);
 }
 
 
