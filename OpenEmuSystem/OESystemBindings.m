@@ -666,7 +666,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
 - (__kindof OEBindingDescription *)OE_playerBindings:(OEDevicePlayerBindings *)sender didSetDeviceEvent:(OEHIDEvent *)anEvent forKey:(NSString *)keyName;
 {
-    NSAssert([sender isKindOfClass:[OEDevicePlayerBindings class]], @"Invalid sender: OEKeyboardPlayerBindings expected, got: %@ %@", [sender class], sender);
+    NSAssert([sender isKindOfClass:[OEDevicePlayerBindings class]], @"Invalid sender: OEDevicePlayerBindings expected, got: %@ %@", [sender class], sender);
 
     NSAssert(_systemController.allKeyBindingsDescriptions[keyName] != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
 
