@@ -51,6 +51,9 @@ extern NSString *const OEWiimoteSupportEnabled;
 extern NSString *const OEDeviceManagerDidAddDeviceHandlerNotification;
 extern NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification;
 
+extern NSNotificationName const OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification;
+extern NSNotificationName const OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification;
+
 extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 
 @interface OEDeviceManager : NSObject

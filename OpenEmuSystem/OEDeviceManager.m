@@ -51,6 +51,9 @@ NSString *const OEDeviceManagerDidAddDeviceHandlerNotification    = @"OEDeviceMa
 NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification = @"OEDeviceManagerDidRemoveDeviceHandlerNotification";
 NSString *const OEDeviceManagerDeviceHandlerUserInfoKey           = @"OEDeviceManagerDeviceHandlerUserInfoKey";
 
+NSNotificationName const OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification = @"OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification";
+NSNotificationName const OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification = @"OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification";
+
 @interface _OEDeviceManagerEventMonitor : NSObject
 + (instancetype)monitorWithGlobalMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
 + (instancetype)monitorWithEventMonitorHandler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
@@ -295,6 +298,11 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 {
     _OEDeviceManagerEventMonitor *monitor = [_OEDeviceManagerEventMonitor monitorWithGlobalMonitorHandler:handler];
     [_globalEventListeners addObject:monitor];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification object:self];
+    });
+
     return monitor;
 }
 
@@ -321,6 +329,12 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (void)removeMonitor:(id)monitor;
 {
+    if ([_globalEventListeners containsObject:monitor]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification object:self];
+        });
+    }
+
     [_globalEventListeners removeObject:monitor];
     [_unhandledEventListeners removeObject:monitor];
 
