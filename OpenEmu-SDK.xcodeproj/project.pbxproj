@@ -16,6 +16,8 @@
 		0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */; };
 		01A9FD2523187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */; };
 		01A9FD2623187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 01A9FD2423187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m */; };
+		01AFC70C2364E327005EEB08 /* NSData+OESystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 01AFC70A2364E327005EEB08 /* NSData+OESystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01AFC70D2364E327005EEB08 /* NSData+OESystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 01AFC70B2364E327005EEB08 /* NSData+OESystem.m */; };
 		01C0F4372327184F00311409 /* OEDeviceManager_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 01C0F436232717C700311409 /* OEDeviceManager_Internal.h */; };
 		01F306FB20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */; };
@@ -148,6 +150,8 @@
 		0166211120D8522700D0368A /* OETouchbarHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OETouchbarHIDDeviceHandler.m; sourceTree = "<group>"; };
 		01A9FD2323187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OESwitchProControllerHIDDeviceHandler.h; sourceTree = "<group>"; };
 		01A9FD2423187747007CD1E7 /* OESwitchProControllerHIDDeviceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OESwitchProControllerHIDDeviceHandler.m; sourceTree = "<group>"; };
+		01AFC70A2364E327005EEB08 /* NSData+OESystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+OESystem.h"; sourceTree = "<group>"; };
+		01AFC70B2364E327005EEB08 /* NSData+OESystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+OESystem.m"; sourceTree = "<group>"; };
 		01C0F436232717C700311409 /* OEDeviceManager_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEDeviceManager_Internal.h; sourceTree = "<group>"; };
 		01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+OpenEmuSDK.h"; sourceTree = "<group>"; };
 		01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+OpenEmuSDK.m"; sourceTree = "<group>"; };
@@ -528,6 +532,8 @@
 				878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */,
 				C6605B821D725B0D009C7E91 /* OEM3UFile.h */,
 				C6605B831D725B0D009C7E91 /* OEM3UFile.m */,
+				01AFC70A2364E327005EEB08 /* NSData+OESystem.h */,
+				01AFC70B2364E327005EEB08 /* NSData+OESystem.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -562,6 +568,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01AFC70C2364E327005EEB08 /* NSData+OESystem.h in Headers */,
 				C6772BC41710E28900ED580A /* NSResponder+OEHIDAdditions.h in Headers */,
 				C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */,
 				C6772B811710E21900ED580A /* OEBindingMap.h in Headers */,
@@ -669,7 +676,7 @@
 		C67729DE1710A24400ED580A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1100;
+				LastUpgradeCheck = 1110;
 				TargetAttributes = {
 					0109BBA1209F25EB002419C1 = {
 						CreatedOnToolsVersion = 9.3;
@@ -770,6 +777,7 @@
 				C6772B9F1710E25300ED580A /* OEPlayerBindings.m in Sources */,
 				C6772BB71710E28900ED580A /* OEDeviceManager.m in Sources */,
 				C6772BB91710E28900ED580A /* OEDeviceHandler.m in Sources */,
+				01AFC70D2364E327005EEB08 /* NSData+OESystem.m in Sources */,
 				C6772BBB1710E28900ED580A /* OEHIDDeviceHandler.m in Sources */,
 				C6772BBD1710E28900ED580A /* OEMultiHIDDeviceHandler.m in Sources */,
 				C6772BBF1710E28900ED580A /* OEWiimoteHIDDeviceHandler.m in Sources */,
@@ -971,7 +979,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
