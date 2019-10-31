@@ -153,9 +153,7 @@ static Class GameCoreClass = Nil;
         return;
     }
 
-    CFRunLoopPerformBlock(_gameCoreRunLoop, kCFRunLoopCommonModes, ^{
-        block();
-    });
+    CFRunLoopPerformBlock(_gameCoreRunLoop, kCFRunLoopCommonModes, block);
 }
 
 - (void)_gameCoreThreadWithStartEmulationCompletionHandler:(void (^)(void))startCompletionHandler
