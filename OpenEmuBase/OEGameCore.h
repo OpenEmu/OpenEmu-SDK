@@ -465,7 +465,24 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Display Mode - Optional
 
+/** An array describing the available display mode options and the
+ *  appearance of the menu used to select them.
+ *  @discussion Each NSDictionary in the array corresponds to an item
+ *    in the Display Modes menu.
+ *    Each item can represent one of these things, depending on the keys
+ *    contained in the dictionary:
+ *     - A label
+ *     - A separator
+ *     - A binary (toggleable) option
+ *     - An option mutually exclusive with other options
+ *     - A nested group of options (which appears as a submenu)
+ *    See OEGameCoreController.h for a detailed discussion of the keys contained
+ *    in each item dictionary. */
 @property(readonly) NSArray <NSDictionary <NSString *, id> *> *displayModes;
+
+/** Change display mode.
+ *  @param displayMode The name of the display mode to enable or disable, as
+ *    specified in its OEGameCoreDisplayModeNameKey key. */
 - (void)changeDisplayWithMode:(NSString *)displayMode;
 
 @end
