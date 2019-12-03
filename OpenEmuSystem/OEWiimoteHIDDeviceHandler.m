@@ -235,14 +235,6 @@ static const NSRange _OEClassicButtonRange  = { 14, 15 };
 static const NSRange _OEProButtonRange      = { 29, 17 };
 static const NSRange _OEAllButtonRange      = {  1, _OEWiimoteButtonCount };
 
-static OEWiimoteButtonIdentifier _OEWiimoteIdentifierFromHIDUsage(NSUInteger usage)
-{
-    if(usage <= 0 || usage >= _OEWiimoteButtonCount)
-       return OEWiimoteButtonIdentifierUnknown;
-
-    return _OEWiimoteIdentifierToHIDUsage[usage];
-}
-
 static void _OEWiimoteIdentifierEnumerateUsingBlock(NSRange range, void(^block)(OEWiimoteButtonIdentifier identifier, NSUInteger usage, BOOL *stop))
 {
     range = NSIntersectionRange(range, _OEAllButtonRange);

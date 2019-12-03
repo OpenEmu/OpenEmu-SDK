@@ -43,7 +43,6 @@
 
 @property(readonly) OEHIDEvent     *genericEvent;
 
-- (OEControlValueDescription *)addControlValueWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event;
 - (void)setUpControlValuesUsingRepresentations:(NSDictionary *)representations;
 
 @end

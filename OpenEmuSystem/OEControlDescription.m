@@ -157,30 +157,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
             break;
     }
 
-    [controlValues setValue:self forKey:@"controlDescription"];
     _controlValues = [controlValues copy];
-}
-
-- (OEControlValueDescription *)addControlValueWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event
-{
-    NSAssert([[_controlValues indexesOfObjectsPassingTest:
-              ^ BOOL (OEControlValueDescription *obj, NSUInteger idx, BOOL *stop)
-              {
-                  return [[obj identifier] isEqualToString:identifier] || [[obj event] isEqualToEvent:event];
-              }] count] == 0,
-             @"Control Description %@ already contains a value with identifier %@ or event %@",
-             self, identifier, event);
-
-    NSAssert([event isUsageEqualToEvent:_genericEvent], @"The provided event %@ does not correspond to the even %@ of the receiver %@", event, _genericEvent, self);
-
-    OEControlValueDescription *desc = [[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:name event:event];
-    [desc setControlDescription:self];
-
-    _controlValues = [(_controlValues ? : @[]) arrayByAddingObject:desc];
-
-    [[self controllerDescription] OE_controlDescription:self didAddControlValue:desc];
-
-    return desc;
 }
 
 - (NSUInteger)controlIdentifier

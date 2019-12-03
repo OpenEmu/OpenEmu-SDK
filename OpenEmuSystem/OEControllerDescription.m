@@ -38,11 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)OE_eventWithElement:(IOHIDElementRef)element value:(NSInteger)value;
 @end
 
-static NSNumber *_OEDeviceIdentifierKey(id obj)
-{
-    return @([obj vendorID] << 32 | [obj productID]);
-}
-
 @interface OEControllerDescription ()
 {
     NSString *_identifier;
