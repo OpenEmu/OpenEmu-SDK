@@ -37,11 +37,10 @@
 @end
 
 @interface OEDeviceDescription ()
-- (instancetype)OE_initWithRepresentation:(NSDictionary *)representation __attribute__((objc_method_family(init)));
-@property(readwrite) OEControllerDescription *controllerDescription;
+- (instancetype)OE_initWithRepresentation:(NSDictionary *)representation controllerDescription:(OEControllerDescription *)controllerDescription __attribute__((objc_method_family(init)));
+- (instancetype)OE_deviceDescriptionWithControllerDescription:(OEControllerDescription *)controllerDescription;
 @end
 
 @interface OEControlDescription ()
-- (instancetype)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent __attribute__((objc_method_family(init)));
-@property(readwrite) OEControllerDescription *controllerDescription;
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent controllerDescription:(OEControllerDescription *)controllerDescription __attribute__((objc_method_family(init)));
 @end

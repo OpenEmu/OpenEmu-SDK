@@ -74,17 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation OEHIDDeviceParser {
-    NSMutableDictionary<OEControllerDescription *, _OEHIDDeviceAttributes *> *_controllerDescriptionsToDeviceAttributes;
-}
-
-- (instancetype)init
-{
-    if((self = [super init]))
-        _controllerDescriptionsToDeviceAttributes = [[NSMutableDictionary alloc] init];
-
-    return self;
-}
+@implementation OEHIDDeviceParser
 
 - (OEDeviceDescription *)OE_deviceDescriptionForIOHIDDevice:(IOHIDDeviceRef)device
 {
@@ -139,15 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (OEHIDDeviceHandler *)OE_parseIOHIDDevice:(IOHIDDeviceRef)device
 {
     OEDeviceDescription *deviceDesc = [self OE_deviceDescriptionForIOHIDDevice:device];
-    OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
-
-    _OEHIDDeviceAttributes *attributes = _controllerDescriptionsToDeviceAttributes[controllerDesc];
-
-    if(attributes == nil) {
-        attributes = [self OE_deviceAttributesForIOHIDDevice:device deviceDescription:deviceDesc];
-        _controllerDescriptionsToDeviceAttributes[controllerDesc] = attributes;
-    } else
-        [attributes applyAttributesToDevice:device];
+    _OEHIDDeviceAttributes *attributes = [self OE_deviceAttributesForIOHIDDevice:device deviceDescription:deviceDesc];
 
     OEHIDDeviceHandler *handler = nil;
     if([[attributes subdeviceIdentifiersToDeviceDescriptions] count] != 0)

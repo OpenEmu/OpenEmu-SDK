@@ -45,13 +45,13 @@ static NSNumber *_OEDeviceIdentifierKey(id obj)
 
 @interface OEControllerDescription ()
 {
-    NSString            *_identifier;
-    NSString            *_name;
-    NSArray             *_devices;
+    NSString *_identifier;
+    NSString *_name;
+    NSDictionary<NSString *, OEDeviceDescription *> *_deviceNamesToDeviceDescriptions;
 
-    NSMutableDictionary *_controls;
-    NSMutableDictionary *_identifierToControlValue;
-    NSMutableDictionary *_valueIdentifierToControlValue;
+    NSMutableDictionary<NSString *, OEControlDescription *> *_controls;
+    NSMutableDictionary<NSString *, OEControlValueDescription *> *_identifierToControlValue;
+    NSMutableDictionary<NSNumber *, OEControlValueDescription *> *_valueIdentifierToControlValue;
 }
 
 - (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name cookie:(uint32_t)cookie __attribute__((objc_method_family(init)));
@@ -60,10 +60,8 @@ static NSNumber *_OEDeviceIdentifierKey(id obj)
 @end
 
 // Device representations stay in there for as long as no actual device of their type were plugged in.
-static NSMutableDictionary *_mappingRepresentations;
-
-static NSMutableDictionary *_deviceIDToDeviceDescriptions;
-static NSMutableDictionary *_deviceNameToDeviceDescriptions;
+static NSDictionary<NSString *, NSDictionary *> *_mappingRepresentations;
+static NSDictionary<NSString *, OEControllerDescription *> *_deviceNamesToKnownControllerDescriptions;
 
 @implementation OEControllerDescription
 
@@ -74,19 +72,19 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
         NSString *identifierPath = [[NSBundle mainBundle] pathForResource:@"Controller-Database" ofType:@"plist"];
         NSDictionary *representations = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:identifierPath options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
 
-        _deviceIDToDeviceDescriptions = [NSMutableDictionary dictionary];
-        _deviceNameToDeviceDescriptions = [NSMutableDictionary dictionary];
+        NSMutableDictionary<NSString *, NSDictionary *> *mappingReps = [NSMutableDictionary dictionaryWithCapacity:[representations count]];
+        NSMutableDictionary<NSString *, OEControllerDescription *> *deviceNamesToControllerDescriptions = [NSMutableDictionary dictionary];
 
-        NSMutableDictionary *mappingReps = [NSMutableDictionary dictionaryWithCapacity:[representations count]];
+        [representations enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary *rep, BOOL *stop) {
+            OEControllerDescription *description = [[OEControllerDescription alloc] OE_initWithIdentifier:identifier representation:rep];
+            for (NSString *deviceName in description.deviceNames)
+                deviceNamesToControllerDescriptions[deviceName] = description;
 
-        [representations enumerateKeysAndObjectsUsingBlock:
-         ^(NSString *identifier, NSDictionary *rep, BOOL *stop) {
-             [self OE_installControllerDescription:[[OEControllerDescription alloc] OE_initWithIdentifier:identifier representation:rep]];
-
-             mappingReps[identifier] = rep[@"OEControllerMappings"] ? : @{};
+            mappingReps[identifier] = rep[@"OEControllerMappings"] ? : @{};
          }];
 
-        _mappingRepresentations = mappingReps;
+        _deviceNamesToKnownControllerDescriptions = [deviceNamesToControllerDescriptions copy];
+        _mappingRepresentations = [mappingReps copy];
     }
 }
 
@@ -95,54 +93,17 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     // Some devices have no HID Product string descriptor
     if(product == nil) product = @"Unknown USB Gamepad";
 
-    OEDeviceDescription *ret = _deviceNameToDeviceDescriptions[product];
+    OEControllerDescription *controllerDescription = [_deviceNamesToKnownControllerDescriptions[product] OE_controllerDescription];
+    if (controllerDescription != nil)
+        return [controllerDescription deviceDescriptionForDeviceName:product];
 
-    if(ret == nil)
-    {
-        ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
-        if (ret.product) ret = nil;
-    }
-
-    if(ret == nil)
-    {
-        OEControllerDescription *desc = [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:product cookie:cookie];
-        [self OE_installControllerDescription:desc];
-        ret = _deviceNameToDeviceDescriptions[product];
-
-        if (ret == nil)
-            ret = _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDeviceVendorID:vendorID productID:productID]];
-    }
-
-    return ret;
+    OEControllerDescription *desc = [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:product cookie:cookie];
+    return [desc deviceDescriptionForDeviceName:product];
 }
 
 + (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)OE_dequeueRepresentationForDeviceDescription:(OEDeviceDescription *)deviceDescription;
 {
-    OEControllerDescription *ctrlDesc = [deviceDescription controllerDescription];
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *ret = _mappingRepresentations[[ctrlDesc identifier]];
-    [_mappingRepresentations removeObjectForKey:[ctrlDesc identifier]];
-    return ret;
-}
-
-+ (NSString *)OE_deviceDescriptionKeyForDeviceVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID
-{
-    return [NSString stringWithFormat:@"<%#lx %#lx>", vendorID, productID];
-}
-
-+ (NSString *)OE_deviceDescriptionKeyForDevice:(OEDeviceDescription *)device
-{
-    return [self OE_deviceDescriptionKeyForDeviceVendorID:[device vendorID] productID:[device productID]];
-}
-
-+ (void)OE_installControllerDescription:(OEControllerDescription *)controllerDescription
-{
-    for(OEDeviceDescription *device in [controllerDescription devices])
-    {
-        _deviceIDToDeviceDescriptions[[self OE_deviceDescriptionKeyForDevice:device]] = device;
-
-        NSString *product = [device product];
-        if (product != nil) _deviceNameToDeviceDescriptions[product] = device;
-    }
+    return _mappingRepresentations[[[deviceDescription controllerDescription] identifier]];
 }
 
 - (id)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation
@@ -179,11 +140,10 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
                                          @"OEControllerVendorID"      : @(vendorID),
                                          @"OEControllerProductID"     : @(productID),
                                          @"OEControllerCookie"        : @(cookie),
-                                     }];
-        [desc setControllerDescription:self];
+                                     } controllerDescription:self];
 
         _identifier = [desc genericDeviceIdentifier];
-        _devices = @[ desc ];
+        _deviceNamesToDeviceDescriptions = @{ _name: desc };
     }
 
     return self;
@@ -194,18 +154,47 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
     return self;
 }
 
+- (instancetype)OE_controllerDescription
+{
+    OEControllerDescription *ret = [[[self class] alloc] init];
+    ret->_isGeneric = _isGeneric;
+    ret->_identifier = [_identifier copy];
+    ret->_name = [_name copy];
+    ret->_cookie = _cookie;
+    ret->_controls = [NSMutableDictionary dictionary];
+    ret->_identifierToControlValue = [NSMutableDictionary dictionary];
+    ret->_valueIdentifierToControlValue = [NSMutableDictionary dictionary];
+
+    NSMutableDictionary<NSString *, OEDeviceDescription *> *deviceNamesToDeviceDescriptions = [NSMutableDictionary dictionary];
+    [_deviceNamesToDeviceDescriptions enumerateKeysAndObjectsUsingBlock:^(NSString *key, OEDeviceDescription *obj, BOOL * _Nonnull stop) {
+        deviceNamesToDeviceDescriptions[key] = [obj OE_deviceDescriptionWithControllerDescription:ret];
+    }];
+    ret->_deviceNamesToDeviceDescriptions = [deviceNamesToDeviceDescriptions copy];
+
+    return ret;
+}
+
+- (NSArray<NSString *> *)deviceNames
+{
+    return _deviceNamesToDeviceDescriptions.allKeys;
+}
+
+- (OEDeviceDescription *)deviceDescriptionForDeviceName:(NSString *)productName
+{
+    return _deviceNamesToDeviceDescriptions[productName];
+}
+
 - (void)OE_setUpDevicesWithRepresentations:(NSArray *)representations
 {
-    NSMutableArray *devices = [[NSMutableArray alloc] initWithCapacity:[representations count]];
+    NSMutableDictionary<NSString *, OEDeviceDescription *> *deviceNamesToDeviceDescriptions = [NSMutableDictionary dictionary];
 
     for(NSDictionary *rep in representations)
     {
-        OEDeviceDescription *desc = [[OEDeviceDescription alloc] OE_initWithRepresentation:rep];
-        [desc setControllerDescription:self];
-        [devices addObject:desc];
+        OEDeviceDescription *desc = [[OEDeviceDescription alloc] OE_initWithRepresentation:rep controllerDescription:self];
+        deviceNamesToDeviceDescriptions[desc.product] = desc;
     }
 
-    _devices = [devices copy];
+    _deviceNamesToDeviceDescriptions = [deviceNamesToDeviceDescriptions copy];
 }
 
 - (NSUInteger)numberOfControls
@@ -241,10 +230,9 @@ static NSMutableDictionary *_deviceNameToDeviceDescriptions;
 
 - (OEControlDescription *)addControlWithIdentifier:(nullable NSString *)identifier name:(nullable NSString *)name event:(OEHIDEvent *)event;
 {
-    OEControlDescription *desc = [[OEControlDescription alloc] OE_initWithIdentifier:identifier name:name genericEvent:event];
+    OEControlDescription *desc = [[OEControlDescription alloc] OE_initWithIdentifier:identifier name:name genericEvent:event controllerDescription:self];
     NSAssert(_controls[[desc identifier]] == nil, @"There is already a control %@ with the identifier %@", _controls[[desc identifier]], identifier);
 
-    [desc setControllerDescription:self];
     _controls[[desc identifier]] = desc;
 
     if(_isGeneric) [desc setUpControlValuesUsingRepresentations:nil];

@@ -85,7 +85,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
     NSMutableDictionary<NSNumber *, OEDevicePlayerBindings *> *_devicePlayerBindings;
 
-    NSMutableDictionary<OEControllerDescription *, OEDevicePlayerBindings *> *_defaultDeviceBindings;
+    NSMutableDictionary<NSString *, OEDevicePlayerBindings *> *_defaultDeviceBindings;
 
     OEDevicePlayerBindings *_emptyConfiguration;
 }
@@ -186,7 +186,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
 - (void)OE_parseDefaultControlValuesForControllerDescription:(OEControllerDescription *)controllerDescription
 {
-    if(_defaultDeviceBindings[controllerDescription] != nil) return;
+    if(_defaultDeviceBindings[[controllerDescription identifier]] != nil) return;
 
     NSDictionary *representation = [_systemController defaultDeviceControls][[controllerDescription identifier]];
     if(representation == nil) return;
@@ -197,7 +197,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
         return;
     }
     
-    _defaultDeviceBindings[controllerDescription] = dpb;
+    _defaultDeviceBindings[[controllerDescription identifier]] = dpb;
 }
 
 /* Returns YES if all the bindings were successfully parsed; NO if some bindings were reset because of a
@@ -1052,7 +1052,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     // No available slots in the known configurations, look for defaults
     if(controller == nil)
     {
-        OEDevicePlayerBindings *ctrl = _defaultDeviceBindings[controllerDescription];
+        OEDevicePlayerBindings *ctrl = _defaultDeviceBindings[[controllerDescription identifier]];
         controller = [ctrl OE_playerBindingsWithDeviceHandler:aHandler playerNumber:0];
     }
 

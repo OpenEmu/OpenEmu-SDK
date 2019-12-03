@@ -34,19 +34,34 @@
     return [OEControllerDescription OE_deviceDescriptionForVendorID:vendorID productID:productID product:product cookie:cookie];
 }
 
-- (instancetype)OE_initWithRepresentation:(NSDictionary *)representation;
+- (instancetype)OE_initWithRepresentation:(NSDictionary *)representation controllerDescription:(OEControllerDescription *)controllerDescription
 {
     if((self = [super init]))
     {
         _name = [representation[@"OEControllerDeviceName"] copy];
-        _product = [representation[@"OEControllerProductName"] copy];
+        _product = [representation[@"OEControllerProductName"] copy] ?: _name;
         _vendorID = [representation[@"OEControllerVendorID"] integerValue];
         _productID = [representation[@"OEControllerProductID"] integerValue];
         _cookie = [representation[@"OEControllerCookie"] unsignedShortValue];
         _genericDeviceIdentifier = [NSString stringWithFormat:@"OEGenericDeviceIdentifier_%ld_%ld", _vendorID, _productID];
+        _controllerDescription = controllerDescription;
     }
 
     return self;
+}
+
+- (instancetype)OE_deviceDescriptionWithControllerDescription:(OEControllerDescription *)controllerDescription
+{
+    OEDeviceDescription *ret = [[[self class] alloc] init];
+    ret->_name = [_name copy];
+    ret->_product = [_product copy];
+    ret->_vendorID = _vendorID;
+    ret->_productID = _productID;
+    ret->_cookie = _cookie;
+    ret->_genericDeviceIdentifier = _genericDeviceIdentifier;
+    ret->_controllerDescription = controllerDescription;
+
+    return ret;
 }
 
 - (id)copyWithZone:(NSZone *)zone

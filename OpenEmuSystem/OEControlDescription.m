@@ -64,13 +64,12 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
 }
 
 @interface OEControlValueDescription ()
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event __attribute__((objc_method_family(init)));
-@property(readwrite, weak) OEControlDescription *controlDescription;
+- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event controlDescription:(OEControlDescription *)controlDescription __attribute__((objc_method_family(init)));
 @end
 
 @implementation OEControlDescription
 
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent
+- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent controllerDescription:(OEControllerDescription *)controllerDescription
 {
     if((self = [super init]))
     {
@@ -78,6 +77,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
         _genericEvent     = [genericEvent copy];
         _identifier       = [identifier copy] ? : OEControlGenericIdentifierFromEvent(_genericEvent);
         _name             = name              ? : [_genericEvent displayDescription];
+        _controllerDescription = controllerDescription;
     }
     return self;
 }
@@ -107,7 +107,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
             [representations enumerateKeysAndObjectsUsingBlock:
              ^(NSString *identifier, NSDictionary *rep, BOOL *stop)
              {
-                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[self->_genericEvent axisEventWithDirection:[rep[@"Direction"] integerValue]]]];
+                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[self->_genericEvent axisEventWithDirection:[rep[@"Direction"] integerValue]] controlDescription:self]];
              }];
         }
             break;
@@ -117,17 +117,16 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
             [representations enumerateKeysAndObjectsUsingBlock:
              ^(NSString *identifier, NSDictionary *rep, BOOL *stop)
              {
-                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[self->_genericEvent hatSwitchEventWithDirection:OEHIDEventHatDirectionFromNSString(rep[@"Direction"])]]];
+                 [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:identifier name:rep[@"Name"] event:[self->_genericEvent hatSwitchEventWithDirection:OEHIDEventHatDirectionFromNSString(rep[@"Direction"])] controlDescription:self]];
              }];
         }
             break;
         default :
             NSAssert([representations count] == 0, @"Event type %@ should have no control values, got %@", NSStringFromOEHIDEventType([_genericEvent type]), representations);
-            [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:_identifier name:_name event:_genericEvent]];
+            [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:_identifier name:_name event:_genericEvent controlDescription:self]];
             break;
     }
 
-    [controlValues setValue:self forKey:@"controlDescription"];
     _controlValues = [controlValues copy];
 }
 
@@ -138,7 +137,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
     void (^addEvent)(OEHIDEvent *) =
     ^(OEHIDEvent *event)
     {
-        [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:OEControlGenericIdentifierFromEvent(event) name:[event displayDescription] event:event]];
+        [controlValues addObject:[[OEControlValueDescription alloc] OE_initWithIdentifier:OEControlGenericIdentifierFromEvent(event) name:[event displayDescription] event:event controlDescription:self]];
     };
 
     switch([_genericEvent type])
@@ -203,13 +202,14 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
 
 @implementation OEControlValueDescription
 
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event
+- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event controlDescription:(OEControlDescription *)controlDescription
 {
     if((self = [super init]))
     {
         _identifier = [identifier copy] ? : OEControlGenericIdentifierFromEvent(event);
         _name = [name copy] ? : [event displayDescription];
         _event = [event copy];
+        _controlDescription = controlDescription;
     }
 
     return self;

@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class OEControlDescription;
 @class OEControlValueDescription;
+@class OEDeviceDescription;
 @class OEDeviceHandler;
 @class OEHIDEvent;
 
@@ -43,7 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly) NSString *identifier;
 @property(readonly) NSString *name;
 
-@property(readonly) NSArray *devices;
+@property(readonly) NSArray<NSString *> *deviceNames;
+- (OEDeviceDescription *)deviceDescriptionForDeviceName:(NSString *)productName;
 
 @property(readonly) NSUInteger numberOfControls;
 @property(readonly) NSArray *controls;
