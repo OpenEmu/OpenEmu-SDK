@@ -100,7 +100,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     }
 
     if (potentialControllerDescription)
-        return potentialControllerDescription;
+        return [potentialControllerDescription OE_controllerDescription];
 
     return [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:product];
 }
