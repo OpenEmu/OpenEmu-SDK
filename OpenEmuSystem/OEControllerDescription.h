@@ -40,12 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
 // Return YES if the controller is not known to the application database.
 @property(readonly) BOOL isGeneric;
 
-@property(readonly) uint32_t cookie;
 @property(readonly) NSString *identifier;
 @property(readonly) NSString *name;
 
-@property(readonly) NSArray<NSString *> *deviceNames;
-- (OEDeviceDescription *)deviceDescriptionForDeviceName:(NSString *)productName;
+@property(readonly) NSArray<OEDeviceDescription *> *deviceDescriptions;
+- (OEDeviceDescription *)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID cookie:(uint32_t)cookie;
 
 @property(readonly) NSUInteger numberOfControls;
 @property(readonly) NSArray *controls;

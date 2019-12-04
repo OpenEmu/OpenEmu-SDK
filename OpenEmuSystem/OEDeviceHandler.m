@@ -47,7 +47,6 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
 
 @interface OEDeviceHandler ()
 {
-    OEDeviceDescription *_deviceDescription;
     NSMutableDictionary *_deadZones;
 }
 

@@ -29,10 +29,11 @@
 #import "OEDeviceDescription.h"
 
 @interface OEControllerDescription ()
-+ (OEDeviceDescription *)OE_deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie;
++ (OEControllerDescription *)OE_controllerDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;
 
-+ (NSDictionary *)OE_dequeueRepresentationForDeviceDescription:(OEDeviceDescription *)deviceDescription;
++ (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)OE_representationForControllerDescription:(OEControllerDescription *)controllerDescription;
 
+- (OEDeviceDescription *)OE_addDeviceDescriptionWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie;
 - (void)OE_controlDescription:(OEControlDescription *)control didAddControlValue:(OEControlValueDescription *)valueDesc;
 @end
 

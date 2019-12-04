@@ -929,13 +929,9 @@ static void OEHACProControllerHIDReportCallback(
     NSNumber *vid = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
     NSNumber *pid = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
     NSString *pkey = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
-    OEDeviceDescription *deviceDesc = [OEDeviceDescription
-        deviceDescriptionForVendorID:[vid integerValue] productID:[pid integerValue]
-        product:pkey cookie:0];
-    
-    OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
+    OEControllerDescription *controllerDesc = [OEControllerDescription OE_controllerDescriptionForVendorID:vid.integerValue productID:pid.integerValue product:pkey];
     if ([[controllerDesc controls] count] == 0) {
-        NSDictionary *representations = [OEControllerDescription OE_dequeueRepresentationForDeviceDescription:deviceDesc];
+        NSDictionary *representations = [OEControllerDescription OE_representationForControllerDescription:controllerDesc];
         [representations enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary *representation, BOOL *stop) {
             OEHIDEventType type = OEHIDEventTypeFromNSString(representation[@"Type"]);
             NSUInteger usage = OEUsageFromUsageStringWithType(representation[@"Usage"], type);
@@ -961,7 +957,7 @@ static void OEHACProControllerHIDReportCallback(
         }];
     }
 
-    return [[OESwitchProControllerHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:deviceDesc];
+    return [[OESwitchProControllerHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:[controllerDesc deviceDescriptionForVendorID:vid.integerValue productID:pid.integerValue cookie:0]];
 }
 
 

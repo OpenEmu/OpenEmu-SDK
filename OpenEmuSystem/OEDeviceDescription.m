@@ -29,11 +29,6 @@
 
 @implementation OEDeviceDescription
 
-+ (instancetype)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie
-{
-    return [OEControllerDescription OE_deviceDescriptionForVendorID:vendorID productID:productID product:product cookie:cookie];
-}
-
 - (instancetype)OE_initWithRepresentation:(NSDictionary *)representation controllerDescription:(OEControllerDescription *)controllerDescription
 {
     if((self = [super init]))

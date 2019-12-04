@@ -76,14 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation OEHIDDeviceParser
 
-- (OEDeviceDescription *)OE_deviceDescriptionForIOHIDDevice:(IOHIDDeviceRef)device
-{
-    return [OEDeviceDescription deviceDescriptionForVendorID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue]
-                                                   productID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue]
-                                                     product:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))
-                                                      cookie:0];
-}
-
 - (Class)OE_deviceHandlerClassForIOHIDDevice:(IOHIDDeviceRef)aDevice
 {
     if([OEWiimoteHIDDeviceHandler canHandleDevice:aDevice])
@@ -128,8 +120,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (OEHIDDeviceHandler *)OE_parseIOHIDDevice:(IOHIDDeviceRef)device
 {
-    OEDeviceDescription *deviceDesc = [self OE_deviceDescriptionForIOHIDDevice:device];
-    _OEHIDDeviceAttributes *attributes = [self OE_deviceAttributesForIOHIDDevice:device deviceDescription:deviceDesc];
+    NSUInteger vendorID = [(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue];
+    NSUInteger productID = [(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue];
+    NSString *productName = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+
+    OEControllerDescription *controllerDescription = [OEControllerDescription OE_controllerDescriptionForVendorID:vendorID productID:productID product:productName];
+    OEDeviceDescription *deviceDesc = [controllerDescription deviceDescriptionForVendorID:vendorID productID:productID cookie:0];
+    _OEHIDDeviceAttributes *attributes = [self OE_deviceAttributesForIOHIDDevice:device controllerDescription:controllerDescription vendorID:vendorID productID:productID];
 
     OEHIDDeviceHandler *handler = nil;
     if([[attributes subdeviceIdentifiersToDeviceDescriptions] count] != 0)
@@ -140,15 +137,15 @@ NS_ASSUME_NONNULL_BEGIN
     return handler;
 }
 
-- (_OEHIDDeviceAttributes *)OE_deviceAttributesForIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDescription
+- (_OEHIDDeviceAttributes *)OE_deviceAttributesForIOHIDDevice:(IOHIDDeviceRef)device controllerDescription:(OEControllerDescription *)controllerDescription vendorID:(NSUInteger)vendorID productID:(NSUInteger)productID
 {
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *representation = [OEControllerDescription OE_dequeueRepresentationForDeviceDescription:deviceDescription];
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *representation = [OEControllerDescription OE_representationForControllerDescription:controllerDescription];
 
     _OEHIDDeviceAttributes *attributes = nil;
     if(representation != nil)
-        attributes = [self OE_deviceAttributesForKnownIOHIDDevice:device deviceDescription:deviceDescription representations:representation];
+        attributes = [self OE_deviceAttributesForKnownIOHIDDevice:device controllerDescription:controllerDescription representations:representation];
     else
-        attributes = [self OE_deviceAttributesForUnknownIOHIDDevice:device deviceDescription:deviceDescription];
+        attributes = [self OE_deviceAttributesForUnknownIOHIDDevice:device controllerDescription:controllerDescription vendorID:vendorID productID:productID];
 
     return attributes;
 }
@@ -204,10 +201,8 @@ typedef NS_ENUM(NSInteger, OEElementType) {
     return OEElementTypeButton;
 }
 
-- (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc representations:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)controlRepresentations
+- (_OEHIDDeviceAttributes *)OE_deviceAttributesForKnownIOHIDDevice:(IOHIDDeviceRef)device controllerDescription:(OEControllerDescription *)controllerDesc representations:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)controlRepresentations
 {
-    OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
-
     _OEHIDDeviceAttributes *attributes = [[_OEHIDDeviceAttributes alloc] initWithDeviceHandlerClass:[self OE_deviceHandlerClassForIOHIDDevice:device]];
 
     NSMutableArray *genericDesktopElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_GenericDesktop) }, 0) mutableCopy];
@@ -270,18 +265,16 @@ typedef NS_ENUM(NSInteger, OEElementType) {
     }]];
 
     if([genericDesktopElements count] > 0)
-        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", [genericDesktopElements count], [deviceDesc product]);
+        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", genericDesktopElements.count, controllerDesc.name);
 
     if([buttonElements count] > 0)
-        NSLog(@"WARNING: There are %ld button elements unaccounted for.", [buttonElements count]);
+        NSLog(@"WARNING: There are %ld button elements unaccounted for in %@.", buttonElements.count, controllerDesc.name);
 
     return attributes;
 }
 
-- (_OEHIDDeviceAttributes *)OE_deviceAttributesForUnknownIOHIDDevice:(IOHIDDeviceRef)device deviceDescription:(OEDeviceDescription *)deviceDesc
+- (_OEHIDDeviceAttributes *)OE_deviceAttributesForUnknownIOHIDDevice:(IOHIDDeviceRef)device controllerDescription:(OEControllerDescription *)controllerDesc vendorID:(NSUInteger)vendorID productID:(NSUInteger)productID
 {
-    OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
-
     _OEHIDDeviceElementTree *tree = [[_OEHIDDeviceElementTree alloc] initWithHIDDevice:device];
 
     NSMutableArray<NSValue *> *rootJoysticks = [NSMutableArray array];
@@ -306,8 +299,8 @@ typedef NS_ENUM(NSInteger, OEElementType) {
 
     _OEHIDDeviceAttributes *attributes = [[_OEHIDDeviceAttributes alloc] initWithDeviceHandlerClass:[OEMultiHIDDeviceHandler class]];
 
-    const NSUInteger subdeviceVendorID = [deviceDesc vendorID] << 32;
-    const NSUInteger subdeviceProductIDBase = [deviceDesc productID] << 32;
+    const NSUInteger subdeviceVendorID = vendorID << 32;
+    const NSUInteger subdeviceProductIDBase = productID << 32;
     NSUInteger lastDeviceIndex = 0;
 
     NSMutableDictionary<NSNumber *, OEDeviceDescription *> *deviceIdentifiers = [[NSMutableDictionary alloc] initWithCapacity:[rootJoysticks count]];
@@ -316,11 +309,9 @@ typedef NS_ENUM(NSInteger, OEElementType) {
         NSNumber *deviceIdentifier = @(++lastDeviceIndex);
         IOHIDElementRef elem = VALUE_TO_ELEM(e);
 
-        OEDeviceDescription *subdeviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex product:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier] cookie:IOHIDElementGetCookie(elem)];
+        [self OE_parseJoystickElement:elem intoControllerDescription:controllerDesc attributes:attributes deviceIdentifier:deviceIdentifier usingElementTree:tree];
 
-        [self OE_parseJoystickElement:elem intoControllerDescription:[subdeviceDesc controllerDescription] attributes:attributes deviceIdentifier:deviceIdentifier usingElementTree:tree];
-
-        deviceIdentifiers[deviceIdentifier] = subdeviceDesc;
+        deviceIdentifiers[deviceIdentifier] = [controllerDesc OE_addDeviceDescriptionWithVendorID:subdeviceVendorID productID:subdeviceProductIDBase | lastDeviceIndex product:[[controllerDesc name] stringByAppendingFormat:@" %@", deviceIdentifier] cookie:IOHIDElementGetCookie(elem)];
     }
 
     attributes.subdeviceIdentifiersToDeviceDescriptions = deviceIdentifiers;

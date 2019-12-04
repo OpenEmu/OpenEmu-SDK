@@ -915,14 +915,13 @@ enum {
 
 - (OEWiimoteHIDDeviceHandler *)deviceHandlerForIOHIDDevice:(IOHIDDeviceRef)device
 {
-    OEDeviceDescription *deviceDesc = [OEDeviceDescription deviceDescriptionForVendorID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue]
-                                                                              productID:[(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue]
-                                                                                product:(__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey))
-                                                                                 cookie:0];
-    OEControllerDescription *controllerDesc = [deviceDesc controllerDescription];
+    NSUInteger vendorID = [(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey)) integerValue];
+    NSUInteger productID = [(__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)) integerValue];
+    NSString *product = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
+    OEControllerDescription *controllerDesc = [OEControllerDescription OE_controllerDescriptionForVendorID:vendorID productID:productID product:product];
     if([controllerDesc numberOfControls] == 0)
     {
-        NSDictionary *representations = [OEControllerDescription OE_dequeueRepresentationForDeviceDescription:deviceDesc];
+        NSDictionary *representations = [OEControllerDescription OE_representationForControllerDescription:controllerDesc];
         [representations enumerateKeysAndObjectsUsingBlock:
          ^(NSString *identifier, NSDictionary *representation, BOOL *stop)
          {
@@ -954,7 +953,7 @@ enum {
          }];
     }
 
-    return [[OEWiimoteHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:deviceDesc];
+    return [[OEWiimoteHIDDeviceHandler alloc] initWithIOHIDDevice:device deviceDescription:[controllerDesc deviceDescriptionForVendorID:vendorID productID:productID cookie:0]];
 }
 
 @end
