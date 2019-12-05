@@ -191,7 +191,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     NSDictionary *representation = [_systemController defaultDeviceControls][[controllerDescription identifier]];
     if(representation == nil) return;
     
-    OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO];
+    OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription];
     if (!dpb) {
         NSLog(@"Failed to parse default bindings for %@!", controllerDescription);
         return;
@@ -218,7 +218,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     NSMutableArray<OEDevicePlayerBindings *> *parsedBindings = _parsedManufacturerBindings[controllerDescription] ? : [NSMutableArray array];
 
     for(NSDictionary<NSString *, id> *representation in genericDeviceBindingsToParse) {
-        OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:YES];
+        OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription];
         if (dpb)
             [parsedBindings addObject:dpb];
         else
@@ -230,7 +230,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
         [self OE_parseDefaultControlValuesForControllerDescription:controllerDescription];
 
         for(NSDictionary<NSString *, id> *representation in _unparsedManufactuerBindings[[controllerDescription identifier]]) {
-            OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription useValueIdentifier:NO];
+            OEDevicePlayerBindings *dpb = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:controllerDescription];
             if (dpb)
                 [parsedBindings addObject:dpb];
             else
@@ -244,7 +244,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     return noErrors;
 }
 
-- (OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary<NSString *, id> *)representation withControllerDescription:(OEControllerDescription *)controllerDescription useValueIdentifier:(BOOL)useValueIdentifier
+- (OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary<NSString *, id> *)representation withControllerDescription:(OEControllerDescription *)controllerDescription
 {
     __block BOOL corrupted = NO;
     
@@ -295,6 +295,18 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     return controller;
 }
 
+- (OEDevicePlayerBindings *)OE_duplicateDevicePlayerBindings:(OEDevicePlayerBindings *)originalDevicePlayerBindings forHandler:(OEDeviceHandler *)deviceHandler
+{
+    if (!originalDevicePlayerBindings)
+        return nil;
+
+    NSDictionary *representation = [self OE_controllerRepresentationForDevicePlayerBindings:originalDevicePlayerBindings];
+    OEDevicePlayerBindings *devicePlayerBindings = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:deviceHandler.deviceDescription.controllerDescription];
+    [devicePlayerBindings OE_setDeviceHandler:deviceHandler];
+
+    return devicePlayerBindings;
+}
+
 - (OEBindingDescription *)OE_keyIdentifierForKeyDescription:(OEKeyBindingDescription *)keyDescription event:(OEHIDEvent *)event;
 {
     OEBindingDescription *insertedKey = keyDescription;
@@ -341,35 +353,35 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
              return;
 
          NSMutableArray<NSDictionary<NSString *, id> *> *controllerRepresentations = [NSMutableArray arrayWithCapacity:[controllers count]];
-         for(OEDevicePlayerBindings *controller in controllers)
-         {
-             NSDictionary<__kindof OEBindingDescription *, OEControlValueDescription *> *rawBindings = [controller bindingEvents];
-             NSMutableDictionary<NSString *, id> *bindingRepresentations = [NSMutableDictionary dictionaryWithCapacity:[rawBindings count]];
-             [rawBindings enumerateKeysAndObjectsUsingBlock:
-              ^(__kindof OEBindingDescription *key, OEControlValueDescription *obj, BOOL *stop)
-              {
-                  NSString *saveKey = nil;
-                  if([key isKindOfClass:[OEKeyBindingDescription class]])
-                      saveKey = [key name];
-                  else if([key isKindOfClass:[OEOrientedKeyGroupBindingDescription class]])
-                      saveKey = [[key baseKey] name];
-                  else
-                  {
-                      NSLog(@"WARNING: Unkown Bindings key");
-                      NSLog(@"%@", key);
-                      saveKey = @"";
-                  }
-
-                  bindingRepresentations[saveKey] = obj.representation;
-              }];
-
-             [controllerRepresentations addObject:bindingRepresentations];
+         for(OEDevicePlayerBindings *controller in controllers) {
+             [controllerRepresentations addObject:[self OE_controllerRepresentationForDevicePlayerBindings:controller]];
          }
 
          ret[[description identifier]] = controllerRepresentations;
      }];
 
     return ret;
+}
+
+- (NSDictionary<NSString *, id> *)OE_controllerRepresentationForDevicePlayerBindings:(OEDevicePlayerBindings *)controller
+{
+    NSMutableDictionary<NSString *, id> *bindingRepresentations = [NSMutableDictionary dictionary];
+    [[controller bindingEvents] enumerateKeysAndObjectsUsingBlock:^(__kindof OEBindingDescription *key, OEControlValueDescription *obj, BOOL *stop) {
+        NSString *saveKey = nil;
+        if([key isKindOfClass:[OEKeyBindingDescription class]]) {
+            saveKey = [key name];
+        } else if([key isKindOfClass:[OEOrientedKeyGroupBindingDescription class]]) {
+            saveKey = [[key baseKey] name];
+        } else {
+            NSLog(@"WARNING: Unknown Bindings key");
+            NSLog(@"%@", key);
+            saveKey = @"";
+        }
+
+        bindingRepresentations[saveKey] = obj.representation;
+    }];
+
+    return [bindingRepresentations copy];
 }
 
 - (NSMutableArray<NSDictionary<NSString *, __kindof id<OEPropertyList>> *> *)OE_arrayRepresentationForKeyboardBindings
@@ -673,13 +685,11 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     OEControlValueDescription *valueDesc = [[[sender deviceHandler] controllerDescription] controlValueDescriptionForEvent:anEvent];
     NSAssert(valueDesc != nil, @"Controller type '%@' does not recognize the event '%@', when attempting to set the key with name: '%@'.", [[[sender deviceHandler] controllerDescription] identifier], anEvent, keyName);
 
-    // Sender is based on another device player bindings,
-    // it needs to be made independent and added to the manufacturer list.
-    if([sender OE_isDependent])
-    {
-        [sender OE_makeIndependent];
-
-        [_parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]] addObject:sender];
+    // Sender is a duplicate configuration of an existing configuration,
+    // save it as a new configuration now that it is being modified.
+    NSMutableArray *manufactureBindings = _parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]];
+    if (![manufactureBindings containsObject:sender]) {
+        [manufactureBindings addObject:sender];
     }
 
     // Search for keys bound to the same event.
@@ -786,13 +796,11 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     __block __kindof OEBindingDescription *keyDesc = _systemController.allKeyBindingsDescriptions[keyName];
     NSAssert(keyDesc != nil, @"Could not find Key Binding Description for key with name \"%@\" in system \"%@\"", keyName, [[self systemController] systemIdentifier]);
 
-    // Sender is based on another device player bindings,
-    // it needs to be made independent and added to the manufacturer list.
-    if([sender OE_isDependent])
-    {
-        [sender OE_makeIndependent];
-
-        [_parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]] addObject:sender];
+    // Sender is a duplicate configuration of an existing configuration,
+    // save it as a new configuration now that it is being modified.
+    NSMutableArray *manufactureBindings = _parsedManufacturerBindings[[[sender deviceHandler] deviceDescription]];
+    if (![manufactureBindings containsObject:sender]) {
+        [manufactureBindings addObject:sender];
     }
 
     __block OEControlValueDescription *valueDescToRemove = [sender bindingEvents][keyDesc];
@@ -983,8 +991,6 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
     [self OE_notifyObserversForRemovedDeviceBindings:controller];
 
-    [controller OE_makeIndependent];
-
     [controller OE_setDeviceHandler:nil];
     [controller OE_setPlayerNumber:0];
 }
@@ -1018,7 +1024,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
 - (OEDevicePlayerBindings *)OE_deviceBindingsForDeviceHandler:(OEDeviceHandler *)aHandler corruptBindingsDetected:(BOOL *)outCorrupted
 {
-    OEDevicePlayerBindings *controller = [_deviceHandlersToBindings objectForKey:aHandler];
+    __block OEDevicePlayerBindings *controller = [_deviceHandlersToBindings objectForKey:aHandler];
 
     // The device was already registered with the system controller
     if(controller != nil) return controller;
@@ -1040,31 +1046,30 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
         }
     }
 
-    for(OEDevicePlayerBindings *ctrl in manuBindings) {
-        if([ctrl deviceHandler] == nil)
-        {
-            controller = ctrl;
-            [controller OE_setDeviceHandler:aHandler];
-            break;
+    [manuBindings enumerateObjectsUsingBlock:^(OEDevicePlayerBindings *devicePlayerBindings, NSUInteger idx, BOOL *stop) {
+        if (devicePlayerBindings.deviceHandler == nil) {
+            controller = [self OE_duplicateDevicePlayerBindings:devicePlayerBindings forHandler:aHandler];
+            manuBindings[idx] = controller;
+            *stop = YES;
         }
-    }
+    }];
 
     // No available slots in the known configurations, look for defaults
     if(controller == nil)
     {
         OEDevicePlayerBindings *ctrl = _defaultDeviceBindings[[controllerDescription identifier]];
-        controller = [ctrl OE_playerBindingsWithDeviceHandler:aHandler playerNumber:0];
+        controller = [self OE_duplicateDevicePlayerBindings:ctrl forHandler:aHandler];
     }
 
     // No defaults, duplicate the first manufacturer  device
     if(controller == nil && [manuBindings count] > 0)
-        controller = [manuBindings[0] OE_playerBindingsWithDeviceHandler:aHandler playerNumber:0];
+        controller = [self OE_duplicateDevicePlayerBindings:manuBindings.firstObject forHandler:aHandler];
 
     // Still nothing, create a completely empty controller
     if(controller == nil)
     {
         // This handler is the first of its kind for the application
-        controller = [_emptyConfiguration OE_playerBindingsWithDeviceHandler:aHandler playerNumber:0];
+        controller = [self OE_duplicateDevicePlayerBindings:_emptyConfiguration forHandler:aHandler];
     }
 
     // Keep track of device handlers

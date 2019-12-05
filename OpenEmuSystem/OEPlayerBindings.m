@@ -152,21 +152,6 @@ NS_ASSUME_NONNULL_BEGIN
 @dynamic bindingEvents;
 @end
 
-@interface OEDevicePlayerBindings ()
-{
-    NSMutableSet *dependentBindings;
-}
-
-// Represents the configuration on which self is based
-// If originalBindingsController then self is changed
-// If self is changed then originalBindingsController will become nil
-// and self will manage its own configuration
-@property(nonatomic, nullable, getter=OE_originalBindingsController, setter=OE_setOriginalBindingsController:) OEDevicePlayerBindings *originalBindingsController;
-
-- (void)OE_devicePlayerBindingsDidBecomeIndependent:(OEDevicePlayerBindings *)bindings;
-
-@end
-
 static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDevicePlayerBindingOriginalBindingsObserver;
 
 @implementation OEDevicePlayerBindings
@@ -187,74 +172,6 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
     return self;
 }
 
-- (id)OE_playerBindingsWithDeviceHandler:(OEDeviceHandler *)aHandler playerNumber:(NSUInteger)aPlayerNumber;
-{
-    if(_originalBindingsController != nil)
-        return [_originalBindingsController OE_playerBindingsWithDeviceHandler:aHandler playerNumber:aPlayerNumber];
-    
-    OEDevicePlayerBindings *ret = [[OEDevicePlayerBindings alloc] OE_initWithSystemBindings:[self systemBindingsController] playerNumber:aPlayerNumber deviceHandler:aHandler];
-    
-    [ret OE_setOriginalBindingsController:self];
-    
-    if(dependentBindings == nil)
-        dependentBindings = [[NSMutableSet alloc] initWithCapacity:1];
-    
-    [dependentBindings addObject:ret];
-    
-    return ret;
-}
-
-- (BOOL)OE_isDependent
-{
-    return _originalBindingsController != nil;
-}
-
-- (void)OE_makeIndependent;
-{
-    if(_originalBindingsController == nil) return;
-    
-    OEDevicePlayerBindings *oldParent = _originalBindingsController;
-    [self OE_setOriginalBindingsController:nil];
-    
-    [self OE_setBindingDescriptions:[oldParent bindingDescriptions]];
-    [self OE_setBindingEvents:[oldParent bindingEvents]];
-    
-    [oldParent OE_devicePlayerBindingsDidBecomeIndependent:self];
-}
-
-- (void)OE_devicePlayerBindingsDidBecomeIndependent:(OEDevicePlayerBindings *)bindings;
-{
-    [dependentBindings removeObject:bindings];
-    
-    if([dependentBindings count] == 0) dependentBindings = nil;
-}
-
-- (void)OE_setBindingDescription:(nullable id)value forKey:(NSString *)aKey;
-{
-    NSAssert(_originalBindingsController == nil, @"Cannot set bindings when %@ is dependent on %@", self, _originalBindingsController);
-    
-    [super OE_setBindingDescription:value forKey:aKey];
-}
-
-- (void)OE_setBindingEvent:(nullable id)value forKey:(NSString *)aKey;
-{
-    NSAssert(_originalBindingsController == nil, @"Cannot set raw bindings when %@ is dependent on %@", self, _originalBindingsController);
-    
-    [super OE_setBindingEvent:value forKey:aKey];
-}
-
-- (NSDictionary *)bindingDescriptions
-{
-    return _originalBindingsController != nil ? [_originalBindingsController bindingDescriptions] : [super bindingDescriptions];
-}
-
-- (void)OE_setBindingDescriptions:(NSDictionary *)value
-{
-    NSAssert(_originalBindingsController == nil, @"Cannot set bindings when %@ is dependent on %@", self, _originalBindingsController);
-    
-    [super OE_setBindingDescriptions:value];
-}
-
 - (void)OE_setDeviceHandler:(nullable OEDeviceHandler *)value
 {
     if(_deviceHandler == value)
@@ -267,31 +184,6 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
 
     // Forces bindings to be set to a specific device
     [self OE_setBindingEvents:[self bindingEvents]];
-}
-
-- (NSDictionary *)bindingEvents
-{
-    return _originalBindingsController != nil ? [_originalBindingsController bindingEvents] : [super bindingEvents];
-}
-
-- (void)OE_setBindingEvents:(NSDictionary<id, OEControlValueDescription *> *)value
-{
-    NSAssert(_originalBindingsController == nil, @"Cannot set raw bindings when %@ is dependent on %@", self, _originalBindingsController);
-    [super OE_setBindingEvents:value];
-}
-
-- (void)willChangeValueForKey:(NSString *)key
-{
-    [super willChangeValueForKey:key];
-    
-    [dependentBindings makeObjectsPerformSelector:@selector(willChangeValueForKey:) withObject:key];
-}
-
-- (void)didChangeValueForKey:(NSString *)key
-{
-    [super didChangeValueForKey:key];
-    
-    [dependentBindings makeObjectsPerformSelector:@selector(didChangeValueForKey:) withObject:key];
 }
 
 @end

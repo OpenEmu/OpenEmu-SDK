@@ -80,11 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler __attribute__((objc_method_family(init)));
 
-- (id)OE_playerBindingsWithDeviceHandler:(OEDeviceHandler *)aHandler playerNumber:(NSUInteger)aPlayerNumber;
-
-- (void)OE_makeIndependent;
 @property(readwrite, nullable, nonatomic, setter=OE_setDeviceHandler:) OEDeviceHandler *deviceHandler;
-@property(readonly, getter=OE_isDependent) BOOL _isDependent;
 
 @end
 
