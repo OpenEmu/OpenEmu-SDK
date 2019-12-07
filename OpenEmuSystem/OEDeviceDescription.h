@@ -37,6 +37,7 @@
 @property(readonly) NSUInteger vendorID;
 @property(readonly) NSUInteger productID;
 @property(readonly) uint32_t cookie;
+@property(readonly) BOOL requiresNameMatch;
 
 @property(readonly) NSString *identifier;
 @property(readonly) NSString *controllerIdentifier;

@@ -38,6 +38,7 @@
         _vendorID = [representation[@"OEControllerVendorID"] integerValue];
         _productID = [representation[@"OEControllerProductID"] integerValue];
         _cookie = [representation[@"OEControllerCookie"] unsignedShortValue];
+        _requiresNameMatch = [representation[@"OEControllerRequiresNameMatch"] boolValue];
         _genericDeviceIdentifier = [NSString stringWithFormat:@"OEGenericDeviceIdentifier_%ld_%ld", _vendorID, _productID];
         _controllerDescription = controllerDescription;
     }
@@ -66,17 +67,35 @@
 
 - (NSUInteger)hash;
 {
-    return _vendorID << 32 | _productID;
+    NSUInteger hash = _vendorID << 32 | _productID;
+
+    if (_requiresNameMatch) {
+        hash ^= _product.hash;
+    }
+
+    return hash;
 }
 
 - (BOOL)isEqual:(OEDeviceDescription *)object;
 {
     if(self == object) return YES;
 
-    if([object isKindOfClass:[OEDeviceDescription class]])
-        return _vendorID == object->_vendorID && _productID == object->_productID;
+    if(![object isKindOfClass:[OEDeviceDescription class]])
+        return NO;
 
-    return NO;
+    if (_vendorID != object->_vendorID)
+        return NO;
+
+    if (_productID != object->_productID)
+        return NO;
+
+    if (_requiresNameMatch != object->_requiresNameMatch)
+        return NO;
+
+    if (!_requiresNameMatch)
+        return YES;
+
+    return [_product isEqualToString:object->_product];
 }
 
 - (NSString *)description

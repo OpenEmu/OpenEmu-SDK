@@ -86,21 +86,15 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     // Some devices have no HID Product string descriptor
     if(product == nil) product = @"Unknown USB Gamepad";
 
-    OEControllerDescription *potentialControllerDescription;
     for (OEControllerDescription *controllerDescription in _knownControllerDescriptions) {
         for (OEDeviceDescription *deviceDescription in [controllerDescription deviceDescriptions]) {
             if (deviceDescription.vendorID != vendorID || deviceDescription.productID != productID)
                 continue;
 
-            if ([deviceDescription.product isEqualToString:product])
+            if (!deviceDescription.requiresNameMatch || [deviceDescription.product isEqualToString:product])
                 return [controllerDescription OE_controllerDescription];
-
-            potentialControllerDescription = controllerDescription;
         }
     }
-
-    if (potentialControllerDescription)
-        return [potentialControllerDescription OE_controllerDescription];
 
     return [[OEControllerDescription alloc] OE_initWithVendorID:vendorID productID:productID name:product];
 }
