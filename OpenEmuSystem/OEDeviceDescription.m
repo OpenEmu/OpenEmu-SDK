@@ -55,6 +55,7 @@
     ret->_productID = _productID;
     ret->_cookie = _cookie;
     ret->_genericDeviceIdentifier = _genericDeviceIdentifier;
+    ret->_requiresNameMatch = _requiresNameMatch;
     ret->_controllerDescription = controllerDescription;
 
     return ret;
