@@ -302,7 +302,8 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
     NSDictionary *representation = [self OE_controllerRepresentationForDevicePlayerBindings:originalDevicePlayerBindings];
     OEDevicePlayerBindings *devicePlayerBindings = [self OE_parsedDevicePlayerBindingsForRepresentation:representation withControllerDescription:deviceHandler.deviceDescription.controllerDescription];
-    [devicePlayerBindings OE_setDeviceHandler:deviceHandler];
+    if (devicePlayerBindings)
+        [devicePlayerBindings OE_setDeviceHandler:deviceHandler];
 
     return devicePlayerBindings;
 }
@@ -1049,7 +1050,18 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     [manuBindings enumerateObjectsUsingBlock:^(OEDevicePlayerBindings *devicePlayerBindings, NSUInteger idx, BOOL *stop) {
         if (devicePlayerBindings.deviceHandler == nil) {
             controller = [self OE_duplicateDevicePlayerBindings:devicePlayerBindings forHandler:aHandler];
-            manuBindings[idx] = controller;
+            if (controller) {
+                manuBindings[idx] = controller;
+            } else {
+                /* Fix bindings file in the specific case of two controllers with the same
+                 * PID & VID and different HID profiles, when they are connected one after the
+                 * other to the same instance of OpenEmu.
+                 *   Known controllers with OEControllerRequiresNameMatch set to YES are not
+                 * affected by this. */
+                if (outCorrupted) *outCorrupted = YES;
+                [self.bindingsController OE_setRequiresSynchronization];
+                [manuBindings removeObjectAtIndex:idx];
+            }
             *stop = YES;
         }
     }];
