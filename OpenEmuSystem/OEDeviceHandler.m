@@ -45,10 +45,6 @@ NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotifi
 
 static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUniqueIdentifier";
 
-typedef struct {
-    int min, max;
-} OEAutoCalibration;
-
 @interface OEDeviceHandler ()
 {
     NSMutableDictionary *_deadZones;
@@ -182,7 +178,7 @@ typedef struct {
     return deadZone != nil ? [deadZone doubleValue] : _defaultDeadZone;
 }
 
-- (OEAutoCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
+- (OEAutoCalibration)calibrationForControlCookie:(NSUInteger)controlCookie
 {
     NSValue *cal = _calibrations[@(controlCookie)];
     if (cal == nil)
@@ -190,8 +186,7 @@ typedef struct {
         OEAutoCalibration newCal;
         newCal.min = 100000;
         newCal.max = -100000;
-        cal = [NSValue valueWithBytes:&newCal objCType:@encode(OEAutoCalibration)];
-        [_calibrations setObject:cal forKey:@(controlCookie)];
+        [self setCalibration:newCal forControlCookie:controlCookie];
         return newCal;
     }
     else
@@ -200,6 +195,12 @@ typedef struct {
         [cal getValue:&oldCal];
         return oldCal;
     }
+}
+
+- (void)setCalibration:(OEAutoCalibration)calibration forControlCookie:(NSUInteger)controlCookie
+{
+    NSValue *cal = [NSValue valueWithBytes:&calibration objCType:@encode(OEAutoCalibration)];
+    [_calibrations setObject:cal forKey:@(controlCookie)];
 }
 
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
@@ -234,8 +235,7 @@ typedef struct {
     {
         NSLog(@"AutoCal: cookie=%lu rawValue=%f min=%d max=%d",
             cookie, rawValue, cal.min, cal.max);
-        NSValue *val = [NSValue valueWithBytes:&cal objCType:@encode(OEAutoCalibration)];
-        [_calibrations setObject:val forKey:@(cookie)];
+        [self setCalibration:cal forControlCookie:cookie];
     }
 
     if(cal.min >= 0)

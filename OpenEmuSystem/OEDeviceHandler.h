@@ -46,6 +46,15 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification;
 extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification;
 
+typedef struct {
+    int min, max;
+} OEAutoCalibration;
+
+static inline OEAutoCalibration OEAutoCalibrationMake(int min, int max)
+{
+    return (OEAutoCalibration){min, max};
+}
+
 @interface OEDeviceHandler : NSObject <NSCopying, NSSecureCoding>
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -84,6 +93,9 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 - (CGFloat)deadZoneForControlCookie:(NSUInteger)controlCookie;
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 - (void)setDeadZone:(CGFloat)deadZone forControlDescription:(OEControlDescription *)controlDesc;
+
+- (OEAutoCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
+- (void)setCalibration:(OEAutoCalibration)calibration forControlCookie:(NSUInteger)controlCookie;
 
 - (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle;
 
