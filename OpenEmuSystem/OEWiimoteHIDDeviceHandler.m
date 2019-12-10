@@ -574,7 +574,45 @@ enum {
 
             _expansionType = expansion;
             _expansionPortAttached = (expansion != OEWiimoteExpansionTypeNotConnected);
+            [self OE_initializeCalibration];
         }
+    }
+}
+
+- (void)OE_initializeCalibration
+{
+    switch (_expansionType) {
+        case OEWiimoteExpansionTypeNunchuck:
+        case OEWiimoteExpansionTypeClassicController:
+            /* Don't set the default calibration, because
+             * all we have are theoretical minima and maxima */
+            break;
+            
+        case OEWiimoteExpansionTypeWiiUProController:
+            [self setCalibration:
+                OEAutoCalibrationMake(
+                    OEWiimoteProControllerJoystickScaledMinimumValue,
+                    OEWiimoteProControllerJoystickScaledMaximumValue)
+                forControlCookie:OEWiimoteProControllerLeftJoystickAxisXCookie];
+            [self setCalibration:
+                OEAutoCalibrationMake(
+                    OEWiimoteProControllerJoystickScaledMinimumValue,
+                    OEWiimoteProControllerJoystickScaledMaximumValue)
+                forControlCookie:OEWiimoteProControllerLeftJoystickAxisYCookie];
+            [self setCalibration:
+                OEAutoCalibrationMake(
+                    OEWiimoteProControllerJoystickScaledMinimumValue,
+                    OEWiimoteProControllerJoystickScaledMaximumValue)
+                forControlCookie:OEWiimoteProControllerRightJoystickAxisXCookie];
+            [self setCalibration:
+                OEAutoCalibrationMake(
+                    OEWiimoteProControllerJoystickScaledMinimumValue,
+                    OEWiimoteProControllerJoystickScaledMaximumValue)
+                forControlCookie:OEWiimoteProControllerRightJoystickAxisYCookie];
+            break;
+        
+        default:
+            break;
     }
 }
 
