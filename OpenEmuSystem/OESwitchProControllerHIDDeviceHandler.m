@@ -463,7 +463,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle
 {
     OEHACProControllerAxisCalibration *selectedCalibration;
     switch (axis) {
@@ -588,14 +588,14 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     OEHIDEvent *event;
     
     cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:xaxis];
-    value = [self scaledValue:stickData.x forAxis:xaxis controlCookie:cookie];
+    value = [self scaledValue:stickData.x forAxis:xaxis controlCookie:cookie withMiddle:0];
     if (fabs(value) < [self deadZoneForControlCookie:cookie])
         value = 0;
     event = [OEHIDEvent axisEventWithDeviceHandler:self timestamp:now axis:xaxis value:value cookie:cookie];
     [self dispatchEvent:event];
     
     cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:yaxis];
-    value = [self scaledValue:stickData.y forAxis:yaxis controlCookie:cookie];
+    value = [self scaledValue:stickData.y forAxis:yaxis controlCookie:cookie withMiddle:0];
     if (fabs(value) < [self deadZoneForControlCookie:cookie])
         value = 0;
     event = [OEHIDEvent axisEventWithDeviceHandler:self timestamp:now axis:yaxis value:value cookie:cookie];

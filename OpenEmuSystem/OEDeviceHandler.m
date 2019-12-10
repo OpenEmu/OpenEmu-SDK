@@ -45,9 +45,14 @@ NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotifi
 
 static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUniqueIdentifier";
 
+typedef struct {
+    int min, max;
+} OEAutoCalibration;
+
 @interface OEDeviceHandler ()
 {
     NSMutableDictionary *_deadZones;
+    NSMutableDictionary *_calibrations;
 }
 
 @property(readwrite) NSUInteger deviceNumber;
@@ -70,6 +75,7 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
         FIXME("Save default dead zones in user defaults based on device description.");
         _defaultDeadZone = 0.125;
         _deadZones = [[NSMutableDictionary alloc] init];
+        _calibrations = [[NSMutableDictionary alloc] init];
     }
 
     return self;
@@ -176,6 +182,26 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     return deadZone != nil ? [deadZone doubleValue] : _defaultDeadZone;
 }
 
+- (OEAutoCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
+{
+    NSValue *cal = _calibrations[@(controlCookie)];
+    if (cal == nil)
+    {
+        OEAutoCalibration newCal;
+        newCal.min = 100000;
+        newCal.max = -100000;
+        cal = [NSValue valueWithBytes:&newCal objCType:@encode(OEAutoCalibration)];
+        [_calibrations setObject:cal forKey:@(controlCookie)];
+        return newCal;
+    }
+    else
+    {
+        OEAutoCalibration oldCal;
+        [cal getValue:&oldCal];
+        return oldCal;
+    }
+}
+
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 {
     return [self deadZoneForControlCookie:[[controlDesc genericEvent] cookie]];
@@ -189,10 +215,43 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     _deadZones[@([[controlDesc genericEvent] cookie])] = @(deadZone);
 }
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle
 {
     FIXME("move all scaling logic here from OEHIDEvent in a *clean* way");
-    return -100;
+    OEAutoCalibration cal = [self calibrationForControlCookie:cookie];
+    BOOL changed = NO;
+    if (rawValue < cal.min)
+    {
+        cal.min = rawValue;
+        changed = YES;
+    }
+    if (rawValue > cal.max)
+    {
+        cal.max = rawValue;
+        changed = YES;
+    }
+    if (changed)
+    {
+        NSLog(@"AutoCal: cookie=%lu rawValue=%f min=%d max=%d",
+            cookie, rawValue, cal.min, cal.max);
+        NSValue *val = [NSValue valueWithBytes:&cal objCType:@encode(OEAutoCalibration)];
+        [_calibrations setObject:val forKey:@(cookie)];
+    }
+
+    if(cal.min >= 0)
+    {
+        cal.min    -= middle;
+        rawValue   -= middle;
+        cal.max    -= middle;
+    }
+
+    if (cal.min == cal.max)
+        return -100;  // not enough samples
+
+    if(rawValue < 0)      return -rawValue / (CGFloat)cal.min;
+    else if(rawValue > 0) return  rawValue / (CGFloat)cal.max;
+
+    return 0.0;
 }
 
 @end

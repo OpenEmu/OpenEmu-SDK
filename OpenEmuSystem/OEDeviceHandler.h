@@ -85,7 +85,7 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 - (void)setDeadZone:(CGFloat)deadZone forControlDescription:(OEControlDescription *)controlDesc;
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie;
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle;
 
 @end
 
