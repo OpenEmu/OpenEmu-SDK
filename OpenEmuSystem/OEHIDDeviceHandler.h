@@ -41,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDevice deviceDescription:(nullable OEDeviceDescription *)deviceDescription NS_DESIGNATED_INITIALIZER;
 
 @property(readonly) IOHIDDeviceRef device;
+@property(readonly) BOOL isUSBDevice;
+@property(readonly) NSNumber *interfaceNumber;
 
 - (void)dispatchEvent:(OEHIDEvent *)event;
 

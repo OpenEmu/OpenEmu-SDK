@@ -32,6 +32,7 @@
 #import "OEDeviceManager.h"
 #import "OEDeviceManager_Internal.h"
 #import "OEHIDDeviceParser.h"
+#import <IOKit/usb/USBSpec.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation OEHIDDeviceHandler {
     NSMutableDictionary<NSNumber *, OEHIDEvent *> *_latestEvents;
+    NSString *_uniqueIdentifier;
 
     //force feedback support
     FFDeviceObjectReference _ffDevice;
@@ -113,9 +115,39 @@ NS_ASSUME_NONNULL_BEGIN
     return CFRunLoopGetMain();
 }
 
+- (BOOL)isUSBDevice
+{
+    return [(__bridge NSNumber *)IOHIDDeviceGetProperty(_device, CFSTR(kUSBInterfaceClass)) integerValue] == kUSBHIDClass;
+}
+
 - (NSString *)uniqueIdentifier
 {
-    return [[self locationID] stringValue];
+    if (_uniqueIdentifier) {
+        return _uniqueIdentifier;
+    }
+
+    _uniqueIdentifier = [[self locationID] stringValue];
+    if (!_uniqueIdentifier) {
+        // Workaround for devices with null locationID but hopefully have a unique product name.
+        // Steam Controller's user mode driver emulation has unique names, at least.
+        _uniqueIdentifier = [self product];
+    }
+
+    if (self.isUSBDevice) {
+        NSNumber *interfaceNumber = self.interfaceNumber;
+        if (interfaceNumber) {
+            if (_uniqueIdentifier)
+                _uniqueIdentifier = [_uniqueIdentifier stringByAppendingFormat:@"_%@", interfaceNumber];
+            else
+                _uniqueIdentifier = interfaceNumber.stringValue;
+        }
+    }
+
+    if (!_uniqueIdentifier) {
+        _uniqueIdentifier = @"";
+    }
+
+    return _uniqueIdentifier;
 }
 
 - (NSString *)serialNumber
@@ -145,20 +177,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSNumber *)locationID
 {
-    NSNumber * num = (__bridge NSNumber *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDLocationIDKey));
-    if (num == nil)
-    {
-        unsigned long sum = 0;
-        NSString * str = [self product];
-        const char * cs = [str UTF8String];
-        while (*cs)
-        {
-            sum += (unsigned long)(unsigned char)(*cs);
-            cs++;
-        }
-        num = @(sum);
-    }
-    return num;
+    return (__bridge NSNumber *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDLocationIDKey));
+}
+
+- (NSNumber *)interfaceNumber
+{
+    return (__bridge NSNumber *)IOHIDDeviceGetProperty(_device, CFSTR(kUSBInterfaceNumber));
 }
 
 - (BOOL)isKeyboardDevice;
