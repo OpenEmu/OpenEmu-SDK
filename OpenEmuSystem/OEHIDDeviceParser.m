@@ -458,9 +458,9 @@ typedef enum {
         }
     };
 
-    // When there is at least one grouped or symmetric axis, we assume
-    // that all positive-only axes are in fact triggers.
     if(([posNegAxisElements count] + [groupedAxisElements count]) != 0 && [posAxisElements count] != 0) {
+        // When there is at least one grouped or symmetric axis, we assume
+        // that all positive-only axes are in fact triggers.
         for(id e in posAxisElements) {
             IOHIDElementRef elem = ELEM(e);
 
@@ -473,8 +473,21 @@ typedef enum {
             OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
             if(genericEvent != nil) [desc addControlWithIdentifier:nil name:nil event:genericEvent];
         }
-    } else
+    } else if ([posAxisElements count] == 6) {
+        // Assume that if we have 6 axes the first 4 are analog controls and the last 2 are triggers.
+        NSDictionary *triggerAttributes = [baseAttrib OE_dictionaryByAddingEntriesFromDictionary:@{ @kOEHIDElementIsTriggerKey : @YES }];
+        [posAxisElements enumerateObjectsUsingBlock:^(id e, NSUInteger idx, BOOL *stop) {
+            IOHIDElementRef elem = ELEM(e);
+
+            [attributes setAttributes:(idx < 4 ? baseAttrib : triggerAttributes) forElementCookie:IOHIDElementGetCookie(elem)];
+            [attributes applyAttributesToElement:elem];
+
+            OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
+            if(genericEvent != nil) [desc addControlWithIdentifier:nil name:nil event:genericEvent];
+        }];
+    } else {
         setUpControlsInArray(posAxisElements);
+    }
 
     setUpControlsInArray(buttonElements);
     setUpControlsInArray(groupedAxisElements);
