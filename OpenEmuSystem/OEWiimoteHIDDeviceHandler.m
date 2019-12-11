@@ -349,10 +349,12 @@ static void OE_wiimoteIOHIDReportCallback(void            *context,
 
 - (void)disconnect
 {
-    [self OE_disableReports];
-    NSString *btAddress = (__bridge id)IOHIDDeviceGetProperty([self device], CFSTR(kIOHIDSerialNumberKey));
-    IOBluetoothDevice *btDevice = [IOBluetoothDevice deviceWithAddressString:btAddress];
-    [btDevice closeConnection];
+    if ([[[NSBundle mainBundle] bundleIdentifier] isEqual:@"org.openemu.OpenEmu"]) {
+        [self OE_disableReports];
+        NSString *btAddress = (__bridge id)IOHIDDeviceGetProperty([self device], CFSTR(kIOHIDSerialNumberKey));
+        IOBluetoothDevice *btDevice = [IOBluetoothDevice deviceWithAddressString:btAddress];
+        [btDevice closeConnection];
+    }
     [super disconnect];
 }
 
