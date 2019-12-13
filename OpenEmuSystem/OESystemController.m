@@ -42,6 +42,7 @@ NSString *const OEControlsPreferenceKey      = @"OEControlsPreferenceKey";
 NSString *const OESystemIdentifier           = @"OESystemIdentifier";
 NSString *const OEProjectURLKey              = @"OEProjectURL";
 NSString *const OESystemName                 = @"OESystemName";
+NSString *const OESystemType                 = @"OESystemType";
 NSString *const OENumberOfPlayersKey         = @"OENumberOfPlayersKey";
 NSString *const OEResponderClassKey          = @"OEResponderClassKey";
 
@@ -72,6 +73,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
 @implementation OESystemController {
     NSString *_systemName;
+    NSString *_systemType;
     NSImage *_systemIcon;
     NSImage *_controllerImage;
     NSImage *_controllerImageMask;
@@ -114,6 +116,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
         _systemIdentifier = _bundle.infoDictionary[OESystemIdentifier] ? : _bundle.bundleIdentifier;
 
         _systemName = [_bundle.infoDictionary[OESystemName] copy];
+        _systemType = [_bundle.infoDictionary[OESystemType] copy];
 
         NSString *iconFileName = _bundle.infoDictionary[OESystemIconName];
         NSString *iconFilePath = [_bundle pathForImageResource:iconFileName];
@@ -289,6 +292,11 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 - (NSString *)systemName
 {
     return _systemName;
+}
+
+- (NSString *)systemType
+{
+    return _systemType;
 }
 
 - (NSImage *)systemIcon

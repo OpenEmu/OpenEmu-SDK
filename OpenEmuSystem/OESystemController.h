@@ -39,6 +39,7 @@ extern NSString *const OEHIDEventExtraValueKey;
 extern NSString *const OEKeyboardEventValueKey;
 extern NSString *const OEControlsPreferenceKey;
 extern NSString *const OESystemName;
+extern NSString *const OESystemType;
 extern NSString *const OESystemIdentifier;
 extern NSString *const OESystemIconName;
 extern NSString *const OESystemCoverAspectRatio;
@@ -110,6 +111,7 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 @property(readonly) NSBundle *bundle;
 @property(readonly, copy) NSString *systemIdentifier;
 @property(readonly) NSString *systemName;
+@property(readonly) NSString *systemType;
 @property(readonly) NSImage *systemIcon;
 
 + (NSDictionary<NSString *, OEGlobalKeyBindingDescription *> *)globalKeyBindingDescriptions;
