@@ -426,7 +426,13 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     }
     
     CFRunLoopStop(_eventRunLoop);
-    CFRelease(_eventRunLoop);
+}
+
+
+- (void)dealloc
+{
+    if (_eventRunLoop)
+        CFRelease(_eventRunLoop);
 }
 
 

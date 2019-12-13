@@ -62,7 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
  *     different runloop, it shall override: (1) this property (2) the
  *     -setUpCallbacks method (3) the -dispatchEvent: method or,
  *     alternatively, the -dispatchEventWithHIDValue: and the
- *     -dispatchFunctionKeyEventWithHIDValue: methods (for keyboards). */
+ *     -dispatchFunctionKeyEventWithHIDValue: methods (for keyboards).
+ *  @warning This reference to eventRunLoop *must absolutely be kept alive as
+ *     long as the device exists*. Otherwise, the HID Manager will eventually
+ *     crash, *even if the device is unscheduled from the runloop*.
+ *     Practically, this means that you must retain the eventRunLoop, and
+ *     release it in the -dealloc method. */
 @property(readonly) CFRunLoopRef eventRunLoop;
 
 /** Registers the callbacks used for receiving HID reports from the device.

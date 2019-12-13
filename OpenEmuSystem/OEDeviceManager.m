@@ -211,7 +211,24 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 - (void)OE_applicationWillTerminate:(NSNotification *)notification;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-	// We do this before release to ensure that we've properly cleaned up our HIDManager references and removed our devices from the runloop.
+	
+    // Ensure that we've properly cleaned up our HIDManager references and
+    // removed our devices from the runloop.
+    
+    // Unschedule the HID manager from the main runloop. This propagates to all
+    // device handlers that are scheduled there as well.
+    //   We do this before deallocating the device handlers because, in the case
+    // where a device handler is not scheduled to the main runloop, the
+    // following call can crash because of a bug in the HID manager.
+    //   Specifically, the HID manager stores pointers to CFRunLoops without
+    // retaining them. Thus, when a device manager gets released, its run loop
+    // can be deallocated even though IOHIDManager still has a reference to it.
+    // The crash happens as soon as the HIDManager attempts to check if the
+    // runloop of that device is equal to the main runloop, when deciding
+    // whether to unschedule that device or not.
+    if (_hidManager)
+        IOHIDManagerUnscheduleFromRunLoop(_hidManager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
+    
 	for(OEDeviceHandler *handler in [_deviceHandlers copy])
         [self OE_removeDeviceHandler:handler];
 
@@ -220,11 +237,8 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     _keyEventMonitor = nil;
     _modifierMaskMonitor = nil;
 
-    if(_hidManager == NULL)
-        return;
-
-    IOHIDManagerUnscheduleFromRunLoop(_hidManager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
-    CFRelease(_hidManager);
+    if(_hidManager)
+        CFRelease(_hidManager);
 }
 
 - (NSArray<OEDeviceHandler *> *)deviceHandlers
