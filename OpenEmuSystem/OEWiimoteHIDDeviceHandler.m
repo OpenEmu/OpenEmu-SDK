@@ -592,22 +592,22 @@ enum {
             
         case OEWiimoteExpansionTypeWiiUProController:
             [self setCalibration:
-                OEAutoCalibrationMake(
+                OEAxisCalibrationMake(
                     OEWiimoteProControllerJoystickScaledMinimumValue,
                     OEWiimoteProControllerJoystickScaledMaximumValue)
                 forControlCookie:OEWiimoteProControllerLeftJoystickAxisXCookie];
             [self setCalibration:
-                OEAutoCalibrationMake(
+                OEAxisCalibrationMake(
                     OEWiimoteProControllerJoystickScaledMinimumValue,
                     OEWiimoteProControllerJoystickScaledMaximumValue)
                 forControlCookie:OEWiimoteProControllerLeftJoystickAxisYCookie];
             [self setCalibration:
-                OEAutoCalibrationMake(
+                OEAxisCalibrationMake(
                     OEWiimoteProControllerJoystickScaledMinimumValue,
                     OEWiimoteProControllerJoystickScaledMaximumValue)
                 forControlCookie:OEWiimoteProControllerRightJoystickAxisXCookie];
             [self setCalibration:
-                OEAutoCalibrationMake(
+                OEAxisCalibrationMake(
                     OEWiimoteProControllerJoystickScaledMinimumValue,
                     OEWiimoteProControllerJoystickScaledMaximumValue)
                 forControlCookie:OEWiimoteProControllerRightJoystickAxisYCookie];
@@ -918,7 +918,8 @@ enum {
 
 - (void)OE_dispatchAxisEventWithAxis:(OEHIDEventAxis)axis minimum:(NSInteger)minimum value:(NSInteger)value maximum:(NSInteger)maximum timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
 {
-    CGFloat scaledValue = [self scaledValue:value forAxis:axis controlCookie:cookie withDefaultMin:minimum max:maximum];
+    OEAxisCalibration range = OEAxisCalibrationMake((int)minimum, (int)maximum);
+    CGFloat scaledValue = [self scaledValue:value forAxis:axis controlCookie:cookie defaultCalibration:range];
     [self dispatchEvent:[OEHIDEvent axisEventWithDeviceHandler:self timestamp:timestamp axis:axis value:scaledValue cookie:cookie]];
 }
 

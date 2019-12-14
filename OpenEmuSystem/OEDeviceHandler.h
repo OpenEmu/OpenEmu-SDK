@@ -48,12 +48,16 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 
 typedef struct {
     int min, max;
-} OEAutoCalibration;
+} OEAxisCalibration;
 
-static inline OEAutoCalibration OEAutoCalibrationMake(int min, int max)
+static inline OEAxisCalibration OEAxisCalibrationMake(int min, int max)
 {
-    return (OEAutoCalibration){min, max};
+    return (OEAxisCalibration){min, max};
 }
+
+CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue);
+
+#define OE_CLAMP(minimum, value, maximum) ((MAX(minimum, MIN(value, maximum))))
 
 @interface OEDeviceHandler : NSObject <NSCopying, NSSecureCoding>
 
@@ -94,10 +98,12 @@ static inline OEAutoCalibration OEAutoCalibrationMake(int min, int max)
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 - (void)setDeadZone:(CGFloat)deadZone forControlDescription:(OEControlDescription *)controlDesc;
 
-- (OEAutoCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
-- (void)setCalibration:(OEAutoCalibration)calibration forControlCookie:(NSUInteger)controlCookie;
+- (OEAxisCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
+- (void)setCalibration:(OEAxisCalibration)calibration forControlCookie:(NSUInteger)controlCookie;
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withDefaultMin:(CGFloat)amin max:(CGFloat)amax;
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback;
+- (CGFloat)applyDeadZoneToScaledValue:(CGFloat)value forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie;
+- (CGFloat)calibratedValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback;
 
 @end
 

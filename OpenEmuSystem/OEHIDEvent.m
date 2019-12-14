@@ -743,17 +743,7 @@ static CGEventSourceRef _keyboardEventSource;
         {
             NSInteger min = IOHIDElementGetLogicalMin(elem);
             NSInteger max = IOHIDElementGetLogicalMax(elem);
-            CGFloat deadZone = [aDeviceHandler deadZoneForControlCookie:_cookie];
-            CGFloat scaledValue = [aDeviceHandler scaledValue:value forAxis:_data.axis.axis controlCookie:_cookie withDefaultMin:min max:max];
-            if (scaledValue < -1.001 || scaledValue > 1.001) {
-                /* device handler does not handle scaling */
-                scaledValue = _OEScaledValueForAxis(min,
-                                                    value,
-                                                    max);
-            }
-
-            if(-deadZone <= scaledValue && scaledValue <= deadZone)
-                scaledValue = 0.0;
+            CGFloat scaledValue = [aDeviceHandler calibratedValue:value forAxis:_data.axis.axis controlCookie:_cookie defaultCalibration:OEAxisCalibrationMake((int)min, (int)max)];
 
             _data.axis.value = scaledValue;
             if(_OEFloatEqual(scaledValue, 0.0)) _data.axis.direction = OEHIDEventAxisDirectionNull;
