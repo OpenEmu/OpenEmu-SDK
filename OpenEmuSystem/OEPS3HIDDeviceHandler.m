@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)connect
 {
-    
     return YES;
 }
 
@@ -34,6 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     [super disconnect];
     [self setDeviceNumber:0];
+}
+
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withDefaultMin:(CGFloat)amin max:(CGFloat)amax
+{
+    // Disable auto-calibration
+    // (This controller performs calibration on-device)
+    return -100;
 }
 
 - (void)setDeviceNumber:(NSUInteger)deviceNumber

@@ -22,6 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [deviceName isEqualToString:@"Controller"];
 }
 
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withDefaultMin:(CGFloat)amin max:(CGFloat)amax
+{
+    // Disable auto-calibration
+    // (This controller performs calibration on-device)
+    return -100;
+}
+
 - (void)setDeviceNumber:(NSUInteger)deviceNumber
 {
     // see: http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/UsbInfo#toc3
