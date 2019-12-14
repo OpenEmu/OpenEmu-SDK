@@ -216,10 +216,11 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
     _deadZones[@([[controlDesc genericEvent] cookie])] = @(deadZone);
 }
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withDefaultMin:(CGFloat)amin max:(CGFloat)amax
 {
     FIXME("move all scaling logic here from OEHIDEvent in a *clean* way");
     OEAutoCalibration cal = [self calibrationForControlCookie:cookie];
+    int middle = (amin + amax) / 2.0;
     BOOL changed = NO;
     if (rawValue < cal.min)
     {
@@ -237,6 +238,11 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
             cookie, rawValue, cal.min, cal.max);
         [self setCalibration:cal forControlCookie:cookie];
     }
+    
+    CGFloat deadZone = [self deadZoneForControlCookie:cookie];
+    if (((CGFloat)(cal.max - cal.min) / (amax - amin)) < (deadZone * 1.5)) {
+        return -100;  // not enough samples
+    }
 
     if(cal.min >= 0)
     {
@@ -244,9 +250,6 @@ static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUni
         rawValue   -= middle;
         cal.max    -= middle;
     }
-
-    if (cal.min == cal.max)
-        return -100;  // not enough samples
 
     if(rawValue < 0)      return -rawValue / (CGFloat)cal.min;
     else if(rawValue > 0) return  rawValue / (CGFloat)cal.max;

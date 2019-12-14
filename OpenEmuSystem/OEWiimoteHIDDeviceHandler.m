@@ -918,8 +918,7 @@ enum {
 
 - (void)OE_dispatchAxisEventWithAxis:(OEHIDEventAxis)axis minimum:(NSInteger)minimum value:(NSInteger)value maximum:(NSInteger)maximum timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
 {
-    CGFloat middle = (minimum + maximum) * 0.5;
-    CGFloat scaledValue = [self scaledValue:value forAxis:axis controlCookie:cookie withMiddle:middle];
+    CGFloat scaledValue = [self scaledValue:value forAxis:axis controlCookie:cookie withDefaultMin:minimum max:maximum];
     [self dispatchEvent:[OEHIDEvent axisEventWithDeviceHandler:self timestamp:timestamp axis:axis value:scaledValue cookie:cookie]];
 }
 

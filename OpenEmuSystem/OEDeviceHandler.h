@@ -97,7 +97,7 @@ static inline OEAutoCalibration OEAutoCalibrationMake(int min, int max)
 - (OEAutoCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
 - (void)setCalibration:(OEAutoCalibration)calibration forControlCookie:(NSUInteger)controlCookie;
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle;
+- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withDefaultMin:(CGFloat)amin max:(CGFloat)amax;
 
 @end
 
