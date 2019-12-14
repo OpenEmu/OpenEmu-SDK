@@ -918,7 +918,7 @@ enum {
 
 - (void)OE_dispatchAxisEventWithAxis:(OEHIDEventAxis)axis minimum:(NSInteger)minimum value:(NSInteger)value maximum:(NSInteger)maximum timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
 {
-    OEAxisCalibration range = OEAxisCalibrationMake((int)minimum, (int)maximum);
+    OEAxisCalibration range = OEAxisCalibrationMake(minimum, maximum);
     CGFloat scaledValue = [self scaledValue:value forAxis:axis controlCookie:cookie defaultCalibration:range];
     [self dispatchEvent:[OEHIDEvent axisEventWithDeviceHandler:self timestamp:timestamp axis:axis value:scaledValue cookie:cookie]];
 }

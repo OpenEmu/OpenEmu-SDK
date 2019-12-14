@@ -197,22 +197,17 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     return deadZone != nil ? [deadZone doubleValue] : _defaultDeadZone;
 }
 
-- (OEAxisCalibration)calibrationForControlCookie:(NSUInteger)controlCookie
+- (BOOL)calibration:(OEAxisCalibration *)outCalib forControlCookie:(NSUInteger)controlCookie
 {
     NSValue *cal = _calibrations[@(controlCookie)];
     if (cal == nil)
     {
-        OEAxisCalibration newCal;
-        newCal.min = 100000;
-        newCal.max = -100000;
-        [self setCalibration:newCal forControlCookie:controlCookie];
-        return newCal;
+        return NO;
     }
     else
     {
-        OEAxisCalibration oldCal;
-        [cal getValue:&oldCal];
-        return oldCal;
+        [cal getValue:outCalib];
+        return YES;
     }
 }
 
@@ -235,9 +230,10 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     _deadZones[@([[controlDesc genericEvent] cookie])] = @(deadZone);
 }
 
-- (OEAxisCalibration)OE_updateAutoCalibrationWithScaledValue:(CGFloat)rawValue axis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
+- (OEAxisCalibration)OE_updateAutoCalibrationWithScaledValue:(NSInteger)rawValue axis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
 {
-    OEAxisCalibration cal = [self calibrationForControlCookie:cookie];
+    OEAxisCalibration cal = OEAxisCalibrationMake(100000, -100000);
+    [self calibration:&cal forControlCookie:cookie];
     BOOL changed = NO;
     if (rawValue < cal.min)
     {
@@ -251,8 +247,8 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     }
     if (changed)
     {
-        NSLog(@"AutoCal: cookie=%lu rawValue=%f min=%d max=%d",
-            cookie, rawValue, cal.min, cal.max);
+        NSLog(@"AutoCal: cookie=%lu rawValue=%ld min=%ld max=%ld",
+              cookie, (long)rawValue, (long)cal.min, (long)cal.max);
         [self setCalibration:cal forControlCookie:cookie];
     }
     
@@ -264,7 +260,7 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     return cal;
 }
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
+- (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
 {
     OEAxisCalibration cal = [self OE_updateAutoCalibrationWithScaledValue:rawValue axis:axis controlCookie:cookie defaultCalibration:fallback];
     return OEScaledValueWithCalibration(cal, rawValue);

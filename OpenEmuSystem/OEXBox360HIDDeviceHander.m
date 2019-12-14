@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [deviceName isEqualToString:@"Controller"];
 }
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
+- (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
 {
     // Disable auto-calibration
     // (This controller performs calibration on-device)

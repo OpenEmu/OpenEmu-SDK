@@ -47,10 +47,11 @@ extern NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification;
 extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification;
 
 typedef struct {
-    int min, max;
+    NSInteger min;
+    NSInteger max;
 } OEAxisCalibration;
 
-static inline OEAxisCalibration OEAxisCalibrationMake(int min, int max)
+static inline OEAxisCalibration OEAxisCalibrationMake(NSInteger min, NSInteger max)
 {
     return (OEAxisCalibration){min, max};
 }
@@ -98,10 +99,10 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue);
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 - (void)setDeadZone:(CGFloat)deadZone forControlDescription:(OEControlDescription *)controlDesc;
 
-- (OEAxisCalibration)calibrationForControlCookie:(NSUInteger)controlCookie;
+- (BOOL)calibration:(OEAxisCalibration *)outCalib forControlCookie:(NSUInteger)controlCookie;
 - (void)setCalibration:(OEAxisCalibration)calibration forControlCookie:(NSUInteger)controlCookie;
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback;
+- (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback;
 - (CGFloat)applyDeadZoneToScaledValue:(CGFloat)value forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie;
 - (CGFloat)calibratedValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback;
 

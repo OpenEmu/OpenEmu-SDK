@@ -272,30 +272,9 @@ static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef e
     return 0;
 }
 
-#define _OEClamp(minimum, value, maximum) ((MAX(minimum, MIN(value, maximum))))
-
-static inline CGFloat _OEScaledValueForAxis(NSInteger minimum, NSInteger value, NSInteger maximum)
-{
-    value = _OEClamp(minimum, value, maximum);
-
-    NSInteger middleValue = (maximum + minimum) / 2 + 1;
-
-    if(minimum >= 0)
-    {
-        minimum -= middleValue;
-        value   -= middleValue;
-        maximum -= middleValue;
-    }
-
-    if(value < 0)      return -value / (CGFloat)minimum;
-    else if(value > 0) return  value / (CGFloat)maximum;
-
-    return 0.0;
-}
-
 static inline CGFloat _OEScaledValueForTrigger(NSInteger value, NSInteger maximum)
 {
-    return _OEClamp(0, value, maximum) / (CGFloat)maximum;
+    return OE_CLAMP(0, value, maximum) / (CGFloat)maximum;
 }
 
 static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
@@ -505,7 +484,7 @@ static CGEventSourceRef _keyboardEventSource;
     ret->_type = OEHIDEventTypeAxis;
     ret->_data.axis.axis = axis;
 
-    value = _OEClamp(-1.0, value, 1.0);
+    value = OE_CLAMP(-1.0, value, 1.0);
 
     if(_OEFloatEqual(value, 0)) ret->_data.axis.direction = OEHIDEventAxisDirectionNull;
     else if(signbit(value))     ret->_data.axis.direction = OEHIDEventAxisDirectionNegative;
@@ -521,7 +500,7 @@ static CGEventSourceRef _keyboardEventSource;
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeAxis;
     ret->_data.axis.axis = axis;
-    ret->_data.axis.value = _OEScaledValueForAxis(minimum, value, maximum);
+    ret->_data.axis.value = OEScaledValueWithCalibration(OEAxisCalibrationMake(minimum, maximum), value);
 
     if(_OEFloatEqual(ret->_data.axis.value, 0)) ret->_data.axis.direction = OEHIDEventAxisDirectionNull;
     else if(signbit(ret->_data.axis.value))     ret->_data.axis.direction = OEHIDEventAxisDirectionNegative;
@@ -560,7 +539,7 @@ static CGEventSourceRef _keyboardEventSource;
     ret->_type = OEHIDEventTypeTrigger;
     ret->_data.axis.axis = axis;
 
-    value = _OEClamp(0.0, value, 1.0);
+    value = OE_CLAMP(0.0, value, 1.0);
     ret->_data.axis.direction = _OEFloatEqual(ret->_data.axis.value, 0.0) ? OEHIDEventAxisDirectionNull : OEHIDEventAxisDirectionPositive;
     ret->_data.axis.value     = value;
 
@@ -743,7 +722,7 @@ static CGEventSourceRef _keyboardEventSource;
         {
             NSInteger min = IOHIDElementGetLogicalMin(elem);
             NSInteger max = IOHIDElementGetLogicalMax(elem);
-            CGFloat scaledValue = [aDeviceHandler calibratedValue:value forAxis:_data.axis.axis controlCookie:_cookie defaultCalibration:OEAxisCalibrationMake((int)min, (int)max)];
+            CGFloat scaledValue = [aDeviceHandler calibratedValue:value forAxis:_data.axis.axis controlCookie:_cookie defaultCalibration:OEAxisCalibrationMake(min, max)];
 
             _data.axis.value = scaledValue;
             if(_OEFloatEqual(scaledValue, 0.0)) _data.axis.direction = OEHIDEventAxisDirectionNull;
@@ -1135,7 +1114,7 @@ static CGEventSourceRef _keyboardEventSource;
         case OEHIDEventTypeAxis :
         case OEHIDEventTypeTrigger :
             hash |= 0x20000000u;
-            hash |= _OEClamp((NSUInteger)OEHIDEventAxisX, usage, (NSUInteger)OEHIDEventAxisRz);
+            hash |= OE_CLAMP((NSUInteger)OEHIDEventAxisX, usage, (NSUInteger)OEHIDEventAxisRz);
             break;
         case OEHIDEventTypeButton :
             hash |= 0x40000000u;
@@ -1163,9 +1142,9 @@ static CGEventSourceRef _keyboardEventSource;
         case OEHIDEventTypeAxis :
         case OEHIDEventTypeTrigger :
             hash |= 0x2000000000000000u;
-            hash |= _OEClamp((NSUInteger)OEHIDEventAxisX, usage, (NSUInteger)OEHIDEventAxisRz) << 8;
+            hash |= OE_CLAMP((NSUInteger)OEHIDEventAxisX, usage, (NSUInteger)OEHIDEventAxisRz) << 8;
 
-            OEHIDEventAxisDirection dir = _OEClamp((NSInteger)OEHIDEventAxisDirectionNegative, value, (NSInteger)OEHIDEventAxisDirectionPositive);
+            OEHIDEventAxisDirection dir = OE_CLAMP((NSInteger)OEHIDEventAxisDirectionNegative, value, (NSInteger)OEHIDEventAxisDirectionPositive);
             if(dir != OEHIDEventAxisDirectionNull)
                 hash |= (1 << ((dir) > OEHIDEventAxisDirectionNull));
             break;
