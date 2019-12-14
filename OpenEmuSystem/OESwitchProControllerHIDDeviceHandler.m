@@ -282,6 +282,23 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     return res;
 }
 
+static CGFloat OEHACScaleValueWithCalibration(
+    const OEHACProControllerAxisCalibration *selectedCalibration,
+    NSInteger rawValue)
+{
+    CGFloat res = rawValue - selectedCalibration->zero;
+    if (res < 0.0) {
+        res /= (CGFloat)(selectedCalibration->zero - selectedCalibration->min);
+    } else {
+        res /= (CGFloat)(selectedCalibration->max - selectedCalibration->zero);
+    }
+    
+    /* the factory calibration is a bit generous at the edges; compensate for that */
+    res /= 0.90;
+    
+    return MAX(-1, MIN(res, 1));
+}
+
 
 #pragma mark -
 
@@ -469,41 +486,6 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-- (CGFloat)scaledValue:(CGFloat)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie withMiddle:(CGFloat)middle
-{
-    OEHACProControllerAxisCalibration *selectedCalibration;
-    switch (axis) {
-        case OEHIDEventAxisX:
-            selectedCalibration = &(_leftStickCalibration.x);
-            break;
-        case OEHIDEventAxisY:
-            selectedCalibration = &(_leftStickCalibration.y);
-            break;
-        case OEHIDEventAxisRx:
-            selectedCalibration = &(_rightStickCalibration.x);
-            break;
-        case OEHIDEventAxisRy:
-            selectedCalibration = &(_rightStickCalibration.y);
-            break;
-        default:
-            NSLog(@"Apparently this Switch Pro Controller (%@) has an axis of type %@", self, NSStringFromOEHIDEventAxis(axis));
-            return -100;
-    }
-    
-    CGFloat res = rawValue - selectedCalibration->zero;
-    if (res < 0.0) {
-        res /= (CGFloat)(selectedCalibration->zero - selectedCalibration->min);
-    } else {
-        res /= (CGFloat)(selectedCalibration->max - selectedCalibration->zero);
-    }
-    
-    /* the factory calibration is a bit generous at the edges; compensate for that */
-    res /= 0.90;
-    
-    return MAX(-1, MIN(res, 1));
-}
-
-
 #pragma mark - Event Dispatching
 
 
@@ -562,11 +544,11 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     
     /* Left stick */
     OEHAC16BitUnsignedPair leftStick = OEHACUnpackPair(report->leftStick);
-    [self _dispatchEventsOfXAxis:OEHIDEventAxisX YAxis:OEHIDEventAxisY withData:leftStick timestamp:now];
+    [self _dispatchEventsOfXAxis:OEHIDEventAxisX YAxis:OEHIDEventAxisY withData:leftStick calibration:&_leftStickCalibration timestamp:now];
     
     /* Right stick */
     OEHAC16BitUnsignedPair rightStick = OEHACUnpackPair(report->rightStick);
-    [self _dispatchEventsOfXAxis:OEHIDEventAxisRx YAxis:OEHIDEventAxisRy withData:rightStick timestamp:now];
+    [self _dispatchEventsOfXAxis:OEHIDEventAxisRx YAxis:OEHIDEventAxisRy withData:rightStick calibration:&_rightStickCalibration timestamp:now];
 }
 
 
@@ -584,7 +566,7 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
 }
 
 
-- (void)_dispatchEventsOfXAxis:(OEHIDEventAxis)xaxis YAxis:(OEHIDEventAxis)yaxis withData:(OEHAC16BitUnsignedPair)stickData timestamp:(NSTimeInterval)now
+- (void)_dispatchEventsOfXAxis:(OEHIDEventAxis)xaxis YAxis:(OEHIDEventAxis)yaxis withData:(OEHAC16BitUnsignedPair)stickData calibration:(const OEHACProControllerStickCalibration *)calibration timestamp:(NSTimeInterval)now
 {
     stickData.x <<= 4;
     stickData.y = ~(stickData.y << 4);
@@ -594,14 +576,14 @@ static OEHACProControllerStickCalibration OEHACConvertCalibration(
     OEHIDEvent *event;
     
     cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:xaxis];
-    value = [self scaledValue:stickData.x forAxis:xaxis controlCookie:cookie withMiddle:0];
+    value = OEHACScaleValueWithCalibration(&(calibration->x), stickData.x);
     if (fabs(value) < [self deadZoneForControlCookie:cookie])
         value = 0;
     event = [OEHIDEvent axisEventWithDeviceHandler:self timestamp:now axis:xaxis value:value cookie:cookie];
     [self dispatchEvent:event];
     
     cookie = [OESwitchProControllerHIDDeviceParser _cookieFromUsage:yaxis];
-    value = [self scaledValue:stickData.y forAxis:yaxis controlCookie:cookie withMiddle:0];
+    value = OEHACScaleValueWithCalibration(&(calibration->y), stickData.y);
     if (fabs(value) < [self deadZoneForControlCookie:cookie])
         value = 0;
     event = [OEHIDEvent axisEventWithDeviceHandler:self timestamp:now axis:yaxis value:value cookie:cookie];
