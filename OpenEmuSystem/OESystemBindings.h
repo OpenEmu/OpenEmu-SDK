@@ -72,11 +72,11 @@ extern NSString *const OEGlobalButtonRapidFireReset;
 
 @property(readonly) NSUInteger numberOfPlayers;
 
-- (OEDevicePlayerBindings *)devicePlayerBindingsForPlayer:(NSUInteger)playerNumber;
-- (OEKeyboardPlayerBindings *)keyboardPlayerBindingsForPlayer:(NSUInteger)playerNumber;
+- (nullable OEDevicePlayerBindings *)devicePlayerBindingsForPlayer:(NSUInteger)playerNumber;
+- (nullable OEKeyboardPlayerBindings *)keyboardPlayerBindingsForPlayer:(NSUInteger)playerNumber;
 
 - (NSUInteger)playerForDeviceHandler:(OEDeviceHandler *)deviceHandler;
-- (OEDeviceHandler *)deviceHandlerForPlayer:(NSUInteger)playerNumber;
+- (nullable OEDeviceHandler *)deviceHandlerForPlayer:(NSUInteger)playerNumber;
 - (OEDevicePlayerBindings *)devicePlayerBindingsForDeviceHandler:(OEDeviceHandler *)deviceHandler;
 - (void)setDeviceHandler:(OEDeviceHandler *)deviceHandler forPlayer:(NSUInteger)playerNumber;
 

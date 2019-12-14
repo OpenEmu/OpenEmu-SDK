@@ -244,7 +244,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     return noErrors;
 }
 
-- (OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary<NSString *, id> *)representation withControllerDescription:(OEControllerDescription *)controllerDescription
+- (nullable OEDevicePlayerBindings *)OE_parsedDevicePlayerBindingsForRepresentation:(NSDictionary<NSString *, id> *)representation withControllerDescription:(OEControllerDescription *)controllerDescription
 {
     __block BOOL corrupted = NO;
     
@@ -295,7 +295,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     return controller;
 }
 
-- (OEDevicePlayerBindings *)OE_duplicateDevicePlayerBindings:(OEDevicePlayerBindings *)originalDevicePlayerBindings forHandler:(OEDeviceHandler *)deviceHandler
+- (nullable OEDevicePlayerBindings *)OE_duplicateDevicePlayerBindings:(OEDevicePlayerBindings *)originalDevicePlayerBindings forHandler:(OEDeviceHandler *)deviceHandler
 {
     if (!originalDevicePlayerBindings)
         return nil;
@@ -434,14 +434,14 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
               }] anyObject] integerValue];
 }
 
-- (OEDevicePlayerBindings *)devicePlayerBindingsForPlayer:(NSUInteger)playerNumber;
+- (nullable OEDevicePlayerBindings *)devicePlayerBindingsForPlayer:(NSUInteger)playerNumber;
 {
     if(playerNumber == 0 || playerNumber > [self numberOfPlayers]) return nil;
 
     return _devicePlayerBindings[@(playerNumber)];
 }
 
-- (OEKeyboardPlayerBindings *)keyboardPlayerBindingsForPlayer:(NSUInteger)playerNumber;
+- (nullable OEKeyboardPlayerBindings *)keyboardPlayerBindingsForPlayer:(NSUInteger)playerNumber;
 {
     if(playerNumber == 0 || playerNumber > [self numberOfPlayers]) return nil;
 
@@ -469,7 +469,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     return [[self devicePlayerBindingsForDeviceHandler:deviceHandler] playerNumber];
 }
 
-- (OEDeviceHandler *)deviceHandlerForPlayer:(NSUInteger)playerNumber;
+- (nullable OEDeviceHandler *)deviceHandlerForPlayer:(NSUInteger)playerNumber;
 {
     if(playerNumber == 0 || playerNumber > [self numberOfPlayers]) return nil;
 
