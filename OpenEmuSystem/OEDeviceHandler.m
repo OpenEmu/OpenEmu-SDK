@@ -26,6 +26,7 @@
 
 #import "OEDeviceHandler.h"
 #import "OEDeviceDescription.h"
+#import "OEControllerDescription.h"
 #import "OEDeviceManager.h"
 #import "OEHIDEvent.h"
 #import "OEHIDDeviceHandler.h"
@@ -197,6 +198,11 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     return deadZone != nil ? [deadZone doubleValue] : _defaultDeadZone;
 }
 
+- (BOOL)isAutoCalibrated
+{
+    return self.deviceDescription.controllerDescription.wantsCalibration;
+}
+
 - (BOOL)calibration:(OEAxisCalibration *)outCalib forControlCookie:(NSUInteger)controlCookie
 {
     NSValue *cal = _calibrations[@(controlCookie)];
@@ -262,7 +268,12 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
 
 - (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
 {
-    OEAxisCalibration cal = [self OE_updateAutoCalibrationWithScaledValue:rawValue axis:axis controlCookie:cookie defaultCalibration:fallback];
+    OEAxisCalibration cal = fallback;
+    if (self.autoCalibrated) {
+        cal = [self OE_updateAutoCalibrationWithScaledValue:rawValue axis:axis controlCookie:cookie defaultCalibration:fallback];
+    } else {
+        [self calibration:&cal forControlCookie:cookie];
+    }
     return OEScaledValueWithCalibration(cal, rawValue);
 }
 
@@ -277,9 +288,6 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
 - (CGFloat)calibratedValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
 {
     CGFloat scaled = [self scaledValue:rawValue forAxis:axis controlCookie:cookie defaultCalibration:fallback];
-    if (scaled < -1.001 || scaled > 1.001) {
-        scaled = OEScaledValueWithCalibration(fallback, rawValue);
-    }
     return [self applyDeadZoneToScaledValue:scaled forAxis:axis controlCookie:cookie];
 }
 

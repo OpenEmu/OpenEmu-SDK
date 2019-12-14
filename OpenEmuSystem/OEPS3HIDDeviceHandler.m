@@ -35,13 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self setDeviceNumber:0];
 }
 
-- (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
-{
-    // Disable auto-calibration
-    // (This controller performs calibration on-device)
-    return -100;
-}
-
 - (void)setDeviceNumber:(NSUInteger)deviceNumber
 {
     [super setDeviceNumber:deviceNumber];

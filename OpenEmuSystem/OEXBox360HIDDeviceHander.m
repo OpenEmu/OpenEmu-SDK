@@ -22,13 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
     return [deviceName isEqualToString:@"Controller"];
 }
 
-- (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
-{
-    // Disable auto-calibration
-    // (This controller performs calibration on-device)
-    return -100;
-}
-
 - (void)setDeviceNumber:(NSUInteger)deviceNumber
 {
     // see: http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/UsbInfo#toc3

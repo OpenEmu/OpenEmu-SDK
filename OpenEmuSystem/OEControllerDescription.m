@@ -110,6 +110,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     {
         _identifier = [identifier copy];
         _name = representation[@"OEControllerName"];
+        _wantsCalibration = ![representation[@"OEDisableCalibration"] boolValue];
         _controls = [NSMutableDictionary dictionary];
         _identifierToControlValue = [NSMutableDictionary dictionary];
         _valueIdentifierToControlValue = [NSMutableDictionary dictionary];
@@ -126,6 +127,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     {
         _isGeneric = YES;
         _name = name;
+        _wantsCalibration = YES;
         _controls = [NSMutableDictionary dictionary];
         _identifierToControlValue = [NSMutableDictionary dictionary];
         _valueIdentifierToControlValue = [NSMutableDictionary dictionary];
@@ -155,6 +157,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     ret->_isGeneric = _isGeneric;
     ret->_identifier = [_identifier copy];
     ret->_name = [_name copy];
+    ret->_wantsCalibration = _wantsCalibration;
     ret->_controls = [NSMutableDictionary dictionary];
     ret->_identifierToControlValue = [NSMutableDictionary dictionary];
     ret->_valueIdentifierToControlValue = [NSMutableDictionary dictionary];

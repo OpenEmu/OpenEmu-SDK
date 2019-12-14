@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly) NSUInteger numberOfControls;
 @property(readonly) NSArray *controls;
+@property (nonatomic, readonly) BOOL wantsCalibration;
 
 - (OEControlValueDescription *)controlValueDescriptionForEvent:(OEHIDEvent *)event;
 - (OEControlValueDescription *)controlValueDescriptionForRepresentation:(id)representation;

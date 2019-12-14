@@ -41,13 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
     return [deviceName hasPrefix:@"Wireless Controller"];
 }
 
-- (CGFloat)scaledValue:(NSInteger)rawValue forAxis:(OEHIDEventAxis)axis controlCookie:(NSUInteger)cookie defaultCalibration:(OEAxisCalibration)fallback
-{
-    // Disable auto-calibration
-    // (This controller performs calibration on-device)
-    return -100;
-}
-
 - (BOOL)connect
 {
     // Unfortunately, HID stops responding after sending an output report.

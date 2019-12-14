@@ -99,6 +99,7 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue);
 - (CGFloat)deadZoneForControlDescription:(OEControlDescription *)controlDesc;
 - (void)setDeadZone:(CGFloat)deadZone forControlDescription:(OEControlDescription *)controlDesc;
 
+@property (nonatomic, readonly, getter=isAutoCalibrated) BOOL autoCalibrated;
 - (BOOL)calibration:(OEAxisCalibration *)outCalib forControlCookie:(NSUInteger)controlCookie;
 - (void)setCalibration:(OEAxisCalibration)calibration forControlCookie:(NSUInteger)controlCookie;
 
