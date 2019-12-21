@@ -27,7 +27,6 @@
 
 @implementation NSUserDefaults (OpenEmuSDK)
 
-
 + (instancetype)oe_applicationUserDefaults
 {
     NSBundle *thisBundle = [NSBundle mainBundle];
@@ -36,5 +35,9 @@
     return [[[self class] alloc] initWithSuiteName:@"org.openemu.OpenEmu"];
 }
 
++ (NSUserDefaults *)oe_application
+{
+    return [self oe_applicationUserDefaults];
+}
 
 @end

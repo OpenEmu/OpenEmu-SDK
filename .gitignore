@@ -1,4 +1,5 @@
 # Xcode
+DerivedData/
 *.DS_Store
 OEBuildVersion.h
 */build/*

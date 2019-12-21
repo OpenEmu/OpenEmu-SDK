@@ -27,6 +27,8 @@
 
 @interface NSUserDefaults (OpenEmuSDK)
 
-+ (nonnull instancetype)oe_applicationUserDefaults;
+@property (class, nonatomic, readonly, nonnull) NSUserDefaults *oe_application;
+
++ (nonnull instancetype)oe_applicationUserDefaults NS_SWIFT_UNAVAILABLE("Use oe_application instead");
 
 @end
