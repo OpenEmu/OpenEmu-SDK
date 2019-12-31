@@ -50,7 +50,7 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
 {
     CGFloat value = OE_CLAMP(cal.min, rawValue, cal.max);
 
-    NSInteger middleValue = (cal.min + cal.max) / 2 + 1;
+    NSInteger middleValue = cal.center;
 
     if(cal.min >= 0)
     {
@@ -240,6 +240,7 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
 {
     OEAxisCalibration cal = OEAxisCalibrationMake(100000, -100000);
     [self calibration:&cal forControlCookie:cookie];
+    cal.center = fallback.center;
     BOOL changed = NO;
     if (rawValue < cal.min)
     {
@@ -259,8 +260,12 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     }
     
     CGFloat deadZone = [self deadZoneForControlCookie:cookie];
-    if (((CGFloat)(cal.max - cal.min) / (fallback.max - fallback.min)) < (deadZone * 1.5)) {
-        return fallback;
+    CGFloat autoCalEnableThres = deadZone * 1.5 / 2.0;
+    if (((CGFloat)(cal.center - cal.min) / (CGFloat)(fallback.center - fallback.min)) < autoCalEnableThres) {
+        cal.min = fallback.min;
+    }
+    if (((CGFloat)(cal.max - cal.center) / (CGFloat)(fallback.max - fallback.center)) < autoCalEnableThres) {
+        cal.max = fallback.max;
     }
     
     return cal;

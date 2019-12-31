@@ -48,12 +48,18 @@ extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailabl
 
 typedef struct {
     NSInteger min;
+    NSInteger center;
     NSInteger max;
 } OEAxisCalibration;
 
 static inline OEAxisCalibration OEAxisCalibrationMake(NSInteger min, NSInteger max)
 {
-    return (OEAxisCalibration){min, max};
+    return (OEAxisCalibration){min, (min+max+1)/2, max};
+}
+
+static inline OEAxisCalibration OEAxisCalibrationMake2(NSInteger min,  NSInteger center, NSInteger max)
+{
+    return (OEAxisCalibration){min, center, max};
 }
 
 CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue);
