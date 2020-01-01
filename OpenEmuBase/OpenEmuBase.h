@@ -41,3 +41,4 @@
 #import <OpenEmuBase/TPCircularBuffer.h>
 #import <OpenEmuBase/OEAudioBuffer.h>
 #import <OpenEmuBase/NSUserDefaults+OpenEmuSDK.h>
+#import <OpenEmuBase/OEGameCoreDisplayModes.h>

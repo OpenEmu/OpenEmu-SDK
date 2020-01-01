@@ -25,6 +25,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "OEGameCoreDisplayModes.h"
 
 extern NSString *const OEAdvancedPreferenceKey;
 extern NSString *const OEGameCoreClassKey;
@@ -37,59 +38,6 @@ extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
 extern NSString *const OEGameCoreSupportsMultipleDiscsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
-
-/*
- * Keys for displayMode Entries.
- */
- 
-/* Groups (submenus) */
-
-/** The NSString which will be shown in the Display Mode as the parent menu item
- *  for the submenu. */
-#define OEGameCoreDisplayModeGroupNameKey @"OEGameCoreDisplayModeGroupNameKey"
-/** An NSArray of NSDictionaries containing the entries in the group.
- *  @warning Only one level of indentation is supported to disallow over-complicated
- *    menus. */
-#define OEGameCoreDisplayModeGroupItemsKey @"OEGameCoreDisplayModeGroupItemsKey"
-
-/* Binary (toggleable) and Mutually-Exclusive Display Modes */
-
-/** The NSString which will be shown in the Display Mode menu for this entry. This
- *  string must be unique to each display mode. */
-#define OEGameCoreDisplayModeNameKey @"OEGameCoreDisplayModeNameKey"
-/** Toggleable modes only. @(YES) if this mode is standalone and can be toggled.
- *  If @(NO) or unspecified, this item is part of a group of mutually-exclusive modes. */
-#define OEGameCoreDisplayModeAllowsToggleKey @"OEGameCoreDisplayModeAllowsToggleKey"
-/** Mutually-exclusive modes only. An NSString uniquely identifying this display mode
- *  within its group. Optional. if not specified, the value associated with
- *  OEGameCoreDisplayModeNameKey will be used instead. */
-#define OEGameCoreDisplayModePrefValueNameKey @"OEGameCoreDisplayModePrefValueNameKey"
-/** Toggleable modes: An NSString uniquely identifying this display mode.
- *  Mutually-exclusive modes: An NSString uniquely identifying the group of mutually
- *  exclusive modes this mode is part of.
- *  Every group of mutually-exclusive modes is defined implicitly as a set of modes with
- *  the same OEGameCoreDisplayModePrefValueNameKey. */
-#define OEGameCoreDisplayModePrefKeyNameKey @"OEGameCoreDisplayModePrefKeyNameKey"
-/** @(YES) if this mode is currently selected. */
-#define OEGameCoreDisplayModeStateKey @"OEGameCoreDisplayModeStateKey"
-/** @(YES) if this mode is inaccessible through the nextDisplayMode: and lastDisplayMode:
- *  actions */
-#define OEGameCoreDisplayModeManualOnlyKey @"OEGameCoreDisplayModeMenuOnlyKey"
-/** @(YES) if this mode is not saved in the preferences. */
-#define OEGameCoreDisplayModeDisallowPrefSaveKey @"OEGameCoreDisplayModeDisallowPrefSaveKey"
-
-/* Labels & Separators */
-
-/** Separator only. Present if this item is a separator. Value does not matter. */
-#define OEGameCoreDisplayModeSeparatorItemKey @"OEGameCoreDisplayModeSeparatorItemKey"
-/** Label only. The NSString which will be shown in the Display Mode menu for this label. */
-#define OEGameCoreDisplayModeLabelKey @"OEGameCoreDisplayModeLabelKey"
-
-/* Other Keys */
-
-/** An NSNumber specifying the level of indentation of this item. */
-#define OEGameCoreDisplayModeIndentationLevelKey @"OEGameCoreDisplayModeIndentationLevelKey"
-
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 

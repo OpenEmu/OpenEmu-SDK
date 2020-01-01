@@ -175,11 +175,19 @@ OE_EXPORTED_CLASS
 
 @property(nonatomic, copy)     NSString                      *systemIdentifier;
 @property(nonatomic, copy)     NSString                      *systemRegion;
-@property(nonatomic, copy)     NSDictionary <NSString *, id> *displayModeInfo;
 @property(nonatomic, copy)     NSString                      *ROMCRC32;
 @property(nonatomic, copy)     NSString                      *ROMMD5;
 @property(nonatomic, copy)     NSString                      *ROMHeader;
 @property(nonatomic, copy)     NSString                      *ROMSerial;
+
+/** The current value for each display mode preference key. Used to fetch the
+ *  initial display mode state after the core is initialized.
+ *  @note This property is set to the current state of all display modes --
+ *    as fetched from the saved application preferences -- before
+ *    -loadFileAtPath:error: is invoked. The SDK does not access it anymore
+ *    after that. Therefore, it is not strictly necessary for the core to keep
+ *    this property updated. */
+@property(nonatomic, copy)     NSDictionary <NSString *, id> *displayModeInfo;
 
 #pragma mark - Starting
 
