@@ -260,11 +260,10 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue)
     }
     
     CGFloat deadZone = [self deadZoneForControlCookie:cookie];
-    CGFloat autoCalEnableThres = deadZone * 1.5 / 2.0;
-    if (((CGFloat)(cal.center - cal.min) / (CGFloat)(fallback.center - fallback.min)) < autoCalEnableThres) {
+    if (((CGFloat)(cal.center - cal.min) / (CGFloat)(fallback.center - fallback.min)) < deadZone * 1.5) {
         cal.min = fallback.min;
     }
-    if (((CGFloat)(cal.max - cal.center) / (CGFloat)(fallback.max - fallback.center)) < autoCalEnableThres) {
+    if (((CGFloat)(cal.max - cal.center) / (CGFloat)(fallback.max - fallback.center)) < deadZone * 1.5) {
         cal.max = fallback.max;
     }
     
