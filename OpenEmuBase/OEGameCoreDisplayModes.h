@@ -85,6 +85,18 @@
  * Utility macros
  */
  
+#define OEDisplayMode_OptionWithStateValue(_NAME_, _PREFKEY_, _STATE_, _VAL_) @{ \
+    OEGameCoreDisplayModeNameKey : _NAME_, \
+    OEGameCoreDisplayModePrefKeyNameKey : _PREFKEY_, \
+    OEGameCoreDisplayModeStateKey : _STATE_, \
+    OEGameCoreDisplayModePrefValueNameKey : _VAL_ }
+    
+#define OEDisplayMode_OptionWithValue(_NAME_, _PREFKEY_, _VAL_) \
+    OEDisplayMode_OptionWithStateValue(_NAME_, _PREFKEY_, @NO, _VAL_)
+    
+#define OEDisplayMode_OptionDefaultWithValue(_NAME_, _PREFKEY_, _VAL_) \
+    OEDisplayMode_OptionWithStateValue(_NAME_, _PREFKEY_, @YES, _VAL_)
+ 
 #define OEDisplayMode_OptionWithState(_NAME_, _PREFKEY_, _STATE_) @{ \
     OEGameCoreDisplayModeNameKey : _NAME_, \
     OEGameCoreDisplayModePrefKeyNameKey : _PREFKEY_, \
@@ -156,22 +168,41 @@
     OEGameCoreDisplayModeGroupItemsKey: __VA_ARGS__ }
 
 
-NS_INLINE NSString *OEDisplayModeListGetPrefKeyFromModeName(
-    NSArray<NSDictionary<NSString *,id> *> *dict, NSString *name)
+NS_INLINE BOOL OEDisplayModeListGetPrefKeyValueFromModeName(
+    NSArray<NSDictionary<NSString *,id> *> *list, NSString *name,
+    NSString * __autoreleasing *outKey, id __autoreleasing *outValue)
 {
-    for (NSDictionary<NSString *,id> *option in dict) {
+    for (NSDictionary<NSString *,id> *option in list) {
         if (option[OEGameCoreDisplayModeGroupNameKey]) {
             NSArray *content = option[OEGameCoreDisplayModeGroupItemsKey];
-            NSString *res = OEDisplayModeListGetPrefKeyFromModeName(content, name);
+            BOOL res = OEDisplayModeListGetPrefKeyValueFromModeName(content, name, outKey, outValue);
             if (res) return res;
         } else {
-            NSString *optname = option[OEGameCoreDisplayModePrefValueNameKey];
-            if (!optname) optname = option[OEGameCoreDisplayModeNameKey];
+            NSString *optname = option[OEGameCoreDisplayModeNameKey];
             if (!optname) continue;
-            if ([optname isEqual:name])
-                return option[OEGameCoreDisplayModePrefKeyNameKey];
+            if ([optname isEqual:name]) {
+                if (outKey) *outKey = option[OEGameCoreDisplayModePrefKeyNameKey];
+                if (outValue) {
+                    BOOL toggleable = [option[OEGameCoreDisplayModeAllowsToggleKey] boolValue];
+                    if (toggleable) {
+                        *outValue = option[OEGameCoreDisplayModeStateKey];
+                    } else {
+                        id val = option[OEGameCoreDisplayModePrefValueNameKey];
+                        *outValue = val ?: optname;
+                    }
+                }
+                return YES;
+            }
         }
     }
-    return nil;
+    return NO;
+}
+
+NS_INLINE NSString *OEDisplayModeListGetPrefKeyFromModeName(
+    NSArray<NSDictionary<NSString *,id> *> *list, NSString *name)
+{
+    NSString *tmp;
+    BOOL res = OEDisplayModeListGetPrefKeyValueFromModeName(list, name, &tmp, NULL);
+    return res ? tmp : nil;
 }
 
