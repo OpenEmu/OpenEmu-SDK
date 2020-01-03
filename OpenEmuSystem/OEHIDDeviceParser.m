@@ -176,10 +176,21 @@ typedef NS_ENUM(NSInteger, OEElementType) {
     OEElementTypeButton,
     OEElementTypeGenericDesktop,
     OEElementTypeConsumer,
+    OEElementTypeSimulation,
 };
 
 - (OEElementType)OE_elementTypeForHIDEventType:(OEHIDEventType)eventType usage:(NSUInteger)usage
 {
+    if (eventType == OEHIDEventTypeTrigger) {
+        switch(usage) {
+            case kHIDUsage_Sim_Brake :
+            case kHIDUsage_Sim_Accelerator :
+                return OEElementTypeSimulation;
+            default :
+                break;
+        }
+    }
+
     if (eventType != OEHIDEventTypeButton)
         return OEElementTypeGenericDesktop;
 
@@ -196,6 +207,10 @@ typedef NS_ENUM(NSInteger, OEElementType) {
         case kHIDUsage_Csmr_ACBack :
         case kHIDUsage_Csmr_ACForward :
             return OEElementTypeConsumer;
+
+        case kHIDUsage_Sim_Brake :
+        case kHIDUsage_Sim_Accelerator :
+            return OEElementTypeSimulation;
     }
 
     return OEElementTypeButton;
@@ -208,6 +223,7 @@ typedef NS_ENUM(NSInteger, OEElementType) {
     NSMutableArray *genericDesktopElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_GenericDesktop) }, 0) mutableCopy];
     NSMutableArray *buttonElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_Button) }, 0) mutableCopy];
     NSMutableArray *consumerElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_Consumer) }, 0) mutableCopy];
+    NSMutableArray *simulationElements = [(__bridge_transfer NSArray *)IOHIDDeviceCopyMatchingElements(device, (__bridge CFDictionaryRef)@{ @kIOHIDElementUsagePageKey : @(kHIDPage_Simulation) }, 0) mutableCopy];
 
     [controlRepresentations enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary<NSString *, id> *rep, BOOL *stop) {
         OEHIDEventType type = OEHIDEventTypeFromNSString(rep[@"Type"]);
@@ -225,6 +241,9 @@ typedef NS_ENUM(NSInteger, OEElementType) {
                 break;
             case OEElementTypeConsumer:
                 targetArray = consumerElements;
+                break;
+            case OEElementTypeSimulation:
+                targetArray = simulationElements;
                 break;
         }
 
