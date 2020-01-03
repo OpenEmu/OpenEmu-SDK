@@ -325,7 +325,8 @@ typedef enum {
     OEParsedTypeHatSwitch,
     OEParsedTypeGroupedAxis,
     OEParsedTypePositiveAxis,
-    OEParsedTypeSymmetricAxis
+    OEParsedTypeSymmetricAxis,
+    OEParsedTypeTrigger,
 } OEParsedType;
 
 - (void)OE_enumerateChildrenOfElement:(IOHIDElementRef)rootElement inElementTree:(_OEHIDDeviceElementTree *)elementTree usingBlock:(void(^)(IOHIDElementRef element, OEParsedType parsedType))block;
@@ -348,6 +349,11 @@ typedef enum {
                     block(element, OEParsedTypeSymmetricAxis);
                 break;
             case OEHIDEventTypeButton :
+                if (OEIOHIDElementIsTrigger(element)) {
+                    block(element, OEParsedTypeTrigger);
+                    break;
+                }
+
                 block(element, OEParsedTypeButton);
                 break;
             case OEHIDEventTypeHatSwitch :
@@ -397,9 +403,14 @@ typedef enum {
     NSMutableArray *posNegAxisElements  = [NSMutableArray array];
     NSMutableArray *posAxisElements     = [NSMutableArray array];
 
+    NSMutableArray *triggerElements     = [NSMutableArray array];
+
     [self OE_enumerateChildrenOfElement:rootElement inElementTree:elementTree usingBlock:^(IOHIDElementRef element, OEParsedType parsedType) {
         id elem = (__bridge id)element;
         switch(parsedType) {
+            case OEParsedTypeNone :
+                NSAssert(NO, @"All elements should have a type!");
+                break;
             case OEParsedTypeButton :
                 [buttonElements addObject:elem];
                 break;
@@ -415,7 +426,8 @@ typedef enum {
             case OEParsedTypeSymmetricAxis :
                 [posNegAxisElements addObject:elem];
                 break;
-            default :
+            case OEParsedTypeTrigger :
+                [triggerElements addObject:elem];
                 break;
         }
     }];
@@ -458,10 +470,8 @@ typedef enum {
         }
     };
 
-    if(([posNegAxisElements count] + [groupedAxisElements count]) != 0 && [posAxisElements count] != 0) {
-        // When there is at least one grouped or symmetric axis, we assume
-        // that all positive-only axes are in fact triggers.
-        for(id e in posAxisElements) {
+    void(^setUpTriggerControlsInArray)(NSArray *) = ^(NSArray *elements) {
+        for(id e in elements) {
             IOHIDElementRef elem = ELEM(e);
 
             NSDictionary *attr = [baseAttrib OE_dictionaryByAddingEntriesFromDictionary:@{
@@ -473,22 +483,21 @@ typedef enum {
             OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
             if(genericEvent != nil) [desc addControlWithIdentifier:nil name:nil event:genericEvent];
         }
+    };
+
+    if(([posNegAxisElements count] + [groupedAxisElements count]) != 0 && [posAxisElements count] != 0) {
+        // When there is at least one grouped or symmetric axis, we assume
+        // that all positive-only axes are in fact triggers.
+        setUpTriggerControlsInArray(posAxisElements);
     } else if ([posAxisElements count] == 6) {
         // Assume that if we have 6 axes the first 4 are analog controls and the last 2 are triggers.
-        NSDictionary *triggerAttributes = [baseAttrib OE_dictionaryByAddingEntriesFromDictionary:@{ @kOEHIDElementIsTriggerKey : @YES }];
-        [posAxisElements enumerateObjectsUsingBlock:^(id e, NSUInteger idx, BOOL *stop) {
-            IOHIDElementRef elem = ELEM(e);
-
-            [attributes setAttributes:(idx < 4 ? baseAttrib : triggerAttributes) forElementCookie:IOHIDElementGetCookie(elem)];
-            [attributes applyAttributesToElement:elem];
-
-            OEHIDEvent *genericEvent = [OEHIDEvent OE_eventWithElement:elem value:0];
-            if(genericEvent != nil) [desc addControlWithIdentifier:nil name:nil event:genericEvent];
-        }];
+        setUpControlsInArray([posAxisElements subarrayWithRange:NSMakeRange(0, 4)]);
+        setUpTriggerControlsInArray([posAxisElements subarrayWithRange:NSMakeRange(4, 2)]);
     } else {
         setUpControlsInArray(posAxisElements);
     }
 
+    setUpTriggerControlsInArray(triggerElements);
     setUpControlsInArray(buttonElements);
     setUpControlsInArray(groupedAxisElements);
     setUpControlsInArray(posNegAxisElements);

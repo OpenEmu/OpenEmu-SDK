@@ -136,6 +136,8 @@ OEHIDEventAxis OEHIDEventAxisFromNSString(NSString *string)
         @"Rx" : @(OEHIDEventAxisRx),
         @"Ry" : @(OEHIDEventAxisRy),
         @"Rz" : @(OEHIDEventAxisRz),
+        @"Accelerator" : @(OEHIDEventAxisAccelerator),
+        @"Brake" : @(OEHIDEventAxisBrake),
         };
     });
 
@@ -154,6 +156,8 @@ NSString *NSStringFromOEHIDEventAxis(OEHIDEventAxis axis)
         case OEHIDEventAxisRx : ret = @"Rx"; break;
         case OEHIDEventAxisRy : ret = @"Ry"; break;
         case OEHIDEventAxisRz : ret = @"Rz"; break;
+        case OEHIDEventAxisAccelerator : ret = @"Accelerator"; break;
+        case OEHIDEventAxisBrake : ret = @"Brake"; break;
         default : break;
     }
 
@@ -226,6 +230,19 @@ OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem)
     return _OEHIDEventTypeFromIOHIDElementPageUsage(elem, page, usage);
 }
 
+BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem)
+{
+    const uint64_t page = IOHIDElementGetUsagePage(elem);
+    if (page != kHIDPage_Simulation)
+        return NO;
+
+    const uint64_t usage = IOHIDElementGetUsage(elem);
+    if (usage != kHIDUsage_Sim_Accelerator && usage != kHIDUsage_Sim_Brake)
+        return NO;
+
+    return (IOHIDElementGetLogicalMax(elem) - IOHIDElementGetLogicalMin(elem)) > 1;
+}
+
 static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef elem, uint64_t page, uint64_t usage)
 {
     switch(page)
@@ -257,8 +274,12 @@ static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef e
             }
             break;
         }
-        case kHIDPage_Consumer :
         case kHIDPage_Simulation :
+            if(_OEHIDElementIsTrigger(elem))
+                return OEHIDEventTypeTrigger;
+
+            return OEHIDEventTypeButton;
+        case kHIDPage_Consumer :
         case kHIDPage_VR :
         case kHIDPage_Sport :
         case kHIDPage_Game :

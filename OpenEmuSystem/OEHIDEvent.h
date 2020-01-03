@@ -48,7 +48,9 @@ typedef enum _OEHIDAxis : NSUInteger {
     OEHIDEventAxisZ    = 0x32,
     OEHIDEventAxisRx   = 0x33,
     OEHIDEventAxisRy   = 0x34,
-    OEHIDEventAxisRz   = 0x35
+    OEHIDEventAxisRz   = 0x35,
+    OEHIDEventAxisAccelerator = 0xC4,
+    OEHIDEventAxisBrake = 0xC5,
 } OEHIDEventAxis;
 
 typedef enum _OEHIDEventAxisDirection : NSInteger {
@@ -101,6 +103,7 @@ extern OEHIDEventAxis OEHIDEventAxisFromNSString(NSString *string);
 extern NSString *NSStringFromOEHIDEventAxis(OEHIDEventAxis axis);
 extern NSString *NSStringFromIOHIDElement(IOHIDElementRef elem);
 extern OEHIDEventType OEHIDEventTypeFromIOHIDElement(IOHIDElementRef elem);
+extern BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem);
 
 @interface OEHIDEvent : NSObject <NSCopying, NSSecureCoding>
 
