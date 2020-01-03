@@ -33,6 +33,21 @@ extern NSString *const OEAdvancedPreferenceKey;
 extern NSString *const OEGameCoreClassKey;
 extern NSString *const OEGameCorePlayerCountKey;
 extern NSString *const OEGameCoreSystemIdentifiersKey;
+/// Boolean key. When set to YES and the current macOS version at least
+/// the one specified by the OEGameCoreDeprecatedMinMacOSVersionKey key,
+/// a warning message is shown when opening a game with this core.
+extern NSString *const OEGameCoreDeprecatedKey;
+/// String key. The minimum macOS version required for the deprecation warning
+/// to take effect.
+extern NSString *const OEGameCoreDeprecatedMinMacOSVersionKey;
+/// Dictionary key specifying a suggested replacement core for each system.
+/// When the core is automatically removed, these cores will set as the new
+/// defaults for each system where the default was the removed core.
+extern NSString *const OEGameCoreSuggestedReplacement;
+/// The date after which the core will be automatically removed.
+/// If the macOS version is lesser than the one specified by
+/// OEGameCoreDeprecatedMinMacOSVersionKey, it has no effect.
+extern NSString *const OEGameCoreSupportDeadlineKey;
 extern NSString *const OEGameCoreOptionsKey;
 
 // sub-keys of OEGameCoreOptionsKey

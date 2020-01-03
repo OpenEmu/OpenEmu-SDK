@@ -36,6 +36,10 @@ NSString *const OEGameCoreClassKey             = @"OEGameCoreClass";
 NSString *const OEGameCorePlayerCountKey       = @"OEGameCorePlayerCount";
 NSString *const OEGameCoreSystemIdentifiersKey = @"OESystemIdentifiers";
 NSString *const OEGameCoreRequiredFilesKey     = @"OERequiredFiles";
+NSString *const OEGameCoreDeprecatedKey                = @"OEDeprecated";
+NSString *const OEGameCoreDeprecatedMinMacOSVersionKey = @"OEDeprecatedMinMacOSVersion";
+NSString *const OEGameCoreSuggestedReplacement         = @"OESuggestedReplacementCore";
+NSString *const OEGameCoreSupportDeadlineKey           = @"OESupportDeadline";
 NSString *const OEGameCoreOptionsKey           = @"OEGameCoreOptions";
 
 // sub-keys of OEGameCoreOptionsKey
