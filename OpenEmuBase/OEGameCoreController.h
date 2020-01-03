@@ -27,15 +27,24 @@
 #import <Cocoa/Cocoa.h>
 #import "OEGameCoreDisplayModes.h"
 
+
 extern NSString *const OEAdvancedPreferenceKey;
+
 extern NSString *const OEGameCoreClassKey;
 extern NSString *const OEGameCorePlayerCountKey;
+extern NSString *const OEGameCoreSystemIdentifiersKey;
+extern NSString *const OEGameCoreOptionsKey;
+
+// sub-keys of OEGameCoreOptionsKey
 extern NSString *const OEGameCoreSupportsCheatCodeKey;
 extern NSString *const OEGameCoreRequiresFilesKey;
-extern NSString *const OEGameCoreOptionsKey;
+extern NSString *const OEGameCoreRequiredFilesKey;
 extern NSString *const OEGameCoreHasGlitchesKey;
-extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
 extern NSString *const OEGameCoreSupportsMultipleDiscsKey;
+extern NSString *const OEGameCoreSaveStatesNotSupportedKey;
+extern NSString *const OEGameCoreSupportsRewindingKey;
+extern NSString *const OEGameCoreRewindIntervalKey;
+extern NSString *const OEGameCoreRewindBufferSecondsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 

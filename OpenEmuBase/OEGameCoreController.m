@@ -29,12 +29,18 @@
 #import "OEGameCore.h"
 #import <objc/runtime.h>
 
+// unused?
 NSString *const OEAdvancedPreferenceKey        = @"OEAdvancedPreferenceKey";
+
 NSString *const OEGameCoreClassKey             = @"OEGameCoreClass";
 NSString *const OEGameCorePlayerCountKey       = @"OEGameCorePlayerCount";
+NSString *const OEGameCoreSystemIdentifiersKey = @"OESystemIdentifiers";
+NSString *const OEGameCoreRequiredFilesKey     = @"OERequiredFiles";
+NSString *const OEGameCoreOptionsKey           = @"OEGameCoreOptions";
+
+// sub-keys of OEGameCoreOptionsKey
 NSString *const OEGameCoreSupportsCheatCodeKey = @"OEGameCoreSupportsCheatCode";
 NSString *const OEGameCoreRequiresFilesKey     = @"OEGameCoreRequiresFiles";
-NSString *const OEGameCoreOptionsKey           = @"OEGameCoreOptions";
 NSString *const OEGameCoreHasGlitchesKey       = @"OEGameCoreHasGlitches";
 NSString *const OEGameCoreSupportsMultipleDiscsKey = @"OEGameCoreSupportsMultipleDiscs";
 NSString *const OEGameCoreSaveStatesNotSupportedKey = @"OEGameCoreSaveStatesNotSupported";
