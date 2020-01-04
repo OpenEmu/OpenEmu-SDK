@@ -175,10 +175,13 @@ static Class GameCoreClass = Nil;
 // GameCores that render direct to OpenGL rather than a buffer should override this and return YES
 // If the GameCore subclass returns YES, the renderDelegate will set the appropriate GL Context
 // So the GameCore subclass can just draw to OpenGL
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (BOOL)rendersToOpenGL
 {
     return NO;
 }
+#pragma clang diagnostic pop
 
 - (void)setupEmulationWithCompletionHandler:(void (^)(void))completionHandler
 {
@@ -385,11 +388,14 @@ static Class GameCoreClass = Nil;
     [self doesNotImplementSelector:_cmd];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (BOOL)loadFileAtPath:(NSString *)path
 {
     [self doesNotImplementSelector:_cmd];
     return NO;
 }
+#pragma clang diagostic pop
 
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error
 {
@@ -417,11 +423,14 @@ static Class GameCoreClass = Nil;
     return (OEIntSize){ 1, 1 };
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (const void *)videoBuffer
 {
     [self doesNotImplementSelector:_cmd];
     return NULL;
 }
+#pragma clang diagnostic pop
 
 - (GLenum)pixelFormat
 {
@@ -529,6 +538,8 @@ static Class GameCoreClass = Nil;
     return 60.0;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)fastForward:(BOOL)flag
 {
     float newrate = flag ? 5.0 : 1.0;
@@ -539,7 +550,10 @@ static Class GameCoreClass = Nil;
         self.rate = newrate;
     }
 }
+#pragma clang diagnostic pop
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)rewind:(BOOL)flag
 {
     if(flag && [self supportsRewinding] && ![[self rewindQueue] isEmpty])
@@ -551,6 +565,7 @@ static Class GameCoreClass = Nil;
         isRewinding = NO;
     }
 }
+#pragma clang diagnostic pop
 
 - (void)setPauseEmulation:(BOOL)paused
 {
@@ -759,9 +774,12 @@ static Class GameCoreClass = Nil;
 
 #pragma mark - Misc
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)changeDisplayMode;
 {
 }
+#pragma clang diagnostic pop
 
 #pragma mark - Discs
 
