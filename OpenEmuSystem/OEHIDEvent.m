@@ -24,6 +24,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <objc/runtime.h>
 #import "OEHIDEvent.h"
 #import "OEDeviceHandler.h"
 #import "OEDeviceManager.h"
@@ -708,16 +709,35 @@ static CGEventSourceRef _keyboardEventSource;
     return NO;
 }
 
-- (BOOL)OE_elementRepresentsMouseEvent:(IOHIDElementRef)anElement {
+- (BOOL)OE_elementRepresentsMouseEvent:(IOHIDElementRef)anElement
+{
+    OEDeviceHandler *dhandler = _deviceHandler;
+    NSMutableDictionary <NSNumber *, NSNumber *> *cache;
+    NSNumber *objkey;
+    if (dhandler) {
+        cache = objc_getAssociatedObject(dhandler, _cmd);
+        if (!cache) {
+            cache = [[NSMutableDictionary alloc] init];
+            objc_setAssociatedObject(dhandler, _cmd, cache, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        
+        objkey = @(IOHIDElementGetCookie(anElement));
+        NSNumber *cached = cache[objkey];
+        if (cached)
+            return cached.boolValue;
+    }
+    
     for(IOHIDElementRef element = anElement; element != NULL; element = IOHIDElementGetParent(element)) {
         uint32_t usagePage = IOHIDElementGetUsagePage(element);
         uint32_t usage = IOHIDElementGetUsage(element);
         
         if(usagePage == kHIDPage_GenericDesktop && usage == kHIDUsage_GD_Mouse) {
+            if (objkey && cache) cache[objkey] = @(YES);
             return YES;
         }
     }
     
+    if (objkey && cache) cache[objkey] = @(NO);
     return NO;
 }
 
