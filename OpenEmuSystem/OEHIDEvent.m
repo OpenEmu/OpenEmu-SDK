@@ -463,7 +463,7 @@ static CGEventSourceRef _keyboardEventSource;
                 case kHIDUsage_GD_Select :
                     return [NSString stringWithFormat:NSLocalizedString(@"Select", @"Generic button Select.")];
                 case kHIDUsage_GD_SystemMainMenu :
-                return [NSString stringWithFormat:NSLocalizedString(@"System Main Menu", @"Generic button System Main Menu.")];
+                    return [NSString stringWithFormat:NSLocalizedString(@"System Main Menu", @"Generic button System Main Menu.")];
             }
             // Example: ret = @"P1 B12" for Pad One Button 12
             return [NSString stringWithFormat:NSLocalizedString(@"Button %ld", @"Button key name with button number.") , _data.button.buttonNumber];
