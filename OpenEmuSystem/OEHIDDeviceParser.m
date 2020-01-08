@@ -201,6 +201,7 @@ typedef NS_ENUM(NSInteger, OEElementType) {
         case kHIDUsage_GD_DPadRight :
         case kHIDUsage_GD_Start :
         case kHIDUsage_GD_Select :
+        case kHIDUsage_GD_SystemMainMenu :
             return OEElementTypeGenericDesktop;
 
         case kHIDUsage_Csmr_ACHome :

@@ -271,6 +271,7 @@ static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef e
                 case kHIDUsage_GD_DPadRight :
                 case kHIDUsage_GD_Start     :
                 case kHIDUsage_GD_Select    :
+                case kHIDUsage_GD_SystemMainMenu :
                     return OEHIDEventTypeButton;
             }
             break;
@@ -461,6 +462,8 @@ static CGEventSourceRef _keyboardEventSource;
                     return [NSString stringWithFormat:NSLocalizedString(@"Start", @"Generic button Start.")];
                 case kHIDUsage_GD_Select :
                     return [NSString stringWithFormat:NSLocalizedString(@"Select", @"Generic button Select.")];
+                case kHIDUsage_GD_SystemMainMenu :
+                return [NSString stringWithFormat:NSLocalizedString(@"System Main Menu", @"Generic button System Main Menu.")];
             }
             // Example: ret = @"P1 B12" for Pad One Button 12
             return [NSString stringWithFormat:NSLocalizedString(@"Button %ld", @"Button key name with button number.") , _data.button.buttonNumber];
