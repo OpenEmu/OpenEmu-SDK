@@ -119,8 +119,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
         _systemType = [_bundle.infoDictionary[OESystemType] copy];
 
         NSString *iconFileName = _bundle.infoDictionary[OESystemIconName];
-        NSString *iconFilePath = [_bundle pathForImageResource:iconFileName];
-        _systemIcon = [[NSImage alloc] initWithContentsOfFile:iconFilePath];
+        _systemIcon = [_bundle imageForResource:iconFileName];
         _coverAspectRatio = [_bundle.infoDictionary[OESystemCoverAspectRatio] floatValue];
         _numberOfPlayers = [_bundle.infoDictionary[OENumberOfPlayersKey] integerValue];
 
@@ -307,7 +306,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 - (NSImage *)controllerImage;
 {
     if(_controllerImage == nil)
-        _controllerImage = [[NSImage alloc] initWithContentsOfFile:[_bundle pathForImageResource:[self controllerImageName]]];
+        _controllerImage = [_bundle imageForResource:[self controllerImageName]];
 
     return _controllerImage;
 }
@@ -315,7 +314,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 - (NSImage *)controllerImageMask;
 {
     if(_controllerImageMask == nil)
-        _controllerImageMask = [[NSImage alloc] initWithContentsOfFile:[_bundle pathForImageResource:[self controllerImageMaskName]]];
+        _controllerImageMask = [_bundle imageForResource:[self controllerImageMaskName]];
 
     return _controllerImageMask;
 }
