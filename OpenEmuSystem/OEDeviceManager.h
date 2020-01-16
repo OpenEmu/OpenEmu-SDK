@@ -58,7 +58,7 @@ extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 
 @interface OEDeviceManager : NSObject
 
-+ (OEDeviceManager *)sharedDeviceManager;
+@property(class, readonly) OEDeviceManager *sharedDeviceManager;
 
 @property(readonly) NSArray<OEDeviceHandler *> *deviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *controllerDeviceHandlers;
