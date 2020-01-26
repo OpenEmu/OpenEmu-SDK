@@ -53,7 +53,7 @@ typedef enum {
     OEWiimoteIRModeFull     = 0x05,
 } OEWiimoteIRMode;
 
-extern NSString *const OEWiimoteDeviceHandlerDidDisconnectNotification;
+extern NSNotificationName const OEWiimoteDeviceHandlerDidDisconnectNotification;
 
 @interface OEWiimoteHIDDeviceHandler : OEHIDDeviceHandler
 

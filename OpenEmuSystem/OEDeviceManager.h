@@ -48,8 +48,8 @@ typedef NS_ENUM(NSUInteger, OEDeviceAccessType)
 
 extern NSString *const OEWiimoteSupportEnabled;
 
-extern NSString *const OEDeviceManagerDidAddDeviceHandlerNotification;
-extern NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification;
+extern NSNotificationName const OEDeviceManagerDidAddDeviceHandlerNotification;
+extern NSNotificationName const OEDeviceManagerDidRemoveDeviceHandlerNotification;
 
 extern NSNotificationName const OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification;
 extern NSNotificationName const OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification;

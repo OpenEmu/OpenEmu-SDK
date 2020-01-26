@@ -34,7 +34,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const OEBindingsRepairedNotification = @"OEBindingsRepairedNotification";
+NSNotificationName const OEBindingsRepairedNotification = @"OEBindingsRepairedNotification";
 
 @interface OEBindingsController ()
 {

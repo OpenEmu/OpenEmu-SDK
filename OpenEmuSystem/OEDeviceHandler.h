@@ -43,8 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class OEDeviceDescription;
 @class OEControlDescription;
 
-extern NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification;
-extern NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification;
+extern NSNotificationName const OEDeviceHandlerDidReceiveLowBatteryWarningNotification;
+extern NSNotificationName const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification;
 
 typedef struct {
     NSInteger min;

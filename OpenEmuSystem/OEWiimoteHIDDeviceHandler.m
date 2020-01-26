@@ -31,7 +31,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const OEWiimoteDeviceHandlerDidDisconnectNotification = @"OEWiimoteDeviceHandlerDidDisconnectNotification";
+NSNotificationName const OEWiimoteDeviceHandlerDidDisconnectNotification = @"OEWiimoteDeviceHandlerDidDisconnectNotification";
 
 @interface OEHIDEvent ()
 - (OEHIDEvent *)OE_eventWithWiimoteDeviceHandler:(OEWiimoteHIDDeviceHandler *)aDeviceHandler;

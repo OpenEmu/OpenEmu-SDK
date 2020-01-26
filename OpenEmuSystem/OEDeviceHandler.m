@@ -41,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 #define NO __objc_no
 #endif
 
-NSString *const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDeviceHandlerDidReceiveLowBatteryWarningNotification";
-NSString *const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification = @"OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification";
+NSNotificationName const OEDeviceHandlerDidReceiveLowBatteryWarningNotification = @"OEDeviceHandlerDidReceiveLowBatteryWarningNotification";
+NSNotificationName const OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification = @"OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification";
 
 static NSString *const OEDeviceHandlerUniqueIdentifierKey = @"OEDeviceHandlerUniqueIdentifier";
 

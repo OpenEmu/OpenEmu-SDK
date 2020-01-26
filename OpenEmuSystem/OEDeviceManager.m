@@ -47,12 +47,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const OEWiimoteSupportEnabled = @"OEWiimoteSupportEnabled";
 
-NSString *const OEDeviceManagerDidAddDeviceHandlerNotification    = @"OEDeviceManagerDidAddDeviceHandlerNotification";
-NSString *const OEDeviceManagerDidRemoveDeviceHandlerNotification = @"OEDeviceManagerDidRemoveDeviceHandlerNotification";
-NSString *const OEDeviceManagerDeviceHandlerUserInfoKey           = @"OEDeviceManagerDeviceHandlerUserInfoKey";
+NSNotificationName const OEDeviceManagerDidAddDeviceHandlerNotification    = @"OEDeviceManagerDidAddDeviceHandlerNotification";
+NSNotificationName const OEDeviceManagerDidRemoveDeviceHandlerNotification = @"OEDeviceManagerDidRemoveDeviceHandlerNotification";
 
 NSNotificationName const OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification = @"OEDeviceManagerDidAddGlobalEventMonitorHandlerNotification";
 NSNotificationName const OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification = @"OEDeviceManagerDidRemoveGlobalEventMonitorHandlerNotification";
+
+NSString *const OEDeviceManagerDeviceHandlerUserInfoKey           = @"OEDeviceManagerDeviceHandlerUserInfoKey";
 
 @interface _OEDeviceManagerEventMonitor : NSObject
 + (instancetype)monitorWithGlobalMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;

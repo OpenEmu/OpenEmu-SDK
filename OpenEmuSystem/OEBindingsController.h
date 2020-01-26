@@ -29,7 +29,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const OEBindingsRepairedNotification;
+extern NSNotificationName const OEBindingsRepairedNotification;
 
 @class OESystemController, OEDeviceHandler, OESystemBindings, OEPlayerBindings;
 
