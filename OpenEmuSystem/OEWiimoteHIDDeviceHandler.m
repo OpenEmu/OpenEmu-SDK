@@ -645,10 +645,12 @@ enum {
     BOOL led2 = (devNumber == 2) || (devNumber == 6) || (devNumber == 8);
     BOOL led3 = (devNumber == 3) || (devNumber == 7) || (devNumber == 8);
     BOOL led4 = (devNumber == 4) || (devNumber == 6) || (devNumber == 7) || (devNumber == 8);
-    uint8_t wiimoteLEDStatus = led1 ? OEWiimoteDeviceHandlerLED1 : 0 |
-                               led2 ? OEWiimoteDeviceHandlerLED2 : 0 |
-                               led3 ? OEWiimoteDeviceHandlerLED3 : 0 |
-                               led4 ? OEWiimoteDeviceHandlerLED4 : 0;
+    uint8_t wiimoteLEDStatus;
+         if (led1) wiimoteLEDStatus = OEWiimoteDeviceHandlerLED1;
+    else if (led2) wiimoteLEDStatus = OEWiimoteDeviceHandlerLED2;
+    else if (led3) wiimoteLEDStatus = OEWiimoteDeviceHandlerLED3;
+    else if (led4) wiimoteLEDStatus = OEWiimoteDeviceHandlerLED4;
+    else           wiimoteLEDStatus = 0;
 
     uint8_t rumbleAndLEDStatus = wiimoteLEDStatus | _rumbleActivated;
     [self OE_sendCommandWithData:(uint8_t[]){ 0x11, rumbleAndLEDStatus & OEWiimoteRumbleAndLEDMask } length:2];
