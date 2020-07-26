@@ -30,7 +30,7 @@
 #import <IOKit/hid/IOHIDUsageTables.h>
 #import <ForceFeedback/ForceFeedback.h>
 
-#import "OEHIDEvent.h"
+#import <OpenEmuSystem/OEHIDEvent.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

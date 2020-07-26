@@ -25,7 +25,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "OEGameCoreDisplayModes.h"
+#import <OpenEmuBase/OEGameCoreDisplayModes.h>
 
 
 extern NSString *const OEAdvancedPreferenceKey;

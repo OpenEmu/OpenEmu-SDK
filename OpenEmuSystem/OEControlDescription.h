@@ -25,7 +25,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OEHIDEvent.h"
+#import <OpenEmuSystem/OEHIDEvent.h>
 
 @class OEControllerDescription;
 @class OEControlValueDescription;

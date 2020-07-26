@@ -25,10 +25,10 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "OEGameCoreController.h"
-#import "OESystemResponderClient.h"
-#import "OEGeometry.h"
-#import "OEDiffQueue.h"
+#import <OpenEmuBase/OEGameCoreController.h>
+#import <OpenEmuBase/OESystemResponderClient.h>
+#import <OpenEmuBase/OEGeometry.h>
+#import <OpenEmuBase/OEDiffQueue.h>
 
 #ifndef DLog
 
