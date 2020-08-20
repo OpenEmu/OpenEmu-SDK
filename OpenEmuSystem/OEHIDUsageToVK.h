@@ -89,7 +89,7 @@ static const _OEHIDVirtualKeyCodeNameTriplet _OEHIDVirtualKeyCodesTable[] = {
     { kHIDUsage_KeyboardSpacebar           , kVK_Space              , @"Space"     },
     { kHIDUsage_KeyboardDeleteOrBackspace  , kVK_Delete             , @"⌫"         },
     { kHIDUsage_KeyboardEscape             , kVK_Escape             , @"⎋"         },
-    { kHIDUsage_KeyboardRightGUI           , 0x36                   , @"Right ⌘"   }, // Weirdly enough this value is not explicitly given in the VK enum...
+    { kHIDUsage_KeyboardRightGUI           , kVK_RightCommand       , @"Right ⌘"   },
     { kHIDUsage_KeyboardLeftGUI            , kVK_Command            , @"Left ⌘"    },
     { kHIDUsage_KeyboardLeftShift          , kVK_Shift              , @"Left ⇧"    },
     { kHIDUsage_KeyboardCapsLock           , kVK_CapsLock           , @"Caps Lock" },
