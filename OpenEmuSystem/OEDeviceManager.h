@@ -76,7 +76,7 @@ extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 
 - (void)deviceHandler:(nullable OEDeviceHandler *)handler didReceiveEvent:(OEHIDEvent *)event;
 
-- (BOOL)hasEventMonitor;
+@property (readonly, nonatomic) BOOL hasEventMonitor;
 
 - (id)addGlobalEventMonitorHandler:(BOOL(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;
 - (id)addEventMonitorForDeviceHandler:(OEDeviceHandler *)device handler:(void(^)(OEDeviceHandler *handler, OEHIDEvent *event))handler;

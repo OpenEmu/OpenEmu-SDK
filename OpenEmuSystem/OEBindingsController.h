@@ -41,7 +41,7 @@ extern NSNotificationName const OEBindingsRepairedNotification;
 // Class method because all bindings controllers need to know about it
 + (void)registerSystemController:(OESystemController *)aController;
 
-+ (OEBindingsController *)defaultBindingsController;
+@property (class, nonatomic, readonly) OEBindingsController *defaultBindingsController;
 
 + (OEBindingsController *)bindingsControllerWithConfigurationName:(nullable NSString *)aName;
 - (instancetype)initWithConfigurationName:(nullable NSString *)aName;
