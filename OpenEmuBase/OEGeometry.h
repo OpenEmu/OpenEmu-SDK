@@ -25,6 +25,10 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct OEIntPoint {
     int x;
     int y;
@@ -139,3 +143,13 @@ static inline BOOL NSPointInTriangle(NSPoint p, NSPoint A, NSPoint B, NSPoint C)
 
     return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 }
+
+extern CGSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize) CF_SWIFT_NAME(OECorrectScreenSize(_:forAspectSize:));
+
+#pragma mark - Refined for Swift
+
+extern BOOL _OEIntSizeIsEmptySwift(OEIntSize size) CF_SWIFT_NAME(getter:OEIntSize.isEmpty(self:));
+
+#ifdef __cplusplus
+}
+#endif
