@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2009, OpenEmu Team
+ Copyright (c) 2020, OpenEmu Team
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -175,7 +175,6 @@ OE_EXPORTED_CLASS
 
 @property(nonatomic, copy)     NSString                      *systemIdentifier;
 @property(nonatomic, copy)     NSString                      *systemRegion;
-@property(nonatomic, copy)     NSString                      *ROMCRC32;
 @property(nonatomic, copy)     NSString                      *ROMMD5;
 @property(nonatomic, copy)     NSString                      *ROMHeader;
 @property(nonatomic, copy)     NSString                      *ROMSerial;
