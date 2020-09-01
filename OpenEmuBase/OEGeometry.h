@@ -144,11 +144,20 @@ static inline BOOL NSPointInTriangle(NSPoint p, NSPoint A, NSPoint B, NSPoint C)
     return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 }
 
-extern CGSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize) CF_SWIFT_NAME(OECorrectScreenSize(_:forAspectSize:));
+extern CGSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize) CF_SWIFT_NAME(OEIntSize.corrected(self:forAspectSize:));
 
 #pragma mark - Refined for Swift
 
 extern BOOL _OEIntSizeIsEmptySwift(OEIntSize size) CF_SWIFT_NAME(getter:OEIntSize.isEmpty(self:));
+
+#pragma mark - CGSize extensions
+
+static inline CGSize CGSizeCorrectedForAspectSize(CGSize size, CGSize aspectSize)
+{
+    return OECorrectScreenSizeForAspectSize(OEIntSizeMake(round(size.width), round(size.height)), OEIntSizeMake(round(aspectSize.width), round(aspectSize.height)));
+}
+
+extern NSInteger IntegralScaleForProposedSize(CGSize existing, CGSize proposed, CGSize screenSize);
 
 #ifdef __cplusplus
 }

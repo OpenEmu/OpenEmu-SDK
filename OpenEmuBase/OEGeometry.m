@@ -47,3 +47,26 @@ BOOL _OEIntSizeIsEmptySwift(OEIntSize size)
 {
     return OEIntSizeIsEmpty(size);
 }
+
+NSInteger IntegralScaleForProposedSize(CGSize existing, CGSize proposed, CGSize screenSize)
+{
+    // determine if a single axis is being resized
+    CGFloat deltaX = fabs(existing.width - proposed.width);
+    CGFloat deltaY = fabs(existing.height - proposed.height);
+    
+    NSInteger scale = 1;
+    NSInteger scaleX = round(proposed.width  / screenSize.width);
+    NSInteger scaleY = round(proposed.height / screenSize.height);
+    
+    if (deltaY < DBL_EPSILON) {
+        // resizing X axis
+        scale = scaleX;
+    } else if (deltaX < DBL_EPSILON) {
+        // resizing Y axis
+        scale = scaleY;
+    } else { // else same, pick the larger?
+        scale = MAX(scaleX, scaleY);
+    }
+    
+    return MAX(scale, 1); // minimum is always 1
+}
