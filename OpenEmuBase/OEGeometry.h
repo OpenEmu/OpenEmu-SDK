@@ -157,8 +157,6 @@ static inline CGSize CGSizeCorrectedForAspectSize(CGSize size, CGSize aspectSize
     return OECorrectScreenSizeForAspectSize(OEIntSizeMake(round(size.width), round(size.height)), OEIntSizeMake(round(aspectSize.width), round(aspectSize.height)));
 }
 
-extern NSInteger IntegralScaleForProposedSize(CGSize existing, CGSize proposed, CGSize screenSize);
-
 #ifdef __cplusplus
 }
 #endif
