@@ -34,6 +34,8 @@ extern NSString *const OEDiscDescriptorErrorDomain;
 NS_ENUM(NSInteger) {
     OEDiscDescriptorUnreadableFileError = -1,
     OEDiscDescriptorMissingFilesError = -2,
+    OEDiscDescriptorNotPlainTextFileError = -3,
+    OEDiscDescriptorNoPermissionReadFileError = -4,
 };
 
 @interface OEDiscDescriptor : OEFile

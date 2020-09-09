@@ -126,11 +126,45 @@ NSString *const OEDiscDescriptorErrorDomain = @"org.openemu.OEDiscDescriptor.Err
 - (nullable NSString *)_fileContentWithError:(NSError **)error
 {
     NSString *fileContent = [NSString stringWithContentsOfURL:self.fileURL usedEncoding:0 error:error];
-    if (fileContent != nil)
+    if (fileContent != nil) {
+        // {\rtf1 - Rich Text Format magic number
+        if ([fileContent hasPrefix:@"{\\rtf1"]) {
+            *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorNotPlainTextFileError userInfo:@{
+                NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read", @"Reading descriptor file error description"),
+                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"File %@ is not a plain text file.", @"Reading descriptor file error failure reason."), self.fileURL.lastPathComponent],
+            }];
+
+            return nil;
+        }
+
         return fileContent;
+    }
 
     if (error == nil)
         return nil;
+
+    // M3U file contains unreachable cue sheet file reference
+    // self.fileURL sent to +[NSString stringWithContentsOfURL:usedEncoding:error] is unreachable
+    if ([(*error).domain isEqualToString:NSCocoaErrorDomain] && (*error).code == NSFileReadNoSuchFileError) {
+        *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorMissingFilesError userInfo:@{
+            NSLocalizedDescriptionKey: NSLocalizedString(@"M3U missing referenced file", @"M3U missing referenced file error description"),
+            NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"M3U referencing unreachable file at path %@.", @"M3U missing referenced file error failure reason"), self.fileURL.path],
+            NSUnderlyingErrorKey: *error,
+        }];
+
+        return nil;
+    }
+
+    // File cannot be read due to permission problem
+    if ([(*error).domain isEqualToString:NSCocoaErrorDomain] && (*error).code == NSFileReadNoPermissionError) {
+        *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorNoPermissionReadFileError userInfo:@{
+            NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read (permission problem)", @"Reading descriptor file error permission problem description"),
+            NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"Could not read file due to permission problem at path %@.", @"Missing referenced file error permission problem failure reason"), self.fileURL.path],
+            NSUnderlyingErrorKey: *error,
+        }];
+
+        return nil;
+    }
 
     *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorUnreadableFileError userInfo:@{
         NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read", @"Reading descriptor file error description"),
