@@ -25,7 +25,7 @@
 #import <Foundation/Foundation.h>
 #import "OEGeometry.h"
 
-CGSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize)
+OEIntSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize)
 {
     // calculate aspect ratio
     CGFloat wr = (CGFloat) aspectSize.width / screenSize.width;
@@ -36,9 +36,9 @@ CGSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSi
     CGFloat halfw = scaled.width;
     CGFloat halfh = scaled.height;
     
-    CGSize corrected = screenSize.width <= aspectSize.width ?
-        CGSizeMake(screenSize.width / halfh, screenSize.height / halfw) :
-        CGSizeMake(screenSize.width * halfw, screenSize.height * halfh);
+    OEIntSize corrected = screenSize.width <= aspectSize.width ?
+        OEIntSizeMake(round(screenSize.width / halfh), round(screenSize.height / halfw)) :
+        OEIntSizeMake(round(screenSize.width * halfw), round(screenSize.height * halfh));
     
     return corrected;
 }
