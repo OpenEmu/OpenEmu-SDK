@@ -134,7 +134,7 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 
 @property(readonly) CGFloat coverAspectRatio;
 
-@property(readonly, nonatomic) BOOL supportsDiscs;
+@property(readonly, nonatomic) BOOL supportsDiscsWithDescriptorFile;
 
 #pragma mark - Bindings settings
 

@@ -319,8 +319,9 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     return _controllerImageMask;
 }
 
-- (BOOL)supportsDiscs
+- (BOOL)supportsDiscsWithDescriptorFile
 {
+    // metadata descriptor / sidecar files
     for(NSString *discExtension in @[ @"cue", @"ccd", @"gdi", @"m3u" ]) {
         if ([[self fileTypes] containsObject:discExtension])
             return YES;
