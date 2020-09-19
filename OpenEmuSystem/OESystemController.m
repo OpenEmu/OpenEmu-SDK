@@ -163,6 +163,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension
 {
+    NSLog(@"[BRY] fileExtension: %@", [fileExtension lowercaseString]);
+    NSLog(@"[BRY] _fileTypes: %@", _fileTypes);
     return [_fileTypes containsObject:[fileExtension lowercaseString]];
 }
 

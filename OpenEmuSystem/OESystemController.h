@@ -150,11 +150,33 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 
 @property(readonly, copy) NSArray *fileTypes;
 
-/* Whether the system plugin can verifiably handle a file. This should be a more thorough check than just
-   testing file extensions, which is what -canHandleFileExtension: does. When importing a file, systems that
-   can handle that file are preferred over systems that can only (potentially) handle its extension. Only implement -canHandleFile: if you can verify that it's valid for the system.
-*/
+/*!
+ * @method canHandleFile:
+ * @abstract Returns an OEFileSupport value that indicates whether a given file can *verifiably* be handled by a system plugin.
+ * @discussion A thorough check for determining if a file can be handled by a system plugin, using heuristics to verify.
+ * Systems implement this only if necessary for file verification or disambiguation of file extensions belonging to multiple system plugins.
+ * @param file An OEFile object to determine if a system plugin can handle.
+ * @code
+ * // Plugin possibly handles bin file greater than a certain size
+ * - (OEFileSupport)canHandleFile:(__kindof OEFile *)file
+ * {
+ *     if([file.fileExtension isEqualToString:@"bin"] && file.fileSize > 78643200)
+ *         return OEFileSupportNo;
+ *     else
+ *         return OEFileSupportUncertain;
+ * }
+ * @endcode
+ */
 - (OEFileSupport)canHandleFile:(__kindof OEFile *)file;
+
+/*!
+ * @method canHandleFileExtension:
+ * @abstract Returns a Boolean value that indicates whether a given file extension is present in the system plugin.
+ * @discussion Tests file extensions by searching the system plugin's info dictionary OEFileSuffixes key.
+ * Used *exclusively* during import by +[OEDBSystem systemsForFile:inContext:error:].
+ * Do not override this.
+ * @param fileExtension A file extension to determine if a system plugin can handle.
+ */
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension;
 
 - (NSString *)headerLookupForFile:(__kindof OEFile *)file;
