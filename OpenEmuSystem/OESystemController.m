@@ -43,6 +43,7 @@ NSString *const OESystemIdentifier           = @"OESystemIdentifier";
 NSString *const OEProjectURLKey              = @"OEProjectURL";
 NSString *const OESystemName                 = @"OESystemName";
 NSString *const OESystemType                 = @"OESystemType";
+NSString *const OESystemMedia                = @"OESystemMedia";
 NSString *const OENumberOfPlayersKey         = @"OENumberOfPlayersKey";
 NSString *const OEResponderClassKey          = @"OEResponderClassKey";
 
@@ -74,6 +75,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 @implementation OESystemController {
     NSString *_systemName;
     NSString *_systemType;
+    NSArray<NSString *> *_systemMedia;
     NSImage *_systemIcon;
     NSImage *_controllerImage;
     NSImage *_controllerImageMask;
@@ -117,6 +119,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
         _systemName = [_bundle.infoDictionary[OESystemName] copy];
         _systemType = [_bundle.infoDictionary[OESystemType] copy];
+        _systemMedia = [_bundle.infoDictionary[OESystemMedia] copy];
 
         NSString *iconFileName = _bundle.infoDictionary[OESystemIconName];
         _systemIcon = [_bundle imageForResource:iconFileName];
@@ -163,8 +166,6 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (BOOL)canHandleFileExtension:(NSString *)fileExtension
 {
-    NSLog(@"[BRY] fileExtension: %@", [fileExtension lowercaseString]);
-    NSLog(@"[BRY] _fileTypes: %@", _fileTypes);
     return [_fileTypes containsObject:[fileExtension lowercaseString]];
 }
 
@@ -298,6 +299,11 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 - (NSString *)systemType
 {
     return _systemType;
+}
+
+- (NSArray *)systemMedia
+{
+    return _systemMedia;
 }
 
 - (NSImage *)systemIcon
