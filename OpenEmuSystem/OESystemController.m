@@ -47,6 +47,11 @@ NSString *const OESystemMedia                = @"OESystemMedia";
 NSString *const OENumberOfPlayersKey         = @"OENumberOfPlayersKey";
 NSString *const OEResponderClassKey          = @"OEResponderClassKey";
 
+NSString *const OERegionalizedSystemNames    = @"OERegionalizedSystemNames";
+NSString *const OERegionalizedSystemNamesRegionKeyNorthAmerica = @"na";
+NSString *const OERegionalizedSystemNamesRegionKeyJapan        = @"jp";
+NSString *const OERegionalizedSystemNamesRegionKeyEurope       = @"eu";
+
 NSString *const OEKeyboardMappingsFileName   = @"Keyboard-Mappings";
 NSString *const OEControllerMappingsFileName = @"Controller-Mappings";
 
@@ -74,6 +79,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
 @implementation OESystemController {
     NSString *_systemName;
+    NSDictionary <NSString *, NSString *> *_regionalSystemNames;
     NSString *_systemType;
     NSArray<NSString *> *_systemMedia;
     NSImage *_systemIcon;
@@ -118,6 +124,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
         _systemIdentifier = _bundle.infoDictionary[OESystemIdentifier] ? : _bundle.bundleIdentifier;
 
         _systemName = [_bundle.infoDictionary[OESystemName] copy];
+        _regionalSystemNames = [_bundle.infoDictionary[OERegionalizedSystemNames] copy];
         _systemType = [_bundle.infoDictionary[OESystemType] copy];
         _systemMedia = [_bundle.infoDictionary[OESystemMedia] copy];
 
@@ -293,7 +300,17 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (NSString *)systemName
 {
-    return _systemName;
+    switch ([[OELocalizationHelper sharedHelper] region]) {
+        case OERegionNA:
+            return _regionalSystemNames[OERegionalizedSystemNamesRegionKeyNorthAmerica] ?: _systemName;
+        case OERegionJAP:
+            return _regionalSystemNames[OERegionalizedSystemNamesRegionKeyJapan] ?: _systemName;
+        case OERegionEU:
+            return _regionalSystemNames[OERegionalizedSystemNamesRegionKeyEurope] ?: _systemName;
+        case OERegionOther:
+        default:
+            return _systemName;
+    }
 }
 
 - (NSString *)systemType

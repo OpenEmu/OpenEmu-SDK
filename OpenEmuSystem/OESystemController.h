@@ -49,6 +49,17 @@ extern NSString *const OEFileTypes;
 extern NSString *const OENumberOfPlayersKey;
 extern NSString *const OEResponderClassKey;
 
+// NSDictionary - region-specific names of the system.
+// Key: region; value: system name for that region
+// If current region is not in the dictionary, OESystemName is used instead.
+extern NSString *const OERegionalizedSystemNames;
+// Region key for the North America region
+extern NSString *const OERegionalizedSystemNamesRegionKeyNorthAmerica;
+// Region key for the Japan region
+extern NSString *const OERegionalizedSystemNamesRegionKeyJapan;
+// Region key for the Europe region
+extern NSString *const OERegionalizedSystemNamesRegionKeyEurope;
+
 extern NSString *const OEKeyboardMappingsFileName;
 extern NSString *const OEControllerMappingsFileName;
 
@@ -111,7 +122,13 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 
 @property(readonly) NSBundle *bundle;
 @property(readonly, copy) NSString *systemIdentifier;
+
+/** The name of the system.
+ *  @warning Overriding the getter of this property to regionalize the system
+ *      name is deprecated. Use the "OERegionalizedSystemNames" key in the
+ *      Info.plist of the system plugin. */
 @property(readonly) NSString *systemName;
+
 @property(readonly) NSString *systemType;
 @property(readonly) NSArray<NSString *> *systemMedia;
 @property(readonly) NSImage *systemIcon;
