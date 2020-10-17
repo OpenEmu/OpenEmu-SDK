@@ -39,7 +39,6 @@
 		C6605B851D725B0D009C7E91 /* OEM3UFile.m in Sources */ = {isa = PBXBuildFile; fileRef = C6605B831D725B0D009C7E91 /* OEM3UFile.m */; };
 		C6605B881D7260E3009C7E91 /* OEDiscDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = C6605B861D7260E3009C7E91 /* OEDiscDescriptor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6605B891D7260E3009C7E91 /* OEDiscDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = C6605B871D7260E3009C7E91 /* OEDiscDescriptor.m */; };
-		C6772A2A1710A4BA00ED580A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A291710A4BA00ED580A /* Cocoa.framework */; };
 		C6772A6E1710BD6200ED580A /* OpenEmuBase.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A601710BD6200ED580A /* OpenEmuBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A6F1710BD6200ED580A /* OESystemResponderClient.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A611710BD6200ED580A /* OESystemResponderClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A701710BD6200ED580A /* OEGameCore.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A621710BD6200ED580A /* OEGameCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -56,7 +55,6 @@
 		C6772A7B1710BD6200ED580A /* OETimingUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772A6D1710BD6200ED580A /* OETimingUtils.m */; };
 		C6772A821710C6D100ED580A /* NSString+UUID.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A801710C6D100ED580A /* NSString+UUID.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A831710C6D100ED580A /* NSString+UUID.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772A811710C6D100ED580A /* NSString+UUID.m */; };
-		C6772A8D1710CD7E00ED580A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A291710A4BA00ED580A /* Cocoa.framework */; };
 		C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6B1710E21800ED580A /* OpenEmuSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B791710E21900ED580A /* OESystemController.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6C1710E21800ED580A /* OESystemController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B7A1710E21900ED580A /* OESystemController.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6D1710E21900ED580A /* OESystemController.m */; };
@@ -110,10 +108,6 @@
 		C6772BDF1710E41C00ED580A /* OELocalizationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772BE01710E41C00ED580A /* OELocalizationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */; };
 		C6772BE11710E72A00ED580A /* OpenEmuBase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A261710A4BA00ED580A /* OpenEmuBase.framework */; };
-		C6772C311710EC0D00ED580A /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C301710EC0C00ED580A /* ForceFeedback.framework */; };
-		C6772C331710EC3600ED580A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C321710EC3500ED580A /* IOKit.framework */; };
-		C6772C351710EC4500ED580A /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C341710EC4500ED580A /* IOBluetooth.framework */; };
-		C6772C371710EC6B00ED580A /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772C361710EC6B00ED580A /* Carbon.framework */; };
 		C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC11C2A065400DFD15C /* OEPropertyList.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		C694EEC61C2A0A7D00DFD15C /* OEHIDEvent_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */; };
 		C6A726831C059BF000E35961 /* OEBindingDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = C6A726811C059BF000E35961 /* OEBindingDescription.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -175,10 +169,6 @@
 		C6605B871D7260E3009C7E91 /* OEDiscDescriptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDiscDescriptor.m; sourceTree = "<group>"; };
 		C6605B8A1D7261EF009C7E91 /* OEDiscDescriptor_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEDiscDescriptor_Internal.h; sourceTree = "<group>"; };
 		C6772A261710A4BA00ED580A /* OpenEmuBase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuBase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C6772A291710A4BA00ED580A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		C6772A2C1710A4BA00ED580A /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		C6772A2D1710A4BA00ED580A /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		C6772A2E1710A4BA00ED580A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C6772A311710A4BA00ED580A /* OpenEmuBase-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenEmuBase-Info.plist"; sourceTree = "<group>"; };
 		C6772A601710BD6200ED580A /* OpenEmuBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenEmuBase.h; sourceTree = "<group>"; };
 		C6772A611710BD6200ED580A /* OESystemResponderClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemResponderClient.h; sourceTree = "<group>"; };
@@ -251,10 +241,6 @@
 		C6772BD11710E29C00ED580A /* OEDeviceDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDeviceDescription.m; sourceTree = "<group>"; };
 		C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OELocalizationHelper.h; sourceTree = "<group>"; };
 		C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OELocalizationHelper.m; sourceTree = "<group>"; };
-		C6772C301710EC0C00ED580A /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/ForceFeedback.framework; sourceTree = DEVELOPER_DIR; };
-		C6772C321710EC3500ED580A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
-		C6772C341710EC4500ED580A /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/IOBluetooth.framework; sourceTree = DEVELOPER_DIR; };
-		C6772C361710EC6B00ED580A /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		C694EEC11C2A065400DFD15C /* OEPropertyList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEPropertyList.h; sourceTree = "<group>"; };
 		C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEHIDEvent_Internal.h; sourceTree = "<group>"; };
 		C6A726811C059BF000E35961 /* OEBindingDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingDescription.h; sourceTree = "<group>"; };
@@ -276,7 +262,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C6772A2A1710A4BA00ED580A /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,11 +269,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C6772C371710EC6B00ED580A /* Carbon.framework in Frameworks */,
-				C6772A8D1710CD7E00ED580A /* Cocoa.framework in Frameworks */,
-				C6772C311710EC0D00ED580A /* ForceFeedback.framework in Frameworks */,
-				C6772C351710EC4500ED580A /* IOBluetooth.framework in Frameworks */,
-				C6772C331710EC3600ED580A /* IOKit.framework in Frameworks */,
 				C6772BE11710E72A00ED580A /* OpenEmuBase.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -311,7 +291,6 @@
 				C6772A2F1710A4BA00ED580A /* OpenEmuBase */,
 				C6772A8E1710CD7E00ED580A /* OpenEmuSystem */,
 				0109BBA3209F25EB002419C1 /* OpenEmuBaseTests */,
-				C6772A281710A4BA00ED580A /* Frameworks */,
 				C6772A271710A4BA00ED580A /* Products */,
 			);
 			indentWidth = 4;
@@ -327,29 +306,6 @@
 				0109BBA2209F25EB002419C1 /* OpenEmuBaseTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		C6772A281710A4BA00ED580A /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				C6772C361710EC6B00ED580A /* Carbon.framework */,
-				C6772A291710A4BA00ED580A /* Cocoa.framework */,
-				C6772C301710EC0C00ED580A /* ForceFeedback.framework */,
-				C6772C341710EC4500ED580A /* IOBluetooth.framework */,
-				C6772C321710EC3500ED580A /* IOKit.framework */,
-				C6772A2B1710A4BA00ED580A /* Other Frameworks */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		C6772A2B1710A4BA00ED580A /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				C6772A2C1710A4BA00ED580A /* AppKit.framework */,
-				C6772A2D1710A4BA00ED580A /* CoreData.framework */,
-				C6772A2E1710A4BA00ED580A /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
 		C6772A2F1710A4BA00ED580A /* OpenEmuBase */ = {

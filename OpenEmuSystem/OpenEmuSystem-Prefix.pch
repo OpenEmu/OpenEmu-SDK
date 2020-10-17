@@ -2,10 +2,6 @@
 // Prefix header for all source files of the 'OpenEmuSystem' target in the 'OpenEmuSystem' project
 //
 
-#ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
-#endif
-
 #define TODO(x)
 #define FIXME(x)
 #define NOTE(x)
