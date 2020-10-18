@@ -64,6 +64,11 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     if(self == [OEControllerDescription class])
     {
         NSString *identifierPath = [[NSBundle mainBundle] pathForResource:@"Controller-Database" ofType:@"plist"];
+        if (identifierPath == nil)
+        {
+            // Fallback to framework bundled version
+            identifierPath = [[NSBundle bundleForClass:OEControllerDescription.class] pathForResource:@"Controller-Database" ofType:@"plist"];
+        }
         NSDictionary *representations = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:identifierPath options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
 
         NSMutableDictionary<NSString *, NSDictionary *> *mappingReps = [NSMutableDictionary dictionaryWithCapacity:[representations count]];
