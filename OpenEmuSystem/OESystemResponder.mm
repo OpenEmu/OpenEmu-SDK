@@ -481,6 +481,12 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             SEND_ACTION2(fastForwardGameplay:, YES);
             [[self client] fastForward:YES];
             return;
+        case OEGlobalButtonIdentifierIncreaseGameSpeed :
+            [[self client] increaseGameSpeed];
+            return;
+        case OEGlobalButtonIdentifierDecreaseGameSpeed :
+            [[self client] decreaseGameSpeed];
+            return;
         case OEGlobalButtonIdentifierRewind :
             SEND_ACTION2(rewindGameplay:, YES);
             [[self client] rewind:YES];
@@ -550,6 +556,10 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             SEND_ACTION2(fastForwardGameplay:, NO);
             [[self client] fastForward:NO];
             return;
+        case OEGlobalButtonIdentifierIncreaseGameSpeed :
+            return;
+        case OEGlobalButtonIdentifierDecreaseGameSpeed :
+            return;
         case OEGlobalButtonIdentifierRewind :
             SEND_ACTION2(rewindGameplay:, NO);
             [[self client] rewind:NO];
@@ -599,6 +609,8 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             return;
 
         case OEGlobalButtonIdentifierFastForward :
+        case OEGlobalButtonIdentifierIncreaseGameSpeed :
+        case OEGlobalButtonIdentifierDecreaseGameSpeed :
         case OEGlobalButtonIdentifierRewind :
         case OEGlobalButtonIdentifierSaveState :
         case OEGlobalButtonIdentifierLoadState :

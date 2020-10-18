@@ -34,6 +34,8 @@
 
 - (void)fastForward:(BOOL)flag;
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
+- (void)increaseGameSpeed;
+- (void)decreaseGameSpeed;
 - (void)rewind:(BOOL)flag;
 - (void)rewindAtSpeed:(CGFloat)rewindSpeed;
 - (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;

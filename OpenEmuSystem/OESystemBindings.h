@@ -53,6 +53,8 @@ extern NSString *const OEGlobalButtonReset;
 extern NSString *const OEGlobalButtonPause;
 extern NSString *const OEGlobalButtonRewind;
 extern NSString *const OEGlobalButtonFastForward;
+extern NSString *const OEGlobalButtonIncreaseGameSpeed;
+extern NSString *const OEGlobalButtonDecreaseGameSpeed;
 extern NSString *const OEGlobalButtonSlowMotion;
 extern NSString *const OEGlobalButtonStepFrameBackward;
 extern NSString *const OEGlobalButtonStepFrameForward;
