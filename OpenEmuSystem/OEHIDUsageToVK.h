@@ -155,3 +155,5 @@ static const _OEHIDVirtualKeyCodeNameTriplet _OEHIDVirtualKeyCodesTable[] = {
     { kHIDUsage_KeyboardNonUSPound         , 0xFFFF                 , @"#"         },
     { kHIDUsage_KeyboardNonUSBackslash     , 0xFFFF                 , @"|"         },
 };
+
+#define _OEHIDVirtualKeyCodesTableLen (sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(_OEHIDVirtualKeyCodesTable[0]))

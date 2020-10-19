@@ -35,6 +35,50 @@
 #import "OEWiimoteHIDDeviceHandler.h"
 #import "OEHIDEvent_Internal.h"
 
+static _OEHIDVirtualKeyCodeNameTriplet const OEEmptyTriplet = { 0, 0xFFFF, nil };
+
+static _OEHIDVirtualKeyCodeNameTriplet const * OEHIDUsageToTriplet(NSUInteger ch)
+{
+    static _OEHIDVirtualKeyCodeNameTriplet const *codes[0xff];
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // initialize all entries to the empty triplet
+        memset_pattern8(codes, &OEEmptyTriplet, sizeof(codes));
+        
+        for (int i = 0; i < _OEHIDVirtualKeyCodesTableLen; i++)
+        {
+            __auto_type entry = &_OEHIDVirtualKeyCodesTable[i];
+            NSCAssert(entry->hidCode <= 0xff, @"Should be less than length of codes array");
+            codes[entry->hidCode] = entry;
+        }
+    });
+    
+    return ch <= 0xFF ? codes[ch] : &OEEmptyTriplet;
+}
+
+static _OEHIDVirtualKeyCodeNameTriplet const * OECGKeyCodeToTriplet(CGKeyCode ch)
+{
+    static _OEHIDVirtualKeyCodeNameTriplet const *codes[0xff];
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // initialize all entries to the empty triplet
+        memset_pattern8(codes, &OEEmptyTriplet, sizeof(codes));
+        
+        for (int i = 0; i < _OEHIDVirtualKeyCodesTableLen; i++)
+        {
+            __auto_type entry = &_OEHIDVirtualKeyCodesTable[i];
+            if (entry->vkCode == 0xFFFF) continue;
+            
+            NSCAssert(entry->vkCode <= 0xff, @"Should be less than length of codes array");
+            codes[entry->vkCode] = entry;
+        }
+    });
+    
+    return ch <= 0xFF ? codes[ch] : &OEEmptyTriplet;
+}
+
 const NSEventModifierFlags OENSEventModifierFlagFunctionKey = 1 << 24;
 
 static OEHIDEventType _OEHIDEventTypeFromIOHIDElementPageUsage(IOHIDElementRef elem, uint64_t page, uint64_t usage);
@@ -349,7 +393,6 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
 
 @implementation OEHIDEvent
 
-static NSDictionary *_hidKeyboardUsagesToVirtualKeyCodes;
 static CGEventSourceRef _keyboardEventSource;
 
 + (void)initialize
@@ -358,16 +401,6 @@ static CGEventSourceRef _keyboardEventSource;
         return;
 
     _keyboardEventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
-
-    NSUInteger tableSize = sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(*_OEHIDVirtualKeyCodesTable);
-    NSMutableDictionary *usageToVK = [NSMutableDictionary dictionary];
-
-    for (NSUInteger i = 0; i < tableSize; i++) {
-        _OEHIDVirtualKeyCodeNameTriplet triplet = _OEHIDVirtualKeyCodesTable[i];
-        usageToVK[@(triplet.hidCode)] = @(triplet.vkCode);
-    }
-
-    _hidKeyboardUsagesToVirtualKeyCodes = [usageToVK copy];
 }
 
 + (BOOL)supportsSecureCoding
@@ -377,24 +410,15 @@ static CGEventSourceRef _keyboardEventSource;
 
 + (NSUInteger)keyCodeForVirtualKey:(CGCharCode)charCode
 {
-    for(int i = 0; i < sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(*_OEHIDVirtualKeyCodesTable); ++i)
-        if(_OEHIDVirtualKeyCodesTable[i].vkCode == charCode)
-            return _OEHIDVirtualKeyCodesTable[i].hidCode;
-
-    return 0;
+    return OECGKeyCodeToTriplet(charCode)->hidCode;
 }
 
 + (NSString *)stringForHIDKeyCode:(NSUInteger)hidCode
 {
-    CGKeyCode keyCode = 0xFFFF;
-    for(int i = 0; i < sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(*_OEHIDVirtualKeyCodesTable); ++i)
-        if(_OEHIDVirtualKeyCodesTable[i].hidCode == hidCode)
-        {
-            keyCode = _OEHIDVirtualKeyCodesTable[i].vkCode;
-            if(_OEHIDVirtualKeyCodesTable[i].string != nil)
-                return _OEHIDVirtualKeyCodesTable[i].string;
-            break;
-        }
+    _OEHIDVirtualKeyCodeNameTriplet const *entry = OEHIDUsageToTriplet(hidCode);
+    if (entry->string != nil)
+        return entry->string;
+    CGKeyCode keyCode = entry->vkCode;
 
     TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource();
     CFDataRef uchr = (CFDataRef)TISGetInputSourceProperty(currentKeyboard, kTISPropertyUnicodeKeyLayoutData);
@@ -598,6 +622,8 @@ static CGEventSourceRef _keyboardEventSource;
     ret->_cookie = OEUndefinedCookie;
     ret->_data.key.keycode = keyCode;
     ret->_data.key.state = state;
+    CGKeyCode vk = OEHIDUsageToTriplet(keyCode)->vkCode;
+    ret->_keyboardEvent = CGEventCreateKeyboardEvent(_keyboardEventSource, vk, state);
 
     return ret;
 }
@@ -822,7 +848,7 @@ static CGEventSourceRef _keyboardEventSource;
         case OEHIDEventTypeKeyboard :
             _data.key.state = !!value;
             _data.key.isFunctionKeyPressed = aDeviceHandler.isFunctionKeyPressed;
-            _keyboardEvent = CGEventCreateKeyboardEvent(_keyboardEventSource, [_hidKeyboardUsagesToVirtualKeyCodes[@(_data.key.keycode)] unsignedShortValue], _data.key.state);
+            _keyboardEvent = CGEventCreateKeyboardEvent(_keyboardEventSource, OEHIDUsageToTriplet(_data.key.keycode)->vkCode, _data.key.state);
             break;
     }
 
