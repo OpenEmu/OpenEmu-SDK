@@ -29,13 +29,9 @@
 
 static NSString *const OEEventLocationXKey = @"OEEventLocationX";
 static NSString *const OEEventLocationYKey = @"OEEventLocationY";
-static NSString *const OEEventRealEventDataKey = @"OEEventRealEventData";
+static NSString *const OEEventTypeKey = @"OEEventType";
 
 @implementation OEEvent
-{
-    NSEvent    *_realEvent;
-    OEIntPoint  _location;
-}
 
 + (instancetype)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
 {
@@ -51,26 +47,11 @@ static NSString *const OEEventRealEventDataKey = @"OEEventRealEventData";
 {
     if((self = [super init]))
     {
-        _realEvent = anEvent;
-        _location  = aLocation;
+        _type = anEvent.type;
+        _locationInGameView = aLocation;
     }
 
     return self;
-}
-
-- (OEIntPoint)locationInGameView;
-{
-    return _location;
-}
-
-- (id)forwardingTargetForSelector:(SEL)aSelector
-{
-    return [_realEvent respondsToSelector:aSelector] ? _realEvent : nil;
-}
-
-- (NSEventType)type
-{
-    return [_realEvent type];
 }
 
 + (BOOL)supportsSecureCoding
@@ -83,21 +64,18 @@ static NSString *const OEEventRealEventDataKey = @"OEEventRealEventData";
     if (!(self = [super init]))
         return nil;
 
-    _location.x = [aDecoder decodeIntForKey:OEEventLocationXKey];
-    _location.y = [aDecoder decodeIntForKey:OEEventLocationYKey];
-
-    CGEventRef realCGEvent = CGEventCreateFromData(NULL, (__bridge CFDataRef)[aDecoder decodeObjectOfClass:[NSData class] forKey:OEEventRealEventDataKey]);
-    _realEvent = [NSEvent eventWithCGEvent:realCGEvent];
-    CFRelease(realCGEvent);
+    _locationInGameView.x = [aDecoder decodeIntForKey:OEEventLocationXKey];
+    _locationInGameView.y = [aDecoder decodeIntForKey:OEEventLocationYKey];
+    _type = [aDecoder decodeIntegerForKey:OEEventTypeKey];
 
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
-    [aCoder encodeInt:_location.x forKey:OEEventLocationXKey];
-    [aCoder encodeInt:_location.y forKey:OEEventLocationYKey];
-    [aCoder encodeObject:(__bridge_transfer NSData *)CGEventCreateData(NULL, _realEvent.CGEvent) forKey:OEEventRealEventDataKey];
+    [aCoder encodeInt:_locationInGameView.x forKey:OEEventLocationXKey];
+    [aCoder encodeInt:_locationInGameView.y forKey:OEEventLocationYKey];
+    [aCoder encodeInteger:_type forKey:OEEventTypeKey];
 }
 
 @end
