@@ -32,16 +32,16 @@
 
 @class OEDeviceHandler, OEHIDDeviceHandler, OEWiimoteHIDDeviceHandler;
 
-typedef enum _OEHIDEventType : NSUInteger {
+typedef NS_ENUM(NSUInteger, OEHIDEventType) {
     OEHIDEventTypeAxis      = 1,
     // Only for analogic triggers
     OEHIDEventTypeTrigger   = 5,
     OEHIDEventTypeButton    = 2,
     OEHIDEventTypeHatSwitch = 3,
 	OEHIDEventTypeKeyboard  = 4,
-} OEHIDEventType;
+};
 
-typedef enum _OEHIDAxis : NSUInteger {
+typedef NS_ENUM(NSUInteger, OEHIDEventAxis) {
     OEHIDEventAxisNone = 0x00,
     OEHIDEventAxisX    = 0x30,
     OEHIDEventAxisY    = 0x31,
@@ -51,21 +51,21 @@ typedef enum _OEHIDAxis : NSUInteger {
     OEHIDEventAxisRz   = 0x35,
     OEHIDEventAxisAccelerator = 0xC4,
     OEHIDEventAxisBrake = 0xC5,
-} OEHIDEventAxis;
+};
 
-typedef enum _OEHIDEventAxisDirection : NSInteger {
+typedef NS_CLOSED_ENUM(NSInteger, OEHIDEventAxisDirection) {
     OEHIDEventAxisDirectionNegative = -1,
     OEHIDEventAxisDirectionNull     =  0,
     OEHIDEventAxisDirectionPositive =  1
-} OEHIDEventAxisDirection;
+};
 
-typedef enum _OEHIDEventHatSwitchType : NSUInteger {
+typedef NS_ENUM(NSUInteger, OEHIDEventHatSwitchType) {
     OEHIDEventHatSwitchTypeUnknown,
     OEHIDEventHatSwitchType4Ways,
     OEHIDEventHatSwitchType8Ways
-} OEHIDEventHatSwitchType;
+};
 
-typedef enum _OEHIDEventHatDirection : NSUInteger {
+typedef NS_OPTIONS(NSUInteger, OEHIDEventHatDirection) {
     OEHIDEventHatDirectionNull      = 0,
     OEHIDEventHatDirectionNorth     = 1 << 0,
     OEHIDEventHatDirectionEast      = 1 << 1,
@@ -76,12 +76,12 @@ typedef enum _OEHIDEventHatDirection : NSUInteger {
     OEHIDEventHatDirectionSouthEast = OEHIDEventHatDirectionSouth | OEHIDEventHatDirectionEast,
     OEHIDEventHatDirectionNorthWest = OEHIDEventHatDirectionNorth | OEHIDEventHatDirectionWest,
     OEHIDEventHatDirectionSouthWest = OEHIDEventHatDirectionSouth | OEHIDEventHatDirectionWest
-} OEHIDEventHatDirection;
+};
 
-typedef enum _OEHIDEventState : NSInteger {
+typedef NS_CLOSED_ENUM(NSInteger, OEHIDEventState) {
     OEHIDEventStateOff,
     OEHIDEventStateOn
-} OEHIDEventState;
+};
 
 enum {
     OEUndefinedCookie = 0ULL,
