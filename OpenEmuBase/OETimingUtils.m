@@ -27,6 +27,7 @@
 #import "OETimingUtils.h"
 #import "OEGameCore.h"
 #import <mach/mach_time.h>
+#import "OELogging.h"
 
 static double mach_to_sec = 0;
 
@@ -171,7 +172,7 @@ BOOL OESetThreadRealtime(NSTimeInterval period, NSTimeInterval computation, NSTi
     assert(computation < .05);
     assert(computation < constraint);
 
-    DLog(@"RT policy: %fs (limit %fs) every %fs", computation, constraint, period);
+    os_log_info(OE_LOG_DEFAULT, "RT policy: %fs (limit %fs) every %fs", computation, constraint, period);
 
     ttcpolicy.period      = period / mach_to_sec;
     ttcpolicy.computation = computation / mach_to_sec;
@@ -182,7 +183,7 @@ BOOL OESetThreadRealtime(NSTimeInterval period, NSTimeInterval computation, NSTi
                          THREAD_TIME_CONSTRAINT_POLICY, (thread_policy_t)&ttcpolicy,
                          THREAD_TIME_CONSTRAINT_POLICY_COUNT) != KERN_SUCCESS)
     {
-        NSLog(@"OESetThreadRealtime() failed.");
+        os_log_error(OE_LOG_DEFAULT, "OESetThreadRealtime() failed.");
         return NO;
     }
 

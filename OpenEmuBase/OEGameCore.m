@@ -306,7 +306,7 @@ static Class GameCoreClass = Nil;
         NSTimeInterval timeOver = realTime - nextFrameTime;
         if(timeOver >= 1.0)
         {
-            DLog(@"Synchronizing because we are %g seconds behind", timeOver);
+            os_log_debug(OE_LOG_DEFAULT, "Synchronizing because we are %g seconds behind", timeOver);
             nextFrameTime = realTime;
         }
 
@@ -328,7 +328,7 @@ static Class GameCoreClass = Nil;
 {
     [_renderDelegate suspendFPSLimiting];
     shouldStop = YES;
-    DLog(@"Ending thread");
+    os_log_debug(OE_LOG_DEFAULT, "Ending thread");
     [self didStopEmulation];
 }
 
@@ -613,7 +613,7 @@ static Class GameCoreClass = Nil;
 
 - (void)setRate:(float)rate
 {
-    NSLog(@"Rate change %f -> %f", _rate, rate);
+    os_log_debug(OE_LOG_DEFAULT, "Rate change %f -> %f", _rate, rate);
 
     _rate = rate;
     [_renderDelegate setEnableVSync:_rate == 1]; // TODO: Remove this and enableVSync property when remote-layer lands
@@ -713,7 +713,8 @@ static Class GameCoreClass = Nil;
 {
     if(buffer == 0) return [self channelCount];
 
-    NSLog(@"Buffer count is greater than 1, must implement %@", NSStringFromSelector(_cmd));
+    os_log_error(OE_LOG_DEFAULT, "Buffer count is greater than 1, must implement %{public}@", NSStringFromSelector(_cmd));
+
     [self doesNotImplementSelector:_cmd];
     return 0;
 }
@@ -731,7 +732,8 @@ static Class GameCoreClass = Nil;
 {
     if(buffer == 0) return [self audioSampleRate];
 
-    NSLog(@"Buffer count is greater than 1, must implement %@", NSStringFromSelector(_cmd));
+    os_log_error(OE_LOG_DEFAULT, "Buffer count is greater than 1, must implement %{public}@", NSStringFromSelector(_cmd));
+
     [self doesNotImplementSelector:_cmd];
     return 0;
 }

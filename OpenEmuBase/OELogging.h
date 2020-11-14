@@ -30,3 +30,6 @@ extern os_log_t OE_LOG_CORE_RUN;
  */
 extern os_log_t OE_LOG_CORE_REWIND;
 
+/// Used for logging messages
+extern os_log_t OE_LOG_DEFAULT;
+
