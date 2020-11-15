@@ -208,8 +208,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (NSArray<NSArray<NSDictionary<NSString *, NSString *> *> *> *)OE_globalButtonsControlList
 {
-#define Button(_LABEL_, _DESCRIPTION_, _NAME_) @{                          \
-      OEControlListKeyLabelKey : NSLocalizedString(_LABEL_, _DESCRIPTION_),\
+#define Button(_LABEL_, _NAME_) @{                          \
+      OEControlListKeyLabelKey : _LABEL_,\
       OEControlListKeyNameKey : _NAME_,                                    \
       }
     static NSArray<NSArray<NSDictionary<NSString *, NSString *> *> *> *globalKeys;
@@ -217,43 +217,43 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     dispatch_once(&onceToken, ^{
         globalKeys = @[[[NSUserDefaults standardUserDefaults] boolForKey:OEPrefControlsShowAllGlobalKeys] ?
         // All available 'global' buttons
-        @[Button(@"Rapid Fire Toggle", @"Name of the global button to toggle rapid fire (turbo) mode", OEGlobalButtonRapidFireToggle),
-          Button(@"Rapid Fire Clear", @"Name of the global button to clear rapid fire (turbo) mode", OEGlobalButtonRapidFireClear),
-          Button(@"Rapid Fire Reset", @"Name of the global button to reset rapid fire (turbo) mode", OEGlobalButtonRapidFireReset),
-          Button(@"Save", @"Name of the global button to save a state", OEGlobalButtonSaveState),
-          Button(@"Load", @"Name of the global button to load a state", OEGlobalButtonLoadState),
-          Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
-          Button(@"Quick Load", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
-          Button(@"Fullscreen", @"Name of the global button to toggle fullscreen mode", OEGlobalButtonFullScreen),
-          Button(@"Mute", @"Name of the global button to toggle sound mute", OEGlobalButtonMute),
-          Button(@"Volume Down", @"Name of the global button to decrease the volume", OEGlobalButtonVolumeDown),
-          Button(@"Volume Up", @"Name of the global button to increase the volume", OEGlobalButtonVolumeUp),
-          Button(@"Stop", @"Name of the global button to stop emulation", OEGlobalButtonStop),
-          Button(@"Reset", @"Name of the global button to reset the emulation", OEGlobalButtonReset),
-          Button(@"Pause/Resume", @"Name of the global button to pause the emulation", OEGlobalButtonPause),
-          Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
-          Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
-          //Button(@"Slow Motion", @"Name of the global button to run the emulation in slow motion", OEGlobalButtonSlowMotion),
-          Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
-          Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
-          Button(@"Next Display Mode", @"Name of the global button to switch to the next display mode", OEGlobalButtonNextDisplayMode),
-          Button(@"Last Display Mode", @"Name of the global button to switch to the previous display mode", OEGlobalButtonLastDisplayMode),
-          Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
+        @[Button(@"Rapid Fire Toggle", OEGlobalButtonRapidFireToggle),
+          Button(@"Rapid Fire Clear", OEGlobalButtonRapidFireClear),
+          Button(@"Rapid Fire Reset", OEGlobalButtonRapidFireReset),
+          Button(@"Save", OEGlobalButtonSaveState),
+          Button(@"Load", OEGlobalButtonLoadState),
+          Button(@"Quick Save", OEGlobalButtonQuickSave),
+          Button(@"Quick Load", OEGlobalButtonQuickLoad),
+          Button(@"Fullscreen", OEGlobalButtonFullScreen),
+          Button(@"Mute", OEGlobalButtonMute),
+          Button(@"Volume Down", OEGlobalButtonVolumeDown),
+          Button(@"Volume Up", OEGlobalButtonVolumeUp),
+          Button(@"Stop", OEGlobalButtonStop),
+          Button(@"Reset", OEGlobalButtonReset),
+          Button(@"Pause/Resume", OEGlobalButtonPause),
+          Button(@"Rewind", OEGlobalButtonRewind),
+          Button(@"Fast Forward", OEGlobalButtonFastForward),
+          //Button(@"Slow Motion", OEGlobalButtonSlowMotion),
+          Button(@"Step Backward", OEGlobalButtonStepFrameBackward),
+          Button(@"Step Forward", OEGlobalButtonStepFrameForward),
+          Button(@"Next Display Mode", OEGlobalButtonNextDisplayMode),
+          Button(@"Last Display Mode", OEGlobalButtonLastDisplayMode),
+          Button(@"Screenshot", OEGlobalButtonScreenshot),
           ]
         : // Limited selection of global buttons
-        @[Button(@"Rapid Fire Toggle", @"Name of the global button to toggle rapid fire (turbo) mode", OEGlobalButtonRapidFireToggle),
-          Button(@"Rapid Fire Clear", @"Name of the global button to clear rapid fire (turbo) mode", OEGlobalButtonRapidFireClear),
-          Button(@"Quick Save", @"Name of the global button to do a quick save", OEGlobalButtonQuickSave),
-          Button(@"Quick Load", @"Name of the global button to load a quick save", OEGlobalButtonQuickLoad),
-          Button(@"Mute", @"Name of the global button to toggle sound mute", OEGlobalButtonMute),
-          Button(@"Pause/Resume", @"Name of the global button to pause the emulation", OEGlobalButtonPause),
-          Button(@"Rewind", @"Name of the global button to rewind the emulation", OEGlobalButtonRewind),
-          Button(@"Fast Forward", @"Name of the global button to fast foward the emulation", OEGlobalButtonFastForward),
-          Button(@"Step Backward", @"Name of the global button to step the emulation backward by one frame", OEGlobalButtonStepFrameBackward),
-          Button(@"Step Forward", @"Name of the global button to step the emulation forward by one frame", OEGlobalButtonStepFrameForward),
-          Button(@"Next Display Mode", @"Name of the global button to switch to the next display mode", OEGlobalButtonNextDisplayMode),
-          Button(@"Last Display Mode", @"Name of the global button to switch to the previous display mode", OEGlobalButtonLastDisplayMode),
-          Button(@"Screenshot", @"Name of the global button to take screenshot", OEGlobalButtonScreenshot),
+        @[Button(@"Rapid Fire Toggle", OEGlobalButtonRapidFireToggle),
+          Button(@"Rapid Fire Clear", OEGlobalButtonRapidFireClear),
+          Button(@"Quick Save", OEGlobalButtonQuickSave),
+          Button(@"Quick Load", OEGlobalButtonQuickLoad),
+          Button(@"Mute", OEGlobalButtonMute),
+          Button(@"Pause/Resume", OEGlobalButtonPause),
+          Button(@"Rewind", OEGlobalButtonRewind),
+          Button(@"Fast Forward", OEGlobalButtonFastForward),
+          Button(@"Step Backward", OEGlobalButtonStepFrameBackward),
+          Button(@"Step Forward", OEGlobalButtonStepFrameForward),
+          Button(@"Next Display Mode", OEGlobalButtonNextDisplayMode),
+          Button(@"Last Display Mode", OEGlobalButtonLastDisplayMode),
+          Button(@"Screenshot", OEGlobalButtonScreenshot),
           ]];
     });
 
@@ -283,11 +283,8 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
     _controllerKeyPositions = [converted copy];
     _controlPageList = @[
-        NSLocalizedString(@"Gameplay Buttons", @"Title of the gameplay buttons section in controller keys."),
-        [[_bundle infoDictionary] objectForKey:OEControlListKey],
-
-        NSLocalizedString(@"Special Keys", @"Title of the global buttons section in controller keys."),
-        [self OE_globalButtonsControlList],
+        @"Gameplay Buttons", [_bundle.infoDictionary objectForKey:OEControlListKey],
+        @"Special Keys", [self OE_globalButtonsControlList],
     ];
 }
 
