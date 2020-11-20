@@ -33,7 +33,7 @@
 
 extern NSString *const OECUESheetErrorDomain;
 
-NS_ENUM(NSInteger) {
+NS_ERROR_ENUM(OECUESheetErrorDomain) {
     OECUESheetNoFileNameFoundError = -1,
     OECUESheetInvalidFileFormatError = -2,
     OECUESheetInvalidQuotationMarkError = -3,

@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const OEDiscDescriptorErrorDomain;
 
-NS_ENUM(NSInteger) {
+NS_ERROR_ENUM(OEDiscDescriptorErrorDomain) {
     OEDiscDescriptorUnreadableFileError = -1,
     OEDiscDescriptorMissingFilesError = -2,
     OEDiscDescriptorNotPlainTextFileError = -3,
