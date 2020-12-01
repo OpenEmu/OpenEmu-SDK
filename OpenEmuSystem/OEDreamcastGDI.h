@@ -29,7 +29,7 @@
 
 extern NSString *const OEDreamcastGDIErrorDomain;
 
-NS_ERROR_ENUM(OEDreamcastGDIErrorDomain) {
+typedef NS_ERROR_ENUM(OEDreamcastGDIErrorDomain, OEDreamcastGDIErrors) {
     OEDreamcastGDINoFileNameFoundError = -1,
     OEDreamcastGDIInvalidFileCountError = -2,
     };
