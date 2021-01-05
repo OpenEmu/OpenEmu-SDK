@@ -44,7 +44,8 @@ static _OEHIDVirtualKeyCodeNameTriplet const * OEHIDUsageToTriplet(NSUInteger ch
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         // initialize all entries to the empty triplet
-        memset_pattern8(codes, &OEEmptyTriplet, sizeof(codes));
+        __auto_type val = &OEEmptyTriplet;
+        memset_pattern8(codes, &val, sizeof(codes));
         
         for (int i = 0; i < _OEHIDVirtualKeyCodesTableLen; i++)
         {
@@ -64,7 +65,8 @@ static _OEHIDVirtualKeyCodeNameTriplet const * OECGKeyCodeToTriplet(CGKeyCode ch
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         // initialize all entries to the empty triplet
-        memset_pattern8(codes, &OEEmptyTriplet, sizeof(codes));
+        __auto_type val = &OEEmptyTriplet;
+        memset_pattern8(codes, &val, sizeof(codes));
         
         for (int i = 0; i < _OEHIDVirtualKeyCodesTableLen; i++)
         {
