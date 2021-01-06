@@ -154,6 +154,9 @@ static const _OEHIDVirtualKeyCodeNameTriplet _OEHIDVirtualKeyCodesTable[] = {
     { OEHIDUsage_KeyboardFunctionKey       , kVK_Function           , @"Fn"        },
     { kHIDUsage_KeyboardNonUSPound         , 0xFFFF                 , @"#"         },
     { kHIDUsage_KeyboardNonUSBackslash     , 0xFFFF                 , @"|"         },
+    { kHIDUsage_KeyboardLANG1              , kVK_JIS_Kana           , @"かな" },
+    { kHIDUsage_KeyboardLANG2              , kVK_JIS_Eisu           , @"英数" },
+    { kHIDUsage_KeyboardInternational3     , kVK_JIS_Yen            , @"¥"   },
 };
 
 #define _OEHIDVirtualKeyCodesTableLen (sizeof(_OEHIDVirtualKeyCodesTable) / sizeof(_OEHIDVirtualKeyCodesTable[0]))
