@@ -26,24 +26,29 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum _OERegion
-{
-	OERegionNA,
-	OERegionJAP,
-	OERegionEU,
-	OERegionOther
-} OERegion;
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, OERegion) {
+    OERegionNA NS_SWIFT_NAME(na),
+    OERegionJAP NS_SWIFT_NAME(jpn),
+    OERegionEU NS_SWIFT_NAME(eu),
+    OERegionOther
+};
 
 extern NSString *const OERegionKey;
 
 @interface OELocalizationHelper : NSObject
-+ (OELocalizationHelper *)sharedHelper;
+
+@property(class, readonly) OELocalizationHelper *sharedHelper;
 
 @property OERegion region;
 
-- (BOOL)isRegionNA;
-- (BOOL)isRegionEU;
-- (BOOL)isRegionJAP;
+@property(readonly) NSString *regionName;
 
-- (NSString *)regionName;
+@property(readonly) BOOL isRegionNA NS_SWIFT_UNAVAILABLE("Use 'region == .na' instead");
+@property(readonly) BOOL isRegionEU NS_SWIFT_UNAVAILABLE("Use 'region == .eu' instead");
+@property(readonly) BOOL isRegionJAP NS_SWIFT_UNAVAILABLE("Use 'region == .jpn' instead");
+
 @end
+
+NS_ASSUME_NONNULL_END
