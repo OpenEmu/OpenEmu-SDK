@@ -54,8 +54,6 @@
 		C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A6B1710BD6200ED580A /* TPCircularBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A7A1710BD6200ED580A /* OETimingUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A6C1710BD6200ED580A /* OETimingUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772A7B1710BD6200ED580A /* OETimingUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772A6D1710BD6200ED580A /* OETimingUtils.m */; };
-		C6772A821710C6D100ED580A /* NSString+UUID.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772A801710C6D100ED580A /* NSString+UUID.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C6772A831710C6D100ED580A /* NSString+UUID.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772A811710C6D100ED580A /* NSString+UUID.m */; };
 		C6772B781710E21900ED580A /* OpenEmuSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6B1710E21800ED580A /* OpenEmuSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B791710E21900ED580A /* OESystemController.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772B6C1710E21800ED580A /* OESystemController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772B7A1710E21900ED580A /* OESystemController.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772B6D1710E21900ED580A /* OESystemController.m */; };
@@ -186,8 +184,6 @@
 		C6772A6B1710BD6200ED580A /* TPCircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPCircularBuffer.h; sourceTree = "<group>"; };
 		C6772A6C1710BD6200ED580A /* OETimingUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OETimingUtils.h; sourceTree = "<group>"; };
 		C6772A6D1710BD6200ED580A /* OETimingUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OETimingUtils.m; sourceTree = "<group>"; };
-		C6772A801710C6D100ED580A /* NSString+UUID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+UUID.h"; sourceTree = "<group>"; };
-		C6772A811710C6D100ED580A /* NSString+UUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+UUID.m"; sourceTree = "<group>"; };
 		C6772A8C1710CD7E00ED580A /* OpenEmuSystem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuSystem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6772A901710CD7E00ED580A /* OpenEmuSystem-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenEmuSystem-Info.plist"; sourceTree = "<group>"; };
 		C6772A941710CD7E00ED580A /* OpenEmuSystem-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpenEmuSystem-Prefix.pch"; sourceTree = "<group>"; };
@@ -331,8 +327,6 @@
 				C6772A6B1710BD6200ED580A /* TPCircularBuffer.h */,
 				C6772A6C1710BD6200ED580A /* OETimingUtils.h */,
 				C6772A6D1710BD6200ED580A /* OETimingUtils.m */,
-				C6772A801710C6D100ED580A /* NSString+UUID.h */,
-				C6772A811710C6D100ED580A /* NSString+UUID.m */,
 				27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */,
 				27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */,
 				8363A433193CA52400F18425 /* OEGeometry.h */,
@@ -505,7 +499,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C6772A6E1710BD6200ED580A /* OpenEmuBase.h in Headers */,
-				C6772A821710C6D100ED580A /* NSString+UUID.h in Headers */,
 				C6772A721710BD6200ED580A /* OEAbstractAdditions.h in Headers */,
 				C6772A701710BD6200ED580A /* OEGameCore.h in Headers */,
 				C6772A741710BD6200ED580A /* OEGameCoreController.h in Headers */,
@@ -712,7 +705,6 @@
 				C6772A781710BD6200ED580A /* TPCircularBuffer.c in Sources */,
 				01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */,
 				C6772A7B1710BD6200ED580A /* OETimingUtils.m in Sources */,
-				C6772A831710C6D100ED580A /* NSString+UUID.m in Sources */,
 				05FF41B822B08C5F00BB7283 /* OELogging.m in Sources */,
 				0518D6DD24F17C6E0037101D /* OEGeometry.m in Sources */,
 			);

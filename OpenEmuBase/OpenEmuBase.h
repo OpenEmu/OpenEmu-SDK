@@ -30,7 +30,6 @@
 #error OEGameCores will probably not function without ARC
 #endif
 
-#import <OpenEmuBase/NSString+UUID.h>
 #import <OpenEmuBase/NSDictionary+OpenEmuSDK.h>
 #import <OpenEmuBase/OEAbstractAdditions.h>
 #import <OpenEmuBase/OEGameCore.h>
