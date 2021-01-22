@@ -801,6 +801,16 @@ static Class GameCoreClass = Nil;
     block(NO, [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreCouldNotLoadROMError userInfo:nil]);
 }
 
+#pragma mark - Avdanced Menu
+- (NSArray <NSDictionary <NSString *, id> *> *)advancedMenu
+{
+    return nil;
+}
+
+- (void)changeAdvancedMenuOption:(NSString *)advancedMenu menuID:(NSString *)menuID
+{
+}
+
 #pragma mark - Display Mode
 
 - (NSArray <NSDictionary <NSString *, id> *> *)displayModes

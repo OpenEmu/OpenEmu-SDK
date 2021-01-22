@@ -470,6 +470,10 @@ OE_EXPORTED_CLASS
 
 - (void)insertFileAtURL:(NSURL *)file completionHandler:(void(^)(BOOL success, NSError *error))block;
 
+#pragma mark - Advanced Menu - Optional
+@property(readonly) NSArray <NSDictionary <NSString *, id> *> *advancedMenu;
+- (void)changeAdvancedMenuOption:(NSString *)advancedMenu menuID:(NSString *)menuID;
+
 #pragma mark - Display Mode - Optional
 
 /** An array describing the available display mode options and the
