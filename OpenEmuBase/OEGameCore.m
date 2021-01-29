@@ -801,14 +801,10 @@ static Class GameCoreClass = Nil;
     block(NO, [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreCouldNotLoadROMError userInfo:nil]);
 }
 
-#pragma mark - Avdanced Menu
-- (NSArray <NSDictionary <NSString *, id> *> *)advancedMenu
+#pragma mark - Core Preferences
+- (NSArray <NSDictionary <NSString *, id> *> *)corePreferences
 {
     return nil;
-}
-
-- (void)changeAdvancedMenuOption:(NSString *)advancedMenu menuID:(NSString *)menuID
-{
 }
 
 #pragma mark - Display Mode
@@ -820,6 +816,125 @@ static Class GameCoreClass = Nil;
 
 - (void)changeDisplayWithMode:(NSString *)displayMode
 {
+}
+
+
+# pragma mark - Core Preferences
+
+- (void)changePreferenceOption:(NSString *)preferenceName prefGroupID:(NSString *)prefGroupID
+{
+    if (self.corePreferences.count == 0)
+        [self corePreferences];
+
+    // First check if Menu Option is toggleable and grab its preference key
+    BOOL isPrefToggleable = NO;
+    BOOL isValidPref = NO;
+    BOOL menuState = NO;
+    NSString *preferencePrefKey;
+    NSString *prefGroupIDKey;
+
+    for (NSDictionary *prefDict in self.corePreferences)
+    {
+        if (prefDict[OEPreferenceGroupNameKey]){
+            NSDictionary *groupDict = [self findPreferenceGroup:prefDict prefName:preferenceName prefGroupID:prefGroupID];
+            if (groupDict){
+                menuState = [groupDict[OEPreferenceStateKey] boolValue];
+                preferencePrefKey = groupDict[OEPreferencePrefKeyNameKey];
+                prefGroupIDKey = groupDict[OEPreferenceGroupIDKey];
+                isPrefToggleable = [groupDict[OEPreferenceAllowsToggleKey] boolValue];
+                isValidPref = YES;
+                break;
+            }
+        }
+        if ([prefDict[OEPreferenceNameKey] isEqualToString:preferenceName])
+        {
+            if ([prefDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
+            {
+                menuState = [prefDict[OEPreferenceStateKey] boolValue];
+                preferencePrefKey = prefDict[OEPreferencePrefKeyNameKey];
+                prefGroupIDKey = prefDict[OEPreferenceGroupIDKey];
+                isPrefToggleable = [prefDict[OEPreferenceAllowsToggleKey] boolValue];
+                isValidPref = YES;
+                break;
+            }
+        }
+    }
+
+    if (!isValidPref)
+        return;
+    
+    // Handle option state changes
+    for (NSMutableDictionary *prefDict in self.corePreferences)
+    {
+        if (prefDict[OEPreferenceGroupNameKey]){
+            [self processPreferenceGroup:prefDict prefName:preferenceName prefGroupID:prefGroupID menuState:menuState preferencePrefKey:preferencePrefKey prefToggle:isPrefToggleable];
+        }
+    }
+
+    //send the prefName and prefGroupID for actions to be taken
+    [self preferenceAction:preferenceName prefGroupID:prefGroupID];
+}
+
+- (void) processPreferenceGroup:(NSMutableDictionary *)parentGroupDict prefName:(NSString *)prefName prefGroupID:(NSString *)prefGroupID menuState:(BOOL)menuState preferencePrefKey:(NSString *)preferencePrefKey prefToggle:(BOOL)prefToggle;
+{
+    for (NSMutableDictionary *curGroupDict in parentGroupDict[OEPreferenceGroupItemsKey])
+    {
+        //This function iterates through the preference items and sets the option and clears others in the same prefs group or toggles the preference item
+        NSString *curGroupID = curGroupDict[OEPreferenceGroupIDKey];
+        
+        if (curGroupDict[OEPreferenceGroupNameKey]){
+            [self processPreferenceGroup:curGroupDict prefName:prefName prefGroupID:prefGroupID menuState:menuState preferencePrefKey:preferencePrefKey prefToggle:prefToggle];
+        }
+        else if ( [curGroupID isEqualToString:prefGroupID] ){
+            NSString *curPrefName = curGroupDict[OEPreferenceNameKey];
+            NSString *curPrefKey  = curGroupDict[OEPreferencePrefKeyNameKey];
+            
+            if (!curPrefName)
+                continue;
+            // Mutually exclusive option state change
+            else if ([curPrefName isEqualToString:prefName] && !prefToggle)
+                curGroupDict[OEPreferenceStateKey] = @YES;
+            // Reset mutually exclusive options that are the same prefs group
+            else if (!prefToggle && [curPrefKey isEqualToString:preferencePrefKey])
+                curGroupDict[OEPreferenceStateKey] = @NO;
+            // Toggleable option state change
+            else if ([curPrefName isEqualToString:prefName]  && prefToggle)
+                curGroupDict[OEPreferenceStateKey] = @(!menuState);
+        }
+    }
+}
+
+- (NSDictionary *) findPreferenceGroup:(NSDictionary *)parentGroupDict prefName:(NSString *)prefName prefGroupID:(NSString *)prefGroupID
+{
+    //This function iterates through the preference items and returns the dictionary item if found
+    NSDictionary *testGroupDict;
+    
+    for (NSDictionary *groupDict in parentGroupDict[OEPreferenceGroupItemsKey])
+    {
+        if (groupDict[OEPreferenceGroupNameKey])
+        {
+            testGroupDict = [self findPreferenceGroup:groupDict prefName:prefName prefGroupID:prefGroupID];
+            
+            if (testGroupDict)
+            {
+                if ([testGroupDict[OEPreferenceNameKey] isEqualToString:prefName])
+                {
+                    if ([testGroupDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
+                    {
+                        return testGroupDict;
+                    }
+                }
+            }
+        }
+        if ([groupDict[OEPreferenceNameKey] isEqualToString:prefName])
+        {
+            if ([groupDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
+            {
+                return groupDict;
+            }
+        }
+    }
+    return nil;
 }
 
 @end

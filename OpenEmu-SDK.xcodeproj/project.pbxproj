@@ -28,7 +28,7 @@
 		05FF41B922B08C5F00BB7283 /* OELogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 05FF41B722B08C5F00BB7283 /* OELogging.h */; };
 		27FC95181A92F12700CF1DC6 /* OEDiffQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		27FC95191A92F12700CF1DC6 /* OEDiffQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = 27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */; };
-		5F7918AC25B8B087000B0900 /* OEGameCoreAdvancedMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7918AB25B8B087000B0900 /* OEGameCoreAdvancedMenu.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5F7918AC25B8B087000B0900 /* OEPreferences.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F7918AB25B8B087000B0900 /* OEPreferences.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8363A434193CA52400F18425 /* OEGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 8363A433193CA52400F18425 /* OEGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		878203EA21C4A09900C1C2C9 /* OEDreamcastGDI.h in Headers */ = {isa = PBXBuildFile; fileRef = 878203E821C4A09800C1C2C9 /* OEDreamcastGDI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		878203EB21C4A09900C1C2C9 /* OEDreamcastGDI.m in Sources */ = {isa = PBXBuildFile; fileRef = 878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */; };
@@ -158,7 +158,7 @@
 		05FF41B722B08C5F00BB7283 /* OELogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OELogging.h; sourceTree = "<group>"; };
 		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
 		27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OEDiffQueue.mm; sourceTree = "<group>"; };
-		5F7918AB25B8B087000B0900 /* OEGameCoreAdvancedMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGameCoreAdvancedMenu.h; sourceTree = "<group>"; };
+		5F7918AB25B8B087000B0900 /* OEPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEPreferences.h; sourceTree = "<group>"; };
 		8363A433193CA52400F18425 /* OEGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGeometry.h; sourceTree = "<group>"; };
 		878203E821C4A09800C1C2C9 /* OEDreamcastGDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDreamcastGDI.h; sourceTree = "<group>"; };
 		878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDreamcastGDI.m; sourceTree = "<group>"; };
@@ -315,7 +315,7 @@
 		C6772A2F1710A4BA00ED580A /* OpenEmuBase */ = {
 			isa = PBXGroup;
 			children = (
-				5F7918AB25B8B087000B0900 /* OEGameCoreAdvancedMenu.h */,
+				5F7918AB25B8B087000B0900 /* OEPreferences.h */,
 				C6772A601710BD6200ED580A /* OpenEmuBase.h */,
 				C6772A611710BD6200ED580A /* OESystemResponderClient.h */,
 				C6772A621710BD6200ED580A /* OEGameCore.h */,
@@ -522,7 +522,7 @@
 				011FAED42325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h in Headers */,
 				C6772A791710BD6200ED580A /* TPCircularBuffer.h in Headers */,
 				C6772A7A1710BD6200ED580A /* OETimingUtils.h in Headers */,
-				5F7918AC25B8B087000B0900 /* OEGameCoreAdvancedMenu.h in Headers */,
+				5F7918AC25B8B087000B0900 /* OEPreferences.h in Headers */,
 				05FF41B922B08C5F00BB7283 /* OELogging.h in Headers */,
 				013D75CD23BD25CB00D74AD3 /* OEGameCoreDisplayModes.h in Headers */,
 			);

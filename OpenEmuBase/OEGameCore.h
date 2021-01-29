@@ -187,6 +187,7 @@ OE_EXPORTED_CLASS
  *    after that. Therefore, it is not strictly necessary for the core to keep
  *    this property updated. */
 @property(nonatomic, copy)     NSDictionary <NSString *, id> *displayModeInfo;
+@property(nonatomic, copy)     NSMutableArray <NSMutableDictionary <NSString *, id> *> *corePreferences;
 
 #pragma mark - Starting
 
@@ -470,9 +471,12 @@ OE_EXPORTED_CLASS
 
 - (void)insertFileAtURL:(NSURL *)file completionHandler:(void(^)(BOOL success, NSError *error))block;
 
-#pragma mark - Advanced Menu - Optional
-@property(readonly) NSArray <NSDictionary <NSString *, id> *> *advancedMenu;
-- (void)changeAdvancedMenuOption:(NSString *)advancedMenu menuID:(NSString *)menuID;
+#pragma mark - Core Preferences - Optional
+@property(readonly) NSArray <NSDictionary <NSString *, id> *> *corePreferences;
+
+- (void)changePreferenceOption:(NSString *)corePreference prefGroupID:(NSString *)prefGroupID;
+
+- (void)preferenceAction:(NSString *)preferenceName prefGroupID:(NSString *)prefGroupID;
 
 #pragma mark - Display Mode - Optional
 

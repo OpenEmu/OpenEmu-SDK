@@ -25,7 +25,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import <OpenEmuBase/OEGameCoreAdvancedMenu.h>
+#import <OpenEmuBase/OEPreferences.h>
 #import <OpenEmuBase/OEGameCoreDisplayModes.h>
 
 extern NSString *const OEAdvancedPreferenceKey;
@@ -61,7 +61,7 @@ extern NSString *const OEGameCoreSupportsRewindingKey;
 extern NSString *const OEGameCoreRewindIntervalKey;
 extern NSString *const OEGameCoreRewindBufferSecondsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
-extern NSString *const OEGameCoreSupportsAdvancedMenuKey;
+extern NSString *const OEGameCoreSupportsPreferencesKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
@@ -91,7 +91,7 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 - (BOOL)supportsMultipleDiscsForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)supportsRewindingForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)supportsFileInsertionForSystemIdentifier:(NSString *)systemIdentifier;
-- (BOOL)supportsAdvancedMenuForSystemIdentifier:(NSString *)systemIdentifier;
+- (BOOL)supportsPreferencesForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)supportsDisplayModeChangeForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindBufferSecondsForSystemIdentifier:(NSString *)systemIdentifier;
