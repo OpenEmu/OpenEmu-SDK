@@ -29,9 +29,12 @@
 
 
 /*
- * Keys for AdvanceMenu Entries.
+ * Keys for  Entries.
  */
- 
+
+/** NSString holds the Preference Type ID  i.e.  slider, option, toggle....*/
+#define OEPreferenceTypeKey @"OEPreferenceTypeKey"
+
 /* Groups (submenus) */
 
 /** This NSString will be used as the Title for the Group*/
@@ -42,7 +45,6 @@
 
 /** An NSArray of NSDictionaries containing the entries in the group. */
 #define OEPreferenceGroupItemsKey @"OEPreferenceGroupItemsKey"
-
 
 /* Binary (toggleable) and Mutually-Exclusive Display Modes */
 
@@ -82,19 +84,16 @@
 #define OEPreferenceMinKey @"OEPreferenceMinKey"
 #define OEPreferenceMaxKey @"OEPreferenceMaxKey"
 #define OEPreferenceDefaultValKey @"OEPreferenceDefaultValKey"
-/* Labels & Separators */
 
+/* Labels & Separators */
 /** Separator only. Present if this item is a separator. Value does not matter. */
 #define OEPreferenceSeparatorItemKey @"OEPreferenceSeparatorItemKey"
 /** Label only. The NSString which will be shown in the Display Mode menu for this label. */
 #define OEPreferenceLabelKey @"OEPreferenceLabelKey"
 
 /* Other Keys */
-
 /** An NSNumber specifying the level of indentation of this item. */
 #define OEPreferenceIndentationLevelKey @"OEPreferenceIndentationLevelKey"
-
-
 
 /*
  * Utility macros
@@ -103,6 +102,7 @@
 #define OEPreference_OptionWithValue(_NAME_, _ID_, _PREFKEY_, _VAL_) OEPreference_OptionWithStateValue(_NAME_, _ID_, _PREFKEY_, @NO, _VAL_)
 #define OEPreference_OptionDefaultWithValue(_NAME_, _PREFKEY_, _VAL_) OEPreference_OptionWithStateValue(_NAME_, _ID_, _PREFKEY_, @YES, _VAL_)
 #define OEPreference_OptionWithStateValue(_NAME_, _ID_, _PREFKEY_, _STATE_, _VAL_) @{ \
+    OEPreferenceTypeKey : @"Option", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
@@ -112,6 +112,7 @@
 #define OEPreference_Option(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionWithState(_NAME_, _ID_, _PREFKEY_, @NO)
 #define OEPreference_OptionDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionWithState(_NAME_, _ID_, _PREFKEY_, @YES)
 #define OEPreference_OptionWithState(_NAME_, _ID_, _PREFKEY_, _STATE_) @{ \
+    OEPreferenceTypeKey : @"Option", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
@@ -120,6 +121,7 @@
 #define OEPreference_OptionIndented(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionIndentedWithState(_NAME_, _ID_, _PREFKEY_, @NO)
 #define OEPreference_OptionIndentedDefault(_NAME_, _ID_,  _PREFKEY_) OEPreference_OptionIndentedWithState(_NAME_, _ID_,  _PREFKEY_, @YES)
 #define OEPreference_OptionIndentedWithState(_NAME_, _ID_, _PREFKEY_, _STATE_) @{ \
+    OEPreferenceTypeKey : @"Option", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
@@ -129,6 +131,7 @@
 #define OEPreference_OptionManual(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionManualWithState(_NAME_, _ID_, _PREFKEY_, @NO)
 #define OEPreference_OptionManualDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionManualWithState(_NAME_, _ID_, _PREFKEY_, @YES)
 #define OEPreference_OptionManualWithState(_NAME_, _ID_, _PREFKEY_, _STATE_) @{ \
+    OEPreferenceTypeKey : @"Option", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
@@ -138,6 +141,7 @@
 #define OEPreference_Toggle(_NAME_, _ID_,  _PREFKEY_) \OEPreference_ToggleWithState(_NAME_, _ID_, @NO)
 #define OEPreference_ToggleDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_ToggleWithState(_NAME_, _ID_, @YES)
 #define OEPreference_ToggleWithState(_NAME_, _ID_, _STATE_) @{ \
+    OEPreferenceTypeKey : @"Toggle", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferenceStateKey : _STATE_, \
@@ -146,6 +150,7 @@
 #define OEPreference_ToggleNoSave(_NAME_, _ID_) OEPreference_ToggleNoSaveWithState(_NAME_, _ID_, @NO)
 #define OEPreference_ToggleNoSaveDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_ToggleNoSaveWithState(_NAME_, _ID_, @YES)
 #define OEPreference_TogglNoSaveWithState(_NAME_, _ID_, _STATE_) @{ \
+    OEPreferenceTypeKey : @"Toggle", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferenceStateKey : _STATE_, \
@@ -155,6 +160,7 @@
 #define OEPreference_SliderWithMinVal(_NAME_, _ID_, _MIN_, _MAX_) OEPreference_SliderWithSetVal(_NAME_, _ID_, _MIN_, _MAX_, _MIN_)
 #define OEPreference_SliderWithMaxVal(_NAME_, _ID_, _MIN_, _MAX_) OEPreference_SliderWithSetVal(_NAME_, _ID_, _MIN_, _MAX_, _MAX_)
 #define OEPreference_SliderWithSetVal(_NAME_, _ID_, _MIN_, _MAX_, _VAL_) @{ \
+    OEPreferenceTypeKey : @"Slider", \
     OEPreferenceNameKey : _NAME_, \
     OEPreferenceIDKey : _ID_, \
     OEPreferenceMinKey : _MIN_, \
@@ -162,9 +168,11 @@
     OEPreferenceDefaultValKey : _VAL_ }
 
 #define OEPreference_Label(_NAME_) @{ \
+    OEPreferenceTypeKey : @"Label", \
     OEPreferenceLabelKey : _NAME_ }
 
 #define OEPreference_SeparatorItem() @{ \
+    OEPreferenceTypeKey : @"Seperator", \
     OEPreferenceSeparatorItemKey : @"" }
 
 #define OEPreference_Submenu(_NAME_, ...) @{ \
