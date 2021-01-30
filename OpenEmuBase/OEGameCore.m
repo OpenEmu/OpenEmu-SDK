@@ -821,42 +821,45 @@ static Class GameCoreClass = Nil;
 
 # pragma mark - Core Preferences
 
-- (void)changePreferenceOption:(NSString *)preferenceName prefGroupID:(NSString *)prefGroupID
+- (void)changePreferenceOption:(NSString *)preferenceID prefGroupID:(NSString *)prefGroupID
 {
     if (self.corePreferences.count == 0)
         [self corePreferences];
 
-    // First check if Menu Option is toggleable and grab its preference key
+    // First check if Preference is toggleable and grab its preference key
     BOOL isPrefToggleable = NO;
     BOOL isValidPref = NO;
-    BOOL menuState = NO;
+    BOOL prefState = NO;
     NSString *preferencePrefKey;
+    NSString *preferenceName;
     NSString *prefGroupIDKey;
 
     for (NSDictionary *prefDict in self.corePreferences)
     {
         if (prefDict[OEPreferenceGroupNameKey]){
-            NSDictionary *groupDict = [self findPreferenceGroup:prefDict prefName:preferenceName prefGroupID:prefGroupID];
+            NSDictionary *groupDict = [self findPreferenceGroup:prefDict preferenceID:preferenceID prefGroupID:prefGroupID];
             if (groupDict){
-                menuState = [groupDict[OEPreferenceStateKey] boolValue];
+                prefState = [groupDict[OEPreferenceStateKey] boolValue];
                 preferencePrefKey = groupDict[OEPreferencePrefKeyNameKey];
+                preferenceName = groupDict[OEPreferenceNameKey];
                 prefGroupIDKey = groupDict[OEPreferenceGroupIDKey];
                 isPrefToggleable = [groupDict[OEPreferenceAllowsToggleKey] boolValue];
                 isValidPref = YES;
                 break;
             }
         }
-        if ([prefDict[OEPreferenceNameKey] isEqualToString:preferenceName])
+        if ([prefDict[OEPreferenceIDKey] isEqualToString:preferenceID])
         {
-            if ([prefDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
-            {
-                menuState = [prefDict[OEPreferenceStateKey] boolValue];
+//            if ([prefDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
+//            {
+                prefState = [prefDict[OEPreferenceStateKey] boolValue];
                 preferencePrefKey = prefDict[OEPreferencePrefKeyNameKey];
+                preferenceName = prefDict[OEPreferenceNameKey];
                 prefGroupIDKey = prefDict[OEPreferenceGroupIDKey];
                 isPrefToggleable = [prefDict[OEPreferenceAllowsToggleKey] boolValue];
                 isValidPref = YES;
                 break;
-            }
+//            }
         }
     }
 
@@ -867,15 +870,15 @@ static Class GameCoreClass = Nil;
     for (NSMutableDictionary *prefDict in self.corePreferences)
     {
         if (prefDict[OEPreferenceGroupNameKey]){
-            [self processPreferenceGroup:prefDict prefName:preferenceName prefGroupID:prefGroupID menuState:menuState preferencePrefKey:preferencePrefKey prefToggle:isPrefToggleable];
+            [self processPreferenceGroup:prefDict preferenceID:preferenceID prefGroupID:prefGroupID prefState:prefState preferencePrefKey:preferencePrefKey prefToggle:isPrefToggleable];
         }
     }
 
     //send the prefName and prefGroupID for actions to be taken
-    [self preferenceAction:preferenceName prefGroupID:prefGroupID];
+    [self preferenceAction:preferenceName preferenceID:preferenceID preferenceGroupID:prefGroupID];
 }
 
-- (void) processPreferenceGroup:(NSMutableDictionary *)parentGroupDict prefName:(NSString *)prefName prefGroupID:(NSString *)prefGroupID menuState:(BOOL)menuState preferencePrefKey:(NSString *)preferencePrefKey prefToggle:(BOOL)prefToggle;
+- (void) processPreferenceGroup:(NSMutableDictionary *)parentGroupDict preferenceID:(NSString *)preferenceID prefGroupID:(NSString *)prefGroupID prefState:(BOOL)prefState preferencePrefKey:(NSString *)preferencePrefKey prefToggle:(BOOL)prefToggle;
 {
     for (NSMutableDictionary *curGroupDict in parentGroupDict[OEPreferenceGroupItemsKey])
     {
@@ -883,28 +886,29 @@ static Class GameCoreClass = Nil;
         NSString *curGroupID = curGroupDict[OEPreferenceGroupIDKey];
         
         if (curGroupDict[OEPreferenceGroupNameKey]){
-            [self processPreferenceGroup:curGroupDict prefName:prefName prefGroupID:prefGroupID menuState:menuState preferencePrefKey:preferencePrefKey prefToggle:prefToggle];
+            [self processPreferenceGroup:curGroupDict preferenceID:preferenceID prefGroupID:prefGroupID prefState:prefState preferencePrefKey:preferencePrefKey prefToggle:prefToggle];
         }
-        else if ( [curGroupID isEqualToString:prefGroupID] ){
-            NSString *curPrefName = curGroupDict[OEPreferenceNameKey];
+        //else if ( [curGroupID isEqualToString:prefGroupID] ){
+        else {
+            NSString *curPrefID = curGroupDict[OEPreferenceIDKey];
             NSString *curPrefKey  = curGroupDict[OEPreferencePrefKeyNameKey];
             
-            if (!curPrefName)
+            if (!curPrefID)
                 continue;
             // Mutually exclusive option state change
-            else if ([curPrefName isEqualToString:prefName] && !prefToggle)
+            else if ([curPrefID isEqualToString:preferenceID] && !prefToggle)
                 curGroupDict[OEPreferenceStateKey] = @YES;
             // Reset mutually exclusive options that are the same prefs group
             else if (!prefToggle && [curPrefKey isEqualToString:preferencePrefKey])
                 curGroupDict[OEPreferenceStateKey] = @NO;
             // Toggleable option state change
-            else if ([curPrefName isEqualToString:prefName]  && prefToggle)
-                curGroupDict[OEPreferenceStateKey] = @(!menuState);
+            else if ([curPrefID isEqualToString:preferenceID]  && prefToggle)
+                curGroupDict[OEPreferenceStateKey] = @(!prefState);
         }
     }
 }
 
-- (NSDictionary *) findPreferenceGroup:(NSDictionary *)parentGroupDict prefName:(NSString *)prefName prefGroupID:(NSString *)prefGroupID
+- (NSDictionary *) findPreferenceGroup:(NSDictionary *)parentGroupDict preferenceID:(NSString *)preferenceID prefGroupID:(NSString *)prefGroupID
 {
     //This function iterates through the preference items and returns the dictionary item if found
     NSDictionary *testGroupDict;
@@ -913,25 +917,25 @@ static Class GameCoreClass = Nil;
     {
         if (groupDict[OEPreferenceGroupNameKey])
         {
-            testGroupDict = [self findPreferenceGroup:groupDict prefName:prefName prefGroupID:prefGroupID];
+            testGroupDict = [self findPreferenceGroup:groupDict preferenceID:preferenceID prefGroupID:prefGroupID];
             
             if (testGroupDict)
             {
-                if ([testGroupDict[OEPreferenceNameKey] isEqualToString:prefName])
+                if ([testGroupDict[OEPreferenceIDKey] isEqualToString:preferenceID])
                 {
-                    if ([testGroupDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
-                    {
+//                    if ([testGroupDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
+//                    {
                         return testGroupDict;
-                    }
+//                    }
                 }
             }
         }
-        if ([groupDict[OEPreferenceNameKey] isEqualToString:prefName])
+        if ([groupDict[OEPreferenceIDKey] isEqualToString:preferenceID])
         {
-            if ([groupDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
-            {
+//            if ([groupDict[OEPreferenceGroupIDKey] isEqualToString:prefGroupID])
+//            {
                 return groupDict;
-            }
+//            }
         }
     }
     return nil;

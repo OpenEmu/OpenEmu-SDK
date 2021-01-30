@@ -37,35 +37,44 @@
 /** This NSString will be used as the Title for the Group*/
 #define OEPreferenceGroupNameKey @"OEPreferenceGroupNameKey"
 
-/** The NSString which will differentiate Group items from each other when the options have identical names. */
+/** The NSString used to identify Groups that are grouped together i.e. (Input) */
 #define OEPreferenceGroupIDKey @"OEPreferenceGroupIDKey"
 
 /** An NSArray of NSDictionaries containing the entries in the group. */
 #define OEPreferenceGroupItemsKey @"OEPreferenceGroupItemsKey"
 
+
 /* Binary (toggleable) and Mutually-Exclusive Display Modes */
 
-/** The NSString which will be shown in the Display Mode menu for this entry. This
- *  string must be unique to each display mode. */
+/** This NSString will be used as the Title for the Preference*/
 #define OEPreferenceNameKey @"OEPreferenceNameKey"
+
+/** This NSString  is a unique identifier for the preference */
+#define OEPreferenceIDKey @"OEPreferenceIDKey"
+
 /** Toggleable modes only. @(YES) if this mode is standalone and can be toggled.
  *  If @(NO) or unspecified, this item is part of a group of mutually-exclusive modes. */
 #define OEPreferenceAllowsToggleKey @"OEPreferenceAllowsToggleKey"
+
 /** Mutually-exclusive modes only. An NSString uniquely identifying this display mode
  *  within its group. Optional. if not specified, the value associated with
  *  OEPreferenceNameKey will be used instead. */
 #define OEPreferencePrefValueNameKey @"OEPreferencePrefValueNameKey"
+
 /** Toggleable modes: An NSString uniquely identifying this display mode.
  *  Mutually-exclusive modes: An NSString uniquely identifying the group of mutually
  *  exclusive modes this mode is part of.
  *  Every group of mutually-exclusive modes is defined implicitly as a set of modes with
  *  the same OEPreferencePrefValueNameKey. */
 #define OEPreferencePrefKeyNameKey @"OEPreferencePrefKeyNameKey"
+
 /** @(YES) if this mode is currently selected. */
 #define OEPreferenceStateKey @"OEPreferenceStateKey"
-/** @(YES) if this mode is inaccessible through the nextAdvanceMenu: and lastAdvanceMenu:
+
+/** @(YES) if this mode is inaccessible through the nextPrefu: and lastPref:
  *  actions */
-#define OEPreferenceManualOnlyKey @"OEPreferenceSubmenuOnlyKey"
+#define OEPreferenceManualOnlyKey @"OEPreferenceManualOnlyKey"
+
 /** @(YES) if this mode is not saved in the preferences. */
 #define OEPreferenceDisallowPrefSaveKey @"OEPreferenceDisallowPrefSaveKey"
 
@@ -86,95 +95,68 @@
 #define OEPreferenceIndentationLevelKey @"OEPreferenceIndentationLevelKey"
 
 
+
 /*
  * Utility macros
  */
- 
-#define OEPreference_OptionWithStateValue(_NAME_, _GROUP_, _PREFKEY_, _STATE_, _VAL_) @{ \
+
+#define OEPreference_OptionWithValue(_NAME_, _ID_, _PREFKEY_, _VAL_) OEPreference_OptionWithStateValue(_NAME_, _ID_, _PREFKEY_, @NO, _VAL_)
+#define OEPreference_OptionDefaultWithValue(_NAME_, _PREFKEY_, _VAL_) OEPreference_OptionWithStateValue(_NAME_, _ID_, _PREFKEY_, @YES, _VAL_)
+#define OEPreference_OptionWithStateValue(_NAME_, _ID_, _PREFKEY_, _STATE_, _VAL_) @{ \
     OEPreferenceNameKey : _NAME_, \
-    OEPreferenceGroupIDKey : _GROUP_, \
+    OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
     OEPreferenceStateKey : _STATE_, \
     OEPreferencePrefValueNameKey : _VAL_ }
     
-#define OEPreference_OptionWithValue(_NAME_, _GROUP_, _PREFKEY_, _VAL_) \
-    OEPreference_OptionWithStateValue(_NAME_, _GROUP_, _PREFKEY_, @NO, _VAL_)
-    
-#define OEPreference_OptionDefaultWithValue(_NAME_, _GROUP_, _PREFKEY_, _VAL_) \
-    OEPreference_OptionWithStateValue(_NAME_, _GROUP_, _PREFKEY_, @YES, _VAL_)
- 
-#define OEPreference_OptionWithState(_NAME_, _GROUP_, _PREFKEY_, _STATE_) @{ \
+#define OEPreference_Option(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionWithState(_NAME_, _ID_, _PREFKEY_, @NO)
+#define OEPreference_OptionDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionWithState(_NAME_, _ID_, _PREFKEY_, @YES)
+#define OEPreference_OptionWithState(_NAME_, _ID_, _PREFKEY_, _STATE_) @{ \
     OEPreferenceNameKey : _NAME_, \
-OEPreferenceGroupIDKey : _GROUP_, \
+    OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
     OEPreferenceStateKey : _STATE_ }
 
-#define OEPreference_Option(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionWithState(_NAME_, _GROUP_, _PREFKEY_, @NO)
-
-#define OEPreference_OptionDefault(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionWithState(_NAME_, _GROUP_, _PREFKEY_, @YES)
-
-#define OEPreference_OptionIndentedWithState(_NAME_, _GROUP_, _PREFKEY_, _STATE_) @{ \
+#define OEPreference_OptionIndented(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionIndentedWithState(_NAME_, _ID_, _PREFKEY_, @NO)
+#define OEPreference_OptionIndentedDefault(_NAME_, _ID_,  _PREFKEY_) OEPreference_OptionIndentedWithState(_NAME_, _ID_,  _PREFKEY_, @YES)
+#define OEPreference_OptionIndentedWithState(_NAME_, _ID_, _PREFKEY_, _STATE_) @{ \
     OEPreferenceNameKey : _NAME_, \
-    OEPreferenceGroupIDKey : _GROUP_, \
+    OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
     OEPreferenceStateKey : _STATE_, \
     OEPreferenceIndentationLevelKey : @(1) }
-    
-#define OEPreference_OptionIndented(_NAME_, _GROUP_,  _PREFKEY_) \
-    OEPreference_OptionIndentedWithState(_NAME_, _GROUP_, _PREFKEY_, @NO)
-    
-#define OEPreference_OptionIndentedDefault(_NAME_, _GROUP_,  _PREFKEY_) \
-    OEPreference_OptionIndentedWithState(_NAME_, _GROUP_,  _PREFKEY_, @YES)
-    
-#define OEPreference_OptionToggleableWithState(_NAME_, _GROUP_, _PREFKEY_, _STATE_) @{ \
+
+#define OEPreference_OptionManual(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionManualWithState(_NAME_, _ID_, _PREFKEY_, @NO)
+#define OEPreference_OptionManualDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_OptionManualWithState(_NAME_, _ID_, _PREFKEY_, @YES)
+#define OEPreference_OptionManualWithState(_NAME_, _ID_, _PREFKEY_, _STATE_) @{ \
     OEPreferenceNameKey : _NAME_, \
-    OEPreferenceGroupIDKey : _GROUP_, \
+    OEPreferenceIDKey : _ID_, \
     OEPreferencePrefKeyNameKey : _PREFKEY_, \
     OEPreferenceStateKey : _STATE_, \
-    OEPreferenceAllowsToggleKey : @YES }
-    
-#define OEPreference_OptionToggleable(_NAME_, _GROUP_,  _PREFKEY_) \
-    OEPreference_OptionToggleableWithState(_NAME_, _GROUP_, _PREFKEY_, @NO)
-    
-#define OEPreference_OptionToggleableDefault(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionToggleableWithState(_NAME_, _GROUP_, _PREFKEY_, @YES)
-    
-#define OEPreference_OptionToggleableNoSaveWithState(_NAME_, _GROUP_, _PREFKEY_, _STATE_) @{ \
+    OEPreferenceManualOnlyKey : @YES }
+
+#define OEPreference_Toggle(_NAME_, _ID_,  _PREFKEY_) \OEPreference_ToggleWithState(_NAME_, _ID_, @NO)
+#define OEPreference_ToggleDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_ToggleWithState(_NAME_, _ID_, @YES)
+#define OEPreference_ToggleWithState(_NAME_, _ID_, _STATE_) @{ \
     OEPreferenceNameKey : _NAME_, \
-    OEPreferenceGroupIDKey : _GROUP_, \
-    OEPreferencePrefKeyNameKey : _PREFKEY_, \
+    OEPreferenceIDKey : _ID_, \
+    OEPreferenceStateKey : _STATE_, \
+    OEPreferenceAllowsToggleKey : @YES }
+
+#define OEPreference_ToggleNoSave(_NAME_, _ID_) OEPreference_ToggleNoSaveWithState(_NAME_, _ID_, @NO)
+#define OEPreference_ToggleNoSaveDefault(_NAME_, _ID_, _PREFKEY_) OEPreference_ToggleNoSaveWithState(_NAME_, _ID_, @YES)
+#define OEPreference_TogglNoSaveWithState(_NAME_, _ID_, _STATE_) @{ \
+    OEPreferenceNameKey : _NAME_, \
+    OEPreferenceIDKey : _ID_, \
     OEPreferenceStateKey : _STATE_, \
     OEPreferenceAllowsToggleKey : @YES, \
     OEPreferenceDisallowPrefSaveKey : @YES }
     
-#define OEPreference_OptionToggleableNoSave(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionToggleableNoSaveWithState(_NAME_, _GROUP_, _PREFKEY_, @NO)
-    
-#define OEPreference_OptionToggleableNoSaveDefault(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionToggleableNoSaveWithState(_NAME_, _GROUP_, _PREFKEY_, @YES)
-    
-#define OEPreference_OptionManualWithState(_NAME_, _GROUP_, _PREFKEY_, _STATE_) @{ \
+#define OEPreference_SliderWithMinVal(_NAME_, _ID_, _MIN_, _MAX_) OEPreference_SliderWithSetVal(_NAME_, _ID_, _MIN_, _MAX_, _MIN_)
+#define OEPreference_SliderWithMaxVal(_NAME_, _ID_, _MIN_, _MAX_) OEPreference_SliderWithSetVal(_NAME_, _ID_, _MIN_, _MAX_, _MAX_)
+#define OEPreference_SliderWithSetVal(_NAME_, _ID_, _MIN_, _MAX_, _VAL_) @{ \
     OEPreferenceNameKey : _NAME_, \
-    OEPreferenceGroupIDKey : _GROUP_, \
-    OEPreferencePrefKeyNameKey : _PREFKEY_, \
-    OEPreferenceStateKey : _STATE_, \
-    OEPreferenceManualOnlyKey : @YES }
-    
-#define OEPreference_OptionManual(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionManualWithState(_NAME_, _GROUP_, _PREFKEY_, @NO)
-
-#define OEPreference_OptionManualDefault(_NAME_, _GROUP_, _PREFKEY_) \
-    OEPreference_OptionManualWithState(_NAME_, _GROUP_, _PREFKEY_, @YES)
-    
-#define OEPreference_Slider(_NAME_, _GROUP_, _PREFKEY_, _MIN_, _MAX_, _VAL_) @{ \
-    OEPreference_SliderWithDefaultVal(_NAME_, _GROUP_, _PREFKEY_, _MIN_, _MAX_, _MIN_) }
-
-#define OEPreference_SliderWithDefaultVal(_NAME_, _GROUP_, _PREFKEY_, _MIN_, _MAX_, _VAL_) @{ \
-    OEPreferenceNameKey : _NAME_, \
-    OEPreferenceGroupIDKey : _GROUP_, \
-    OEPreferencePrefKeyNameKey : _PREFKEY_, \
+    OEPreferenceIDKey : _ID_, \
     OEPreferenceMinKey : _MIN_, \
     OEPreferenceMaxKey : _MAX_, \
     OEPreferenceDefaultValKey : _VAL_ }

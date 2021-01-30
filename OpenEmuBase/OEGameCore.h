@@ -474,9 +474,9 @@ OE_EXPORTED_CLASS
 #pragma mark - Core Preferences - Optional
 @property(readonly) NSArray <NSDictionary <NSString *, id> *> *corePreferences;
 
-- (void)changePreferenceOption:(NSString *)corePreference prefGroupID:(NSString *)prefGroupID;
+- (void)changePreferenceOption:(NSString *)preferenceID prefGroupID:(NSString *)prefGroupID;
 
-- (void)preferenceAction:(NSString *)preferenceName prefGroupID:(NSString *)prefGroupID;
+- (void)preferenceAction:(NSString *)preferenceName preferenceID:(NSString *)prefID preferenceGroupID:(NSString *)prefGroupID;
 
 #pragma mark - Display Mode - Optional
 
