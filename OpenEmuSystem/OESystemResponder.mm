@@ -70,7 +70,7 @@ typedef enum : NSInteger {
     OEPlayerRapidFireSetupModeClear
 } OEPlayerRapidFireSetupMode;
 
-typedef struct {
+typedef struct OEPlayerButtonRapidFireState {
     /** YES if the current state of the button is pressed,
      *  NO otherwise. */
     BOOL state = NO;
@@ -79,7 +79,7 @@ typedef struct {
     NSTimeInterval timebase = 0.0;
 } OEPlayerButtonRapidFireState;
 
-typedef struct {
+typedef struct OEPlayerRapidFireState {
     /** OEPlayerRapidFireSetupModeToggle while rapid fire toggle is pressed,
      *  OEPlayerRapidFireSetupModeClear while rapid fire clear is pressed. */
     OEPlayerRapidFireSetupMode setupMode = OEPlayerRapidFireSetupModeNone;
