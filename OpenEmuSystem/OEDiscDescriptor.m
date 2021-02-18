@@ -129,10 +129,12 @@ NSString *const OEDiscDescriptorErrorDomain = @"org.openemu.OEDiscDescriptor.Err
     if (fileContent != nil) {
         // {\rtf1 - Rich Text Format magic number
         if ([fileContent hasPrefix:@"{\\rtf1"]) {
-            *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorNotPlainTextFileError userInfo:@{
-                NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read", @"Reading descriptor file error description"),
-                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"File %@ is not a plain text file.", @"Reading descriptor file error failure reason."), self.fileURL.lastPathComponent],
-            }];
+            if (error) {
+                *error = [NSError errorWithDomain:OEDiscDescriptorErrorDomain code:OEDiscDescriptorNotPlainTextFileError userInfo:@{
+                    NSLocalizedDescriptionKey: NSLocalizedString(@"File cannot be read", @"Reading descriptor file error description"),
+                    NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:NSLocalizedString(@"File %@ is not a plain text file.", @"Reading descriptor file error failure reason."), self.fileURL.lastPathComponent],
+                }];
+            }
 
             return nil;
         }
