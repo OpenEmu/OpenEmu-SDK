@@ -370,8 +370,6 @@ static CGFloat OEHACScaleValueWithCalibration(
             .y = {.min = 8192, .zero = 32768, .max = 57344},
         };
     
-    _responseAvailable = [[NSCondition alloc] init];
-    
     return self;
 }
 
@@ -380,6 +378,7 @@ static CGFloat OEHACScaleValueWithCalibration(
 {
     dispatch_semaphore_t done = dispatch_semaphore_create(0);
     _thread = [[NSThread alloc] initWithBlock:^{
+        self->_responseAvailable = [[NSCondition alloc] init];
         self->_eventRunLoop = (CFRunLoopRef)CFRetain(CFRunLoopGetCurrent());
         
         IOHIDDeviceRegisterInputReportCallback(self.device, self->_reportBuffer, MAX_INPUT_REPORT_SIZE, OEHACProControllerHIDReportCallback, (__bridge void *)self);
