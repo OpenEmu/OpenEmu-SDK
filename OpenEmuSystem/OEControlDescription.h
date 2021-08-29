@@ -38,7 +38,7 @@
 @property(readonly) NSUInteger      controlIdentifier;
 @property(readonly) NSString       *name;
 @property(readonly) NSString       *identifier;
-@property(readonly) NSArray        *controlValues;
+@property(readonly) NSArray<OEControlValueDescription *> *controlValues;
 @property(readonly) BOOL            isGenericControl;
 
 @property(readonly) OEHIDEvent     *genericEvent;

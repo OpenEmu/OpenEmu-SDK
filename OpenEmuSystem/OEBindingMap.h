@@ -32,9 +32,9 @@
 
 @interface OEBindingMap : NSObject
 
-- (id)initWithCapacity:(NSUInteger)totalNumberOfKeys;
+- (instancetype)initWithCapacity:(NSUInteger)totalNumberOfKeys;
 // Provides a hint for the number of keys
-- (id)initWithSystemController:(OESystemController *)aController;
+- (instancetype)initWithSystemController:(OESystemController *)aController;
 
 - (OESystemKey *)systemKeyForEvent:(OEHIDEvent *)anEvent;
 - (void)setSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
@@ -44,9 +44,9 @@
 
 @interface OESystemKey : NSObject
 + (instancetype)systemKeyWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber isAnalogic:(BOOL)isAnalogic;
-- (id)initWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber isAnalogic:(BOOL)isAnalogic;
+- (instancetype)initWithKey:(NSUInteger)aKeyNumber player:(NSUInteger)playerNumber isAnalogic:(BOOL)isAnalogic;
 @property(nonatomic) NSUInteger key;
 @property(nonatomic) NSUInteger player;
 @property(nonatomic, getter=isAnalogic) BOOL analogic;
-- (BOOL)isGlobalButtonKey;
+@property(readonly) BOOL isGlobalButtonKey;
 @end

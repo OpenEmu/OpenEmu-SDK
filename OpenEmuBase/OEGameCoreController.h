@@ -67,22 +67,21 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
 @interface OEGameCoreController : NSResponder
 
-- (id)initWithBundle:(NSBundle *)aBundle;
+- (instancetype)initWithBundle:(NSBundle *)aBundle;
 
 @property(readonly) NSBundle   *bundle;
 @property(readonly) Class       gameCoreClass;
 
 @property(readonly) NSString   *pluginName;
-@property(readonly) NSArray    *systemIdentifiers;
-@property(readonly) NSDictionary *coreOptions;
+@property(readonly) NSArray<NSString *> *systemIdentifiers;
+@property(readonly) NSDictionary<NSString *, NSDictionary<NSString *, id> *> *coreOptions;
 
 @property(readonly) NSString   *supportDirectoryPath;
 @property(readonly) NSString   *biosDirectoryPath;
-@property(readonly) NSArray    *usedSettingNames;
 @property(readonly) NSUInteger  playerCount;
 
 - (bycopy OEGameCore *)newGameCore;
-- (NSArray *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier;
+- (NSArray<NSDictionary<NSString *, id> *> *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)requiresFilesForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)supportsCheatCodeForSystemIdentifier:(NSString *)systemIdentifier;
 - (BOOL)hasGlitchesForSystemIdentifier:(NSString *)systemIdentifier;

@@ -47,7 +47,7 @@ NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type)
 static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyBindingGroupDescriptionGroupIdentifier";
 
 @interface OEOrientedKeyGroupBindingDescription ()
-- (id)OE_initWithParentKeyGroup:(OEKeyBindingGroupDescription *)parent baseKey:(OEKeyBindingDescription *)base __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithParentKeyGroup:(OEKeyBindingGroupDescription *)parent baseKey:(OEKeyBindingDescription *)base __attribute__((objc_method_family(init)));
 @end
 
 @implementation OEKeyBindingGroupDescription
@@ -61,7 +61,7 @@ static NSString *const OEKeyBindingGroupDescriptionGroupIdentifierKey = @"OEKeyB
     return nil;
 }
 
-- (instancetype)initWithSystemController:(nullable OESystemController *)systemController groupType:(OEKeyGroupType)aType keys:(NSArray *)groupedKeys
+- (instancetype)initWithSystemController:(nullable OESystemController *)systemController groupType:(OEKeyGroupType)aType keys:(NSArray<OEKeyBindingDescription *> *)groupedKeys
 {
     if(aType != OEKeyGroupTypeAxis && aType != OEKeyGroupTypeHatSwitch) return nil;
 
@@ -211,13 +211,13 @@ static NSString *const OEOrientedKeyGroupBindingDescriptionBaseKeyKey = @"OEOrie
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (id)init
+- (instancetype)init
 {
     return nil;
 }
 #pragma clang diagnostic pop
 
-- (id)OE_initWithParentKeyGroup:(OEKeyBindingGroupDescription *)parent baseKey:(OEKeyBindingDescription *)base;
+- (instancetype)OE_initWithParentKeyGroup:(OEKeyBindingGroupDescription *)parent baseKey:(OEKeyBindingDescription *)base;
 {
     NSAssert([[parent keys] containsObject:base], @"The base key must belong to the key group.");
     

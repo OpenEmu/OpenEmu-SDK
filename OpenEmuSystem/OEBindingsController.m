@@ -120,12 +120,12 @@ static NSString *configurationsFolderPath;
     return [[self class] filePathForConfigurationWithName:[self configurationName]];
 }
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithConfigurationName:nil];
 }
 
-- (id)initWithConfigurationName:(nullable NSString *)aName;
+- (instancetype)initWithConfigurationName:(nullable NSString *)aName;
 {
     if([aName length] == 0) aName = @"Default";
     

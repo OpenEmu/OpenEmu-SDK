@@ -102,11 +102,12 @@ extern NSString *const OEAxisControlsKey;
 extern NSString *const OEControlListKey;
 extern NSString *const OEControlListKeyNameKey;
 extern NSString *const OEControlListKeyLabelKey;
-extern NSString *const OEControlListKeyFontFamilyKey;
 
 extern NSString *const OEControllerImageKey;       // NSString - file name of the controller image
 extern NSString *const OEControllerImageMaskKey;   // NSString - file name of the controller image mask
 extern NSString *const OEControllerKeyPositionKey; // NSDictionary - KeyName -> NSPoint as NSString
+
+extern NSString *const OEPrefControlsShowAllGlobalKeys;
 
 typedef NS_ENUM(NSInteger, OEFileSupport) {
     OEFileSupportNo,
@@ -118,7 +119,7 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 
 + (OESystemController *)systemControllerWithIdentifier:(NSString *)systemIdentifier;
 
-- (instancetype)initWithBundle:(NSBundle *)aBundle;
+- (/*nullable */instancetype)initWithBundle:(NSBundle *)aBundle;
 
 @property(readonly) NSBundle *bundle;
 @property(readonly, copy) NSString *systemIdentifier;
@@ -163,11 +164,11 @@ typedef NS_ENUM(NSInteger, OEFileSupport) {
 
 #pragma mark - Game System Responder objects
 
-- (id)newGameSystemResponder;
+- (bycopy OESystemResponder *)newGameSystemResponder;
 
 #pragma mark - ROM Handling
 
-@property(readonly, copy) NSArray *fileTypes;
+@property(readonly, copy) NSArray<NSString *> *fileTypes;
 
 /*!
  * @method canHandleFile:

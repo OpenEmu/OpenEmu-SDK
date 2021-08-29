@@ -49,14 +49,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)OE_didAddDeviceHandler:(OEDeviceHandler *)aHandler;
 - (void)OE_didRemoveDeviceHandler:(OEDeviceHandler *)aHandler;
 
-- (id)OE_playerBindings:(OEPlayerBindings *)sender didAssignEvent:(id)value toKeyWithName:(NSString *)aKey;
+- (id)OE_playerBindings:(OEPlayerBindings *)sender didAssignEvent:(OEHIDEvent *)value toKeyWithName:(NSString *)aKey;
 - (void)OE_playerBindings:(OEPlayerBindings *)sender didRemoveEventForKeyWithName:(NSString *)aKey;
 
 @end
 
 @interface OEPlayerBindings ()
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber __attribute__((objc_method_family(init)));
 
 @property(readwrite, setter=OE_setPlayerNumber:) NSUInteger playerNumber;
 
@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OEDevicePlayerBindings ()
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler __attribute__((objc_method_family(init)));
 
 @property(readwrite, nullable, nonatomic, setter=OE_setDeviceHandler:) OEDeviceHandler *deviceHandler;
 

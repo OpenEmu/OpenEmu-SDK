@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, OERingBufferDiscardPolicy) {
 
 @interface OERingBuffer : NSObject <OEAudioBuffer>
 
-- (id)initWithLength:(NSUInteger)length;
+- (instancetype)initWithLength:(NSUInteger)length;
 
 @property           NSUInteger length;
 @property(readonly) NSUInteger availableBytes;

@@ -46,8 +46,8 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 
 @property(readonly) OEKeyGroupType type;
 @property(readonly, copy) NSString *groupIdentifier;
-@property(readonly, copy) NSArray *keys;
-@property(readonly, copy) NSArray *keyNames;
+@property(readonly, copy) NSArray<OEKeyBindingDescription *> *keys;
+@property(readonly, copy) NSArray<NSString *> *keyNames;
 @property(readonly, getter=isAnalogic) BOOL analogic;
 
 - (OEKeyBindingDescription *)oppositeKeyOfKey:(OEKeyBindingDescription *)aKey;
@@ -67,9 +67,9 @@ extern NSString *NSStringFromOEKeyGroupType(OEKeyGroupType type);
 @property(readonly, weak) OEKeyBindingGroupDescription *parentKeyGroup;
 @property(readonly, weak) OEKeyBindingDescription *baseKey;
 
-- (OEKeyBindingDescription *)oppositeKey;
+@property(readonly) OEKeyBindingDescription *oppositeKey;
 
-- (NSUInteger)indexOfBaseKey;
+@property(readonly) NSUInteger indexOfBaseKey;
 - (void)enumerateKeysFromBaseKeyUsingBlock:(void(^)(OEKeyBindingDescription *key, BOOL *stop))block;
 - (void)enumerateOrientedKeyGroupsFromBaseKeyUsingBlock:(void(^)(OEOrientedKeyGroupBindingDescription *key, BOOL *stop))block;
 

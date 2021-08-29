@@ -41,12 +41,12 @@
 #endif
 }
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithLength:1];
 }
 
-- (id)initWithLength:(NSUInteger)length
+- (instancetype)initWithLength:(NSUInteger)length
 {
     if((self = [super init]))
     {

@@ -69,7 +69,6 @@ NSString *const OEAxisControlsKey            = @"OEAxisControlsKey";
 NSString *const OEControlListKey             = @"OEControlListKey";
 NSString *const OEControlListKeyNameKey      = @"OEControlListKeyNameKey";
 NSString *const OEControlListKeyLabelKey     = @"OEControlListKeyLabelKey";
-NSString *const OEControlListKeyFontFamilyKey= @"OEControlListKeyFontFamilyKey";
 
 NSString *const OEControllerImageKey         = @"OEControllerImageKey";
 NSString *const OEControllerImageMaskKey     = @"OEControllerImageMaskKey";
@@ -79,7 +78,7 @@ NSString *const OEPrefControlsShowAllGlobalKeys = @"OEShowAllGlobalKeys";
 
 @implementation OESystemController {
     NSString *_systemName;
-    NSDictionary <NSString *, NSString *> *_regionalSystemNames;
+    NSDictionary<NSString *, NSString *> *_regionalSystemNames;
     NSString *_systemType;
     NSArray<NSString *> *_systemMedia;
     NSImage *_systemIcon;
@@ -108,12 +107,12 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     return [aBundle principalClass] == aClass;
 }
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithBundle:[NSBundle bundleForClass:[self class]]];
 }
 
-- (id)initWithBundle:(NSBundle *)aBundle
+- (nullable instancetype)initWithBundle:(NSBundle *)aBundle
 {
     if(![self OE_isBundleValid:aBundle forClass:[self class]])
         return nil;
@@ -288,7 +287,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     ];
 }
 
-- (id)newGameSystemResponder;
+- (OESystemResponder *)newGameSystemResponder;
 {
     return [[[self responderClass] alloc] initWithController:self];
 }
@@ -313,7 +312,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     return _systemType;
 }
 
-- (NSArray *)systemMedia
+- (NSArray<NSString *> *)systemMedia
 {
     return _systemMedia;
 }

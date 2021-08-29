@@ -70,12 +70,12 @@ struct OEPatch
     NSUInteger _capacity;
 }
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithCapacity:NSUIntegerMax];
 }
 
-- (id)initWithCapacity:(NSUInteger)capacity
+- (instancetype)initWithCapacity:(NSUInteger)capacity
 {
     if((self = [super init]))
     {

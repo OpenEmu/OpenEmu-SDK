@@ -46,8 +46,6 @@ typedef NS_ENUM(NSUInteger, OEDeviceAccessType)
 @class OEHIDEvent;
 @class OEDeviceHandler;
 
-extern NSString *const OEWiimoteSupportEnabled;
-
 extern NSNotificationName const OEDeviceManagerDidAddDeviceHandlerNotification;
 extern NSNotificationName const OEDeviceManagerDidRemoveDeviceHandlerNotification;
 
@@ -67,7 +65,7 @@ extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;
-- (BOOL)isBluetoothEnabled;
+@property(readonly) BOOL isBluetoothEnabled;
 
 - (BOOL)requestAccess API_AVAILABLE(macosx(10.15));
 

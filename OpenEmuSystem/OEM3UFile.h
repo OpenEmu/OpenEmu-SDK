@@ -41,7 +41,7 @@ NS_ENUM(NSInteger) {
 
 @property (nonatomic, copy, readonly) NSArray<OEDiscDescriptor *> *referencedDiscDescriptors; // or DiscDescriptorFiles?
 
-- (NSString *)fileContentWithRelativeFilePaths;
+@property(readonly) NSString *fileContentWithRelativeFilePaths;
 
 @end
 

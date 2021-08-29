@@ -97,7 +97,7 @@ CGFloat OEScaledValueWithCalibration(OEAxisCalibration cal, NSInteger rawValue);
 @property(readonly) BOOL isKeyboardDevice;
 @property(readonly) BOOL isFunctionKeyPressed;
 
-- (BOOL)isPlaceholder;
+@property(readonly) BOOL isPlaceholder;
 
 @property(nonatomic) CGFloat defaultDeadZone;
 

@@ -29,13 +29,13 @@
 
 @interface OEDiffQueue : NSObject
 
-- (id)init;
-- (id)initWithCapacity:(NSUInteger)capacity;
+- (instancetype)init;
+- (instancetype)initWithCapacity:(NSUInteger)capacity;
 
 - (void)push:(NSData *)aData;
 - (NSData *)pop;
 
-- (NSUInteger)count;
-- (BOOL)isEmpty;
+@property(readonly) NSUInteger count;
+@property(readonly) BOOL isEmpty;
 
 @end

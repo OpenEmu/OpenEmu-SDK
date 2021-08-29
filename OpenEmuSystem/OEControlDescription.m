@@ -64,12 +64,12 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
 }
 
 @interface OEControlValueDescription ()
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event controlDescription:(OEControlDescription *)controlDescription __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event controlDescription:(OEControlDescription *)controlDescription __attribute__((objc_method_family(init)));
 @end
 
 @implementation OEControlDescription
 
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent controllerDescription:(OEControllerDescription *)controllerDescription
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name genericEvent:(OEHIDEvent *)genericEvent controllerDescription:(OEControllerDescription *)controllerDescription
 {
     if((self = [super init]))
     {
@@ -179,7 +179,7 @@ static NSString *OEControlGenericIdentifierFromEvent(OEHIDEvent *event)
 
 @implementation OEControlValueDescription
 
-- (id)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event controlDescription:(OEControlDescription *)controlDescription
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event controlDescription:(OEControlDescription *)controlDescription
 {
     if((self = [super init]))
     {

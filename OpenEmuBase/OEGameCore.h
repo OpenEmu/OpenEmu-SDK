@@ -186,7 +186,7 @@ OE_EXPORTED_CLASS
  *    -loadFileAtPath:error: is invoked. The SDK does not access it anymore
  *    after that. Therefore, it is not strictly necessary for the core to keep
  *    this property updated. */
-@property(nonatomic, copy)     NSDictionary <NSString *, id> *displayModeInfo;
+@property(nonatomic, copy)     NSDictionary<NSString *, id> *displayModeInfo;
 
 #pragma mark - Starting
 
@@ -448,7 +448,7 @@ OE_EXPORTED_CLASS
 
 @interface OEGameCore (OptionalMethods)
 
-- (NSTrackingAreaOptions)mouseTrackingOptions;
+@property(readonly) NSTrackingAreaOptions mouseTrackingOptions;
 
 - (void)setRandomByte;
 
@@ -485,7 +485,7 @@ OE_EXPORTED_CLASS
  *     - A nested group of options (which appears as a submenu)
  *    See OEGameCoreController.h for a detailed discussion of the keys contained
  *    in each item dictionary. */
-@property(readonly) NSArray <NSDictionary <NSString *, id> *> *displayModes;
+@property(readonly) NSArray<NSDictionary<NSString *, id> *> *displayModes;
 
 /** Change display mode.
  *  @param displayMode The name of the display mode to enable or disable, as
@@ -559,7 +559,7 @@ OE_EXPORTED_CLASS
 - (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE;
 
 - (void)fastForward:(BOOL)flag OE_DEPRECATED("use -rate");
-- (void)rewind:(BOOL)fla OE_DEPRECATED("use -rate");
+- (void)rewind:(BOOL)flag OE_DEPRECATED("use -rate");
 
 - (BOOL)rendersToOpenGL OE_DEPRECATED("use -gameCoreRendering");
 @property(readonly) const void *videoBuffer OE_DEPRECATED("use -getVideoBufferWithHint:");

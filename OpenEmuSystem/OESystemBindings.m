@@ -99,7 +99,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
 @implementation OESystemBindings
 
-- (id)OE_initWithBindingsController:(nullable OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary
+- (instancetype)OE_initWithBindingsController:(nullable OEBindingsController *)parentController systemController:(OESystemController *)aController dictionaryRepresentation:(NSDictionary *)aDictionary
 {
     if(aController == nil) return nil;
 
@@ -139,7 +139,7 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
 
 #pragma mark - Parse the receiver's representation dictionaries
 
-- (void)OE_registerDefaultControls:(NSDictionary *)defaultControls
+- (void)OE_registerDefaultControls:(NSDictionary<NSString *, NSNumber *> *)defaultControls
 {
     if([defaultControls count] == 0) return;
 

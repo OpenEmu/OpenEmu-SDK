@@ -66,12 +66,12 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 
 @implementation OEGameCoreController
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithBundle:[NSBundle bundleForClass:[self class]]];
 }
 
-- (id)initWithBundle:(NSBundle *)aBundle;
+- (instancetype)initWithBundle:(NSBundle *)aBundle;
 {
     if((self = [super init]))
     {
@@ -93,21 +93,21 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
     return self;
 }
 
-- (NSArray *)systemIdentifiers
+- (NSArray<NSString *> *)systemIdentifiers
 {
-	return [[[self bundle] infoDictionary] objectForKey:@"OESystemIdentifiers"];
+	return [[[self bundle] infoDictionary] objectForKey:OEGameCoreSystemIdentifiersKey];
 }
 
-- (NSDictionary *)coreOptions
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)coreOptions
 {
-	return [[[self bundle] infoDictionary] objectForKey:@"OEGameCoreOptions"];
+	return [[[self bundle] infoDictionary] objectForKey:OEGameCoreOptionsKey];
 }
 
-- (NSArray *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier
+- (NSArray<NSDictionary<NSString *, id> *> *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier
 {
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
-    return [system objectForKey:@"OERequiredFiles"];
+    return [system objectForKey:OEGameCoreRequiredFilesKey];
 }
 
 - (BOOL)requiresFilesForSystemIdentifier:(NSString *)systemIdentifier

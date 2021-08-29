@@ -66,7 +66,7 @@
 }
 
 
-- (void)runComparisonTest:(NSArray <NSData *> *)dataset
+- (void)runComparisonTest:(NSArray<NSData *> *)dataset
 {
     OEDiffQueue *dq = [[OEDiffQueue alloc] init];
     

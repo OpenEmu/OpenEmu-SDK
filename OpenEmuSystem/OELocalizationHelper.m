@@ -49,7 +49,7 @@ static OELocalizationHelper *sharedHelper;
 	return sharedHelper;
 }
 
-- (id)init
+- (instancetype)init
 {
     if(self = [super init])
 	{

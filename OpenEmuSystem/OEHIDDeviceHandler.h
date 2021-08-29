@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (io_service_t)serviceRef;
 
 - (void)forceFeedbackWithStrongIntensity:(CGFloat)strongIntensity weakIntensity:(CGFloat)weakIntensity;
-- (BOOL)supportsForceFeedback;
+@property(readonly) BOOL supportsForceFeedback;
 - (void)enableForceFeedback;
 - (void)disableForceFeedback;
 

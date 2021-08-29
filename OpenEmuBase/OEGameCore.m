@@ -76,7 +76,7 @@ static Class GameCoreClass = Nil;
     }
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if(self != nil)
@@ -803,7 +803,7 @@ static Class GameCoreClass = Nil;
 
 #pragma mark - Display Mode
 
-- (NSArray <NSDictionary <NSString *, id> *> *)displayModes
+- (NSArray<NSDictionary<NSString *, id> *> *)displayModes
 {
     return nil;
 }

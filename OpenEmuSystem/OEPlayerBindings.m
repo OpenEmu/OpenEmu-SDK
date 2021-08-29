@@ -40,13 +40,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @synthesize systemBindingsController, playerNumber;
 
-+ (id)allocWithZone:(NSZone *)zone
++ (instancetype)allocWithZone:(NSZone *)zone
 {
     NSAssert(self != [OEPlayerBindings class], @"Do not allocate instances of OEPlayerBindings");
     return [super allocWithZone:zone];
 }
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)aPlayerNumber;
+- (instancetype)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)aPlayerNumber;
 {
     if((self = [super init]))
     {
@@ -70,12 +70,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (NSDictionary *)bindingEvents
+- (NSDictionary<id, OEHIDEvent *> *)bindingEvents
 {
     return _bindingEvents;
 }
 
-- (void)OE_setBindingEvents:(NSDictionary *)value
+- (void)OE_setBindingEvents:(NSDictionary<id, OEHIDEvent *> *)value
 {
     if(_bindingEvents != value)
     {
@@ -157,12 +157,12 @@ static void *const OEDevicePlayerBindingOriginalBindingsObserver = (void *)&OEDe
 @implementation OEDevicePlayerBindings
 @dynamic bindingEvents;
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber
+- (instancetype)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber
 {
     return [self OE_initWithSystemBindings:aController playerNumber:playerNumber deviceHandler:nil];
 }
 
-- (id)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler;
+- (instancetype)OE_initWithSystemBindings:(OESystemBindings *)aController playerNumber:(NSUInteger)playerNumber deviceHandler:(nullable OEDeviceHandler *)handler;
 {
     if((self = [super OE_initWithSystemBindings:aController playerNumber:playerNumber]))
     {

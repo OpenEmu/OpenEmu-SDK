@@ -107,7 +107,7 @@ extern BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem);
 
 @interface OEHIDEvent : NSObject <NSCopying, NSSecureCoding>
 
-- (NSString *)displayDescription;
+@property(readonly) NSString *displayDescription;
 
 + (NSUInteger)keyCodeForVirtualKey:(CGCharCode)charCode;
 + (instancetype)eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue;
@@ -143,7 +143,7 @@ extern BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem);
 
 // Key event
 @property(readonly) NSUInteger              keycode;
-- (BOOL)isEscapeKeyEvent;
+@property(readonly) BOOL                    isEscapeKeyEvent;
 
 @property(readonly) NSEvent                *keyboardEvent;
 @property(readonly) NSEventModifierFlags    modifierFlags;
@@ -162,8 +162,8 @@ extern BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem);
 
 - (BOOL)isAxisDirectionOppositeToEvent:(OEHIDEvent *)anObject;
 
-- (NSUInteger)controlIdentifier;
-- (NSUInteger)controlValueIdentifier;
+@property(readonly) NSUInteger controlIdentifier;
+@property(readonly) NSUInteger controlValueIdentifier;
 
 + (NSUInteger)controlIdentifierForType:(OEHIDEventType)type cookie:(NSUInteger)cookie usage:(NSUInteger)usage;
 
@@ -190,7 +190,7 @@ extern BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem);
 
 @interface OEHIDEvent (OEHIDEventBinding)
 
-- (NSUInteger)bindingHash;
+@property(readonly) NSUInteger bindingHash;
 - (BOOL)isBindingEqualToEvent:(OEHIDEvent *)anEvent;
 
 @end
@@ -202,9 +202,9 @@ extern BOOL OEIOHIDElementIsTrigger(IOHIDElementRef elem);
 + (NSString *)printableCharactersForKeyCode:(unsigned short)keyCode;
 + (NSUInteger)modifierFlagsForKeyCode:(unsigned short)keyCode;
 + (NSString *)displayDescriptionForKeyCode:(unsigned short)keyCode;
-- (NSString *)displayDescription;
+@property(readonly) NSString *displayDescription;
 @end
 
 @interface NSNumber (OEEventConversion)
-- (NSString *)displayDescription;
+@property(readonly) NSString *displayDescription;
 @end

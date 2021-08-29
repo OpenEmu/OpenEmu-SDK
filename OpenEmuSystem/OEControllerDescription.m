@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary<NSNumber *, OEControlValueDescription *> *_valueIdentifierToControlValue;
 }
 
-- (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name __attribute__((objc_method_family(init)));
-- (id)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name __attribute__((objc_method_family(init)));
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation __attribute__((objc_method_family(init)));
 
 @end
 
@@ -109,7 +109,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     return _mappingRepresentations[controllerDescription.identifier];
 }
 
-- (id)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation
+- (instancetype)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation
 {
     if((self = [super init]))
     {
@@ -126,7 +126,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     return self;
 }
 
-- (id)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name
+- (instancetype)OE_initWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID name:(NSString *)name
 {
     if((self = [super init]))
     {
@@ -218,7 +218,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     return [_controls count];
 }
 
-- (NSArray *)controls
+- (NSArray<OEControlDescription *> *)controls
 {
     return [_controls allValues];
 }

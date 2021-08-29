@@ -103,7 +103,7 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
     return [[NSString alloc] initWithData:[self readDataInRange:dataRange] encoding:NSASCIIStringEncoding] ?: @"";
 }
 
-- (instancetype)fileByMovingFileToURL:(NSURL *)destinationURL error:(NSError **)error
+- (nullable instancetype)fileByMovingFileToURL:(NSURL *)destinationURL error:(NSError **)error
 {
     if (![self moveToURL:destinationURL error:error])
         return nil;
@@ -111,7 +111,7 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
     return [[self.class alloc] initWithFileURL:destinationURL error:error];
 }
 
-- (instancetype)fileByCopyingFileToURL:(NSURL *)destinationURL error:(NSError **)error
+- (nullable instancetype)fileByCopyingFileToURL:(NSURL *)destinationURL error:(NSError **)error
 {
     if (![self copyToURL:destinationURL error:error])
         return nil;

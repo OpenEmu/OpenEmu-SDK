@@ -383,8 +383,8 @@ static inline BOOL _OEFloatEqual(CGFloat v1, CGFloat v2)
     } _data;
 }
 
-- (id)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue;
-- (id)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
+- (instancetype)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue;
+- (instancetype)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
 
 - (BOOL)OE_setupEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue;
 - (OEHIDEvent *)OE_eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler;
@@ -501,12 +501,12 @@ static CGEventSourceRef _keyboardEventSource;
     return @"";
 }
 
-- (id)init
+- (instancetype)init
 {
     return nil;
 }
 
-- (id)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
+- (instancetype)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp cookie:(NSUInteger)cookie;
 {
     if((self = [super init]))
     {
@@ -517,7 +517,7 @@ static CGEventSourceRef _keyboardEventSource;
     return self;
 }
 
-+ (id)axisEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis direction:(OEHIDEventAxisDirection)direction cookie:(NSUInteger)cookie;
++ (instancetype)axisEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis direction:(OEHIDEventAxisDirection)direction cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeAxis;
@@ -529,7 +529,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)axisEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis value:(CGFloat)value cookie:(NSUInteger)cookie;
++ (instancetype)axisEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis value:(CGFloat)value cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeAxis;
@@ -546,7 +546,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)axisEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis minimum:(NSInteger)minimum value:(NSInteger)value maximum:(NSInteger)maximum cookie:(NSUInteger)cookie;
++ (instancetype)axisEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis minimum:(NSInteger)minimum value:(NSInteger)value maximum:(NSInteger)maximum cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeAxis;
@@ -560,7 +560,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)triggerEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis direction:(OEHIDEventAxisDirection)direction cookie:(NSUInteger)cookie;
++ (instancetype)triggerEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis direction:(OEHIDEventAxisDirection)direction cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeTrigger;
@@ -572,7 +572,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)triggerEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis value:(NSInteger)value maximum:(NSInteger)maximum cookie:(NSUInteger)cookie;
++ (instancetype)triggerEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp axis:(OEHIDEventAxis)axis value:(NSInteger)value maximum:(NSInteger)maximum cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeTrigger;
@@ -597,7 +597,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)buttonEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp buttonNumber:(NSUInteger)number state:(OEHIDEventState)state cookie:(NSUInteger)cookie;
++ (instancetype)buttonEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp buttonNumber:(NSUInteger)number state:(OEHIDEventState)state cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeButton;
@@ -607,7 +607,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)hatSwitchEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp type:(OEHIDEventHatSwitchType)hatSwitchType direction:(OEHIDEventHatDirection)aDirection cookie:(NSUInteger)cookie;
++ (instancetype)hatSwitchEventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler timestamp:(NSTimeInterval)timestamp type:(OEHIDEventHatSwitchType)hatSwitchType direction:(OEHIDEventHatDirection)aDirection cookie:(NSUInteger)cookie;
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:aDeviceHandler timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeHatSwitch;
@@ -617,7 +617,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)keyEventWithTimestamp:(NSTimeInterval)timestamp keyCode:(NSUInteger)keyCode state:(OEHIDEventState)state cookie:(NSUInteger)cookie
++ (instancetype)keyEventWithTimestamp:(NSTimeInterval)timestamp keyCode:(NSUInteger)keyCode state:(OEHIDEventState)state cookie:(NSUInteger)cookie
 {
     OEHIDEvent *ret = [[self alloc] initWithDeviceHandler:nil timestamp:timestamp cookie:cookie];
     ret->_type = OEHIDEventTypeKeyboard;
@@ -630,7 +630,7 @@ static CGEventSourceRef _keyboardEventSource;
     return ret;
 }
 
-+ (id)eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue
++ (instancetype)eventWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue
 {
     return [[self alloc] initWithDeviceHandler:aDeviceHandler value:aValue];
 }
@@ -640,7 +640,7 @@ static CGEventSourceRef _keyboardEventSource;
     return [[self alloc] initWithElement:element value:value];
 }
 
-- (id)initWithElement:(IOHIDElementRef)element value:(NSInteger)value;
+- (instancetype)initWithElement:(IOHIDElementRef)element value:(NSInteger)value;
 {
     if((self = [self initWithDeviceHandler:nil timestamp:0.0 cookie:OEUndefinedCookie]))
     {
@@ -672,7 +672,7 @@ static CGEventSourceRef _keyboardEventSource;
     return self;
 }
 
-- (id)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue
+- (instancetype)initWithDeviceHandler:(OEDeviceHandler *)aDeviceHandler value:(IOHIDValueRef)aValue
 {
     self = [self initWithDeviceHandler:aDeviceHandler timestamp:IOHIDValueGetTimeStamp(aValue) / 1e9 cookie:OEUndefinedCookie];
     if(self != nil)
@@ -690,7 +690,7 @@ static CGEventSourceRef _keyboardEventSource;
         CFRelease(_keyboardEvent);
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(nullable NSZone *)zone
 {
     OEHIDEvent *ret = [[OEHIDEvent alloc] initWithDeviceHandler:_deviceHandler timestamp:[self timestamp] cookie:_cookie];
 
@@ -1350,7 +1350,7 @@ static NSString *OEHIDEventIsFunctionPressedKey  = @"OEHIDEventIsFunctionPressed
     return representation;
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     if((self = [super init]))
     {

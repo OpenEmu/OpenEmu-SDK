@@ -48,7 +48,7 @@ extern NSNotificationName const OEBindingsRepairedNotification;
 
 @property(readonly) NSString *configurationName;
 
-- (NSString *)filePath;
+@property(readonly) NSString *filePath;
 
 @property(readonly, copy) NSArray<OESystemBindings *> *systemBindings;
 

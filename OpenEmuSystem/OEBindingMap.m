@@ -49,12 +49,12 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 
 @implementation OEBindingMap
 
-- (id)init
+- (instancetype)init
 {
     return [self initWithCapacity:16];
 }
 
-- (id)initWithSystemController:(OESystemController *)aController;
+- (instancetype)initWithSystemController:(OESystemController *)aController;
 {
     NSUInteger numberOfPlayers = aController.numberOfPlayers;
     NSUInteger numberOfKeys    = aController.systemKeyBindingsDescriptions.count;
@@ -62,7 +62,7 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
     return [self initWithCapacity:numberOfPlayers * numberOfKeys * 2];
 }
 
-- (id)initWithCapacity:(NSUInteger)totalNumberOfKeys;
+- (instancetype)initWithCapacity:(NSUInteger)totalNumberOfKeys;
 {
     if((self = [super init]))
     {
@@ -124,7 +124,7 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
     return [[self alloc] initWithKey:key player:player isAnalogic:isAnalogic];
 }
 
-- (id)initWithKey:(NSUInteger)key player:(NSUInteger)player isAnalogic:(BOOL)isAnalogic
+- (instancetype)initWithKey:(NSUInteger)key player:(NSUInteger)player isAnalogic:(BOOL)isAnalogic
 {
     if((self = [super init]))
     {

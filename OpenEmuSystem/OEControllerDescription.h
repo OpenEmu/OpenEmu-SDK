@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (OEDeviceDescription *)deviceDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID cookie:(uint32_t)cookie;
 
 @property(readonly) NSUInteger numberOfControls;
-@property(readonly) NSArray *controls;
+@property(readonly) NSArray<OEControlDescription *> *controls;
 @property (nonatomic, readonly) BOOL wantsCalibration;
 
 - (OEControlValueDescription *)controlValueDescriptionForEvent:(OEHIDEvent *)event;

@@ -45,8 +45,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const OEWiimoteSupportEnabled = @"OEWiimoteSupportEnabled";
-
 NSNotificationName const OEDeviceManagerDidAddDeviceHandlerNotification    = @"OEDeviceManagerDidAddDeviceHandlerNotification";
 NSNotificationName const OEDeviceManagerDidRemoveDeviceHandlerNotification = @"OEDeviceManagerDidRemoveDeviceHandlerNotification";
 

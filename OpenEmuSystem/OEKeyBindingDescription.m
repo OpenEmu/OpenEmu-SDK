@@ -291,7 +291,7 @@ static NSString *const OEGlobalKeyBindingDescriptionIdentifierKey = @"OEGlobalKe
     NSAssert(NO, @"You cannot set an Axis Group on a OEGlobalKeyBindingDescription");
 }
 
-- (nullable NSArray *)hatSwitchKeys
+- (nullable NSArray<OEKeyBindingDescription *> *)hatSwitchKeys
 {
     return nil;
 }

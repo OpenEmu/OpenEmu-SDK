@@ -61,7 +61,7 @@
     return ret;
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(nullable NSZone *)zone
 {
     return self;
 }
