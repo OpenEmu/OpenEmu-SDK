@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL wantsCalibration;
 
 - (OEControlValueDescription *)controlValueDescriptionForEvent:(OEHIDEvent *)event;
-- (OEControlValueDescription *)controlValueDescriptionForRepresentation:(id)representation;
+- (nullable OEControlValueDescription *)controlValueDescriptionForRepresentation:(id)representation;
 
 - (OEControlDescription *)addControlWithIdentifier:(nullable NSString *)identifier name:(nullable NSString *)name event:(OEHIDEvent *)event;
 - (OEControlDescription *)addControlWithIdentifier:(NSString *)identifier name:(NSString *)name event:(OEHIDEvent *)event valueRepresentations:(NSDictionary *)valueRepresentations;

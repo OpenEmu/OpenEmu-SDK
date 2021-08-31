@@ -233,7 +233,7 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     return _identifierToControlValue[controlIdentifier];
 }
 
-- (OEControlValueDescription *)controlValueDescriptionForRepresentation:(id)representation
+- (nullable OEControlValueDescription *)controlValueDescriptionForRepresentation:(id)representation
 {
     if ([representation isKindOfClass:[NSDictionary class]])
         return [self controlValueDescriptionForEvent:[OEHIDEvent eventWithDictionaryRepresentation:representation]];
