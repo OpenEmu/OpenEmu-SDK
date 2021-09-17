@@ -111,8 +111,6 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
  */
 - (void)didRenderFrameOnAlternateThread;
 
-@property (nonatomic) BOOL enableVSync;
-
 /*!
  * @property presentationFramebuffer
  * @discussion
