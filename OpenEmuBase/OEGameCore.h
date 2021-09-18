@@ -131,8 +131,23 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
 @protocol OEGameCoreDelegate <NSObject>
 @required
 
-// For internal use only.
+#pragma mark - Internal APIs
+
 - (void)gameCoreDidFinishFrameRefreshThread:(OEGameCore *)gameCore;
+
+/*! Called prior to any core execution or rendering of the next frame.
+ *
+ * This method is called unconditionally, even when execution is paused.
+ */
+- (void)gameCoreWillBeginFrame;
+
+/*! Called after the core has executed a frame and the display is rendered.
+ *
+ * This method is called unconditionally, even when execution is paused.
+ * This may be used to continue to render display effects.
+ *
+ */
+- (void)gameCoreWillEndFrame;
 @end
 
 #pragma mark -
