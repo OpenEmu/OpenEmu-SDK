@@ -587,7 +587,7 @@ static Class GameCoreClass = Nil;
 
 - (BOOL)isEmulationPaused
 {
-    return self.rate == 0;
+    return _rate == 0;
 }
 
 - (void)fastForwardAtSpeed:(CGFloat)fastForwardSpeed;
