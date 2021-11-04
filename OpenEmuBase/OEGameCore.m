@@ -102,12 +102,18 @@ static Class GameCoreClass = Nil;
 
 - (NSString *)biosDirectoryPath
 {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[self owner] biosDirectoryPath];
+    #pragma clang diagnostic pop
 }
 
 - (NSString *)supportDirectoryPath
 {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[self owner] supportDirectoryPath];
+    #pragma clang diagnostic pop
 }
 
 - (NSString *)batterySavesDirectoryPath
@@ -815,6 +821,42 @@ static Class GameCoreClass = Nil;
 
 - (void)changeDisplayWithMode:(NSString *)displayMode
 {
+}
+
+@end
+
+#pragma mark - NSURL
+
+@implementation OEGameCore (NSURL)
+
+- (NSURL *)biosDirectory
+{
+    return self.owner.biosDirectory;
+}
+
+- (NSURL *)supportDirectory
+{
+    return self.owner.supportDirectory;
+}
+
+- (NSURL *)batterySavesDirectory
+{
+    return [self.supportDirectory URLByAppendingPathComponent:@"Battery Saves"];
+}
+
+- (BOOL)loadFileAtURL:(NSURL *)url error:(NSError **)error
+{
+    return [self loadFileAtPath:url.path error:error];
+}
+
+- (void)saveStateToFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block
+{
+    [self saveStateToFileAtPath:url.path completionHandler:block];
+}
+
+- (void)loadStateFromFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block
+{
+    [self loadStateFromFileAtPath:url.path completionHandler:block];
 }
 
 @end

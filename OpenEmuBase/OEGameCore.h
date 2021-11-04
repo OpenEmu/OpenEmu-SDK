@@ -565,6 +565,27 @@ OE_EXPORTED_CLASS
 
 @end
 
+#pragma mark - NSURL
+
+// The methods and properties in this category require OpenEmu 2.4.
+@interface OEGameCore (NSURL)
+
+@property(nonatomic, readonly) NSURL *biosDirectory;
+@property(nonatomic, readonly) NSURL *supportDirectory;
+@property(nonatomic, readonly) NSURL *batterySavesDirectory;
+
+/*!
+ * @method loadFileAtURL:error
+ * @discussion
+ * Try to load a ROM and return NO if it fails, or YES if it succeeds.
+ * You can do any setup you want here.
+ */
+- (BOOL)loadFileAtURL:(NSURL *)url error:(NSError **)error;
+
+- (void)saveStateToFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block;
+- (void)loadStateFromFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block;
+
+@end
 
 #pragma mark - Deprecated
 

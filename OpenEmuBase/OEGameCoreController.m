@@ -86,8 +86,8 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
         NSURL *baseURL = (urls.count > 0) ? urls.firstObject : fileManager.temporaryDirectory;
 
         NSURL *supportFolder = [baseURL URLByAppendingPathComponent:@"OpenEmu"];
-        _supportDirectoryPath = [supportFolder URLByAppendingPathComponent:_pluginName].path;
-        _biosDirectoryPath    = [supportFolder URLByAppendingPathComponent:@"BIOS"].path;
+        _supportDirectory = [supportFolder URLByAppendingPathComponent:_pluginName];
+        _biosDirectory    = [supportFolder URLByAppendingPathComponent:@"BIOS"];
 
         _gameDocuments = [[NSMutableArray alloc] init];
     }
@@ -195,6 +195,21 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 - (OEGameCore *)newGameCore
 {
     return [[[self gameCoreClass] alloc] init];
+}
+
+@end
+
+
+@implementation OEGameCoreController (Deprecated)
+
+- (NSString *)supportDirectoryPath
+{
+    return self.supportDirectory.path;
+}
+
+- (NSString *)biosDirectoryPath
+{
+    return self.biosDirectory.path;
 }
 
 @end

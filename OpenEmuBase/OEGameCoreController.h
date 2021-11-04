@@ -76,8 +76,8 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 @property(readonly) NSArray<NSString *> *systemIdentifiers;
 @property(readonly) NSDictionary<NSString *, NSDictionary<NSString *, id> *> *coreOptions;
 
-@property(readonly) NSString   *supportDirectoryPath;
-@property(readonly) NSString   *biosDirectoryPath;
+@property(readonly) NSURL      *supportDirectory;
+@property(readonly) NSURL      *biosDirectory;
 @property(readonly) NSUInteger  playerCount;
 
 - (bycopy OEGameCore *)newGameCore;
@@ -92,5 +92,13 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 - (BOOL)supportsDisplayModeChangeForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindBufferSecondsForSystemIdentifier:(NSString *)systemIdentifier;
+
+@end
+
+
+@interface OEGameCoreController (Deprecated)
+
+@property(readonly) NSString *supportDirectoryPath __attribute__((deprecated("Use supportDirectoryURL")));
+@property(readonly) NSString *biosDirectoryPath __attribute__((deprecated("Use biosDirectoryURL")));
 
 @end
