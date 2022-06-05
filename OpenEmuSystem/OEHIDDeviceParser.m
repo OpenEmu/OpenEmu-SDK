@@ -287,10 +287,10 @@ typedef NS_ENUM(NSInteger, OEElementType) {
     }]];
 
     if([genericDesktopElements count] > 0)
-        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@. Details: %@", genericDesktopElements.count, controllerDesc.name, genericDesktopElements.description);
+        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@. List of elements: %@", genericDesktopElements.count, controllerDesc.name, genericDesktopElements.description);
 
     if([buttonElements count] > 0)
-        NSLog(@"WARNING: There are %ld button elements unaccounted for in %@. Details: %@", buttonElements.count, controllerDesc.name, buttonElements.description);
+        NSLog(@"WARNING: There are %ld button elements unaccounted for in %@. List of elements: %@", buttonElements.count, controllerDesc.name, buttonElements.description);
 
     return attributes;
 }
