@@ -286,11 +286,17 @@ typedef NS_ENUM(NSInteger, OEElementType) {
         return [OEHIDEvent OE_eventWithElement:(__bridge IOHIDElementRef)elem value:0] == nil;
     }]];
 
-    if([genericDesktopElements count] > 0)
-        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@", genericDesktopElements.count, controllerDesc.name);
+    if([genericDesktopElements count] == 1)
+        NSLog(@"WARNING: There is %ld generic desktop element unaccounted for in %@. Element details: %@", genericDesktopElements.count, controllerDesc.name, genericDesktopElements.description);
+    
+    if([genericDesktopElements count] > 1)
+        NSLog(@"WARNING: There are %ld generic desktop elements unaccounted for in %@. Elements in detail: %@", genericDesktopElements.count, controllerDesc.name, genericDesktopElements.description);
 
-    if([buttonElements count] > 0)
-        NSLog(@"WARNING: There are %ld button elements unaccounted for in %@.", buttonElements.count, controllerDesc.name);
+    if([buttonElements count] == 1)
+        NSLog(@"WARNING: There is %ld button element unaccounted for in %@. Element details: %@", buttonElements.count, controllerDesc.name, buttonElements.description);
+    
+    if([buttonElements count] > 1)
+        NSLog(@"WARNING: There are %ld button elements unaccounted for in %@. Elements in detail: %@", buttonElements.count, controllerDesc.name, buttonElements.description);
 
     return attributes;
 }
