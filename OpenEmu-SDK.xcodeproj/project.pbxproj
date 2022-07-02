@@ -105,8 +105,7 @@
 		C6772BD61710E29C00ED580A /* OEControlDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772BCF1710E29C00ED580A /* OEControlDescription.m */; };
 		C6772BD71710E29C00ED580A /* OEDeviceDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772BD01710E29C00ED580A /* OEDeviceDescription.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6772BD81710E29C00ED580A /* OEDeviceDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772BD11710E29C00ED580A /* OEDeviceDescription.m */; };
-		C6772BDF1710E41C00ED580A /* OELocalizationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C6772BE01710E41C00ED580A /* OELocalizationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */; };
+		C6772BE01710E41C00ED580A /* OELocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6772BDE1710E41C00ED580A /* OELocalizationHelper.swift */; };
 		C6772BE11710E72A00ED580A /* OpenEmuBase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A261710A4BA00ED580A /* OpenEmuBase.framework */; };
 		C694EEC21C2A078B00DFD15C /* OEPropertyList.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC11C2A065400DFD15C /* OEPropertyList.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		C694EEC61C2A0A7D00DFD15C /* OEHIDEvent_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */; };
@@ -239,8 +238,7 @@
 		C6772BCF1710E29C00ED580A /* OEControlDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEControlDescription.m; sourceTree = "<group>"; };
 		C6772BD01710E29C00ED580A /* OEDeviceDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDeviceDescription.h; sourceTree = "<group>"; };
 		C6772BD11710E29C00ED580A /* OEDeviceDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDeviceDescription.m; sourceTree = "<group>"; };
-		C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OELocalizationHelper.h; sourceTree = "<group>"; };
-		C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OELocalizationHelper.m; sourceTree = "<group>"; };
+		C6772BDE1710E41C00ED580A /* OELocalizationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OELocalizationHelper.swift; sourceTree = "<group>"; };
 		C694EEC11C2A065400DFD15C /* OEPropertyList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEPropertyList.h; sourceTree = "<group>"; };
 		C694EEC51C2A0A7D00DFD15C /* OEHIDEvent_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEHIDEvent_Internal.h; sourceTree = "<group>"; };
 		C6A726811C059BF000E35961 /* OEBindingDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingDescription.h; sourceTree = "<group>"; };
@@ -486,8 +484,7 @@
 				878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */,
 				C6605B821D725B0D009C7E91 /* OEM3UFile.h */,
 				C6605B831D725B0D009C7E91 /* OEM3UFile.m */,
-				C6772BDD1710E41C00ED580A /* OELocalizationHelper.h */,
-				C6772BDE1710E41C00ED580A /* OELocalizationHelper.m */,
+				C6772BDE1710E41C00ED580A /* OELocalizationHelper.swift */,
 				01AFC70A2364E327005EEB08 /* NSData+OESystem.h */,
 				01AFC70B2364E327005EEB08 /* NSData+OESystem.m */,
 			);
@@ -543,7 +540,6 @@
 				C6772BC21710E28900ED580A /* OEHIDEvent.h in Headers */,
 				C6772B9A1710E25300ED580A /* OEKeyBindingDescription.h in Headers */,
 				C6772B981710E25300ED580A /* OEKeyBindingGroupDescription.h in Headers */,
-				C6772BDF1710E41C00ED580A /* OELocalizationHelper.h in Headers */,
 				C6772B9E1710E25300ED580A /* OEPlayerBindings.h in Headers */,
 				C694EEC61C2A0A7D00DFD15C /* OEHIDEvent_Internal.h in Headers */,
 				C6A726831C059BF000E35961 /* OEBindingDescription.h in Headers */,
@@ -754,7 +750,7 @@
 				C6605B851D725B0D009C7E91 /* OEM3UFile.m in Sources */,
 				C6772BD61710E29C00ED580A /* OEControlDescription.m in Sources */,
 				C6772BD81710E29C00ED580A /* OEDeviceDescription.m in Sources */,
-				C6772BE01710E41C00ED580A /* OELocalizationHelper.m in Sources */,
+				C6772BE01710E41C00ED580A /* OELocalizationHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1078,6 +1074,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1108,11 +1105,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "OpenEmuSystem/OpenEmuSystem-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1123,6 +1127,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1147,10 +1152,16 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "OpenEmuSystem/OpenEmuSystem-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;

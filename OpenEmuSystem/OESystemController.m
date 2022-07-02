@@ -28,8 +28,8 @@
 
 #import "OEBindingDescription_Internal.h"
 #import "OEBindingsController.h"
-#import "OELocalizationHelper.h"
 #import "OESystemResponder.h"
+#import <OpenEmuSystem/OpenEmuSystem-Swift.h>
 
 #define OEHIDAxisTypeString      @"OEHIDAxisType"
 #define OEHIDHatSwitchTypeString @"OEHIDEventHatSwitchType"
@@ -196,7 +196,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     {
         case OERegionEU  : fileName = @"Controller-Preferences-EU";  break;
         case OERegionNA  : fileName = @"Controller-Preferences-NA";  break;
-        case OERegionJAP : fileName = @"Controller-Preferences-JAP"; break;
+        case OERegionJPN : fileName = @"Controller-Preferences-JAP"; break;
         default : break;
     }
 
@@ -297,7 +297,7 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
     switch ([[OELocalizationHelper sharedHelper] region]) {
         case OERegionNA:
             return _regionalSystemNames[OERegionalizedSystemNamesRegionKeyNorthAmerica] ?: _systemName;
-        case OERegionJAP:
+        case OERegionJPN:
             return _regionalSystemNames[OERegionalizedSystemNamesRegionKeyJapan] ?: _systemName;
         case OERegionEU:
             return _regionalSystemNames[OERegionalizedSystemNamesRegionKeyEurope] ?: _systemName;

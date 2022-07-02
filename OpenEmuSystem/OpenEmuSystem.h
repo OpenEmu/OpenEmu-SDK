@@ -49,7 +49,6 @@
 #import <OpenEmuSystem/OEHIDEvent.h>
 #import <OpenEmuSystem/OEKeyBindingDescription.h>
 #import <OpenEmuSystem/OEKeyBindingGroupDescription.h>
-#import <OpenEmuSystem/OELocalizationHelper.h>
 #import <OpenEmuSystem/OEPlayerBindings.h>
 #import <OpenEmuSystem/OESystemBindings.h>
 #import <OpenEmuSystem/OESystemController.h>
