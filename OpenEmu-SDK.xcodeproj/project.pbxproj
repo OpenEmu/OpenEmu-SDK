@@ -23,6 +23,7 @@
 		01F306FB20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01F306FC20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */; };
 		0518D6DD24F17C6E0037101D /* OEGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = 0518D6DC24F17C6E0037101D /* OEGeometry.m */; };
+		0572A3FF287781BA00AC32F8 /* OEGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0572A3FE287781BA00AC32F8 /* OEGeometry.swift */; };
 		05F2F90824EA029900BFAF18 /* Controller-Database.plist in Resources */ = {isa = PBXBuildFile; fileRef = 05F2F90724EA029900BFAF18 /* Controller-Database.plist */; };
 		05FF41B822B08C5F00BB7283 /* OELogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 05FF41B622B08C5F00BB7283 /* OELogging.m */; };
 		05FF41B922B08C5F00BB7283 /* OELogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 05FF41B722B08C5F00BB7283 /* OELogging.h */; };
@@ -150,6 +151,7 @@
 		01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+OpenEmuSDK.h"; sourceTree = "<group>"; };
 		01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+OpenEmuSDK.m"; sourceTree = "<group>"; };
 		0518D6DC24F17C6E0037101D /* OEGeometry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OEGeometry.m; sourceTree = "<group>"; };
+		0572A3FE287781BA00AC32F8 /* OEGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OEGeometry.swift; sourceTree = "<group>"; };
 		05F2F90724EA029900BFAF18 /* Controller-Database.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Controller-Database.plist"; sourceTree = "<group>"; };
 		05FF41B622B08C5F00BB7283 /* OELogging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OELogging.m; sourceTree = "<group>"; };
 		05FF41B722B08C5F00BB7283 /* OELogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OELogging.h; sourceTree = "<group>"; };
@@ -331,6 +333,7 @@
 				27FC95171A92F12700CF1DC6 /* OEDiffQueue.mm */,
 				8363A433193CA52400F18425 /* OEGeometry.h */,
 				0518D6DC24F17C6E0037101D /* OEGeometry.m */,
+				0572A3FE287781BA00AC32F8 /* OEGeometry.swift */,
 				C694EEC11C2A065400DFD15C /* OEPropertyList.h */,
 				01F306F920AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.h */,
 				01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */,
@@ -636,6 +639,9 @@
 						LastSwiftMigration = 1200;
 						ProvisioningStyle = Automatic;
 					};
+					C6772A251710A4BA00ED580A = {
+						LastSwiftMigration = 1400;
+					};
 				};
 			};
 			buildConfigurationList = C67729E11710A24400ED580A /* Build configuration list for PBXProject "OpenEmu-SDK" */;
@@ -707,6 +713,7 @@
 				C6772A7B1710BD6200ED580A /* OETimingUtils.m in Sources */,
 				05FF41B822B08C5F00BB7283 /* OELogging.m in Sources */,
 				0518D6DD24F17C6E0037101D /* OEGeometry.m in Sources */,
+				0572A3FF287781BA00AC32F8 /* OEGeometry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -770,6 +777,7 @@
 		0109BBAA209F25EB002419C1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -836,6 +844,7 @@
 		0109BBAB209F25EB002419C1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -975,6 +984,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1003,11 +1013,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "OpenEmuBase/OpenEmuBase-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1018,6 +1035,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1040,10 +1058,16 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "OpenEmuBase/OpenEmuBase-Info.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;

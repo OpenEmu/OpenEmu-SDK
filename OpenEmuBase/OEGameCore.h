@@ -60,6 +60,8 @@
 
 #pragma mark -
 
+NS_ASSUME_NONNULL_BEGIN
+
 extern NSString *const OEGameCoreErrorDomain;
 
 typedef NS_ERROR_ENUM(OEGameCoreErrorDomain, OEGameCoreErrorCodes) {
@@ -79,7 +81,7 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
     OEGameCoreRendering2DVideo,         //!< The game bitmap will be put directly into an IOSurface.
     OEGameCoreRenderingOpenGL2Video,    //!< The core will be provided a CGL OpenGL 2.1 (Compatibility) context.
     OEGameCoreRenderingOpenGL3Video,    //!< The core will be provided a CGL OpenGL 3.2+ Core/OpenGLES3 context.
-    OEGameCoreRenderingMetal1Video      //!< Not yet implemented.
+    OEGameCoreRenderingMetal2Video      //!< Not yet implemented.
 };
 
 @protocol OERenderDelegate
@@ -498,7 +500,7 @@ OE_EXPORTED_CLASS
  *     - A nested group of options (which appears as a submenu)
  *    See OEGameCoreController.h for a detailed discussion of the keys contained
  *    in each item dictionary. */
-@property(readonly) NSArray<NSDictionary<NSString *, id> *> *displayModes;
+@property(readonly, nullable) NSArray<NSDictionary<NSString *, id> *> *displayModes;
 
 /** Change display mode.
  *  @param displayMode The name of the display mode to enable or disable, as
@@ -569,7 +571,7 @@ OE_EXPORTED_CLASS
 // These methods will be removed after some time.
 @interface OEGameCore (Deprecated)
 
-- (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE;
+- (BOOL)loadFileAtPath:(NSString *)path DEPRECATED_ATTRIBUTE NS_SWIFT_UNAVAILABLE("use loadFileAtPath:error:");
 
 - (void)fastForward:(BOOL)flag OE_DEPRECATED("use -rate");
 - (void)rewind:(BOOL)flag OE_DEPRECATED("use -rate");
@@ -582,3 +584,5 @@ OE_EXPORTED_CLASS
 - (void)changeDisplayMode OE_DEPRECATED("use -changeDisplayWithMode:, -displayModes with OEGameCoreDisplayMode* constants, and self.displayModeInfo");
 
 @end
+
+NS_ASSUME_NONNULL_END
