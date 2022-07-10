@@ -25,19 +25,19 @@
 import Foundation
 
 extension OEIntSize: Equatable {
-    public static func == (lhs: OEIntSize, rhs: OEIntSize) -> Bool {
+    @inlinable public static func == (lhs: OEIntSize, rhs: OEIntSize) -> Bool {
         OEIntSizeEqualToSize(lhs, rhs)
     }
 }
 
 extension OEIntRect: Equatable {
-    public static func == (lhs: OEIntRect, rhs: OEIntRect) -> Bool {
+    @inlinable public static func == (lhs: OEIntRect, rhs: OEIntRect) -> Bool {
         OEIntRectEqualToRect(lhs, rhs)
     }
 }
 
 extension OEIntPoint: Equatable {
-    public static func == (lhs: OEIntPoint, rhs: OEIntPoint) -> Bool {
+    @inlinable public static func == (lhs: OEIntPoint, rhs: OEIntPoint) -> Bool {
         OEIntPointEqualToPoint(lhs, rhs)
     }
 }
