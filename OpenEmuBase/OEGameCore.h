@@ -121,7 +121,7 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
  * this will return the FBO which game pixels eventually go to. This
  * allows porting of cores that overwrite GL_DRAW_FRAMEBUFFER.
  */
-@property (nonatomic, readonly) id presentationFramebuffer;
+@property (nonatomic, readonly, nullable) id presentationFramebuffer;
 
 // For internal use only.
 - (void)willExecute;
@@ -519,7 +519,7 @@ OE_EXPORTED_CLASS
  * Cores may implement this if they wish to control their entire event loop.
  * This is not recommended.
  */
-- (void)runGameLoop:(id)anArgument;
+- (void)runGameLoop:(id _Nullable)anArgument;
 
 /*!
  * @method startEmulation
