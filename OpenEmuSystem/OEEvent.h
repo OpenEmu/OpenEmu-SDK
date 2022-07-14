@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OEEvent : NSObject <NSSecureCoding>
 
-+ (instancetype)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
-- (instancetype)initWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
+- (instancetype)initWithMouseEvent:(NSEvent *)event withLocationInGameView:(OEIntPoint)location NS_SWIFT_NAME(init(mouseEvent:locationInGameView:));
+- (instancetype)init NS_UNAVAILABLE;
 
 @property (nonatomic, readonly) OEIntPoint locationInGameView;
 @property (nonatomic, readonly) NSEventType type;

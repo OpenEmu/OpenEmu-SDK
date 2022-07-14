@@ -213,7 +213,7 @@ OE_EXPORTED_CLASS
 
 @property(nonatomic, copy)     NSString                      *systemIdentifier;
 @property(nonatomic, copy)     NSString                      *systemRegion;
-@property(nonatomic, copy)     NSString                      *ROMMD5;
+@property(nonatomic, copy)     NSString                      *ROMMD5 NS_SWIFT_NAME(romMD5);
 @property(nonatomic, copy)     NSString                      *ROMHeader;
 @property(nonatomic, copy)     NSString                      *ROMSerial;
 
