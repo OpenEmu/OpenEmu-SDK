@@ -31,10 +31,10 @@ public class OELocalizationHelper: NSObject {
     @objc public enum OERegion: Int {
         @objc(OERegionNA)
         case na = 0
-        @objc(OERegionEU)
-        case eu = 1
         @objc(OERegionJPN)
-        case jpn = 2
+        case jpn = 1
+        @objc(OERegionEU)
+        case eu = 2
         @objc(OERegionOther)
         case other = 3
         
