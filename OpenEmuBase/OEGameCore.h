@@ -453,9 +453,9 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Save States
 
-- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
+- (void)saveStateToFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
 
-- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *error))block;
+- (void)loadStateFromFileAtPath:(NSString *)fileName completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
 
 @end
 
@@ -469,7 +469,7 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Save state - Optional
 
-- (NSData *)serializeStateWithError:(NSError **)outError;
+- (NSData * _Nullable)serializeStateWithError:(NSError **)outError;
 - (BOOL)deserializeState:(NSData *)state withError:(NSError **)outError;
 
 #pragma mark - Cheats - Optional
@@ -483,7 +483,7 @@ OE_EXPORTED_CLASS
 
 #pragma mark - File Insertion - Optional
 
-- (void)insertFileAtURL:(NSURL *)file completionHandler:(void(^)(BOOL success, NSError *error))block;
+- (void)insertFileAtURL:(NSURL *)file completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
 
 #pragma mark - Display Mode - Optional
 
