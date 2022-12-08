@@ -209,6 +209,7 @@ typedef NS_ENUM(NSInteger, OEElementType) {
         case kHIDUsage_Csmr_ACForward :
         case kHIDUsage_Csmr_ACExit :
         case kHIDUsage_Csmr_ACProperties :
+        case kHIDUsage_Csmr_Record :
             return OEElementTypeConsumer;
 
         case kHIDUsage_Sim_Brake :
