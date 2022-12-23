@@ -580,8 +580,10 @@ static Class GameCoreClass = Nil;
     if (paused) {
         lastRate = self.rate;
         self.rate = 0;
+        [_audioDelegate pauseAudio];
     } else {
         self.rate = lastRate;
+        [_audioDelegate resumeAudio];
     }
 }
 
