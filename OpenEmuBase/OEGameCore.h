@@ -24,7 +24,26 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+#if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
+#else
+#import <OpenGLES/gltypes.h>
+
+// define additional OpenGL pixel types that don't exist in EAGL
+
+#define GL_BGR                            0x80E0
+#define GL_BGRA                           0x80E1
+
+/* package pixels */
+#define GL_UNSIGNED_INT_8_8_8_8           0x8035
+#define GL_UNSIGNED_INT_10_10_10_2        0x8036
+#define GL_UNSIGNED_SHORT_5_6_5_REV       0x8364
+#define GL_UNSIGNED_SHORT_4_4_4_4_REV     0x8365
+#define GL_UNSIGNED_SHORT_1_5_5_5_REV     0x8366
+#define GL_UNSIGNED_INT_8_8_8_8_REV       0x8367
+
+#endif
 #import <OpenEmuBase/OEGameCoreController.h>
 #import <OpenEmuBase/OESystemResponderClient.h>
 #import <OpenEmuBase/OEGeometry.h>
@@ -163,13 +182,17 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
 - (void)resumeAudio;
 @end
 
-@class OEHIDEvent, OERingBuffer;
+@class OERingBuffer;
 @protocol OEAudioBuffer;
 
 #pragma mark -
 
 OE_EXPORTED_CLASS
+#if TARGET_OS_OSX
 @interface OEGameCore : NSResponder <OESystemResponderClient>
+#else
+@interface OEGameCore : NSObject <OESystemResponderClient>
+#endif
 
 // TODO: Move all ivars/properties that don't need overriding to a category?
 @property(weak)     id<OEGameCoreDelegate> delegate;
@@ -463,7 +486,9 @@ OE_EXPORTED_CLASS
 
 @interface OEGameCore (OptionalMethods)
 
+#if TARGET_OS_OSX
 @property(readonly) NSTrackingAreaOptions mouseTrackingOptions;
+#endif
 
 - (void)setRandomByte;
 

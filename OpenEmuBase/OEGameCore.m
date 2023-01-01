@@ -24,7 +24,13 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <TargetConditionals.h>
+
+#if TARGET_OS_OSX
 #import <OpenGL/gl.h>
+#else
+#import <OpenGLES/ES3/gl.h>
+#endif
 
 #import "OEGameCore.h"
 #import "OEGameCoreController.h"
@@ -752,10 +758,14 @@ static Class GameCoreClass = Nil;
 
 #pragma mark - Input
 
+#if TARGET_OS_OSX
+
 - (NSTrackingAreaOptions)mouseTrackingOptions
 {
     return 0;
 }
+
+#endif
 
 #pragma mark - Save state
 

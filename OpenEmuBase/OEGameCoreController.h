@@ -24,7 +24,10 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+#if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
+#endif
 #import <OpenEmuBase/OEGameCoreDisplayModes.h>
 
 
@@ -65,7 +68,11 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
 @class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
 
+#if TARGET_OS_OSX
 @interface OEGameCoreController : NSResponder
+#else
+@interface OEGameCoreController : NSObject
+#endif
 
 - (instancetype)initWithBundle:(NSBundle *)aBundle;
 
