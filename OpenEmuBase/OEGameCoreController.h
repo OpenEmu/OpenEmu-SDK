@@ -66,7 +66,7 @@ extern NSString *const OEGameCoreRewindBufferSecondsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
-@class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
+@class OEGameCore, OESystemResponder;
 
 #if TARGET_OS_OSX
 @interface OEGameCoreController : NSResponder
