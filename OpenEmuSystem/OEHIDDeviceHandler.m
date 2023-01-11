@@ -28,7 +28,7 @@
 #import "OEControllerDescription.h"
 #import "OEDeviceDescription.h"
 #import "OEControlDescription.h"
-#import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 #import "OEDeviceManager.h"
 #import "OEDeviceManager_Internal.h"
 #import "OEHIDDeviceParser.h"

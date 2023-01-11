@@ -24,7 +24,15 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
+#elif TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#else
+#error "Unsupported OS"
+#endif
+
 #import <OpenEmuBase/OpenEmuBase.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,7 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 @property (nonatomic, readonly) OEIntPoint locationInGameView;
+#if TARGET_OS_OSX
 @property (nonatomic, readonly) NSEventType type;
+#endif
 
 @end
 

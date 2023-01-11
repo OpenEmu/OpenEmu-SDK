@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class OEControlDescription;
 @class OEControlValueDescription;
 @class OEDeviceDescription;
-@class OEDeviceHandler;
 @class OEHIDEvent;
 
 @interface OEControllerDescription : NSObject <NSCopying>

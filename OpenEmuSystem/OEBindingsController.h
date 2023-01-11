@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSNotificationName const OEBindingsRepairedNotification;
 
-@class OESystemController, OEDeviceHandler, OESystemBindings, OEPlayerBindings;
+@class OESystemController, OESystemBindings;
 
 /// Manages all bindings for all systems available
 @interface OEBindingsController : NSObject

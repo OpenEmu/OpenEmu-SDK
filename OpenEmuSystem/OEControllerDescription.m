@@ -34,10 +34,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OEHIDEvent ()
-+ (instancetype)OE_eventWithElement:(IOHIDElementRef)element value:(NSInteger)value;
-@end
-
 @interface OEControllerDescription ()
 {
     NSString *_identifier;

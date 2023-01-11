@@ -27,7 +27,7 @@
 #import "OEBindingMap.h"
 #import "OEKeyBindingDescription.h"
 #import "OESystemController.h"
-#import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 
 @interface OEBindingMap ()
 {

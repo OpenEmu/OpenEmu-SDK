@@ -24,11 +24,15 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <IOKit/hid/IOHIDLib.h>
+#import <IOKit/hid/IOHIDUsageTables.h>
+#import <ForceFeedback/ForceFeedback.h>
+
 #import "OEDeviceHandler.h"
 #import "OEDeviceDescription.h"
 #import "OEControllerDescription.h"
 #import "OEDeviceManager.h"
-#import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 #import "OEHIDDeviceHandler.h"
 #import "OEControlDescription.h"
 

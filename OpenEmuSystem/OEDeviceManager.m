@@ -35,7 +35,7 @@
 #import "OEPS4HIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OETouchbarHIDDeviceHandler.h"
-#import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 
 #import <objc/runtime.h>
 

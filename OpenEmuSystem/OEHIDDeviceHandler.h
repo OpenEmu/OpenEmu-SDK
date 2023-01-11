@@ -26,6 +26,9 @@
 
 #import <Cocoa/Cocoa.h>
 #import <OpenEmuSystem/OEDeviceHandler.h>
+#import <IOKit/hid/IOHIDLib.h>
+#import <IOKit/hid/IOHIDUsageTables.h>
+#import <ForceFeedback/ForceFeedback.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

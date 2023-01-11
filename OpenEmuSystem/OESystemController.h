@@ -27,7 +27,6 @@
 #import <Foundation/Foundation.h>
 
 @class OEFile;
-@class OEHIDEvent;
 @class OEGlobalKeyBindingDescription;
 @class OEKeyBindingDescription;
 @class OEKeyBindingGroupDescription;

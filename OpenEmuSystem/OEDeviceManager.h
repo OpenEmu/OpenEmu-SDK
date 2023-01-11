@@ -24,7 +24,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #import <IOKit/hid/IOHIDLib.h>
 #import <IOKit/hid/IOHIDUsageTables.h>
@@ -61,13 +61,13 @@ extern NSString *const OEDeviceManagerDeviceHandlerUserInfoKey;
 @property(readonly) NSArray<OEDeviceHandler *> *deviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *controllerDeviceHandlers;
 @property(readonly) NSArray<OEDeviceHandler *> *keyboardDeviceHandlers;
-@property(readonly) OEDeviceAccessType          accessType API_AVAILABLE(macosx(10.15));
+@property(readonly) OEDeviceAccessType          accessType API_AVAILABLE(macosx(10.15)) API_UNAVAILABLE(ios, tvos, watchos);
 
 - (void)startWiimoteSearch;
 - (void)stopWiimoteSearch;
 @property(readonly) BOOL isBluetoothEnabled;
 
-- (BOOL)requestAccess API_AVAILABLE(macosx(10.15));
+- (BOOL)requestAccess API_AVAILABLE(macosx(10.15)) API_UNAVAILABLE(ios, tvos, watchos);
 
 // If the device has not yet been retrieved, this method will return an OEDeviceHandlerPlaceholder that must be resolved manually.
 - (OEDeviceHandler *)deviceHandlerForUniqueIdentifier:(NSString *)uniqueIdentifier;

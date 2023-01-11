@@ -27,6 +27,7 @@
 #import "OEMultiHIDDeviceHandler.h"
 #import "OEDeviceDescription.h"
 #import "OEControllerDescription.h"
+#import "OEHIDEvent_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

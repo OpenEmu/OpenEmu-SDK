@@ -27,6 +27,7 @@
 #import "OEControllerDescription.h"
 #import "OEControlDescription.h"
 #import "OEDeviceDescription.h"
+#import "OEHIDEvent_Internal.h"
 
 @interface OEControllerDescription ()
 + (OEControllerDescription *)OE_controllerDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;

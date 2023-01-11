@@ -25,6 +25,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Cocoa/Cocoa.h>
 #import "OEBindingsController.h"
 #import "OESystemController.h"
 #import "OEBindingsController_Internal.h"

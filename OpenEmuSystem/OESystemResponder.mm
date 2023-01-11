@@ -29,7 +29,7 @@ extern "C" {
 #import "NSResponder+OEHIDAdditions.h"
 #import "OEEvent.h"
 #import "OEDeviceHandler.h"
-#import "OEHIDEvent.h"
+#import "OEHIDEvent_Internal.h"
 #import "OEKeyBindingDescription.h"
 #import "OEKeyBindingGroupDescription.h"
 #import "OESystemController.h"
@@ -115,6 +115,8 @@ typedef struct OEPlayerRapidFireState {
     
     BOOL _handlesEscapeKey;
     double _analogToDigitalThreshold;
+    NSMutableDictionary<OEDeviceHandlerPlaceholder *, NSMutableArray<void (^)(void)>*>* _pendingDeviceHandlerBindings;
+    id _token;
 }
 
 + (void)load
@@ -136,6 +138,27 @@ typedef struct OEPlayerRapidFireState {
     {
         _controller = controller;
         _keyMap = [[OEBindingMap alloc] initWithSystemController:controller];
+        _pendingDeviceHandlerBindings = [NSMutableDictionary new];
+        
+        __weak __auto_type weakSelf = self;
+        _token = [NSNotificationCenter.defaultCenter addObserverForName:OEDeviceHandlerPlaceholderOriginalDeviceDidBecomeAvailableNotification
+                                                                 object:nil
+                                                                  queue:NSOperationQueue.mainQueue
+                                                             usingBlock:^(NSNotification * _Nonnull note) {
+            __auto_type self = weakSelf;
+            if (self == nil) return;
+            
+            if (![note.object isKindOfClass:OEDeviceHandlerPlaceholder.class]) {
+                return;
+            }
+            
+            OEDeviceHandlerPlaceholder * placeholder = note.object;
+            NSArray<void (^)(void)> * pendingBlocks = self->_pendingDeviceHandlerBindings[placeholder];
+            for (void (^block)(void) in pendingBlocks) {
+                block();
+            }
+            [self->_pendingDeviceHandlerBindings removeObjectForKey:placeholder];
+        }];
         
         /* Create the list of buttons that should not be affected by the rapid fire
          * toggle. Basically, we remove all directional buttons, by exploiting binding
@@ -157,6 +180,14 @@ typedef struct OEPlayerRapidFireState {
     }
 
     return self;
+}
+
+- (void)deinit
+{
+    if (_token != nil) {
+        [NSNotificationCenter.defaultCenter removeObserver:_token];
+        _token = nil;
+    }
 }
 
 + (Protocol *)gameSystemResponderClientProtocol;
@@ -639,7 +670,45 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
     return [OESystemKey systemKeyWithKey:[aKey index] player:thePlayer isAnalogic:[aKey isAnalogic]];
 }
 
+- (void)updateBindingForEvent:(OEHIDEvent *)theEvent block:(void (^)(void))block
+{
+    if (!theEvent.hasDeviceHandlerPlaceholder) {
+        block();
+        return;
+    }
+    
+    if (![theEvent.deviceHandler isKindOfClass:OEDeviceHandlerPlaceholder.class]) {
+        return;
+    }
+    
+    OEDeviceHandlerPlaceholder *placeholder = theEvent.deviceHandler;
+    
+    NSMutableArray<void (^)(void)> *pendingBlocks = _pendingDeviceHandlerBindings[placeholder];
+    if (pendingBlocks == nil) {
+        pendingBlocks = [NSMutableArray new];
+    }
+    
+    __block void (^blockCopy)(void) = [block copy];
+    [pendingBlocks addObject:^{
+        [theEvent resolveDeviceHandlerPlaceholder];
+        blockCopy();
+    }];
+    
+    _pendingDeviceHandlerBindings[placeholder] = pendingBlocks;
+}
+
 - (void)systemBindingsDidSetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
+{
+    __weak __auto_type weakSelf = self;
+    [self updateBindingForEvent:theEvent block:^{
+        __auto_type self = weakSelf;
+        if (self == nil) return;
+        
+        [self OE_systemBindingsDidSetEvent:theEvent forBinding:bindingDescription playerNumber:playerNumber];
+    }];
+}
+
+- (void)OE_systemBindingsDidSetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
 {
     // Ignore off state events.
     if([theEvent hasOffState]) return;
@@ -710,6 +779,17 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
 }
 
 - (void)systemBindingsDidUnsetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
+{
+    __weak __auto_type weakSelf = self;
+    [self updateBindingForEvent:theEvent block:^{
+        __auto_type self = weakSelf;
+        if (self == nil) return;
+        
+        [self OE_systemBindingsDidUnsetEvent:theEvent forBinding:bindingDescription playerNumber:playerNumber];
+    }];
+}
+
+- (void)OE_systemBindingsDidUnsetEvent:(OEHIDEvent *)theEvent forBinding:(__kindof OEBindingDescription *)bindingDescription playerNumber:(NSUInteger)playerNumber
 {
     switch([theEvent type])
     {
@@ -936,7 +1016,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
     OEIntPoint point = [event locationInGameView];
 
     [_client performBlock:^{
-        switch([event type])
+        switch(event.type)
         {
             case NSEventTypeLeftMouseDown :
             case NSEventTypeLeftMouseDragged :

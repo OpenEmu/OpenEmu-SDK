@@ -24,7 +24,15 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <TargetConditionals.h>
+
+#if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
+#elif TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#else
+#error "Unsupported platform"
+#endif
 #import <OpenEmuBase/OEGameCore.h>
 #import <OpenEmuSystem/OEBindingMap.h>
 #import <OpenEmuSystem/OEKeyBindingDescription.h>
@@ -37,7 +45,11 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol OESystemResponderClient;
 @protocol OEGlobalEventsHandler;
 
+#if TARGET_OS_OSX
 @interface OESystemResponder : NSResponder
+#elif TARGET_OS_IOS
+@interface OESystemResponder : UIResponder
+#endif
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithController:(OESystemController *)controller NS_DESIGNATED_INITIALIZER;
