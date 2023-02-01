@@ -35,6 +35,7 @@
 #import "OELogging.h"
 #import <os/signpost.h>
 
+
 #ifndef BOOL_STR
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
 #endif
@@ -62,6 +63,12 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     NSTimeInterval          lastRate;
 
     NSUInteger frameCounter;
+    
+    id<MTLDevice>          OEMetalDev;
+    CAMetalLayer           *OEMetalLayer;
+    id<MTLTexture>         OEMetalRenderTexture;
+    id<MTLCommandQueue>    OEMetalCmdQueue;
+    
 }
 
 @synthesize nextFrameTime;
@@ -83,6 +90,8 @@ static Class GameCoreClass = Nil;
     {
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
+        
+        
     }
     return self;
 }
@@ -520,6 +529,53 @@ static Class GameCoreClass = Nil;
     }
 
     return OEGameCoreRendering2DVideo;
+}
+
+- (void)setMetalDev:(id<MTLDevice>)device
+{
+    OEMetalDev = device;
+}
+
+- (id<MTLDevice>)getMetalDev
+{
+    return OEMetalDev;
+}
+
+- (void)setMetalLayer:(CAMetalLayer *) layer
+{
+    OEMetalLayer = layer;
+    
+}
+- (CAMetalLayer *)getMetalLayer
+{
+    return OEMetalLayer;
+    
+}
+- (id<MTLTexture>)getMetalTex
+{
+    return OEMetalRenderTexture;
+    
+}
+- (void)createMetalTex
+{
+    MTLTextureDescriptor* desc = [MTLTextureDescriptor
+        texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+                                     width:self.screenRect.size.width
+                                    height:self.screenRect.size.height
+                                 mipmapped:false];
+    [desc setUsage:MTLTextureUsageShaderRead];
+    [desc setStorageMode:MTLStorageModePrivate];
+    OEMetalRenderTexture = [OEMetalDev newTextureWithDescriptor:desc];
+}
+
+- (void)setMetalCmdQueue:(id<MTLCommandQueue>) cmdqueue
+{
+    OEMetalCmdQueue = cmdqueue;
+}
+
+- (id<MTLCommandQueue>)getMetalCmdQueue
+{
+    return OEMetalCmdQueue;
 }
 
 - (const void*)getVideoBufferWithHint:(void *)hint

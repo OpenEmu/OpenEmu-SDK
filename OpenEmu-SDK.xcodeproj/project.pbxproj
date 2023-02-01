@@ -113,6 +113,7 @@
 		C6A726841C059BF000E35961 /* OEBindingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = C6A726821C059BF000E35961 /* OEBindingDescription.m */; };
 		C6F16C4C1D73582C008E0C57 /* OEFile.h in Headers */ = {isa = PBXBuildFile; fileRef = C6F16C4A1D73582C008E0C57 /* OEFile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C6F16C4D1D73582C008E0C57 /* OEFile.m in Sources */ = {isa = PBXBuildFile; fileRef = C6F16C4B1D73582C008E0C57 /* OEFile.m */; };
+		DDD842D32983131500341C61 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDD842D22983131500341C61 /* Metal.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -245,6 +246,7 @@
 		C6A726821C059BF000E35961 /* OEBindingDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEBindingDescription.m; sourceTree = "<group>"; };
 		C6F16C4A1D73582C008E0C57 /* OEFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEFile.h; sourceTree = "<group>"; };
 		C6F16C4B1D73582C008E0C57 /* OEFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEFile.m; sourceTree = "<group>"; };
+		DDD842D22983131500341C61 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +262,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDD842D32983131500341C61 /* Metal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,6 +293,7 @@
 				C6772A8E1710CD7E00ED580A /* OpenEmuSystem */,
 				0109BBA3209F25EB002419C1 /* OpenEmuBaseTests */,
 				C6772A271710A4BA00ED580A /* Products */,
+				DDD842D12983131500341C61 /* Frameworks */,
 			);
 			indentWidth = 4;
 			sourceTree = "<group>";
@@ -489,6 +493,14 @@
 				01AFC70B2364E327005EEB08 /* NSData+OESystem.m */,
 			);
 			name = Utilities;
+			sourceTree = "<group>";
+		};
+		DDD842D12983131500341C61 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DDD842D22983131500341C61 /* Metal.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

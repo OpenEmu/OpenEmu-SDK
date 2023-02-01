@@ -25,10 +25,12 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <Metal/Metal.h>
 #import <OpenEmuBase/OEGameCoreController.h>
 #import <OpenEmuBase/OESystemResponderClient.h>
 #import <OpenEmuBase/OEGeometry.h>
 #import <OpenEmuBase/OEDiffQueue.h>
+#include <QuartzCore/QuartzCore.h>
 
 #ifndef DLog
 
@@ -283,6 +285,18 @@ OE_EXPORTED_CLASS
 - (void)endPausedExecution;
 
 #pragma mark - Video
+
+- (void)setMetalDev:(id<MTLDevice>) device;
+- (id<MTLDevice>)getMetalDev;
+
+- (void)setMetalLayer:(CAMetalLayer *) layer;
+- (CAMetalLayer *)getMetalLayer;
+
+- (void)setMetalCmdQueue:(id<MTLCommandQueue>) cmdqueue;
+- (id<MTLCommandQueue>)getMetalCmdQueue;
+
+- (id<MTLTexture>)getMetalTex;
+- (void)createMetalTex;
 
 /*!
  * @method getVideoBufferWithHint:
