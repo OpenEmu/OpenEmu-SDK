@@ -286,13 +286,13 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Video
 
-@property (strong) id<MTLDevice> metalDevice;
+@property (strong, nullable) id<MTLDevice> metalDevice;
 
-@property (strong) CAMetalLayer *metalLayer;
+@property (strong, nullable) CAMetalLayer *metalLayer;
 
-@property (strong) id<MTLCommandQueue> metalCommandQueue;
+@property (strong, nullable) id<MTLCommandQueue> metalCommandQueue;
 
-@property (readonly, strong) id<MTLTexture> metalTexture;
+@property (readonly, nullable, strong) id<MTLTexture> metalTexture;
 - (void)createMetalTexture;
 
 /*!
