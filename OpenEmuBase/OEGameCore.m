@@ -531,32 +531,11 @@ static Class GameCoreClass = Nil;
     return OEGameCoreRendering2DVideo;
 }
 
-- (void)setMetalDev:(id<MTLDevice>)device
-{
-    OEMetalDev = device;
-}
+@synthesize metalDevice = OEMetalDev;
+@synthesize metalLayer = OEMetalLayer;
+@synthesize metalTexture = OEMetalRenderTexture;
 
-- (id<MTLDevice>)getMetalDev
-{
-    return OEMetalDev;
-}
-
-- (void)setMetalLayer:(CAMetalLayer *) layer
-{
-    OEMetalLayer = layer;
-    
-}
-- (CAMetalLayer *)getMetalLayer
-{
-    return OEMetalLayer;
-    
-}
-- (id<MTLTexture>)getMetalTex
-{
-    return OEMetalRenderTexture;
-    
-}
-- (void)createMetalTex
+- (void)createMetalTexture
 {
     MTLTextureDescriptor* desc = [MTLTextureDescriptor
         texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
@@ -568,15 +547,7 @@ static Class GameCoreClass = Nil;
     OEMetalRenderTexture = [OEMetalDev newTextureWithDescriptor:desc];
 }
 
-- (void)setMetalCmdQueue:(id<MTLCommandQueue>) cmdqueue
-{
-    OEMetalCmdQueue = cmdqueue;
-}
-
-- (id<MTLCommandQueue>)getMetalCmdQueue
-{
-    return OEMetalCmdQueue;
-}
+@synthesize metalCommandQueue = OEMetalCmdQueue;
 
 - (const void*)getVideoBufferWithHint:(void *)hint
 {

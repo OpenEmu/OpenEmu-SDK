@@ -286,17 +286,14 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Video
 
-- (void)setMetalDev:(id<MTLDevice>) device;
-- (id<MTLDevice>)getMetalDev;
+@property (strong) id<MTLDevice> metalDevice;
 
-- (void)setMetalLayer:(CAMetalLayer *) layer;
-- (CAMetalLayer *)getMetalLayer;
+@property (strong) CAMetalLayer *metalLayer;
 
-- (void)setMetalCmdQueue:(id<MTLCommandQueue>) cmdqueue;
-- (id<MTLCommandQueue>)getMetalCmdQueue;
+@property (strong) id<MTLCommandQueue> metalCommandQueue;
 
-- (id<MTLTexture>)getMetalTex;
-- (void)createMetalTex;
+@property (readonly, strong) id<MTLTexture> metalTexture;
+- (void)createMetalTexture;
 
 /*!
  * @method getVideoBufferWithHint:
