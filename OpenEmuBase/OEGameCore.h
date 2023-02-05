@@ -607,8 +607,8 @@ OE_EXPORTED_CLASS
  */
 - (BOOL)loadFileAtURL:(NSURL *)url error:(NSError **)error;
 
-- (void)saveStateToFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block;
-- (void)loadStateFromFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *error))block;
+- (void)saveStateToFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
+- (void)loadStateFromFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
 
 @end
 
