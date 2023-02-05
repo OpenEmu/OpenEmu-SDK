@@ -74,31 +74,37 @@ static inline BOOL OEIntRectEqualToRect(OEIntRect rect1, OEIntRect rect2)
     return OEIntPointEqualToPoint(rect1.origin, rect2.origin) && OEIntSizeEqualToSize(rect1.size, rect2.size);
 }
 
+static inline BOOL OEIntSizeIsEmpty(OEIntSize size) CF_SWIFT_NAME(getter:OEIntSize.isEmpty(self:));
 static inline BOOL OEIntSizeIsEmpty(OEIntSize size)
 {
     return size.width == 0 || size.height == 0;
 }
 
+static inline BOOL OEIntRectIsEmpty(OEIntRect size) CF_SWIFT_NAME(getter:OEIntRect.isEmpty(self:));
 static inline BOOL OEIntRectIsEmpty(OEIntRect rect)
 {
     return OEIntSizeIsEmpty(rect.size);
 }
 
+static inline int OEIntRectMinY(OEIntRect size) CF_SWIFT_NAME(getter:OEIntRect.minY(self:));
 static inline int OEIntRectMinY(OEIntRect rect)
 {
     return MIN(rect.origin.y, rect.origin.y + rect.size.height);
 }
 
+static inline int OEIntRectMinX(OEIntRect size) CF_SWIFT_NAME(getter:OEIntRect.minX(self:));
 static inline int OEIntRectMinX(OEIntRect rect)
 {
     return MIN(rect.origin.x, rect.origin.x + rect.size.width);
 }
 
+static inline int OEIntRectMaxY(OEIntRect size) CF_SWIFT_NAME(getter:OEIntRect.maxY(self:));
 static inline int OEIntRectMaxY(OEIntRect rect)
 {
     return MAX(rect.origin.y, rect.origin.y + rect.size.height);
 }
 
+static inline int OEIntRectMaxX(OEIntRect size) CF_SWIFT_NAME(getter:OEIntRect.maxX(self:));
 static inline int OEIntRectMaxX(OEIntRect rect)
 {
     return MAX(rect.origin.x, rect.origin.x + rect.size.width);
@@ -145,10 +151,6 @@ static inline BOOL NSPointInTriangle(NSPoint p, NSPoint A, NSPoint B, NSPoint C)
 }
 
 extern OEIntSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize) CF_SWIFT_NAME(OEIntSize.corrected(self:forAspectSize:));
-
-#pragma mark - Refined for Swift
-
-extern BOOL _OEIntSizeIsEmptySwift(OEIntSize size) CF_SWIFT_NAME(getter:OEIntSize.isEmpty(self:));
 
 #pragma mark - CGSize extensions
 

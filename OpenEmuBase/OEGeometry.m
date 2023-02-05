@@ -42,8 +42,3 @@ OEIntSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspec
     
     return corrected;
 }
-
-BOOL _OEIntSizeIsEmptySwift(OEIntSize size)
-{
-    return OEIntSizeIsEmpty(size);
-}
