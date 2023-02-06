@@ -24,7 +24,10 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+#if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
+#endif
 #import <OpenEmuBase/OEGameCoreDisplayModes.h>
 
 
@@ -63,9 +66,13 @@ extern NSString *const OEGameCoreRewindBufferSecondsKey;
 extern NSString *const OEGameCoreSupportsFileInsertionKey;
 extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
-@class OEGameCore, OEGameDocument, OEHIDEvent, OESystemResponder;
+@class OEGameCore, OESystemResponder;
 
+#if TARGET_OS_OSX
 @interface OEGameCoreController : NSResponder
+#else
+@interface OEGameCoreController : NSObject
+#endif
 
 - (instancetype)initWithBundle:(NSBundle *)aBundle;
 
@@ -76,8 +83,8 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 @property(readonly) NSArray<NSString *> *systemIdentifiers;
 @property(readonly) NSDictionary<NSString *, NSDictionary<NSString *, id> *> *coreOptions;
 
-@property(readonly) NSString   *supportDirectoryPath;
-@property(readonly) NSString   *biosDirectoryPath;
+@property(readonly) NSURL      *supportDirectory;
+@property(readonly) NSURL      *biosDirectory;
 @property(readonly) NSUInteger  playerCount;
 
 - (bycopy OEGameCore *)newGameCore;
@@ -92,5 +99,13 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 - (BOOL)supportsDisplayModeChangeForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindIntervalForSystemIdentifier:(NSString *)systemIdentifier;
 - (NSUInteger)rewindBufferSecondsForSystemIdentifier:(NSString *)systemIdentifier;
+
+@end
+
+
+@interface OEGameCoreController (Deprecated)
+
+@property(readonly) NSString *supportDirectoryPath __attribute__((deprecated("Use supportDirectoryURL")));
+@property(readonly) NSString *biosDirectoryPath __attribute__((deprecated("Use biosDirectoryURL")));
 
 @end

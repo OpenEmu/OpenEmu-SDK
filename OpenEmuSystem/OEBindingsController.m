@@ -61,7 +61,7 @@ NSNotificationName const OEBindingsRepairedNotification = @"OEBindingsRepairedNo
 static dispatch_queue_t bindingsControllerQueue;
 static NSMutableDictionary<NSString *, OEBindingsController *> *bindingsControllers;
 static NSMutableSet<OESystemController *> *systemControllers;
-static NSString *configurationsFolderPath;
+static NSURL *configurationsFolder;
 
 + (void)initialize
 {
@@ -72,12 +72,13 @@ static NSString *configurationsFolderPath;
         systemControllers = [[NSMutableSet alloc] init];
         bindingsControllers = [[NSMutableDictionary alloc] initWithCapacity:1];
         
-        NSArray  *paths  = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSFileManager *fileManager = NSFileManager.defaultManager;
+        NSArray *urls = [fileManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
         
-        if([paths count] > 0)
+        if(urls.count > 0)
         {
-            configurationsFolderPath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"OpenEmu"] stringByAppendingPathComponent:@"Bindings"];
-            [[NSFileManager defaultManager] createDirectoryAtPath:configurationsFolderPath withIntermediateDirectories:YES attributes:nil error:NULL];
+            configurationsFolder = [[urls.firstObject URLByAppendingPathComponent:@"OpenEmu"] URLByAppendingPathComponent:@"Bindings"];
+            [fileManager createDirectoryAtURL:configurationsFolder withIntermediateDirectories:YES attributes:nil error:NULL];
         }
     }
 }
@@ -110,14 +111,14 @@ static NSString *configurationsFolderPath;
     return [[self alloc] initWithConfigurationName:aName];
 }
 
-+ (NSString *)filePathForConfigurationWithName:(NSString *)aName;
++ (NSURL *)fileURLForConfigurationWithName:(NSString *)aName;
 {
-    return [[configurationsFolderPath stringByAppendingPathComponent:aName] stringByAppendingPathExtension:@"oebindings"];
+    return [[configurationsFolder URLByAppendingPathComponent:aName] URLByAppendingPathExtension:@"oebindings"];
 }
 
-- (NSString *)filePath;
+- (NSURL *)fileURL;
 {
-    return [[self class] filePathForConfigurationWithName:[self configurationName]];
+    return [[self class] fileURLForConfigurationWithName:[self configurationName]];
 }
 
 - (instancetype)init
@@ -142,7 +143,7 @@ static NSString *configurationsFolderPath;
             dispatch_sync(bindingsControllerQueue, ^{
                 self->configurationName     = [aName copy];
 
-                NSData *data = [NSData dataWithContentsOfFile:[[self class] filePathForConfigurationWithName:aName]];
+                NSData *data = [NSData dataWithContentsOfURL:[[self class] fileURLForConfigurationWithName:aName]];
                 self->systemRepresentations = data ? [[NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:nil] mutableCopy] : nil;
                 [self OE_setupBindingsController];
                 [self OE_setupNotificationObservation];
@@ -250,7 +251,7 @@ static NSString *configurationsFolderPath;
         return NO;
     }
 
-    if([data writeToFile:self.filePath options:NSDataWritingAtomic error:&error]) {
+    if([data writeToURL:self.fileURL options:NSDataWritingAtomic error:&error]) {
         requiresSynchronization = NO;
         return YES;
     }

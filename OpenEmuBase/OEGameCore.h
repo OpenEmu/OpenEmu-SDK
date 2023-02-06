@@ -24,8 +24,27 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#if TARGET_OS_OSX
+#import <Cocoa/Cocoa.h>
+#else
+#import <OpenGLES/gltypes.h>
+
+// define additional OpenGL pixel types that don't exist in EAGL
+
+#define GL_BGR                            0x80E0
+#define GL_BGRA                           0x80E1
+
+/* package pixels */
+#define GL_UNSIGNED_INT_8_8_8_8           0x8035
+#define GL_UNSIGNED_INT_10_10_10_2        0x8036
+#define GL_UNSIGNED_SHORT_5_6_5_REV       0x8364
+#define GL_UNSIGNED_SHORT_4_4_4_4_REV     0x8365
+#define GL_UNSIGNED_SHORT_1_5_5_5_REV     0x8366
+#define GL_UNSIGNED_INT_8_8_8_8_REV       0x8367
+
+#endif
 #import <OpenEmuBase/OEGameCoreController.h>
 #import <OpenEmuBase/OESystemResponderClient.h>
 #import <OpenEmuBase/OEGeometry.h>
@@ -165,13 +184,17 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
 - (void)resumeAudio;
 @end
 
-@class OEHIDEvent, OERingBuffer;
+@class OERingBuffer;
 @protocol OEAudioBuffer;
 
 #pragma mark -
 
 OE_EXPORTED_CLASS
+#if TARGET_OS_OSX
 @interface OEGameCore : NSResponder <OESystemResponderClient>
+#else
+@interface OEGameCore : NSObject <OESystemResponderClient>
+#endif
 
 // TODO: Move all ivars/properties that don't need overriding to a category?
 @property(weak)     id<OEGameCoreDelegate> delegate;
@@ -474,7 +497,9 @@ OE_EXPORTED_CLASS
 
 @interface OEGameCore (OptionalMethods)
 
+#if TARGET_OS_OSX
 @property(readonly) NSTrackingAreaOptions mouseTrackingOptions;
+#endif
 
 - (void)setRandomByte;
 
@@ -576,6 +601,27 @@ OE_EXPORTED_CLASS
 
 @end
 
+#pragma mark - NSURL
+
+// The methods and properties in this category require OpenEmu 2.4.
+@interface OEGameCore (NSURL)
+
+@property(nonatomic, readonly) NSURL *biosDirectory;
+@property(nonatomic, readonly) NSURL *supportDirectory;
+@property(nonatomic, readonly) NSURL *batterySavesDirectory;
+
+/*!
+ * @method loadFileAtURL:error
+ * @discussion
+ * Try to load a ROM and return NO if it fails, or YES if it succeeds.
+ * You can do any setup you want here.
+ */
+- (BOOL)loadFileAtURL:(NSURL *)url error:(NSError **)error;
+
+- (void)saveStateToFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
+- (void)loadStateFromFileAtURL:(NSURL *)url completionHandler:(void(^)(BOOL success, NSError *_Nullable error))block NS_SWIFT_ASYNC_THROWS_ON_FALSE(1);
+
+@end
 
 #pragma mark - Deprecated
 

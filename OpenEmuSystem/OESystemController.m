@@ -151,11 +151,11 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (NSDictionary<NSString *, id> *)OE_propertyListWithFileName:(NSString *)fileName
 {
-    NSString *path = [_bundle pathForResource:fileName ofType:@"plist"];
+    NSURL *url = [_bundle URLForResource:fileName withExtension:@"plist"];
 
     id ret = nil;
-    if(path != nil)
-        ret = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:path options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
+    if(url != nil)
+        ret = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURL:url options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
 
     return ret;
 }
@@ -185,12 +185,13 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
 
 - (NSDictionary<NSString *, id> *)OE_defaultControllerPreferences;
 {
-    return [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:[_bundle pathForResource:@"Controller-Preferences" ofType:@"plist"]] options:NSPropertyListImmutable format:NULL error:NULL];
+    return [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURL:[_bundle URLForResource:@"Controller-Preferences" withExtension:@"plist"]] options:NSPropertyListImmutable format:NULL error:NULL];
 }
 
 - (NSDictionary<NSString *, id> *)OE_localizedControllerPreferences;
 {
     NSString *fileName = nil;
+    NSURL *fileURL = nil;
 
     switch([[OELocalizationHelper sharedHelper] region])
     {
@@ -200,9 +201,9 @@ static NSMapTable<NSString *, OESystemController *> *_registeredSystemController
         default : break;
     }
 
-    if(fileName != nil) fileName = [_bundle pathForResource:fileName ofType:@"plist"];
+    if(fileName != nil) fileURL = [_bundle URLForResource:fileName withExtension:@"plist"];
 
-    return (fileName == nil ? nil : [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:fileName] options:NSPropertyListImmutable format:NULL error:NULL]);
+    return (fileURL == nil ? nil : [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURL:fileURL] options:NSPropertyListImmutable format:NULL error:NULL]);
 }
 
 - (NSArray<NSArray<NSDictionary<NSString *, NSString *> *> *> *)OE_globalButtonsControlList

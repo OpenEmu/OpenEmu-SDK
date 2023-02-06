@@ -36,7 +36,7 @@ extern NSNotificationName const OEBindingsRepairedNotification;
 /// Manages all bindings for all systems available
 @interface OEBindingsController : NSObject
 
-+ (NSString *)filePathForConfigurationWithName:(NSString *)aName;
++ (NSURL *)fileURLForConfigurationWithName:(NSString *)aName;
 
 // Class method because all bindings controllers need to know about it
 + (void)registerSystemController:(OESystemController *)aController;
@@ -48,7 +48,7 @@ extern NSNotificationName const OEBindingsRepairedNotification;
 
 @property(readonly) NSString *configurationName;
 
-@property(readonly) NSString *filePath;
+@property(readonly) NSURL *fileURL;
 
 @property(readonly, copy) NSArray<OESystemBindings *> *systemBindings;
 

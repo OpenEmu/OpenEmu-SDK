@@ -63,13 +63,13 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
 {
     if(self == [OEControllerDescription class])
     {
-        NSString *identifierPath = [[NSBundle mainBundle] pathForResource:@"Controller-Database" ofType:@"plist"];
-        if (identifierPath == nil)
+        NSURL *identifierURL = [[NSBundle mainBundle] URLForResource:@"Controller-Database" withExtension:@"plist"];
+        if (identifierURL == nil)
         {
             // Fallback to framework bundled version
-            identifierPath = [[NSBundle bundleForClass:OEControllerDescription.class] pathForResource:@"Controller-Database" ofType:@"plist"];
+            identifierURL = [[NSBundle bundleForClass:OEControllerDescription.class] URLForResource:@"Controller-Database" withExtension:@"plist"];
         }
-        NSDictionary *representations = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfFile:identifierPath options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
+        NSDictionary *representations = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURL:identifierURL options:NSDataReadingMappedIfSafe error:NULL] options:0 format:NULL error:NULL];
 
         NSMutableDictionary<NSString *, NSDictionary *> *mappingReps = [NSMutableDictionary dictionaryWithCapacity:[representations count]];
         NSMutableArray<OEControllerDescription *> *knownControllerDescriptions = [NSMutableArray array];

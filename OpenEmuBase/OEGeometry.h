@@ -25,6 +25,8 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <CoreGraphics/CoreGraphics.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -110,9 +112,18 @@ static inline int OEIntRectMaxX(OEIntRect rect)
     return MAX(rect.origin.x, rect.origin.x + rect.size.width);
 }
 
-static inline NSSize NSSizeFromOEIntSize(OEIntSize size)
+#if TARGET_OS_OSX
+
+static inline NSSize NSSizeFromOEIntSize(OEIntSize size) API_DEPRECATED_WITH_REPLACEMENT("CGSizeFromOEIntSize", macos(10.0, 10.14.4))
 {
     return NSMakeSize(size.width, size.height);
+}
+
+#endif
+
+static inline CGSize CGSizeFromOEIntSize(OEIntSize size) NS_AVAILABLE(10.14, 16.0)
+{
+    return CGSizeMake(size.width, size.height);
 }
 
 static inline NSString *NSStringFromOEIntPoint(OEIntPoint p)
@@ -130,24 +141,18 @@ static inline NSString *NSStringFromOEIntRect(OEIntRect r)
     return [NSString stringWithFormat:@"{ %@, %@ }", NSStringFromOEIntPoint(r.origin), NSStringFromOEIntSize(r.size)];
 }
 
-static inline NSSize OEScaleSize(NSSize size, CGFloat factor)
+#if TARGET_OS_OSX
+
+static inline NSSize OEScaleSize(NSSize size, CGFloat factor) API_DEPRECATED_WITH_REPLACEMENT("OEScaleCGSize", macos(10.0, 10.14.4))
 {
     return (NSSize){size.width*factor, size.height*factor};
 }
 
-static inline NSSize OERoundSize(NSSize size)
-{
-    return (NSSize){roundf(size.width), roundf(size.height)};
-}
+#endif
 
-static inline BOOL NSPointInTriangle(NSPoint p, NSPoint A, NSPoint B, NSPoint C)
+static inline CGSize OEScaleCGSize(CGSize size, CGFloat factor) NS_AVAILABLE(10.14, 16.0)
 {
-    CGFloat d = (B.y-C.y) * (A.x-C.x) + (C.x - B.x) * (A.y - C.y);
-    CGFloat a = ((B.y - C.y)*(p.x - C.x) + (C.x - B.x)*(p.y - C.y)) / d;
-    CGFloat b = ((C.y - A.y)*(p.x - C.x) + (A.x - C.x)*(p.y - C.y)) / d;
-    CGFloat c = 1 - a - b;
-
-    return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
+    return (CGSize){size.width*factor, size.height*factor};
 }
 
 extern OEIntSize OECorrectScreenSizeForAspectSize(OEIntSize screenSize, OEIntSize aspectSize) CF_SWIFT_NAME(OEIntSize.corrected(self:forAspectSize:));
