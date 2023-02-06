@@ -105,7 +105,7 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
     OEGameCoreRenderingMetal2Video      //!< Not yet implemented.
 };
 
-@protocol OERenderDelegate
+@protocol OERenderDelegate <NSObject>
 @required
 
 /*!
@@ -175,7 +175,7 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
 
 #pragma mark -
 
-@protocol OEAudioDelegate
+@protocol OEAudioDelegate <NSObject>
 @required
 - (void)audioSampleRateDidChange;
 
