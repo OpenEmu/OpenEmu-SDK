@@ -1,4 +1,4 @@
-// Copyright (c) 2019, OpenEmu Team
+// Copyright (c) 2021, OpenEmu Team
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -22,22 +22,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#import "NSData+OESystem.h"
-#import <Foundation/Foundation.h>
+import Foundation
 
+private let charA = UInt8(ascii: "a")
+private let char0 = UInt8(ascii: "0")
 
-@implementation NSData (OESystem)
-
-
-- (NSString *)oe_hexStringRepresentation
-{
-    NSMutableString *res = [NSMutableString string];
-    const uint8_t *bytes = self.bytes;
-    for (NSUInteger i = 0; i < self.length; i++, bytes++) {
-        [res appendFormat:@"%02X", *bytes];
-    }
-    return [res copy];
+private func itoh(_ value: UInt8) -> UInt8 {
+    assert(value <= 0xF)
+    return (value > 9) ? (charA + value - 10) : (char0 + value)
 }
 
+public extension DataProtocol {
+    /// Returns a hexadecimal encoding of the receiver.
+    var hexString: String {
+        let hexLen = self.count * 2
+        let ptr = UnsafeMutablePointer<UInt8>.allocate(capacity: hexLen)
+        var offset = 0
+        
+        for i in self {
+            ptr[offset    ] = itoh((i >> 4) & 0xF)
+            ptr[offset + 1] = itoh(i & 0xF)
+            offset += 2
+        }
+        
+        return String(bytesNoCopy: ptr, length: hexLen, encoding: .utf8, freeWhenDone: true)!
+    }
+}
 
-@end
+public extension NSData {
+    @objc(oe_hexStringRepresentation)
+    var hexString: String {
+        return (self as Data).hexString
+    }
+}
