@@ -71,7 +71,6 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     NSUInteger frameCounter;
     
     id<MTLDevice>          OEMetalDev;
-    CAMetalLayer           *OEMetalLayer;
     id<MTLTexture>         OEMetalRenderTexture;
     id<MTLCommandQueue>    OEMetalCmdQueue;
     
@@ -544,7 +543,7 @@ static Class GameCoreClass = Nil;
 }
 
 @synthesize metalDevice = OEMetalDev;
-@synthesize metalLayer = OEMetalLayer;
+
 @synthesize metalTexture = OEMetalRenderTexture;
 
 - (void)createMetalTexture
