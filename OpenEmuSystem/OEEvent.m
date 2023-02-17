@@ -25,18 +25,12 @@
  */
 
 #import "OEEvent.h"
-#import <QuartzCore/QuartzCore.h>
 
 static NSString *const OEEventLocationXKey = @"OEEventLocationX";
 static NSString *const OEEventLocationYKey = @"OEEventLocationY";
 static NSString *const OEEventTypeKey = @"OEEventType";
 
 @implementation OEEvent
-
-+ (instancetype)eventWithMouseEvent:(NSEvent *)anEvent withLocationInGameView:(OEIntPoint)aLocation;
-{
-    return [[self alloc] initWithMouseEvent:anEvent withLocationInGameView:aLocation];
-}
 
 - (instancetype)init
 {
