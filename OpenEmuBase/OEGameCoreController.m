@@ -57,13 +57,6 @@ NSString *const OEGameCoreSupportsDisplayModeChangeKey = @"OEGameCoreSupportsDis
 NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardNamespace", @"OEHIDNamespace", @"OEMouseNamespace", @"OEOtherNamespace" };
 
 
-@interface OEGameCoreController ()
-{
-    NSMutableArray *_gameDocuments;
-}
-
-@end
-
 @implementation OEGameCoreController
 
 - (instancetype)init
@@ -88,8 +81,6 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
         NSURL *supportFolder = [baseURL URLByAppendingPathComponent:@"OpenEmu"];
         _supportDirectory = [supportFolder URLByAppendingPathComponent:_pluginName];
         _biosDirectory    = [supportFolder URLByAppendingPathComponent:@"BIOS"];
-
-        _gameDocuments = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -179,12 +170,6 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
     id options = [self coreOptions];
     id system = [options valueForKey:systemIdentifier];
     return [[system valueForKey:OEGameCoreRewindBufferSecondsKey] unsignedIntegerValue];
-    
-}
-
-- (void)dealloc
-{
-    [_gameDocuments makeObjectsPerformSelector:@selector(close)];
 }
 
 - (BOOL)acceptsFirstResponder
