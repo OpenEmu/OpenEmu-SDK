@@ -87,12 +87,12 @@ NSString *OEEventNamespaceKeys[] = { @"", @"OEGlobalNamespace", @"OEKeyboardName
 
 - (NSArray<NSString *> *)systemIdentifiers
 {
-	return [[[self bundle] infoDictionary] objectForKey:OEGameCoreSystemIdentifiersKey];
+    return [[[self bundle] infoDictionary] objectForKey:OEGameCoreSystemIdentifiersKey];
 }
 
 - (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)coreOptions
 {
-	return [[[self bundle] infoDictionary] objectForKey:OEGameCoreOptionsKey];
+    return [[[self bundle] infoDictionary] objectForKey:OEGameCoreOptionsKey];
 }
 
 - (NSArray<NSDictionary<NSString *, id> *> *)requiredFilesForSystemIdentifier:(NSString *)systemIdentifier

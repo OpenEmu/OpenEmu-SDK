@@ -126,15 +126,15 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 - (instancetype)init
 {
-	if((self = [super init]))
-	{
+    if((self = [super init]))
+    {
         _uniqueIdentifiersToDeviceHandlersQueue = dispatch_queue_create("org.openemu.uniqueIdentifiersToDeviceHandlersQueue", DISPATCH_QUEUE_CONCURRENT);
         _uniqueIdentifiersToDeviceHandlers = [[NSMutableDictionary alloc] init];
 
         _keyboardHandlers    = [[NSMutableSet alloc] init];
         _deviceHandlers      = [[NSMutableSet alloc] init];
         _multiDeviceHandlers = [[NSMutableSet alloc] init];
-		_hidManager          = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
+        _hidManager          = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
 
         _globalEventListeners = [NSHashTable weakObjectsHashTable];
         _unhandledEventListeners = [NSHashTable weakObjectsHashTable];
@@ -144,7 +144,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
             [self OE_setUpCallbacks];
         });
     }
-	return self;
+    return self;
 }
 
 - (OEDeviceAccessType)accessType
@@ -210,7 +210,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 - (void)OE_applicationWillTerminate:(NSNotification *)notification;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-	
+    
     // Ensure that we've properly cleaned up our HIDManager references and
     // removed our devices from the runloop.
     
@@ -228,7 +228,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     if (_hidManager)
         IOHIDManagerUnscheduleFromRunLoop(_hidManager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
     
-	for(OEDeviceHandler *handler in [_deviceHandlers copy])
+    for(OEDeviceHandler *handler in [_deviceHandlers copy])
         [self OE_removeDeviceHandler:handler];
 
     [NSEvent removeMonitor:_keyEventMonitor];
@@ -728,7 +728,7 @@ static void OEHandle_DeviceMatchingCallback(void *inContext, IOReturn inResult, 
 
     NSLog(@"Found Device %p: %@", inIOHIDDeviceRef, prodkey);
 
-	//add a OEHIDDeviceHandler for our HID device
+    //add a OEHIDDeviceHandler for our HID device
     [(__bridge OEDeviceManager *)inContext OE_addDeviceHandlerForDeviceRef:inIOHIDDeviceRef couldBeTheTouchbar:touchbar];
 }
 

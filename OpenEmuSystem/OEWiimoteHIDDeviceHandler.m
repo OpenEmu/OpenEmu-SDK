@@ -515,7 +515,7 @@ enum {
         default:
             break;
     }
-	
+
     if(length > 10)
     {
         _batteryLevel = (data[10] & 0x70) >> 4;
@@ -622,7 +622,7 @@ enum {
 
 - (void)OE_configureReportType;
 {
-	// Set the report type the Wiimote should send.
+    // Set the report type the Wiimote should send.
     // Buttons + 19 Extension bytes
     [self OE_sendCommandWithData:(const uint8_t[]){ 0x12, 0x02, 0x34 } length:3];
 }

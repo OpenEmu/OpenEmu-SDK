@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, OEHIDEventType) {
     OEHIDEventTypeTrigger   = 5,
     OEHIDEventTypeButton    = 2,
     OEHIDEventTypeHatSwitch = 3,
-	OEHIDEventTypeKeyboard  = 4,
+    OEHIDEventTypeKeyboard  = 4,
 };
 
 typedef NS_ENUM(NSUInteger, OEHIDEventAxis) {

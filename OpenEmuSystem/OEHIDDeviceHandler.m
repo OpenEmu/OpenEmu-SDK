@@ -236,7 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (io_service_t)serviceRef
 {
-	return IOHIDDeviceGetService(_device);
+    return IOHIDDeviceGetService(_device);
 }
 
 //- (BOOL)connect
@@ -272,8 +272,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)supportsForceFeedback
 {
-	io_service_t service = [self serviceRef];
-	if(service == MACH_PORT_NULL)
+    io_service_t service = [self serviceRef];
+    if(service == MACH_PORT_NULL)
         return NO;
 
     return FFIsForceFeedback(service) == FF_OK;
@@ -281,7 +281,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)enableForceFeedback
 {
-	if(![self supportsForceFeedback])
+    if(![self supportsForceFeedback])
         return;
 
     io_service_t service = [self serviceRef];
@@ -331,7 +331,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)disableForceFeedback
 {
-	if(_ffDevice == NULL)
+    if(_ffDevice == NULL)
         return;
 
     FFDeviceReleaseEffect(_ffDevice, _effectRef);
@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSAssert(aDevice == _device, @"Device remove callback called on the wrong object.");
 
-	IOHIDDeviceUnscheduleFromRunLoop(_device, self.eventRunLoop, kCFRunLoopDefaultMode);
+    IOHIDDeviceUnscheduleFromRunLoop(_device, self.eventRunLoop, kCFRunLoopDefaultMode);
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[OEDeviceManager sharedDeviceManager] OE_removeDeviceHandler:self];
@@ -389,9 +389,9 @@ static void OEHandle_InputValueCallback(void *inContext, IOReturn inResult, void
 
 static void OEHandle_DeviceRemovalCallback(void *inContext, IOReturn inResult, void *inSender)
 {
-	IOHIDDeviceRef hidDevice = (IOHIDDeviceRef)inSender;
+    IOHIDDeviceRef hidDevice = (IOHIDDeviceRef)inSender;
 
-	[(__bridge OEHIDDeviceHandler *)inContext OE_removeDeviceHandlerForDevice:hidDevice];
+    [(__bridge OEHIDDeviceHandler *)inContext OE_removeDeviceHandlerForDevice:hidDevice];
 }
 
 @end
