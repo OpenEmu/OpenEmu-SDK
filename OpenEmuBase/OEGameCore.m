@@ -41,7 +41,6 @@
 #import "OELogging.h"
 #import <os/signpost.h>
 
-
 #ifndef BOOL_STR
 #define BOOL_STR(b) ((b) ? "YES" : "NO")
 #endif
@@ -69,11 +68,6 @@ NSString *const OEGameCoreErrorDomain = @"org.openemu.GameCore.ErrorDomain";
     NSTimeInterval          lastRate;
 
     NSUInteger frameCounter;
-    
-    id<MTLDevice>          OEMetalDev;
-    id<MTLTexture>         OEMetalRenderTexture;
-    id<MTLCommandQueue>    OEMetalCmdQueue;
-    
 }
 
 @synthesize nextFrameTime;
@@ -95,8 +89,6 @@ static Class GameCoreClass = Nil;
     {
         NSUInteger count = [self audioBufferCount];
         ringBuffers = (__strong OERingBuffer **)calloc(count, sizeof(OERingBuffer *));
-        
-        
     }
     return self;
 }
@@ -542,10 +534,6 @@ static Class GameCoreClass = Nil;
     return OEGameCoreRendering2DVideo;
 }
 
-@synthesize metalDevice = OEMetalDev;
-
-@synthesize metalTexture = OEMetalRenderTexture;
-
 - (void)createMetalTexture
 {
     MTLTextureDescriptor* desc = [MTLTextureDescriptor
@@ -555,10 +543,8 @@ static Class GameCoreClass = Nil;
                                  mipmapped:false];
     [desc setUsage:MTLTextureUsageShaderRead];
     [desc setStorageMode:MTLStorageModePrivate];
-    OEMetalRenderTexture = [OEMetalDev newTextureWithDescriptor:desc];
+    _metalTexture = [_metalDevice newTextureWithDescriptor:desc];
 }
-
-@synthesize metalCommandQueue = OEMetalCmdQueue;
 
 - (const void*)getVideoBufferWithHint:(void *)hint
 {

@@ -49,7 +49,6 @@
 #import <OpenEmuBase/OESystemResponderClient.h>
 #import <OpenEmuBase/OEGeometry.h>
 #import <OpenEmuBase/OEDiffQueue.h>
-#include <QuartzCore/QuartzCore.h>
 
 #ifndef DLog
 
@@ -309,11 +308,6 @@ OE_EXPORTED_CLASS
 
 #pragma mark - Video
 
-@property (strong, nullable) id<MTLDevice> metalDevice;
-@property (strong, nullable) id<MTLCommandQueue> metalCommandQueue;
-@property (readonly, nullable, strong) id<MTLTexture> metalTexture;
-- (void)createMetalTexture;
-
 /*!
  * @method getVideoBufferWithHint:
  * @param hint If possible, use 'hint' as the video buffer for this frame.
@@ -438,6 +432,13 @@ OE_EXPORTED_CLASS
  * @abstract See -executeFrame.
  */
 @property(assign) BOOL shouldSkipFrame;
+
+#pragma mark - Metal 3D Video
+
+// The methods and properties in this section require OpenEmu 2.4.
+@property (strong, nullable) id<MTLDevice> metalDevice;
+@property (readonly, nullable, strong) id<MTLTexture> metalTexture;
+- (void)createMetalTexture;
 
 #pragma mark - Audio
 
