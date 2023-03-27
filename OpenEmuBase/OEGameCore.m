@@ -534,8 +534,9 @@ static Class GameCoreClass = Nil;
     return OEGameCoreRendering2DVideo;
 }
 
-- (void)createMetalTexture
+- (void)createMetalTextureWithDevice:(id<MTLDevice>)device
 {
+    _metalDevice = device;
     MTLTextureDescriptor* desc = [MTLTextureDescriptor
         texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
                                      width:self.screenRect.size.width
@@ -543,7 +544,7 @@ static Class GameCoreClass = Nil;
                                  mipmapped:false];
     [desc setUsage:MTLTextureUsageShaderRead];
     [desc setStorageMode:MTLStorageModePrivate];
-    _metalTexture = [_metalDevice newTextureWithDescriptor:desc];
+    _metalTexture = [device newTextureWithDescriptor:desc];
 }
 
 - (const void*)getVideoBufferWithHint:(void *)hint

@@ -436,9 +436,9 @@ OE_EXPORTED_CLASS
 #pragma mark - Metal 3D Video
 
 // The methods and properties in this section require OpenEmu 2.4.
-@property (strong, nullable) id<MTLDevice> metalDevice;
-@property (readonly, nullable, strong) id<MTLTexture> metalTexture;
-- (void)createMetalTexture;
+@property (readonly, nullable) id<MTLDevice> metalDevice;
+@property (readonly, nullable) id<MTLTexture> metalTexture;
+- (void)createMetalTextureWithDevice:(id<MTLDevice>)device NS_SWIFT_NAME(createMetalTexture(device:));
 
 #pragma mark - Audio
 
