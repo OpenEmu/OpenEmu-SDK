@@ -88,6 +88,14 @@ static NSMutableDictionary<NSString *, Class> *extensionToSubclassDictionary;
     if (_fileHandle == nil)
         return [NSData data];
 
+    if (@available(macOS 10.15, *))
+    {
+        if (![_fileHandle seekToOffset:dataRange.location error:nil])
+            return [NSData data];
+
+        return [_fileHandle readDataUpToLength:dataRange.length error:nil];
+    }
+
     @try {
         [_fileHandle seekToFileOffset:dataRange.location];
     }
