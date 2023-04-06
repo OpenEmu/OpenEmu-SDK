@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -143,7 +143,6 @@
 /* Begin PBXFileReference section */
 		0109BBA2209F25EB002419C1 /* OpenEmuBaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenEmuBaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OEDiffQueueTests.m; sourceTree = "<group>"; };
-		0109BBA6209F25EB002419C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		011829A620ACA8AA0030B347 /* OEAudioBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEAudioBuffer.h; sourceTree = "<group>"; };
 		011FAED22325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+OpenEmuSDK.h"; sourceTree = "<group>"; };
 		011FAED32325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+OpenEmuSDK.m"; sourceTree = "<group>"; };
@@ -179,7 +178,6 @@
 		C6605B871D7260E3009C7E91 /* OEDiscDescriptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDiscDescriptor.m; sourceTree = "<group>"; };
 		C6605B8A1D7261EF009C7E91 /* OEDiscDescriptor_Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OEDiscDescriptor_Internal.h; sourceTree = "<group>"; };
 		C6772A261710A4BA00ED580A /* OpenEmuBase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuBase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C6772A311710A4BA00ED580A /* OpenEmuBase-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenEmuBase-Info.plist"; sourceTree = "<group>"; };
 		C6772A601710BD6200ED580A /* OpenEmuBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenEmuBase.h; sourceTree = "<group>"; };
 		C6772A611710BD6200ED580A /* OESystemResponderClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemResponderClient.h; sourceTree = "<group>"; };
 		C6772A621710BD6200ED580A /* OEGameCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGameCore.h; sourceTree = "<group>"; };
@@ -195,7 +193,6 @@
 		C6772A6C1710BD6200ED580A /* OETimingUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OETimingUtils.h; sourceTree = "<group>"; };
 		C6772A6D1710BD6200ED580A /* OETimingUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OETimingUtils.m; sourceTree = "<group>"; };
 		C6772A8C1710CD7E00ED580A /* OpenEmuSystem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenEmuSystem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C6772A901710CD7E00ED580A /* OpenEmuSystem-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenEmuSystem-Info.plist"; sourceTree = "<group>"; };
 		C6772A941710CD7E00ED580A /* OpenEmuSystem-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpenEmuSystem-Prefix.pch"; sourceTree = "<group>"; };
 		C6772B6B1710E21800ED580A /* OpenEmuSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenEmuSystem.h; sourceTree = "<group>"; };
 		C6772B6C1710E21800ED580A /* OESystemController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OESystemController.h; sourceTree = "<group>"; };
@@ -295,7 +292,6 @@
 			isa = PBXGroup;
 			children = (
 				0109BBA4209F25EB002419C1 /* OEDiffQueueTests.m */,
-				0109BBA6209F25EB002419C1 /* Info.plist */,
 			);
 			path = OpenEmuBaseTests;
 			sourceTree = "<group>";
@@ -364,17 +360,8 @@
 				01F306FA20AA1C64005C8F18 /* NSUserDefaults+OpenEmuSDK.m */,
 				011FAED22325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.h */,
 				011FAED32325B8F900DBEC62 /* NSDictionary+OpenEmuSDK.m */,
-				C6772A301710A4BA00ED580A /* Supporting Files */,
 			);
 			path = OpenEmuBase;
-			sourceTree = "<group>";
-		};
-		C6772A301710A4BA00ED580A /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				C6772A311710A4BA00ED580A /* OpenEmuBase-Info.plist */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		C6772A8E1710CD7E00ED580A /* OpenEmuSystem */ = {
@@ -397,7 +384,6 @@
 		C6772A8F1710CD7E00ED580A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				C6772A901710CD7E00ED580A /* OpenEmuSystem-Info.plist */,
 				C6772A941710CD7E00ED580A /* OpenEmuSystem-Prefix.pch */,
 				05F2F90724EA029900BFAF18 /* Controller-Database.plist */,
 			);
@@ -688,7 +674,7 @@
 				};
 			};
 			buildConfigurationList = C67729E11710A24400ED580A /* Build configuration list for PBXProject "OpenEmu-SDK" */;
-			compatibilityVersion = "Xcode 10.0";
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -889,14 +875,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = OpenEmuBaseTests/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openemu.OpenEmuBaseTests;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openemu.OpenEmuBaseTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -949,14 +935,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = OpenEmuBaseTests/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openemu.OpenEmuBaseTests;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openemu.OpenEmuBaseTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
@@ -978,7 +964,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6N425KH923;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -992,7 +977,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
-				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.openemu.OpenEmuSystemTests;
@@ -1017,7 +1001,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6N425KH923;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1026,7 +1009,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
-				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.openemu.OpenEmuSystemTests;
@@ -1060,6 +1042,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1070,6 +1053,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.14.4;
+				MARKETING_VERSION = 1.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 			};
@@ -1099,6 +1083,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1109,6 +1094,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.14.4;
+				MARKETING_VERSION = 1.0;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 			};
 			name = Release;
@@ -1133,7 +1119,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1147,7 +1132,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "OpenEmuBase/OpenEmuBase-Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1190,14 +1175,13 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_FAST_MATH = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "OpenEmuBase/OpenEmuBase-Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1237,7 +1221,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1253,7 +1236,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "OpenEmuSystem/OpenEmuSystem-Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1292,7 +1275,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREFIX_HEADER = "OpenEmuSystem/OpenEmuSystem-Prefix.pch";
@@ -1301,7 +1283,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "OpenEmuSystem/OpenEmuSystem-Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
