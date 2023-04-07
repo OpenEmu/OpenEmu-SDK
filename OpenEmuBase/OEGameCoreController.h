@@ -105,7 +105,7 @@ extern NSString *const OEGameCoreSupportsDisplayModeChangeKey;
 
 @interface OEGameCoreController (Deprecated)
 
-@property(readonly) NSString *supportDirectoryPath __attribute__((deprecated("Use supportDirectoryURL")));
-@property(readonly) NSString *biosDirectoryPath __attribute__((deprecated("Use biosDirectoryURL")));
+@property(readonly) NSString *supportDirectoryPath __attribute__((deprecated("Use -supportDirectory")));
+@property(readonly) NSString *biosDirectoryPath __attribute__((deprecated("Use -biosDirectory")));
 
 @end

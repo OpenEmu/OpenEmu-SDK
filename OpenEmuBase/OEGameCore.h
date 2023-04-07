@@ -25,6 +25,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
 #if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
 #else
@@ -103,7 +104,7 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
     OEGameCoreRenderingMetal2Video      //!< Not yet implemented.
 };
 
-@protocol OERenderDelegate
+@protocol OERenderDelegate <NSObject>
 @required
 
 /*!
@@ -173,7 +174,7 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
 
 #pragma mark -
 
-@protocol OEAudioDelegate
+@protocol OEAudioDelegate <NSObject>
 @required
 - (void)audioSampleRateDidChange;
 
@@ -431,6 +432,13 @@ OE_EXPORTED_CLASS
  * @abstract See -executeFrame.
  */
 @property(assign) BOOL shouldSkipFrame;
+
+#pragma mark - Metal 3D Video
+
+// The methods and properties in this section require OpenEmu 2.4.
+@property (readonly, nullable) id<MTLDevice> metalDevice;
+@property (readonly, nullable) id<MTLTexture> metalTexture;
+- (void)createMetalTextureWithDevice:(id<MTLDevice>)device NS_SWIFT_NAME(createMetalTexture(device:));
 
 #pragma mark - Audio
 

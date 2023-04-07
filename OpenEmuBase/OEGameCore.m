@@ -534,6 +534,19 @@ static Class GameCoreClass = Nil;
     return OEGameCoreRendering2DVideo;
 }
 
+- (void)createMetalTextureWithDevice:(id<MTLDevice>)device
+{
+    _metalDevice = device;
+    MTLTextureDescriptor* desc = [MTLTextureDescriptor
+        texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+                                     width:self.screenRect.size.width
+                                    height:self.screenRect.size.height
+                                 mipmapped:false];
+    [desc setUsage:MTLTextureUsageShaderRead];
+    [desc setStorageMode:MTLStorageModePrivate];
+    _metalTexture = [device newTextureWithDescriptor:desc];
+}
+
 - (const void*)getVideoBufferWithHint:(void *)hint
 {
     return [self videoBuffer];
