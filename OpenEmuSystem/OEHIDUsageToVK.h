@@ -46,7 +46,6 @@ static const _OEHIDVirtualKeyCodeNameTriplet _OEHIDVirtualKeyCodesTable[] = {
     { kHIDUsage_Keyboard7                  , kVK_ANSI_7             , nil          },
     { kHIDUsage_Keyboard8                  , kVK_ANSI_8             , nil          },
     { kHIDUsage_Keyboard9                  , kVK_ANSI_9             , nil          },
-    { kHIDUsage_Keyboard0                  , kVK_ANSI_0             , nil          },
     { kHIDUsage_KeyboardA                  , kVK_ANSI_A             , nil          },
     { kHIDUsage_KeyboardB                  , kVK_ANSI_B             , nil          },
     { kHIDUsage_KeyboardC                  , kVK_ANSI_C             , nil          },
