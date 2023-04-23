@@ -29,7 +29,7 @@ os_log_t OE_LOG_CORE_RUN, OE_LOG_CORE_REWIND;
 os_log_t OE_LOG_DEFAULT;
 
 __attribute__((constructor))
-static void InitializeLogging() {
+static void InitializeLogging(void) {
     OE_LOG_AUDIO_READ   = os_log_create("org.openemu.OpenEmuBase.audio", "read");
     OE_LOG_AUDIO_WRITE  = os_log_create("org.openemu.OpenEmuBase.audio", "write");
     OE_LOG_CORE_RUN     = os_log_create("org.openemu.OpenEmuBase.core", "run");
