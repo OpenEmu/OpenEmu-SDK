@@ -32,11 +32,11 @@
 @implementation NSDataCategoryTests
 
 - (void)testHexStringRepresentation {
-    char const * const bytes = "ABCabc";
+    char const * const bytes = "ABC.abc";
     __auto_type data = [NSData dataWithBytes:bytes length:strlen(bytes)];
     
     NSString * str = data.oe_hexStringRepresentation;
-    XCTAssertEqualObjects(str, @"414243616263");
+    XCTAssertEqualObjects(str, @"4142432E616263");
 }
 
 @end

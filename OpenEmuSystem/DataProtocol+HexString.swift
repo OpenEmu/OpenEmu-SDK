@@ -24,7 +24,7 @@
 
 import Foundation
 
-private let charA = UInt8(ascii: "a")
+private let charA = UInt8(ascii: "A")
 private let char0 = UInt8(ascii: "0")
 
 private func itoh(_ value: UInt8) -> UInt8 {
@@ -33,7 +33,7 @@ private func itoh(_ value: UInt8) -> UInt8 {
 }
 
 public extension DataProtocol {
-    /// Returns a hexadecimal encoding of the receiver.
+    /// Returns a hexadecimal encoding of the receiver. Letters are uppercase.
     var hexString: String {
         let hexLen = self.count * 2
         let ptr = UnsafeMutablePointer<UInt8>.allocate(capacity: hexLen)
@@ -50,6 +50,7 @@ public extension DataProtocol {
 }
 
 public extension NSData {
+    /// Returns a hexadecimal encoding of the receiver. Letters are uppercase.
     @objc(oe_hexStringRepresentation)
     var hexString: String {
         return (self as Data).hexString
