@@ -36,16 +36,15 @@ public extension DataProtocol {
     /// Returns a hexadecimal encoding of the receiver. Letters are uppercase.
     var hexString: String {
         let hexLen = self.count * 2
-        let ptr = UnsafeMutablePointer<UInt8>.allocate(capacity: hexLen)
-        var offset = 0
+        var bytes: [UInt8] = []
+        bytes.reserveCapacity(hexLen)
         
         for i in self {
-            ptr[offset    ] = itoh((i >> 4) & 0xF)
-            ptr[offset + 1] = itoh(i & 0xF)
-            offset += 2
+            bytes.append(itoh((i >> 4) & 0xF))
+            bytes.append(itoh(i & 0xF))
         }
         
-        return String(bytesNoCopy: ptr, length: hexLen, encoding: .utf8, freeWhenDone: true)!
+        return String(bytes: bytes, encoding: .utf8)!
     }
 }
 
