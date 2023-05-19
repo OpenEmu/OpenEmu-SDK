@@ -35,6 +35,7 @@
 		878203EB21C4A09900C1C2C9 /* OEDreamcastGDI.m in Sources */ = {isa = PBXBuildFile; fileRef = 878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */; };
 		878B34C620C4AD0100A174B0 /* OEPS4HIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 878B34C420C4AD0000A174B0 /* OEPS4HIDDeviceHandler.h */; };
 		878B34C720C4AD0100A174B0 /* OEPS4HIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 878B34C520C4AD0000A174B0 /* OEPS4HIDDeviceHandler.m */; };
+		8F7909962A1A07C200E98FE8 /* OpenEmuSystemPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8F7909932A1A07C200E98FE8 /* OpenEmuSystemPrivate.h */; };
 		94FDE6AE1AC35BA60003D247 /* OECloneCD.h in Headers */ = {isa = PBXBuildFile; fileRef = 94FDE6AC1AC35BA60003D247 /* OECloneCD.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		94FDE6AF1AC35BA60003D247 /* OECloneCD.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FDE6AD1AC35BA60003D247 /* OECloneCD.m */; };
 		C6206C0E1C08EB80008E0106 /* OEBindingDescription_Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = C6206C0D1C08EB80008E0106 /* OEBindingDescription_Internal.h */; };
@@ -169,6 +170,9 @@
 		878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDreamcastGDI.m; sourceTree = "<group>"; };
 		878B34C420C4AD0000A174B0 /* OEPS4HIDDeviceHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEPS4HIDDeviceHandler.h; sourceTree = "<group>"; };
 		878B34C520C4AD0000A174B0 /* OEPS4HIDDeviceHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEPS4HIDDeviceHandler.m; sourceTree = "<group>"; };
+		8F7909932A1A07C200E98FE8 /* OpenEmuSystemPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenEmuSystemPrivate.h; sourceTree = "<group>"; };
+		8F7909942A1A07C200E98FE8 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		8F7909952A1A07C200E98FE8 /* OpenEmuSystem.private.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = OpenEmuSystem.private.modulemap; path = OpenEmuSystem/OpenEmuSystem.private.modulemap; sourceTree = SOURCE_ROOT; };
 		94FDE6AC1AC35BA60003D247 /* OECloneCD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OECloneCD.h; sourceTree = "<group>"; };
 		94FDE6AD1AC35BA60003D247 /* OECloneCD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OECloneCD.m; sourceTree = "<group>"; };
 		C6206C0D1C08EB80008E0106 /* OEBindingDescription_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEBindingDescription_Internal.h; sourceTree = "<group>"; };
@@ -304,6 +308,16 @@
 			path = OpenEmuSystemTests;
 			sourceTree = "<group>";
 		};
+		8FCB855B2A17F23F009A24EF /* OpenEmuSystemPrivate */ = {
+			isa = PBXGroup;
+			children = (
+				8F7909952A1A07C200E98FE8 /* OpenEmuSystem.private.modulemap */,
+				8F7909942A1A07C200E98FE8 /* module.modulemap */,
+				8F7909932A1A07C200E98FE8 /* OpenEmuSystemPrivate.h */,
+			);
+			path = OpenEmuSystemPrivate;
+			sourceTree = "<group>";
+		};
 		C67729DD1710A24400ED580A = {
 			isa = PBXGroup;
 			children = (
@@ -376,6 +390,7 @@
 				C6772BDA1710E2D200ED580A /* Events */,
 				C6772B891710E23900ED580A /* Bindings Controller */,
 				C6772BA01710E25E00ED580A /* Devices */,
+				8FCB855B2A17F23F009A24EF /* OpenEmuSystemPrivate */,
 				C6772A8F1710CD7E00ED580A /* Supporting Files */,
 			);
 			path = OpenEmuSystem;
@@ -538,6 +553,7 @@
 				C6772B811710E21900ED580A /* OEBindingMap.h in Headers */,
 				C6772B951710E25300ED580A /* OEBindingsController.h in Headers */,
 				94FDE6AE1AC35BA60003D247 /* OECloneCD.h in Headers */,
+				8F7909962A1A07C200E98FE8 /* OpenEmuSystemPrivate.h in Headers */,
 				C6772B871710E22C00ED580A /* OECUESheet.h in Headers */,
 				878203EA21C4A09900C1C2C9 /* OEDreamcastGDI.h in Headers */,
 				C6206C0E1C08EB80008E0106 /* OEBindingDescription_Internal.h in Headers */,
@@ -1243,11 +1259,13 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/OpenEmuSystem/OpenEmuSystem.private.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/OpenEmuSystem";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = framework;
@@ -1290,10 +1308,12 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/OpenEmuSystem/OpenEmuSystem.private.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/OpenEmuSystem";
 				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = framework;
 			};

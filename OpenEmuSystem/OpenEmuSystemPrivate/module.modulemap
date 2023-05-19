@@ -1,0 +1,4 @@
+module OpenEmuSystemPrivate {
+    header "OpenEmuSystemPrivate.h"
+    export *
+}
