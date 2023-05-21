@@ -51,19 +51,6 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
 
 - (instancetype)init
 {
-    return [self initWithCapacity:16];
-}
-
-- (instancetype)initWithSystemController:(OESystemController *)aController;
-{
-    NSUInteger numberOfPlayers = aController.numberOfPlayers;
-    NSUInteger numberOfKeys    = aController.systemKeyBindingsDescriptions.count;
-
-    return [self initWithCapacity:numberOfPlayers * numberOfKeys * 2];
-}
-
-- (instancetype)initWithCapacity:(NSUInteger)totalNumberOfKeys;
-{
     if((self = [super init]))
     {
         CFDictionaryKeyCallBacks keyCallbacks = {
@@ -74,7 +61,7 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
             .hash            = (CFDictionaryHashCallBack) _OEBindingMapKeyHashCallBack
         };
 
-        _keyMap = (__bridge_transfer NSMutableDictionary *)CFDictionaryCreateMutable(NULL, totalNumberOfKeys, &keyCallbacks, &kCFTypeDictionaryValueCallBacks);
+        _keyMap = (__bridge_transfer NSMutableDictionary *)CFDictionaryCreateMutable(NULL, 0, &keyCallbacks, &kCFTypeDictionaryValueCallBacks);
         _queue  = dispatch_queue_create("org.openemu.OEBindingMap.queue", DISPATCH_QUEUE_CONCURRENT);
     }
 

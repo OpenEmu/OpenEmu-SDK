@@ -137,7 +137,7 @@ typedef struct OEPlayerRapidFireState {
     if((self = [super init]))
     {
         _controller = controller;
-        _keyMap = [[OEBindingMap alloc] initWithSystemController:controller];
+        _keyMap = [[OEBindingMap alloc] init];
         _pendingDeviceHandlerBindings = [NSMutableDictionary new];
         
         __weak __auto_type weakSelf = self;

@@ -32,10 +32,6 @@
 
 @interface OEBindingMap : NSObject
 
-- (instancetype)initWithCapacity:(NSUInteger)totalNumberOfKeys;
-// Provides a hint for the number of keys
-- (instancetype)initWithSystemController:(OESystemController *)aController;
-
 - (OESystemKey *)systemKeyForEvent:(OEHIDEvent *)anEvent;
 - (void)setSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
 - (void)removeSystemKeyForEvent:(OEHIDEvent *)anEvent;
