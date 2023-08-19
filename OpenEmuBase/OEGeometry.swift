@@ -41,3 +41,15 @@ extension OEIntPoint: Equatable {
         OEIntPointEqualToPoint(lhs, rhs)
     }
 }
+
+extension CGSize {
+    @inlinable public func scaled(by factor: CGFloat) -> Self {
+        CGSize(width: self.width * factor, height: self.height * factor)
+    }
+}
+
+extension CGPoint {
+    @inlinable public static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
+}
