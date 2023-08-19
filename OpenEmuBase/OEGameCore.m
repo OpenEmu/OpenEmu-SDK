@@ -556,7 +556,7 @@ static Class GameCoreClass = Nil;
 
 - (BOOL)tryToResizeVideoTo:(OEIntSize)size
 {
-    if (self.gameCoreRendering == OEGameCoreRendering2DVideo)
+    if (self.gameCoreRendering == OEGameCoreRenderingBitmap)
         return NO;
 
     return YES;

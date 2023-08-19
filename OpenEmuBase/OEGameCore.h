@@ -98,10 +98,15 @@ typedef NS_ERROR_ENUM(OEGameCoreErrorDomain, OEGameCoreErrorCodes) {
  * @abstract Which renderer will be set up for the game core.
  */
 typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
-    OEGameCoreRendering2DVideo,         //!< The game bitmap will be put directly into an IOSurface.
-    OEGameCoreRenderingOpenGL2Video,    //!< The core will be provided a CGL OpenGL 2.1 (Compatibility) context.
-    OEGameCoreRenderingOpenGL3Video,    //!< The core will be provided a CGL OpenGL 3.2+ Core/OpenGLES3 context.
-    OEGameCoreRenderingMetal2Video      //!< Not yet implemented.
+    OEGameCoreRenderingBitmap,      //!< The game bitmap will be put directly into an IOSurface.
+    OEGameCoreRenderingOpenGL2,     //!< The core will be provided a CGL OpenGL 2.1 (Compatibility) context.
+    OEGameCoreRenderingOpenGL3,     //!< The core will be provided a CGL OpenGL 3.2+ Core/OpenGLES3 context.
+    OEGameCoreRenderingMetal2,      //!< Not yet implemented.
+    
+    OEGameCoreRendering2DVideo      NS_SWIFT_UNAVAILABLE("Use .bitmap instead")  NS_DEPRECATED_WITH_REPLACEMENT_MAC("OEGameCoreRenderingBitmap",  10.7, 10.14.4) = OEGameCoreRenderingBitmap,
+    OEGameCoreRenderingOpenGL2Video NS_SWIFT_UNAVAILABLE("Use .openGL2 instead") NS_DEPRECATED_WITH_REPLACEMENT_MAC("OEGameCoreRenderingOpenGL2", 10.7, 10.14.4) = OEGameCoreRenderingOpenGL2,
+    OEGameCoreRenderingOpenGL3Video NS_SWIFT_UNAVAILABLE("Use .openGL3 instead") NS_DEPRECATED_WITH_REPLACEMENT_MAC("OEGameCoreRenderingOpenGL3", 10.7, 10.14.4) = OEGameCoreRenderingOpenGL3,
+    OEGameCoreRenderingMetal2Video  NS_SWIFT_UNAVAILABLE("Use .metal2 instead")  NS_DEPRECATED_WITH_REPLACEMENT_MAC("OEGameCoreRenderingMetal2",  10.7, 10.14.4) = OEGameCoreRenderingMetal2 ,
 };
 
 @protocol OERenderDelegate <NSObject>
