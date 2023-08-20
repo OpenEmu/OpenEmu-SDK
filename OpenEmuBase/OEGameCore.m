@@ -460,11 +460,6 @@ static Class GameCoreClass = Nil;
     return 0;
 }
 
-- (GLenum)internalPixelFormat
-{
-    return GL_RGB;
-}
-
 - (NSInteger)bytesPerRow
 {
     // This default implementation returns bufferSize.width * bytesPerPixel
@@ -767,18 +762,6 @@ static Class GameCoreClass = Nil;
     [self doesNotImplementSelector:_cmd];
     return 0;
 }
-
-
-#pragma mark - Input
-
-#if TARGET_OS_OSX
-
-- (NSTrackingAreaOptions)mouseTrackingOptions
-{
-    return 0;
-}
-
-#endif
 
 #pragma mark - Save state
 

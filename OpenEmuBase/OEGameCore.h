@@ -290,8 +290,6 @@ OE_EXPORTED_CLASS
  * @discussion
  * Called every 1/(rate*frameInterval) seconds by -runGameLoop:.
  * The core should produce 1 frameInterval worth of audio and can output 1 frame of video.
- * If the game core option OEGameCoreOptionCanSkipFrames is set, the property shouldSkipFrame may be YES.
- * In this case the core can read from videoBuffer but must not write to it. All work done to render video can be skipped.
  */
 - (void)executeFrame;
 
@@ -395,15 +393,6 @@ OE_EXPORTED_CLASS
 @property(readonly) OEIntSize   aspectSize;
 
 /*!
- * @property internalPixelFormat
- * @discussion
- * The 'internalFormat' parameter to glTexImage2D, used to create the framebuffer.
- * Defaults to GL_RGB (sometimes GL_SRGB8). You probably do not need to override this.
- * Ignored for 3D cores.
- */
-@property(readonly) GLenum      internalPixelFormat;
-
-/*!
  * @property pixelFormat
  * @discussion
  * The 'type' parameter to glTexImage2D, used to create the framebuffer.
@@ -431,12 +420,6 @@ OE_EXPORTED_CLASS
  * Ignored for 3D cores.
  */
 @property(readonly) NSInteger   bytesPerRow;
-
-/*!
- * @property shouldSkipFrame
- * @abstract See -executeFrame.
- */
-@property(assign) BOOL shouldSkipFrame;
 
 #pragma mark - Metal 3D
 
@@ -498,12 +481,6 @@ OE_EXPORTED_CLASS
 #pragma mark - Optional
 
 @interface OEGameCore (OptionalMethods)
-
-#if TARGET_OS_OSX
-@property(readonly) NSTrackingAreaOptions mouseTrackingOptions;
-#endif
-
-- (void)setRandomByte;
 
 #pragma mark - Save state - Optional
 
@@ -641,6 +618,10 @@ OE_EXPORTED_CLASS
 - (OERingBuffer *)ringBufferAtIndex:(NSUInteger)index OE_DEPRECATED_WITH_REPLACEMENT("", "-audioBufferAtIndex:");
 
 - (void)changeDisplayMode OE_DEPRECATED("use -changeDisplayWithMode:, -displayModes with OEGameCoreDisplayMode* constants, and self.displayModeInfo");
+
+@property(assign) BOOL shouldSkipFrame OE_DEPRECATED("Not used by OpenEmu 2.0.9 and later.");
+
+@property(readonly) GLenum internalPixelFormat OE_DEPRECATED("Not used by OpenEmu 2.1 and later.");
 
 @end
 
