@@ -416,7 +416,7 @@ static Class GameCoreClass = Nil;
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error
 {
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self loadFileAtPath:path];
 #pragma clang diagnostic pop
 }
@@ -523,13 +523,13 @@ static Class GameCoreClass = Nil;
 {
     return NO;
 }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
 - (OEGameCoreRendering)gameCoreRendering {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([self respondsToSelector:@selector(rendersToOpenGL)]) {
         return [self rendersToOpenGL] ? OEGameCoreRenderingOpenGL2 : OEGameCoreRenderingBitmap;
     }
+    #pragma clang diagnostic pop
 
     return OEGameCoreRenderingBitmap;
 }
@@ -549,10 +549,12 @@ static Class GameCoreClass = Nil;
 
 - (const void*)getVideoBufferWithHint:(void *)hint
 {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self videoBuffer];
+    #pragma clang diagnostic pop
 }
 
-#pragma clang diagnostic pop
 
 - (BOOL)tryToResizeVideoTo:(OEIntSize)size
 {
@@ -712,15 +714,13 @@ static Class GameCoreClass = Nil;
     return 1;
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
 - (void)getAudioBuffer:(void *)buffer frameCount:(NSUInteger)frameCount bufferIndex:(NSUInteger)index
 {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [[self ringBufferAtIndex:index] read:buffer maxLength:frameCount * [self channelCountForBuffer:index] * sizeof(UInt16)];
+    #pragma clang diagnostic pop
 }
-
-#pragma clang diagnostic pop
 
 - (NSUInteger)channelCount
 {
