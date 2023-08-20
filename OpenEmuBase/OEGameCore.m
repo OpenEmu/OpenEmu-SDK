@@ -26,12 +26,6 @@
 
 #import <TargetConditionals.h>
 
-#if TARGET_OS_OSX
-#import <OpenGL/gl.h>
-#else
-#import <OpenGLES/ES3/gl.h>
-#endif
-
 #import "OEGameCore.h"
 #import "OEGameCoreController.h"
 #import "OEAbstractAdditions.h"
@@ -448,13 +442,13 @@ static Class GameCoreClass = Nil;
 }
 #pragma clang diagnostic pop
 
-- (GLenum)pixelFormat
+- (uint32_t)pixelFormat
 {
     [self doesNotImplementSelector:_cmd];
     return 0;
 }
 
-- (GLenum)pixelType
+- (uint32_t)pixelType
 {
     [self doesNotImplementSelector:_cmd];
     return 0;
@@ -465,40 +459,40 @@ static Class GameCoreClass = Nil;
     // This default implementation returns bufferSize.width * bytesPerPixel
     // Calculating bytes per pixel from the OpenGL enums needs a lot of entries.
 
-    GLenum pixelFormat = self.pixelFormat;
-    GLenum pixelType = self.pixelType;
+    uint32_t pixelFormat = self.pixelFormat;
+    uint32_t pixelType = self.pixelType;
     int nComponents = 0, bytesPerComponent = 0, bytesPerPixel = 0;
 
     switch (pixelFormat) {
-        case GL_LUMINANCE:
+        case OEPixelFormat_LUMINANCE:
             nComponents = 1;
             break;
-        case GL_RGB:
-        case GL_BGR:
+        case OEPixelFormat_RGB:
+        case OEPixelFormat_BGR:
             nComponents = 3;
             break;
-        case GL_RGBA:
-        case GL_BGRA:
+        case OEPixelFormat_RGBA:
+        case OEPixelFormat_BGRA:
             nComponents = 4;
             break;
     }
 
     switch (pixelType) {
-        case GL_UNSIGNED_BYTE:
+        case OEPixelType_UNSIGNED_BYTE:
             bytesPerComponent = 1;
             break;
-        case GL_UNSIGNED_SHORT_5_6_5:
-        case GL_UNSIGNED_SHORT_5_6_5_REV:
-        case GL_UNSIGNED_SHORT_4_4_4_4:
-        case GL_UNSIGNED_SHORT_4_4_4_4_REV:
-        case GL_UNSIGNED_SHORT_5_5_5_1:
-        case GL_UNSIGNED_SHORT_1_5_5_5_REV:
+        case OEPixelType_UNSIGNED_SHORT_5_6_5:
+        case OEPixelType_UNSIGNED_SHORT_5_6_5_REV:
+        case OEPixelType_UNSIGNED_SHORT_4_4_4_4:
+        case OEPixelType_UNSIGNED_SHORT_4_4_4_4_REV:
+        case OEPixelType_UNSIGNED_SHORT_5_5_5_1:
+        case OEPixelType_UNSIGNED_SHORT_1_5_5_5_REV:
             bytesPerPixel = 2;
             break;
-        case GL_UNSIGNED_INT_8_8_8_8:
-        case GL_UNSIGNED_INT_8_8_8_8_REV:
-        case GL_UNSIGNED_INT_10_10_10_2:
-        case GL_UNSIGNED_INT_2_10_10_10_REV:
+        case OEPixelType_UNSIGNED_INT_8_8_8_8:
+        case OEPixelType_UNSIGNED_INT_8_8_8_8_REV:
+        case OEPixelType_UNSIGNED_INT_10_10_10_2:
+        case OEPixelType_UNSIGNED_INT_2_10_10_10_REV:
             bytesPerPixel = 4;
             break;
     }

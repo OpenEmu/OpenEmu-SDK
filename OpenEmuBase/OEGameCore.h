@@ -28,22 +28,6 @@
 #import <Metal/Metal.h>
 #if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
-#else
-#import <OpenGLES/gltypes.h>
-
-// define additional OpenGL pixel types that don't exist in EAGL
-
-#define GL_BGR                            0x80E0
-#define GL_BGRA                           0x80E1
-
-/* package pixels */
-#define GL_UNSIGNED_INT_8_8_8_8           0x8035
-#define GL_UNSIGNED_INT_10_10_10_2        0x8036
-#define GL_UNSIGNED_SHORT_5_6_5_REV       0x8364
-#define GL_UNSIGNED_SHORT_4_4_4_4_REV     0x8365
-#define GL_UNSIGNED_SHORT_1_5_5_5_REV     0x8366
-#define GL_UNSIGNED_INT_8_8_8_8_REV       0x8367
-
 #endif
 #import <OpenEmuBase/OEGameCoreController.h>
 #import <OpenEmuBase/OESystemResponderClient.h>
@@ -78,6 +62,28 @@
 #define OE_DEPRECATED(reason) __attribute__((deprecated(reason)))
 #define OE_DEPRECATED_WITH_REPLACEMENT(reason, replacement) __attribute__((deprecated(reason, replacement)))
 
+#pragma mark -
+
+// Return values for -pixelFormat
+#define OEPixelFormat_LUMINANCE   0x1909 // GL_LUMINANCE
+#define OEPixelFormat_RGB         0x1907 // GL_RGB
+#define OEPixelFormat_BGR         0x80E0 // GL_BGR
+#define OEPixelFormat_RGBA        0x1908 // GL_RGBA
+#define OEPixelFormat_BGRA        0x80E1 // GL_BGRA
+
+// Return values for -pixelType
+#define OEPixelType_UNSIGNED_BYTE                 0x1401 // GL_UNSIGNED_BYTE
+#define OEPixelType_UNSIGNED_SHORT_5_6_5          0x8363 // GL_UNSIGNED_SHORT_5_6_5
+#define OEPixelType_UNSIGNED_SHORT_5_6_5_REV      0x8364 // GL_UNSIGNED_SHORT_5_6_5_REV
+#define OEPixelType_UNSIGNED_SHORT_4_4_4_4        0x8033 // GL_UNSIGNED_SHORT_4_4_4_4
+#define OEPixelType_UNSIGNED_SHORT_4_4_4_4_REV    0x8365 // GL_UNSIGNED_SHORT_4_4_4_4_REV
+#define OEPixelType_UNSIGNED_SHORT_5_5_5_1        0x8034 // GL_UNSIGNED_SHORT_5_5_5_1
+#define OEPixelType_UNSIGNED_SHORT_1_5_5_5_REV    0x8366 // GL_UNSIGNED_SHORT_1_5_5_5_REV
+#define OEPixelType_UNSIGNED_INT_8_8_8_8          0x8035 // GL_UNSIGNED_INT_8_8_8_8
+#define OEPixelType_UNSIGNED_INT_8_8_8_8_REV      0x8367 // GL_UNSIGNED_INT_8_8_8_8_REV
+#define OEPixelType_UNSIGNED_INT_10_10_10_2       0x8036 // GL_UNSIGNED_INT_10_10_10_2
+#define OEPixelType_UNSIGNED_INT_2_10_10_10_REV   0x8368 // GL_UNSIGNED_INT_2_10_10_10_REV
+ 
 #pragma mark -
 
 NS_ASSUME_NONNULL_BEGIN
@@ -399,7 +405,7 @@ OE_EXPORTED_CLASS
  * GL_BGRA is preferred, but avoid doing any conversions inside the core.
  * Ignored for 3D cores.
  */
-@property(readonly) GLenum      pixelType;
+@property(readonly) uint32_t    pixelType;
 
 /*!
  * @property pixelFormat
@@ -409,7 +415,7 @@ OE_EXPORTED_CLASS
  * avoid doing any conversions inside the core.
  * Ignored for 3D cores.
  */
-@property(readonly) GLenum      pixelFormat;
+@property(readonly) uint32_t    pixelFormat;
 
 /*!
  * @property bytesPerRow
@@ -621,7 +627,7 @@ OE_EXPORTED_CLASS
 
 @property(assign) BOOL shouldSkipFrame OE_DEPRECATED("Not used by OpenEmu 2.0.9 and later.");
 
-@property(readonly) GLenum internalPixelFormat OE_DEPRECATED("Not used by OpenEmu 2.1 and later.");
+@property(readonly) uint32_t internalPixelFormat OE_DEPRECATED("Not used by OpenEmu 2.1 and later.");
 
 @end
 
