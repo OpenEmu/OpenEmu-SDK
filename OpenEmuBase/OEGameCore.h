@@ -339,7 +339,7 @@ OE_EXPORTED_CLASS
  * @property gameCoreRendering
  * @discussion
  * What kind of 3D API the core requires, or none.
- * Defaults to 2D.
+ * Defaults to OEGameCoreRenderingBitmap.
  */
 @property (nonatomic, readonly) OEGameCoreRendering gameCoreRendering;
 
@@ -438,7 +438,7 @@ OE_EXPORTED_CLASS
  */
 @property(assign) BOOL shouldSkipFrame;
 
-#pragma mark - Metal 3D Video
+#pragma mark - Metal 3D
 
 // The methods and properties in this section require OpenEmu 2.4.
 @property (readonly, nullable) id<MTLDevice> metalDevice;

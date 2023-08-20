@@ -528,10 +528,10 @@ static Class GameCoreClass = Nil;
 
 - (OEGameCoreRendering)gameCoreRendering {
     if ([self respondsToSelector:@selector(rendersToOpenGL)]) {
-        return [self rendersToOpenGL] ? OEGameCoreRenderingOpenGL2Video : OEGameCoreRendering2DVideo;
+        return [self rendersToOpenGL] ? OEGameCoreRenderingOpenGL2 : OEGameCoreRenderingBitmap;
     }
 
-    return OEGameCoreRendering2DVideo;
+    return OEGameCoreRenderingBitmap;
 }
 
 - (void)createMetalTextureWithDevice:(id<MTLDevice>)device
