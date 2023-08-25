@@ -253,9 +253,9 @@ static Class GameCoreClass = Nil;
         }
 #endif
         
-        [_delegate gameCoreWillBeginFrame];
-
         BOOL executing = _rate > 0 || singleFrameStep || isPausedExecution;
+
+        [_delegate gameCoreWillBeginFrame: executing];
 
         if(executing && isRewinding)
         {
@@ -301,7 +301,7 @@ static Class GameCoreClass = Nil;
             [self OE_executeFrame]; // Core callout
         }
         
-        [_delegate gameCoreWillEndFrame];
+        [_delegate gameCoreWillEndFrame: executing];
 
         NSTimeInterval frameRate = self.frameInterval; // the frameInterval property is incorrectly named
         NSTimeInterval adjustedRate = _rate ?: 1;

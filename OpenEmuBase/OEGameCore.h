@@ -168,19 +168,19 @@ typedef NS_ENUM(NSUInteger, OEGameCoreRendering) {
 
 - (void)gameCoreDidFinishFrameRefreshThread:(OEGameCore *)gameCore;
 
-/*! Called prior to any core execution or rendering of the next frame.
- *
- * This method is called unconditionally, even when execution is paused.
- */
-- (void)gameCoreWillBeginFrame;
+/// Called prior to any core execution or rendering of the next frame.
+///
+/// This method is called unconditionally, even when execution is paused.
+/// - Parameter isExecuting: ``YES`` if the core will execute the next frame.
+- (void)gameCoreWillBeginFrame:(BOOL)isExecuting;
 
-/*! Called after the core has executed a frame and the display is rendered.
- *
- * This method is called unconditionally, even when execution is paused.
- * This may be used to continue to render display effects.
- *
- */
-- (void)gameCoreWillEndFrame;
+/// Called after the core has executed a frame and the display is rendered.
+///
+/// This method is called unconditionally, even when execution is paused.
+/// This may be used to continue to render display effects.
+///
+/// - Parameter isExecuting: ``YES`` if the core will execute the next frame.
+- (void)gameCoreWillEndFrame:(BOOL)isExecuting;
 @end
 
 #pragma mark -
