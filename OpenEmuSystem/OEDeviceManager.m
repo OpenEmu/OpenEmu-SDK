@@ -483,7 +483,9 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         [_keyboardHandlers addObject:handler];
         [self didChangeValueForKey:@"keyboardDeviceHandlers"];
     } else {
-        NSAssert([[handler controllerDescription] numberOfControls] > 0, @"Handler %@ does not have any controls.", handler);
+        if ([[handler controllerDescription] numberOfControls] == 0) {
+            NSLog(@"Handler %@ does not have any controls.", handler);
+        }
         [handler setDeviceIdentifier:++_lastAttributedDeviceIdentifier];
         [self willChangeValueForKey:@"controllerDeviceHandlers"];
         [_deviceHandlers addObject:handler];
