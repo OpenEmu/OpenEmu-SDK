@@ -82,6 +82,8 @@ NSString *NSStringFromOEGlobalButtonIdentifier(OEGlobalButtonIdentifier identifi
             return @"OEGlobalButtonIdentifierLastDisplayMode";
         case OEGlobalButtonIdentifierScreenshot :
             return @"OEGlobalButtonIdentifierScreenshot";
+        case OEGlobalButtonIdentifierFastForwardToggle :
+            return @"OEGlobalButtonIdentifierFastForwardToggle";
         case OEGlobalButtonIdentifierCount :
             return @"OEGlobalButtonIdentifierCount";
         case OEGlobalButtonIdentifierFlag :
@@ -139,6 +141,8 @@ static NSString *OEGlobalKeyBindingDescriptionNameForIdentifier(OEGlobalButtonId
             return OEGlobalButtonLastDisplayMode;
         case OEGlobalButtonIdentifierScreenshot :
             return OEGlobalButtonScreenshot;
+        case OEGlobalButtonIdentifierFastForwardToggle :
+            return OEGlobalButtonFastForwardToggle;
         default :
             break;
     }
