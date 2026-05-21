@@ -83,7 +83,7 @@ typedef struct __attribute__((packed)) {
 } OEHACUSBSubcommandOutputReport;
 
 typedef struct __attribute__((packed)) {
-    OEHACOuputReportID reportID;
+    OEHACInputReportID reportID;
     OEHACUSBSubcommandID subcommand;
     uint8_t data[0];
 } OEHACUSBAcknowledgmentOutputReport;
