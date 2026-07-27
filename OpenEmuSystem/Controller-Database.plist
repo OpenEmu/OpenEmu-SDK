@@ -3293,6 +3293,42 @@
 				<key>Usage</key>
 				<string>547</string>
 			</dict>
+			<key>OEControllerGCExtendedGamepadProfileButtonStart</key>
+			<dict>
+				<key>Name</key>
+				<string>Start</string>
+				<key>Type</key>
+				<string>Button</string>
+				<key>Usage</key>
+				<string>148</string>
+			</dict>
+			<key>OEControllerGCExtendedGamepadProfileButtonSelect</key>
+			<dict>
+				<key>Name</key>
+				<string>Select</string>
+				<key>Type</key>
+				<string>Button</string>
+				<key>Usage</key>
+				<string>149</string>
+			</dict>
+			<key>OEControllerGCExtendedGamepadProfileButtonLeftStick</key>
+			<dict>
+				<key>Name</key>
+				<string>L3</string>
+				<key>Type</key>
+				<string>Button</string>
+				<key>Usage</key>
+				<string>150</string>
+			</dict>
+			<key>OEControllerGCExtendedGamepadProfileButtonRightStick</key>
+			<dict>
+				<key>Name</key>
+				<string>R3</string>
+				<key>Type</key>
+				<string>Button</string>
+				<key>Usage</key>
+				<string>151</string>
+			</dict>
 		</dict>
 	</dict>
 	<key>OEControllerNintendoSwitchProController</key>

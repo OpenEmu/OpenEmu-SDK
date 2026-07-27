@@ -35,6 +35,7 @@
 #import "OEPS4HIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OETouchbarHIDDeviceHandler.h"
+#import "OEGameControllerDeviceHandler.h"
 #import "OEHIDEvent_Internal.h"
 
 #import <objc/runtime.h>
@@ -42,6 +43,7 @@
 #import <IOBluetooth/IOBluetooth.h>
 #import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
+#import <GameController/GameController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,6 +106,10 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
     IOBluetoothDeviceInquiry *_inquiry;
 
+    // Maps GameController-framework controllers to the handlers wrapping them,
+    // so we can add/remove them as the system connects/disconnects them.
+    NSMapTable<GCController *, OEGameControllerDeviceHandler *> *_gameControllerHandlers;
+
     NSUInteger _lastAttributedDeviceIdentifier;
     NSUInteger _lastAttributedMultiDeviceIdentifier;
     NSUInteger _lastAttributedKeyboardIdentifier;
@@ -139,6 +145,8 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         _globalEventListeners = [NSHashTable weakObjectsHashTable];
         _unhandledEventListeners = [NSHashTable weakObjectsHashTable];
         _deviceHandlersToEventListeners = [NSMutableDictionary dictionary];
+
+        _gameControllerHandlers = [NSMapTable strongToStrongObjectsMapTable];
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [self OE_setUpCallbacks];
@@ -205,6 +213,94 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_wiimoteDeviceDidDisconnect:) name:OEWiimoteDeviceHandlerDidDisconnectNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
+
+    [self OE_setUpGameControllerObservers];
+}
+
+#pragma mark - GameController framework devices
+
+// Controllers that connect over Bluetooth LE (notably Xbox Wireless / Elite
+// Series 2 / Series X|S controllers on macOS Catalina and later, and BLE
+// DualShock 4 / DualSense) are captured by the system and exposed *only*
+// through Apple's GameController framework — they never surface as generic
+// IOKit HID devices, so the IOHIDManager enumeration above cannot see them.
+// We fold them in here so they can be mapped and played like any other pad.
+- (void)OE_setUpGameControllerObservers
+{
+    // The emulation runs in a background helper process (OpenEmuHelperApp) that
+    // is never the frontmost application. Since macOS 11.3, GameController
+    // delivers input to a non-frontmost process ONLY when this is enabled;
+    // otherwise controller input silently stops in-game (while the keyboard,
+    // read via a different path, keeps working). Enable it so bridged
+    // controllers work during gameplay, not just while the main app is focused.
+    if (@available(macOS 11.3, *))
+        GCController.shouldMonitorBackgroundEvents = YES;
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_gameControllerDidConnect:) name:GCControllerDidConnectNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OE_gameControllerDidDisconnect:) name:GCControllerDidDisconnectNotification object:nil];
+
+    for (GCController *controller in [GCController controllers])
+        [self OE_addGameController:controller];
+}
+
+- (void)OE_gameControllerDidConnect:(NSNotification *)notification
+{
+    GCController *controller = notification.object;
+    if ([controller isKindOfClass:[GCController class]])
+        [self OE_addGameController:controller];
+}
+
+- (void)OE_gameControllerDidDisconnect:(NSNotification *)notification
+{
+    GCController *controller = notification.object;
+    if (![controller isKindOfClass:[GCController class]])
+        return;
+
+    OEGameControllerDeviceHandler *handler = [_gameControllerHandlers objectForKey:controller];
+    if (handler == nil)
+        return;
+
+    [_gameControllerHandlers removeObjectForKey:controller];
+    [self OE_removeDeviceHandler:handler];
+}
+
+- (void)OE_addGameController:(GCController *)controller
+{
+    if ([_gameControllerHandlers objectForKey:controller] != nil)
+        return;
+
+    OEGameControllerDeviceHandler *handler = [OEGameControllerDeviceHandler deviceHandlerWithController:controller];
+    if (handler == nil)
+        return;
+
+    // A controller connected over USB may already be handled as an IOKit HID
+    // device with the same VID/PID; avoid presenting it twice.
+    if (handler.vendorID != 0 && handler.productID != 0 && [self OE_hasControllerHandlerWithVendorID:handler.vendorID productID:handler.productID]) {
+        NSLog(@"GameController %@ (%04lX:%04lX) already handled via HID; skipping", handler.product, (unsigned long)handler.vendorID, (unsigned long)handler.productID);
+        return;
+    }
+
+    if (![handler connect])
+        return;
+
+    [_gameControllerHandlers setObject:handler forKey:controller];
+    [self OE_addDeviceHandler:handler];
+}
+
+- (BOOL)OE_hasControllerHandlerWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID
+{
+    __block BOOL found = NO;
+    [self OE_enumerateDevicesUsingBlock:^(OEDeviceHandler *handler, BOOL *stop) {
+        if ([handler isKindOfClass:[OEGameControllerDeviceHandler class]])
+            return;
+
+        if ([handler vendorID] == vendorID && [handler productID] == productID) {
+            found = YES;
+            *stop = YES;
+        }
+    }];
+
+    return found;
 }
 
 - (void)OE_applicationWillTerminate:(NSNotification *)notification;
@@ -230,6 +326,8 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     
     for(OEDeviceHandler *handler in [_deviceHandlers copy])
         [self OE_removeDeviceHandler:handler];
+
+    [_gameControllerHandlers removeAllObjects];
 
     [NSEvent removeMonitor:_keyEventMonitor];
     [NSEvent removeMonitor:_modifierMaskMonitor];

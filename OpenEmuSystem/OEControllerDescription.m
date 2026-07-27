@@ -105,6 +105,15 @@ static NSArray<OEControllerDescription *> *_knownControllerDescriptions;
     return _mappingRepresentations[controllerDescription.identifier];
 }
 
++ (nullable OEControllerDescription *)OE_controllerDescriptionForIdentifier:(NSString *)identifier
+{
+    for (OEControllerDescription *controllerDescription in _knownControllerDescriptions) {
+        if ([controllerDescription.identifier isEqualToString:identifier])
+            return [controllerDescription OE_controllerDescription];
+    }
+
+    return nil;
+}
 - (instancetype)OE_initWithIdentifier:(NSString *)identifier representation:(NSDictionary *)representation
 {
     if((self = [super init]))

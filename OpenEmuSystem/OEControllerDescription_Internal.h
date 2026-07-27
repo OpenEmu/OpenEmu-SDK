@@ -32,6 +32,13 @@
 @interface OEControllerDescription ()
 + (OEControllerDescription *)OE_controllerDescriptionForVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product;
 
+// Returns a fresh copy of the known controller description with the given
+// identifier (e.g. @"OEControllerGCExtendedGamepadProfile"), or nil if no such
+// description exists in the database. Used by device handlers that are not
+// bound to a specific IOKit HID VID/PID (e.g. GameController-framework handlers)
+// and thus need to look up a controller profile by name instead.
++ (OEControllerDescription *)OE_controllerDescriptionForIdentifier:(NSString *)identifier;
+
 + (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)OE_representationForControllerDescription:(OEControllerDescription *)controllerDescription;
 
 - (OEDeviceDescription *)OE_addDeviceDescriptionWithVendorID:(NSUInteger)vendorID productID:(NSUInteger)productID product:(NSString *)product cookie:(uint32_t)cookie;
