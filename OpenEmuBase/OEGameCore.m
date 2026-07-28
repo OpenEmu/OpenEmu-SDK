@@ -620,7 +620,16 @@ static Class GameCoreClass = Nil;
 
 - (void)slowMotionAtSpeed:(CGFloat)slowMotionSpeed;
 {
-    // FIXME: Need implementation.
+    // slowMotionSpeed ranges from 0.0 (not held / released) to 1.0 (fully held/pressed).
+    // Map that to a core rate between 1.0 (100% speed) and 0.25 (25% speed).
+    CGFloat value = MIN(MAX(slowMotionSpeed, 0.0), 1.0);
+    float newrate = 1.0 - (value * 0.75);
+
+    if (self.isEmulationPaused) {
+        lastRate = newrate;
+    } else {
+        self.rate = newrate;
+    }
 }
 
 - (void)stepFrameForward
