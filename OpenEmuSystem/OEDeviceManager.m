@@ -83,6 +83,7 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 @end
 
 @interface OEDeviceManager () <IOBluetoothDeviceInquiryDelegate>
+- (BOOL)OE_hasKeyboardDeviceHandler;
 @end
 
 @interface OEDeviceHandler ()
@@ -186,13 +187,13 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
         @ kIOHIDDeviceUsagePageKey : @(kHIDPage_GenericDesktop),
         @ kIOHIDDeviceUsageKey     : @(kHIDUsage_GD_GamePad)
     }];
-    
+
     BOOL addKeyboard = YES;
     if (@available(macOS 10.15, *))
     {
         addKeyboard = self.accessType == OEDeviceAccessTypeGranted;
     }
-    
+
     if (addKeyboard)
     {
         matchingTypes = [matchingTypes arrayByAddingObject:@{
@@ -364,14 +365,22 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
 
 #pragma mark - Keyboard management
 
+- (BOOL)OE_hasKeyboardDeviceHandler
+{
+    return _keyboardHandlers.count > 0;
+}
+
 - (void)OE_addKeyboardEventMonitor;
 {
     _keyEventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown | NSEventMaskKeyUp handler:^ NSEvent * (NSEvent *anEvent) {
         /* Events with a process ID of 0 comes from the system, that is from the physical keyboard.
-         * These events are already managed by their own device handler.
+         * These events are normally managed by their own device handler. Fall back to the local
+         * AppKit event when macOS has not exposed a keyboard through IOHID, which can happen when
+         * Input Monitoring access is not reflected correctly after relaunching the application.
          * The events managed through this monitor are events coming from different applications.
          */
-        if(CGEventGetIntegerValueField([anEvent CGEvent], kCGEventSourceUnixProcessID) == 0)
+        if(CGEventGetIntegerValueField([anEvent CGEvent], kCGEventSourceUnixProcessID) == 0 &&
+           [[OEDeviceManager sharedDeviceManager] OE_hasKeyboardDeviceHandler])
             return anEvent;
 
         OEHIDEvent *event = [OEHIDEvent keyEventWithTimestamp:[anEvent timestamp] keyCode:[OEHIDEvent keyCodeForVirtualKey:[anEvent keyCode]] state:[anEvent type] == NSEventTypeKeyDown cookie:OEUndefinedCookie];
@@ -383,10 +392,13 @@ static const void * kOEBluetoothDevicePairSyncStyleKey = &kOEBluetoothDevicePair
     _modifierMaskMonitor =
     [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged handler:^ NSEvent * (NSEvent *anEvent) {
         /* Events with a process ID of 0 comes from the system, that is from the physical keyboard.
-         * These events are already managed by their own device handler.
+         * These events are normally managed by their own device handler. Fall back to the local
+         * AppKit event when macOS has not exposed a keyboard through IOHID, which can happen when
+         * Input Monitoring access is not reflected correctly after relaunching the application.
          * The events managed through this monitor are events coming from different applications.
          */
-        if(CGEventGetIntegerValueField([anEvent CGEvent], kCGEventSourceUnixProcessID) == 0)
+        if(CGEventGetIntegerValueField([anEvent CGEvent], kCGEventSourceUnixProcessID) == 0 &&
+           [[OEDeviceManager sharedDeviceManager] OE_hasKeyboardDeviceHandler])
             return anEvent;
 
         NSUInteger keyCode = [OEHIDEvent keyCodeForVirtualKey:[anEvent keyCode]];
