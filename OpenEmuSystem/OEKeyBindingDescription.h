@@ -60,6 +60,7 @@ typedef NS_ENUM(NSUInteger, OEGlobalButtonIdentifier) {
     OEGlobalButtonIdentifierRapidFireToggle,
     OEGlobalButtonIdentifierRapidFireClear,
     OEGlobalButtonIdentifierRapidFireReset,
+    OEGlobalButtonIdentifierFastForwardToggle,
 
     OEGlobalButtonIdentifierCount,
 

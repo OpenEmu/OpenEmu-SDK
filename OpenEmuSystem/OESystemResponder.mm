@@ -112,6 +112,9 @@ typedef struct OEPlayerRapidFireState {
     
     std::set<NSInteger> _rapidFireKeyBlacklist;
     std::vector<OEPlayerRapidFireState> _rapidFireState;
+    BOOL _fastForwardHeld;
+    BOOL _fastForwardToggled;
+    BOOL _fastForwardActive;
     
     BOOL _handlesEscapeKey;
     double _analogToDigitalThreshold;
@@ -495,6 +498,36 @@ if([NSThread isMainThread]) blk(); \
 else dispatch_async(dispatch_get_main_queue(), blk); \
 } while(NO)
 
+- (void)OE_setFastForwardActive:(BOOL)enable
+{
+    if (_fastForwardActive == enable)
+        return;
+    
+    _fastForwardActive = enable;
+    SEND_ACTION2(fastForwardGameplay:, enable);
+    [[self client] fastForward:enable];
+}
+
+- (void)OE_updateFastForwardState
+{
+    [self OE_setFastForwardActive:_fastForwardHeld || _fastForwardToggled];
+}
+
+- (void)OE_setFastForwardHeld:(BOOL)held
+{
+    if (_fastForwardHeld == held)
+        return;
+    
+    _fastForwardHeld = held;
+    [self OE_updateFastForwardState];
+}
+
+- (void)OE_toggleFastForward
+{
+    _fastForwardToggled = !_fastForwardToggled;
+    [self OE_updateFastForwardState];
+}
+
 - (void)pressGlobalButtonWithIdentifier:(OEGlobalButtonIdentifier)identifier player:(NSInteger)player
 {
     // FIXME: We currently only trigger these actions on release, but maybe some of these (like StepFrameBackward and StepFrameForward) should allow key repeat
@@ -509,8 +542,10 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             [[self client] stepFrameForward];
             return;
         case OEGlobalButtonIdentifierFastForward :
-            SEND_ACTION2(fastForwardGameplay:, YES);
-            [[self client] fastForward:YES];
+            [self OE_setFastForwardHeld:YES];
+            return;
+        case OEGlobalButtonIdentifierFastForwardToggle :
+            [self OE_toggleFastForward];
             return;
         case OEGlobalButtonIdentifierRewind :
             SEND_ACTION2(rewindGameplay:, YES);
@@ -578,8 +613,9 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierStepFrameForward :
             return;
         case OEGlobalButtonIdentifierFastForward :
-            SEND_ACTION2(fastForwardGameplay:, NO);
-            [[self client] fastForward:NO];
+            [self OE_setFastForwardHeld:NO];
+            return;
+        case OEGlobalButtonIdentifierFastForwardToggle :
             return;
         case OEGlobalButtonIdentifierRewind :
             SEND_ACTION2(rewindGameplay:, NO);
@@ -647,6 +683,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierNextDisplayMode :
         case OEGlobalButtonIdentifierLastDisplayMode :
         case OEGlobalButtonIdentifierScreenshot :
+        case OEGlobalButtonIdentifierFastForwardToggle :
         case OEGlobalButtonIdentifierRapidFireToggle :
         case OEGlobalButtonIdentifierRapidFireClear :
         case OEGlobalButtonIdentifierRapidFireReset :
