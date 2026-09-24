@@ -34,6 +34,7 @@
 #import "OEMultiHIDDeviceHandler.h"
 #import "OEPS3HIDDeviceHandler.h"
 #import "OEPS4HIDDeviceHandler.h"
+#import "OEPS5DualSenseHIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OEWiimoteHIDDeviceHandler.h"
 #import "OESwitchProControllerHIDDeviceHandler.h"
@@ -82,6 +83,11 @@ NS_ASSUME_NONNULL_BEGIN
         return [OEWiimoteHIDDeviceHandler class];
     else if([OEPS3HIDDeviceHandler canHandleDevice:aDevice])
         return [OEPS3HIDDeviceHandler class];
+    /* Checked before the PS4 handler, which matches on a product name prefix: a
+     * DualSense whose firmware reports a name starting "Wireless Controller" would
+     * otherwise be claimed by it, with no diagnostic anywhere to say so. */
+    else if([OEPS5DualSenseHIDDeviceHandler canHandleDevice:aDevice])
+        return [OEPS5DualSenseHIDDeviceHandler class];
     else if([OEPS4HIDDeviceHandler canHandleDevice:aDevice])
         return [OEPS4HIDDeviceHandler class];
     else if([OEXBox360HIDDeviceHander canHandleDevice:aDevice])

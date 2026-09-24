@@ -25,6 +25,7 @@
 		0572A3FF287781BA00AC32F8 /* OEGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0572A3FE287781BA00AC32F8 /* OEGeometry.swift */; };
 		05F2F90824EA029900BFAF18 /* Controller-Database.plist in Resources */ = {isa = PBXBuildFile; fileRef = 05F2F90724EA029900BFAF18 /* Controller-Database.plist */; };
 		05FC85B1295E49FE003DED0C /* NSDataCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 05FC85B0295E49FE003DED0C /* NSDataCategoryTests.m */; };
+		0DE55E5501000000000000B4 /* OEPS5DualSenseInputReportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DE55E5501000000000000B3 /* OEPS5DualSenseInputReportTests.m */; };
 		05FC85B2295E49FE003DED0C /* OpenEmuSystem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6772A8C1710CD7E00ED580A /* OpenEmuSystem.framework */; };
 		05FF41B822B08C5F00BB7283 /* OELogging.m in Sources */ = {isa = PBXBuildFile; fileRef = 05FF41B622B08C5F00BB7283 /* OELogging.m */; };
 		05FF41B922B08C5F00BB7283 /* OELogging.h in Headers */ = {isa = PBXBuildFile; fileRef = 05FF41B722B08C5F00BB7283 /* OELogging.h */; };
@@ -35,6 +36,9 @@
 		878203EB21C4A09900C1C2C9 /* OEDreamcastGDI.m in Sources */ = {isa = PBXBuildFile; fileRef = 878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */; };
 		878B34C620C4AD0100A174B0 /* OEPS4HIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 878B34C420C4AD0000A174B0 /* OEPS4HIDDeviceHandler.h */; };
 		878B34C720C4AD0100A174B0 /* OEPS4HIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 878B34C520C4AD0000A174B0 /* OEPS4HIDDeviceHandler.m */; };
+		0DE55E5501000000000000A3 /* OEPS5DualSenseHIDDeviceHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DE55E5501000000000000A1 /* OEPS5DualSenseHIDDeviceHandler.h */; };
+		0DE55E5501000000000000A4 /* OEPS5DualSenseHIDDeviceHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DE55E5501000000000000A2 /* OEPS5DualSenseHIDDeviceHandler.m */; };
+		0DE55E5501000000000000B2 /* OEPS5DualSenseInputReport.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DE55E5501000000000000B1 /* OEPS5DualSenseInputReport.h */; };
 		8F7909962A1A07C200E98FE8 /* OpenEmuSystemPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 8F7909932A1A07C200E98FE8 /* OpenEmuSystemPrivate.h */; };
 		94FDE6AE1AC35BA60003D247 /* OECloneCD.h in Headers */ = {isa = PBXBuildFile; fileRef = 94FDE6AC1AC35BA60003D247 /* OECloneCD.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		94FDE6AF1AC35BA60003D247 /* OECloneCD.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FDE6AD1AC35BA60003D247 /* OECloneCD.m */; };
@@ -161,6 +165,7 @@
 		05F2F90724EA029900BFAF18 /* Controller-Database.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Controller-Database.plist"; sourceTree = "<group>"; };
 		05FC85AE295E49FE003DED0C /* OpenEmuSystemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenEmuSystemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05FC85B0295E49FE003DED0C /* NSDataCategoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSDataCategoryTests.m; sourceTree = "<group>"; };
+		0DE55E5501000000000000B3 /* OEPS5DualSenseInputReportTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OEPS5DualSenseInputReportTests.m; sourceTree = "<group>"; };
 		05FF41B622B08C5F00BB7283 /* OELogging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OELogging.m; sourceTree = "<group>"; };
 		05FF41B722B08C5F00BB7283 /* OELogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OELogging.h; sourceTree = "<group>"; };
 		27FC95161A92F12700CF1DC6 /* OEDiffQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEDiffQueue.h; sourceTree = "<group>"; };
@@ -170,6 +175,9 @@
 		878203E921C4A09800C1C2C9 /* OEDreamcastGDI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEDreamcastGDI.m; sourceTree = "<group>"; };
 		878B34C420C4AD0000A174B0 /* OEPS4HIDDeviceHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEPS4HIDDeviceHandler.h; sourceTree = "<group>"; };
 		878B34C520C4AD0000A174B0 /* OEPS4HIDDeviceHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEPS4HIDDeviceHandler.m; sourceTree = "<group>"; };
+		0DE55E5501000000000000A1 /* OEPS5DualSenseHIDDeviceHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEPS5DualSenseHIDDeviceHandler.h; sourceTree = "<group>"; };
+		0DE55E5501000000000000A2 /* OEPS5DualSenseHIDDeviceHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEPS5DualSenseHIDDeviceHandler.m; sourceTree = "<group>"; };
+		0DE55E5501000000000000B1 /* OEPS5DualSenseInputReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEPS5DualSenseInputReport.h; sourceTree = "<group>"; };
 		8F7909932A1A07C200E98FE8 /* OpenEmuSystemPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenEmuSystemPrivate.h; sourceTree = "<group>"; };
 		8F7909942A1A07C200E98FE8 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		8F7909952A1A07C200E98FE8 /* OpenEmuSystem.private.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = OpenEmuSystem.private.modulemap; path = OpenEmuSystem/OpenEmuSystem.private.modulemap; sourceTree = SOURCE_ROOT; };
@@ -304,6 +312,7 @@
 			isa = PBXGroup;
 			children = (
 				05FC85B0295E49FE003DED0C /* NSDataCategoryTests.m */,
+				0DE55E5501000000000000B3 /* OEPS5DualSenseInputReportTests.m */,
 			);
 			path = OpenEmuSystemTests;
 			sourceTree = "<group>";
@@ -486,6 +495,9 @@
 				C6772BB31710E28900ED580A /* OEPS3HIDDeviceHandler.m */,
 				878B34C420C4AD0000A174B0 /* OEPS4HIDDeviceHandler.h */,
 				878B34C520C4AD0000A174B0 /* OEPS4HIDDeviceHandler.m */,
+				0DE55E5501000000000000A1 /* OEPS5DualSenseHIDDeviceHandler.h */,
+				0DE55E5501000000000000A2 /* OEPS5DualSenseHIDDeviceHandler.m */,
+				0DE55E5501000000000000B1 /* OEPS5DualSenseInputReport.h */,
 				C6772BB41710E28900ED580A /* OEXBox360HIDDeviceHander.h */,
 				C6772BB51710E28900ED580A /* OEXBox360HIDDeviceHander.m */,
 				0166211020D8522700D0368A /* OETouchbarHIDDeviceHandler.h */,
@@ -585,6 +597,8 @@
 				0166211220D8522700D0368A /* OETouchbarHIDDeviceHandler.h in Headers */,
 				C6772BC71710E28900ED580A /* OEPS3HIDDeviceHandler.h in Headers */,
 				878B34C620C4AD0100A174B0 /* OEPS4HIDDeviceHandler.h in Headers */,
+				0DE55E5501000000000000A3 /* OEPS5DualSenseHIDDeviceHandler.h in Headers */,
+				0DE55E5501000000000000B2 /* OEPS5DualSenseInputReport.h in Headers */,
 				C6605B881D7260E3009C7E91 /* OEDiscDescriptor.h in Headers */,
 				C6772BBE1710E28900ED580A /* OEWiimoteHIDDeviceHandler.h in Headers */,
 				C6772BC91710E28900ED580A /* OEXBox360HIDDeviceHander.h in Headers */,
@@ -756,6 +770,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				05FC85B1295E49FE003DED0C /* NSDataCategoryTests.m in Sources */,
+				0DE55E5501000000000000B4 /* OEPS5DualSenseInputReportTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -808,6 +823,7 @@
 				C6772BC51710E28900ED580A /* NSResponder+OEHIDAdditions.m in Sources */,
 				C6772BC81710E28900ED580A /* OEPS3HIDDeviceHandler.m in Sources */,
 				878B34C720C4AD0100A174B0 /* OEPS4HIDDeviceHandler.m in Sources */,
+				0DE55E5501000000000000A4 /* OEPS5DualSenseHIDDeviceHandler.m in Sources */,
 				C6772BCA1710E28900ED580A /* OEXBox360HIDDeviceHander.m in Sources */,
 				C6772BD41710E29C00ED580A /* OEControllerDescription.m in Sources */,
 				0166211320D8522700D0368A /* OETouchbarHIDDeviceHandler.m in Sources */,
