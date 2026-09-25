@@ -268,11 +268,12 @@ static Class GameCoreClass = Nil;
             os_signpost_interval_end(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "pop");
             if(state)
             {
-                [self OE_executeFrame]; // Core callout
-
                 os_signpost_interval_begin(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "deserializeState");
                 [self deserializeState:state withError:nil];
                 os_signpost_interval_end(OE_LOG_CORE_REWIND, OS_SIGNPOST_ID_EXCLUSIVE, "deserializeState");
+
+                // Render the frame we just rewound to, not the live frame we're rewinding away from.
+                [self OE_executeFrame]; // Core callout
             }
             
         }
