@@ -55,6 +55,7 @@ NSString *const OEGlobalButtonReset             = @"OEGlobalButtonReset";
 NSString *const OEGlobalButtonPause             = @"OEGlobalButtonPause";
 NSString *const OEGlobalButtonRewind            = @"OEGlobalButtonRewind";
 NSString *const OEGlobalButtonFastForward       = @"OEGlobalButtonFastForward";
+NSString *const OEGlobalButtonToggleFastForward = @"OEGlobalButtonToggleFastForward";
 NSString *const OEGlobalButtonSlowMotion        = @"OEGlobalButtonSlowMotion";
 NSString *const OEGlobalButtonStepFrameBackward = @"OEGlobalButtonStepFrameBackward";
 NSString *const OEGlobalButtonStepFrameForward  = @"OEGlobalButtonStepFrameForward";

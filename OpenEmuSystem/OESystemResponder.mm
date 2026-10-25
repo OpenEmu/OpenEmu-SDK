@@ -512,6 +512,10 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             SEND_ACTION2(fastForwardGameplay:, YES);
             [[self client] fastForward:YES];
             return;
+        case OEGlobalButtonIdentifierToggleFastForward :
+            // The events handler owns the fast-forward state and sets the core's rate.
+            SEND_ACTION(toggleFastForwardGameplay:);
+            return;
         case OEGlobalButtonIdentifierRewind :
             SEND_ACTION2(rewindGameplay:, YES);
             [[self client] rewind:YES];
@@ -580,6 +584,8 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierFastForward :
             SEND_ACTION2(fastForwardGameplay:, NO);
             [[self client] fastForward:NO];
+            return;
+        case OEGlobalButtonIdentifierToggleFastForward :
             return;
         case OEGlobalButtonIdentifierRewind :
             SEND_ACTION2(rewindGameplay:, NO);
@@ -650,6 +656,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
         case OEGlobalButtonIdentifierRapidFireToggle :
         case OEGlobalButtonIdentifierRapidFireClear :
         case OEGlobalButtonIdentifierRapidFireReset :
+        case OEGlobalButtonIdentifierToggleFastForward :
             NSAssert(NO, @"%@ only supports press/release changes", NSStringFromOEGlobalButtonIdentifier(identifier));
             return;
 

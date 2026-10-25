@@ -97,6 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)toggleEmulationPaused:(id)sender;
 - (void)takeScreenshot:(id)sender;
 - (void)fastForwardGameplay:(BOOL)enable;
+- (void)toggleFastForwardGameplay:(id)sender;
 - (void)rewindGameplay:(BOOL)enable;
 - (void)stepGameplayFrameForward:(id)sender;
 - (void)stepGameplayFrameBackward:(id)sender;
