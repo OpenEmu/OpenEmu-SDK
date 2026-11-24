@@ -34,6 +34,7 @@
 #import "OEMultiHIDDeviceHandler.h"
 #import "OEPS3HIDDeviceHandler.h"
 #import "OEPS4HIDDeviceHandler.h"
+#import "OEPS4BluetoothHIDDeviceHandler.h"
 #import "OEXBox360HIDDeviceHander.h"
 #import "OEWiimoteHIDDeviceHandler.h"
 #import "OESwitchProControllerHIDDeviceHandler.h"
@@ -82,6 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
         return [OEWiimoteHIDDeviceHandler class];
     else if([OEPS3HIDDeviceHandler canHandleDevice:aDevice])
         return [OEPS3HIDDeviceHandler class];
+    /* Must come before OEPS4HIDDeviceHandler, which claims any device named
+     * "Wireless Controller" - including a DualShock 4 over Bluetooth. */
+    else if([OEPS4BluetoothHIDDeviceHandler canHandleDevice:aDevice])
+        return [OEPS4BluetoothHIDDeviceHandler class];
     else if([OEPS4HIDDeviceHandler canHandleDevice:aDevice])
         return [OEPS4HIDDeviceHandler class];
     else if([OEXBox360HIDDeviceHander canHandleDevice:aDevice])

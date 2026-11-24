@@ -591,8 +591,8 @@ static CGEventSourceRef _keyboardEventSource;
     ret->_data.axis.axis = axis;
 
     value = OE_CLAMP(0.0, value, 1.0);
-    ret->_data.axis.direction = _OEFloatEqual(ret->_data.axis.value, 0.0) ? OEHIDEventAxisDirectionNull : OEHIDEventAxisDirectionPositive;
     ret->_data.axis.value     = value;
+    ret->_data.axis.direction = _OEFloatEqual(value, 0.0) ? OEHIDEventAxisDirectionNull : OEHIDEventAxisDirectionPositive;
 
     return ret;
 }
